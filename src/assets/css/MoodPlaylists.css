@@ -1,0 +1,207 @@
+.mood-page {
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+  background: #f7f7fb;
+}
+
+/* ================================
+   HEADER
+================================ */
+
+.mood-page-header {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.mood-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #7c3aed;
+}
+
+.mood-page-header h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 800;
+  color: #18181b;
+}
+
+.mood-page-header h1 span {
+  color: #7c3aed;
+}
+
+.mood-page-header p {
+  margin-top: 12px;
+  color: #71717a;
+  font-size: 16px;
+}
+
+/* ================================
+   MOOD GRID
+================================ */
+
+.mood-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* ================================
+   MOOD CARD
+================================ */
+
+.mood-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 30px 25px;
+
+  text-align: center;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.mood-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ================================
+   ICON
+================================ */
+
+.mood-icon {
+  width: 75px;
+  height: 75px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #ec4899
+  );
+
+  color: white;
+
+  font-size: 32px;
+
+  box-shadow:
+    0 10px 25px rgba(124, 58, 237, 0.25);
+}
+
+/* ================================
+   TEXT
+================================ */
+
+.mood-card h2 {
+  margin: 0 0 10px;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  color: #18181b;
+}
+
+.mood-card p {
+  min-height: 45px;
+
+  margin: 0 0 22px;
+
+  color: #71717a;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ================================
+   BUTTON
+================================ */
+
+.mood-btn {
+  border: none;
+  outline: none;
+
+  padding: 11px 22px;
+
+  border-radius: 30px;
+
+  background: #7c3aed;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.mood-btn:hover {
+  background: #5b21b6;
+
+  transform: scale(1.04);
+}
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 900px) {
+  .mood-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mood-page-header h1 {
+    font-size: 35px;
+  }
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 600px) {
+  .mood-page {
+    padding: 25px 15px;
+  }
+
+  .mood-page-header {
+    margin-bottom: 30px;
+  }
+
+  .mood-page-header h1 {
+    font-size: 29px;
+  }
+
+  .mood-page-header p {
+    font-size: 14px;
+  }
+
+  .mood-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .mood-card {
+    padding: 25px 20px;
+  }
+}

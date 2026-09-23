@@ -1,0 +1,1205 @@
+/* =========================================================
+   KEERTHANA ADMIN — MANAGE SONGS
+   Professional Dark Navy + Teal + Gold UI
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.admin-songs-page {
+  width: 100%;
+  min-height: 100vh;
+
+  padding:
+    34px
+    clamp(22px, 3vw, 44px)
+    70px;
+
+  color: #f4f1e8;
+
+  background:
+    radial-gradient(
+      circle at 92% 4%,
+      rgba(49, 156, 145, 0.055),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 8% 90%,
+      rgba(215, 181, 109, 0.025),
+      transparent 30%
+    );
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-songs-header {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 28px;
+  padding:
+    29px
+    31px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(16, 46, 54, 0.95) 0%,
+      rgba(10, 35, 42, 0.96) 52%,
+      rgba(7, 25, 31, 0.98) 100%
+    );
+
+  box-shadow:
+    0 18px 45px
+    rgba(0, 0, 0, 0.2),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HEADER DECORATION
+========================================================= */
+
+.admin-songs-header::before {
+  content: "";
+
+  position: absolute;
+
+  width: 250px;
+  height: 250px;
+
+  top: -170px;
+  right: 100px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.07);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.admin-songs-header::after {
+  content: "";
+
+  position: absolute;
+
+  width: 200px;
+  height: 200px;
+
+  right: -100px;
+  bottom: -130px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(49, 156, 145, 0.04);
+
+  filter: blur(30px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HEADER CONTENT
+========================================================= */
+
+.admin-songs-header > div {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.admin-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #5fc0b6;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+}
+
+
+.admin-songs-header h1 {
+  margin: 0;
+
+  color: #f7f3e9;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(35px, 4vw, 48px);
+
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+
+.admin-songs-header p {
+  margin:
+    10px
+    0
+    0;
+
+  color: #82999e;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   ADD SONG BUTTON
+========================================================= */
+
+.admin-add-button {
+  position: relative;
+
+  z-index: 2;
+
+  min-height: 47px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding:
+    0
+    19px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.16);
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eed08a,
+      #d7b56d
+    );
+
+  color: #081216;
+
+  font-family: inherit;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(0, 0, 0, 0.25),
+    0 5px 20px
+    rgba(215, 181, 109, 0.13),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.4);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+.admin-add-button svg {
+  font-size: 9px;
+}
+
+
+.admin-add-button:hover {
+  transform:
+    translateY(-2px);
+
+  filter:
+    brightness(1.05);
+
+  box-shadow:
+    0 15px 35px
+    rgba(0, 0, 0, 0.3),
+    0 7px 25px
+    rgba(215, 181, 109, 0.2);
+}
+
+
+.admin-add-button:active {
+  transform:
+    translateY(0);
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.admin-songs-error {
+  margin-bottom: 20px;
+
+  padding:
+    13px
+    16px;
+
+  border:
+    1px solid
+    rgba(220, 87, 95, 0.18);
+
+  border-radius: 11px;
+
+  background:
+    rgba(220, 87, 95, 0.065);
+
+  color: #e7979c;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   SONG SUMMARY
+========================================================= */
+
+.admin-song-summary {
+  width: fit-content;
+  min-width: 165px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 20px;
+  padding:
+    12px
+    15px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 33, 39, 0.9),
+      rgba(8, 20, 25, 0.9)
+    );
+
+  box-shadow:
+    0 8px 24px
+    rgba(0, 0, 0, 0.13);
+}
+
+
+.admin-song-summary > svg {
+  width: 35px;
+  height: 35px;
+
+  padding: 10px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.11);
+
+  border-radius: 9px;
+
+  background:
+    rgba(49, 156, 145, 0.07);
+
+  color: #55b8ae;
+}
+
+
+.admin-song-summary > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+
+.admin-song-summary strong {
+  color: #f5f1e8;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 23px;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+
+.admin-song-summary span {
+  color: #687e83;
+
+  font-size: 7.5px;
+  font-weight: 600;
+
+  letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.admin-song-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 30, 36, 0.92),
+      rgba(7, 18, 23, 0.95)
+    );
+
+  box-shadow:
+    0 16px 45px
+    rgba(0, 0, 0, 0.18);
+
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    rgba(85, 184, 174, 0.25)
+    transparent;
+}
+
+
+.admin-song-table-wrapper::-webkit-scrollbar {
+  height: 5px;
+}
+
+
+.admin-song-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.admin-song-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+
+  background:
+    rgba(85, 184, 174, 0.2);
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.admin-song-table {
+  width: 100%;
+  min-width: 940px;
+
+  border-collapse: collapse;
+
+  table-layout: auto;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.admin-song-table thead {
+  background:
+    rgba(255, 255, 255, 0.018);
+}
+
+
+.admin-song-table th {
+  height: 48px;
+
+  padding:
+    0
+    16px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  color: #627a80;
+
+  font-size: 7.5px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  text-align: left;
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+/* number column */
+
+.admin-song-table th:first-child {
+  width: 55px;
+
+  text-align: center;
+}
+
+
+/* actions */
+
+.admin-song-table th:last-child {
+  width: 135px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.admin-song-table tbody tr {
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  transition:
+    background 0.2s ease;
+}
+
+
+.admin-song-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+
+.admin-song-table tbody tr:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(49, 156, 145, 0.045),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+
+/* =========================================================
+   TABLE CELLS
+========================================================= */
+
+.admin-song-table td {
+  padding:
+    12px
+    16px;
+
+  color: #82969b;
+
+  font-size: 9.5px;
+  font-weight: 500;
+
+  vertical-align: middle;
+}
+
+
+/* INDEX */
+
+.admin-song-table td:first-child {
+  color: #52696f;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SONG NAME
+========================================================= */
+
+.admin-song-name {
+  min-width: 210px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+/* =========================================================
+   COVER
+========================================================= */
+
+.admin-song-name img {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: block;
+
+  object-fit: cover;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  border-radius: 10px;
+
+  background: #102229;
+
+  box-shadow:
+    0 6px 18px
+    rgba(0, 0, 0, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.admin-song-table tbody tr:hover
+.admin-song-name img {
+  transform:
+    scale(1.04);
+
+  border-color:
+    rgba(85, 184, 174, 0.16);
+}
+
+
+/* =========================================================
+   SONG TITLE
+========================================================= */
+
+.admin-song-name > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.admin-song-name strong {
+  max-width: 220px;
+
+  overflow: hidden;
+
+  color: #e9eeeb;
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+
+  font-size: 10.5px;
+  font-weight: 650;
+
+  line-height: 1.35;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+.admin-song-name span {
+  max-width: 220px;
+
+  overflow: hidden;
+
+  color: #5d7379;
+
+  font-size: 8px;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   CATEGORY COLUMN
+========================================================= */
+
+.admin-song-table td:nth-child(5) {
+  color: #64aaa4;
+}
+
+
+/* =========================================================
+   LANGUAGE
+========================================================= */
+
+.admin-song-table td:nth-child(6) {
+  color: #a99566;
+
+  font-size: 8px;
+  font-weight: 650;
+
+  text-transform: capitalize;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.admin-song-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+}
+
+
+/* =========================================================
+   ACTION BUTTON
+========================================================= */
+
+.admin-action {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #74888d;
+
+  font-size: 9px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.admin-action:hover {
+  transform:
+    translateY(-2px);
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.admin-action.view {
+  border-color:
+    rgba(85, 184, 174, 0.09);
+
+  background:
+    rgba(49, 156, 145, 0.045);
+
+  color: #55b8ae;
+}
+
+
+.admin-action.view:hover {
+  border-color:
+    rgba(85, 184, 174, 0.25);
+
+  background:
+    rgba(49, 156, 145, 0.12);
+
+  color: #78d0c7;
+
+  box-shadow:
+    0 6px 16px
+    rgba(49, 156, 145, 0.1);
+}
+
+
+/* =========================================================
+   EDIT BUTTON
+========================================================= */
+
+.admin-action.edit {
+  border-color:
+    rgba(215, 181, 109, 0.09);
+
+  background:
+    rgba(215, 181, 109, 0.045);
+
+  color: #c5a55f;
+}
+
+
+.admin-action.edit:hover {
+  border-color:
+    rgba(215, 181, 109, 0.25);
+
+  background:
+    rgba(215, 181, 109, 0.12);
+
+  color: #e5c77e;
+
+  box-shadow:
+    0 6px 16px
+    rgba(215, 181, 109, 0.1);
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.admin-action.delete {
+  border-color:
+    rgba(215, 82, 91, 0.08);
+
+  background:
+    rgba(215, 82, 91, 0.035);
+
+  color: #a9666b;
+}
+
+
+.admin-action.delete:hover {
+  border-color:
+    rgba(215, 82, 91, 0.24);
+
+  background:
+    rgba(215, 82, 91, 0.11);
+
+  color: #e98b91;
+
+  box-shadow:
+    0 6px 16px
+    rgba(215, 82, 91, 0.1);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.admin-empty-songs {
+  min-height: 380px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 35px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 31, 37, 0.88),
+      rgba(7, 18, 23, 0.93)
+    );
+
+  text-align: center;
+
+  box-shadow:
+    0 14px 40px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+.admin-empty-songs > svg {
+  width: 62px;
+  height: 62px;
+
+  margin-bottom: 20px;
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.12);
+
+  border-radius: 18px;
+
+  background:
+    rgba(215, 181, 109, 0.055);
+
+  color: #d7b56d;
+}
+
+
+.admin-empty-songs h2 {
+  margin: 0;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 27px;
+  font-weight: 700;
+}
+
+
+.admin-empty-songs p {
+  margin:
+    7px
+    0
+    20px;
+
+  color: #687e84;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   EMPTY ADD BUTTON
+========================================================= */
+
+.admin-empty-songs button {
+  min-height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding:
+    0
+    17px;
+
+  border: none;
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8ca84,
+      #d7b56d
+    );
+
+  color: #081216;
+
+  font-family: inherit;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 24px
+    rgba(215, 181, 109, 0.14);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.admin-empty-songs button:hover {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 12px 28px
+    rgba(215, 181, 109, 0.22);
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.admin-songs-page > p {
+  min-height: 70vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+
+  color: #71868b;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.admin-add-button:focus-visible,
+.admin-action:focus-visible,
+.admin-empty-songs button:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.65);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   <= 1200px
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .admin-songs-page {
+    padding:
+      30px
+      28px
+      65px;
+  }
+
+
+  .admin-song-table th,
+  .admin-song-table td {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+}
+
+
+/* =========================================================
+   <= 900px
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .admin-songs-page {
+    padding:
+      25px
+      20px
+      60px;
+  }
+
+
+  .admin-songs-header {
+    padding:
+      25px
+      24px;
+  }
+
+
+  .admin-songs-header h1 {
+    font-size: 38px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET / MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .admin-songs-page {
+    padding:
+      16px
+      12px
+      50px;
+  }
+
+
+  .admin-songs-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 20px;
+
+    padding:
+      23px
+      20px;
+
+    border-radius: 17px;
+  }
+
+
+  .admin-songs-header h1 {
+    font-size: 34px;
+  }
+
+
+  .admin-songs-header p {
+    font-size: 10px;
+  }
+
+
+  .admin-add-button {
+    width: 100%;
+  }
+
+
+  .admin-song-summary {
+    width: 100%;
+  }
+
+
+  .admin-song-table-wrapper {
+    border-radius: 14px;
+  }
+
+
+  .admin-song-table {
+    min-width: 850px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+  .admin-songs-page {
+    padding:
+      12px
+      9px
+      45px;
+  }
+
+
+  .admin-songs-header {
+    padding:
+      20px
+      17px;
+  }
+
+
+  .admin-songs-header h1 {
+    font-size: 31px;
+  }
+
+
+  .admin-song-summary {
+    padding:
+      11px
+      13px;
+  }
+
+
+  .admin-empty-songs {
+    min-height: 330px;
+
+    padding:
+      25px
+      15px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .admin-add-button,
+  .admin-action,
+  .admin-song-name img,
+  .admin-song-table tbody tr,
+  .admin-empty-songs button {
+    transition: none;
+  }
+
+}

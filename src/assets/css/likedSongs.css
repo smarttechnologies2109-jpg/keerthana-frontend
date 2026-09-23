@@ -1,0 +1,1177 @@
+/* =========================================================
+   KEERTHANA — LIKED SONGS
+   Premium Dark Navy + Teal + Muted Gold
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.liked-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    30px
+    clamp(24px, 4vw, 54px)
+    150px;
+
+  overflow: hidden;
+
+  color: #f3f0e8;
+
+  background:
+    radial-gradient(
+      circle at 10% 4%,
+      rgba(47, 145, 136, 0.09),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 10%,
+      rgba(215, 181, 109, 0.04),
+      transparent 25%
+    ),
+    linear-gradient(
+      180deg,
+      #0a1c22 0%,
+      #07161b 42%,
+      #061217 100%
+    );
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.liked-hero {
+  position: relative;
+
+  width: 100%;
+  min-height: 245px;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap: 30px;
+
+  box-sizing: border-box;
+
+  padding:
+    38px
+    40px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(22, 67, 71, 0.98) 0%,
+      rgba(12, 43, 50, 0.98) 48%,
+      rgba(7, 25, 31, 0.99) 100%
+    );
+
+  box-shadow:
+    0 24px 60px
+    rgba(0, 0, 0, 0.25),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HERO DECORATION
+========================================================= */
+
+.liked-hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 360px;
+  height: 360px;
+
+  top: -260px;
+  right: 7%;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.08);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.liked-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  right: -120px;
+  bottom: -190px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(51, 153, 144, 0.08);
+
+  filter: blur(45px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HERO HEART ICON
+========================================================= */
+
+.liked-hero-icon {
+  position: relative;
+  z-index: 2;
+
+  width: 150px;
+  height: 150px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.15),
+      rgba(49, 156, 145, 0.12)
+    );
+
+  color: #d7b56d;
+
+  font-size: 52px;
+
+  box-shadow:
+    0 22px 48px
+    rgba(0, 0, 0, 0.38),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.07);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+.liked-hero-icon:hover {
+  transform:
+    translateY(-4px)
+    rotate(-2deg);
+
+  box-shadow:
+    0 28px 55px
+    rgba(0, 0, 0, 0.44);
+}
+
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.liked-hero > div:last-child {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+
+  padding-bottom: 5px;
+}
+
+
+/* PLAYLIST */
+
+.liked-hero > div:last-child > p {
+  margin:
+    0
+    0
+    9px;
+
+  color: #5fc0b6;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2.3px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.liked-hero h1 {
+  margin:
+    0
+    0
+    13px;
+
+  color: #f7f3e9;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(48px, 6vw, 78px);
+
+  font-weight: 700;
+
+  line-height: 0.92;
+
+  letter-spacing: -1px;
+
+  text-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.24);
+}
+
+
+/* SONG COUNT */
+
+.liked-hero > div:last-child > span {
+  color: #81979b;
+
+  font-size: 9px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   LIST
+========================================================= */
+
+.liked-list {
+  width: 100%;
+
+  margin-top: 26px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13, 29, 35, 0.94),
+      rgba(6, 18, 23, 0.97)
+    );
+
+  box-shadow:
+    0 18px 48px
+    rgba(0, 0, 0, 0.17);
+}
+
+
+/* =========================================================
+   SONG ROW
+========================================================= */
+
+.liked-row {
+  position: relative;
+
+  min-height: 76px;
+
+  display: grid;
+
+  grid-template-columns:
+    35px
+    50px
+    minmax(200px, 1fr)
+    minmax(120px, 0.45fr)
+    38px
+    38px;
+
+  align-items: center;
+
+  gap: 13px;
+
+  box-sizing: border-box;
+
+  padding:
+    11px
+    18px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  transition:
+    background 0.2s ease;
+}
+
+
+.liked-row:last-child {
+  border-bottom: none;
+}
+
+
+.liked-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(51, 153, 144, 0.07),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+
+/* LEFT ACCENT */
+
+.liked-row::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 20%;
+
+  width: 2px;
+  height: 60%;
+
+  border-radius:
+    0
+    5px
+    5px
+    0;
+
+  background: #59b6ad;
+
+  opacity: 0;
+
+  transform: scaleY(0.4);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.liked-row:hover::before {
+  opacity: 0.8;
+
+  transform: scaleY(1);
+}
+
+
+/* =========================================================
+   SONG NUMBER
+========================================================= */
+
+.liked-number {
+  color: #526a70;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   COVER IMAGE
+========================================================= */
+
+.liked-row > img {
+  width: 48px;
+  height: 48px;
+
+  display: block;
+
+  object-fit: cover;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  border-radius: 9px;
+
+  background: #0b2026;
+
+  box-shadow:
+    0 6px 18px
+    rgba(0, 0, 0, 0.22);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+.liked-row:hover > img {
+  transform: scale(1.045);
+
+  box-shadow:
+    0 8px 22px
+    rgba(0, 0, 0, 0.30);
+}
+
+
+/* =========================================================
+   SONG INFORMATION
+========================================================= */
+
+.liked-song-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+.liked-song-info strong {
+  overflow: hidden;
+
+  color: #e6ece9;
+
+  font-size: 10.5px;
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.liked-row:hover
+.liked-song-info strong {
+  color: #ffffff;
+}
+
+
+.liked-song-info span {
+  overflow: hidden;
+
+  color: #657d82;
+
+  font-size: 8.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.liked-category {
+  width: fit-content;
+  max-width: 100%;
+
+  overflow: hidden;
+
+  padding:
+    5px
+    9px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.09);
+
+  border-radius: 20px;
+
+  background:
+    rgba(85, 184, 174, 0.035);
+
+  color: #688b8d;
+
+  font-size: 7.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+.liked-play {
+  width: 33px;
+  height: 33px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #71878c;
+
+  font-size: 8px;
+
+  cursor: pointer;
+
+  opacity: 0.7;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.liked-play svg {
+  margin-left: 1px;
+}
+
+
+.liked-row:hover
+.liked-play {
+  opacity: 1;
+
+  border-color:
+    rgba(215, 181, 109, 0.15);
+
+  background:
+    rgba(215, 181, 109, 0.07);
+
+  color: #d7b56d;
+}
+
+
+.liked-play:hover {
+  transform: scale(1.1);
+
+  border-color:
+    rgba(215, 181, 109, 0.28);
+
+  background:
+    rgba(215, 181, 109, 0.14);
+
+  color: #efd18b;
+
+  box-shadow:
+    0 6px 18px
+    rgba(215, 181, 109, 0.11);
+}
+
+
+/* =========================================================
+   REMOVE BUTTON
+========================================================= */
+
+.liked-remove {
+  width: 33px;
+  height: 33px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(219, 88, 97, 0.06);
+
+  border-radius: 9px;
+
+  background:
+    rgba(219, 88, 97, 0.025);
+
+  color: #795c60;
+
+  font-size: 8px;
+
+  cursor: pointer;
+
+  opacity: 0.55;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.liked-row:hover
+.liked-remove {
+  opacity: 1;
+
+  color: #bd7278;
+}
+
+
+.liked-remove:hover {
+  transform: scale(1.06);
+
+  border-color:
+    rgba(219, 88, 97, 0.22);
+
+  background:
+    rgba(219, 88, 97, 0.10);
+
+  color: #ec9097;
+
+  box-shadow:
+    0 6px 18px
+    rgba(219, 88, 97, 0.08);
+}
+
+
+/* =========================================================
+   LOADING STATUS
+========================================================= */
+
+.liked-status {
+  min-height: 330px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 25px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.045);
+
+  border-radius: 17px;
+
+  background:
+    rgba(255, 255, 255, 0.012);
+
+  color: #74898e;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.2px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.liked-empty {
+  min-height: 390px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  margin-top: 25px;
+
+  padding: 40px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 31, 37, 0.92),
+      rgba(7, 18, 23, 0.96)
+    );
+
+  text-align: center;
+
+  box-shadow:
+    0 15px 42px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   EMPTY HEART
+========================================================= */
+
+.liked-empty > svg {
+  width: 75px;
+  height: 75px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 21px;
+
+  padding: 21px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.12);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.08),
+      rgba(49, 156, 145, 0.045)
+    );
+
+  color: #d7b56d;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.17);
+}
+
+
+/* =========================================================
+   EMPTY TITLE
+========================================================= */
+
+.liked-empty h2 {
+  max-width: 450px;
+
+  margin: 0;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size: 30px;
+  font-weight: 700;
+
+  line-height: 1.1;
+}
+
+
+/* =========================================================
+   EMPTY DESCRIPTION
+========================================================= */
+
+.liked-empty p {
+  margin:
+    10px
+    0
+    0;
+
+  color: #687f84;
+
+  font-size: 9px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+========================================================= */
+
+.liked-play:focus-visible,
+.liked-remove:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.65);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .liked-page {
+    padding:
+      26px
+      26px
+      145px;
+  }
+
+
+  .liked-hero {
+    min-height: 220px;
+
+    padding:
+      32px;
+  }
+
+
+  .liked-hero-icon {
+    width: 130px;
+    height: 130px;
+
+    font-size: 44px;
+  }
+
+
+  .liked-row {
+    grid-template-columns:
+      30px
+      48px
+      minmax(170px, 1fr)
+      minmax(100px, 0.4fr)
+      36px
+      36px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .liked-page {
+    padding:
+      15px
+      12px
+      155px;
+  }
+
+
+  /* HERO */
+
+  .liked-hero {
+    min-height: auto;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding:
+      25px
+      20px;
+
+    border-radius: 17px;
+  }
+
+
+  .liked-hero-icon {
+    width: 92px;
+    height: 92px;
+
+    border-radius: 17px;
+
+    font-size: 32px;
+  }
+
+
+  .liked-hero > div:last-child {
+    padding-bottom: 0;
+  }
+
+
+  .liked-hero > div:last-child > p {
+    margin-bottom: 5px;
+
+    font-size: 6.5px;
+
+    letter-spacing: 1.7px;
+  }
+
+
+  .liked-hero h1 {
+    margin-bottom: 8px;
+
+    font-size:
+      clamp(34px, 10vw, 46px);
+
+    line-height: 1;
+  }
+
+
+  .liked-hero > div:last-child > span {
+    font-size: 8px;
+  }
+
+
+  /* LIST */
+
+  .liked-list {
+    margin-top: 18px;
+
+    overflow: visible;
+
+    border: none;
+
+    background: transparent;
+
+    box-shadow: none;
+  }
+
+
+  /* SONG CARD */
+
+  .liked-row {
+    min-height: 72px;
+
+    grid-template-columns:
+      20px
+      45px
+      minmax(0, 1fr)
+      31px
+      31px;
+
+    gap: 8px;
+
+    margin-bottom: 8px;
+
+    padding:
+      9px
+      10px;
+
+    border:
+      1px solid
+      rgba(255, 255, 255, 0.05);
+
+    border-radius: 12px;
+
+    background:
+      linear-gradient(
+        145deg,
+        rgba(14, 31, 37, 0.94),
+        rgba(7, 19, 24, 0.97)
+      );
+  }
+
+
+  .liked-row:last-child {
+    border-bottom:
+      1px solid
+      rgba(255, 255, 255, 0.05);
+  }
+
+
+  .liked-number {
+    font-size: 12px;
+  }
+
+
+  .liked-row > img {
+    width: 43px;
+    height: 43px;
+
+    border-radius: 8px;
+  }
+
+
+  .liked-song-info {
+    gap: 4px;
+  }
+
+
+  .liked-song-info strong {
+    font-size: 9.5px;
+  }
+
+
+  .liked-song-info span {
+    font-size: 7.5px;
+  }
+
+
+  /* HIDE CATEGORY */
+
+  .liked-category {
+    display: none;
+  }
+
+
+  .liked-play,
+  .liked-remove {
+    width: 30px;
+    height: 30px;
+
+    opacity: 1;
+  }
+
+
+  /* EMPTY */
+
+  .liked-empty {
+    min-height: 330px;
+
+    margin-top: 18px;
+
+    padding:
+      30px
+      20px;
+
+    border-radius: 15px;
+  }
+
+
+  .liked-empty > svg {
+    width: 67px;
+    height: 67px;
+
+    padding: 19px;
+  }
+
+
+  .liked-empty h2 {
+    font-size: 27px;
+  }
+
+
+  .liked-status {
+    min-height: 280px;
+
+    margin-top: 18px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 390px) {
+
+  .liked-page {
+    padding:
+      12px
+      9px
+      150px;
+  }
+
+
+  .liked-hero {
+    gap: 13px;
+
+    padding:
+      20px
+      14px;
+  }
+
+
+  .liked-hero-icon {
+    width: 75px;
+    height: 75px;
+
+    border-radius: 14px;
+
+    font-size: 26px;
+  }
+
+
+  .liked-hero h1 {
+    font-size: 32px;
+  }
+
+
+  .liked-row {
+    grid-template-columns:
+      17px
+      40px
+      minmax(0, 1fr)
+      29px
+      29px;
+
+    gap: 6px;
+
+    padding:
+      8px
+      7px;
+  }
+
+
+  .liked-row > img {
+    width: 39px;
+    height: 39px;
+  }
+
+
+  .liked-play,
+  .liked-remove {
+    width: 28px;
+    height: 28px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .liked-hero-icon,
+  .liked-row,
+  .liked-row::before,
+  .liked-row > img,
+  .liked-play,
+  .liked-remove {
+    transition: none;
+  }
+
+}

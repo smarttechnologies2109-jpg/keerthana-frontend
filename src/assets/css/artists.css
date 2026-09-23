@@ -1,0 +1,851 @@
+/* =========================================================
+   KEERTHANA — ARTISTS PAGE
+   Premium Christian Music UI
+   Dark Navy + Teal + Gold
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.artists-page {
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    34px
+    clamp(22px, 3vw, 44px)
+    130px;
+
+  color: #f4f1e8;
+
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(49, 156, 145, 0.07),
+      transparent 27%
+    ),
+    radial-gradient(
+      circle at 7% 92%,
+      rgba(215, 181, 109, 0.025),
+      transparent 30%
+    );
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.artists-header {
+  position: relative;
+
+  min-height: 190px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  box-sizing: border-box;
+
+  margin-bottom: 34px;
+
+  padding:
+    32px
+    34px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(18, 52, 61, 0.98) 0%,
+      rgba(11, 36, 44, 0.98) 52%,
+      rgba(7, 24, 30, 0.99) 100%
+    );
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.2),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HEADER GOLD CIRCLE
+========================================================= */
+
+.artists-header::before {
+  content: "";
+
+  position: absolute;
+
+  width: 310px;
+  height: 310px;
+
+  top: -210px;
+  right: 90px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.09);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HEADER TEAL GLOW
+========================================================= */
+
+.artists-header::after {
+  content: "";
+
+  position: absolute;
+
+  width: 230px;
+  height: 230px;
+
+  right: -70px;
+  bottom: -150px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(74, 176, 165, 0.06);
+
+  filter: blur(35px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   KEERTHANA LABEL
+========================================================= */
+
+.artists-header > p {
+  position: relative;
+
+  z-index: 2;
+
+  margin:
+    0
+    0
+    8px;
+
+  color: #5fc0b6;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2.4px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.artists-header h1 {
+  position: relative;
+
+  z-index: 2;
+
+  margin: 0;
+
+  color: #f8f4ea;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(43px, 5vw, 62px);
+
+  font-weight: 700;
+
+  line-height: 0.95;
+
+  letter-spacing: -0.5px;
+}
+
+
+/* =========================================================
+   SUBTITLE
+========================================================= */
+
+.artists-header > span {
+  position: relative;
+
+  z-index: 2;
+
+  display: block;
+
+  margin-top: 14px;
+
+  color: #849ba0;
+
+  font-size: 10px;
+  font-weight: 500;
+
+  line-height: 1.5;
+
+  letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.artists-error {
+  margin-bottom: 22px;
+
+  padding:
+    13px
+    16px;
+
+  border:
+    1px solid
+    rgba(220, 86, 95, 0.18);
+
+  border-radius: 11px;
+
+  background:
+    rgba(220, 86, 95, 0.065);
+
+  color: #e8989e;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   ARTISTS GRID
+========================================================= */
+
+.artists-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(170px, 1fr)
+    );
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   ARTIST CARD
+========================================================= */
+
+.artist-card {
+  position: relative;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  box-sizing: border-box;
+
+  padding:
+    22px
+    14px
+    19px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 18px;
+
+  outline: none;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 33, 39, 0.9),
+      rgba(7, 19, 24, 0.94)
+    );
+
+  color: inherit;
+
+  font-family: inherit;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.15);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   CARD DECORATION
+========================================================= */
+
+.artist-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 110px;
+  height: 110px;
+
+  top: -75px;
+  right: -65px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(85, 184, 174, 0.05);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   CARD HOVER
+========================================================= */
+
+.artist-card:hover {
+  transform:
+    translateY(-6px);
+
+  border-color:
+    rgba(85, 184, 174, 0.17);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 42, 48, 0.96),
+      rgba(8, 22, 27, 0.97)
+    );
+
+  box-shadow:
+    0 20px 42px
+    rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================================
+   ARTIST IMAGE
+========================================================= */
+
+.artist-image {
+  position: relative;
+
+  z-index: 2;
+
+  width:
+    clamp(105px, 10vw, 135px);
+
+  height:
+    clamp(105px, 10vw, 135px);
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  margin-bottom: 18px;
+
+  border:
+    2px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(85, 184, 174, 0.16),
+      rgba(8, 25, 30, 0.98) 70%
+    );
+
+  color: #5cb9b0;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.3),
+    0 0 0 5px
+    rgba(255, 255, 255, 0.018);
+
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+/* =========================================================
+   ARTIST PHOTO
+========================================================= */
+
+.artist-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.45s ease,
+    filter 0.45s ease;
+}
+
+
+/* =========================================================
+   PLACEHOLDER MICROPHONE
+========================================================= */
+
+.artist-image > svg {
+  font-size: 32px;
+
+  opacity: 0.65;
+
+  filter:
+    drop-shadow(
+      0 8px 16px
+      rgba(0, 0, 0, 0.3)
+    );
+
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
+}
+
+
+/* =========================================================
+   IMAGE HOVER
+========================================================= */
+
+.artist-card:hover
+.artist-image {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(85, 184, 174, 0.23);
+
+  box-shadow:
+    0 16px 36px
+    rgba(0, 0, 0, 0.34),
+    0 0 0 5px
+    rgba(85, 184, 174, 0.025);
+}
+
+
+.artist-card:hover
+.artist-image img {
+  transform:
+    scale(1.06);
+
+  filter:
+    brightness(1.05);
+}
+
+
+.artist-card:hover
+.artist-image > svg {
+  transform:
+    scale(1.08);
+
+  color: #73d0c6;
+}
+
+
+/* =========================================================
+   ARTIST NAME
+========================================================= */
+
+.artist-card h3 {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #edf1ed;
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+
+  font-size: 11px;
+  font-weight: 650;
+
+  line-height: 1.4;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.artist-card:hover h3 {
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   ARTIST LABEL
+========================================================= */
+
+.artist-card > p {
+  position: relative;
+
+  z-index: 2;
+
+  margin:
+    6px
+    0
+    0;
+
+  color: #6d8388;
+
+  font-size: 8px;
+  font-weight: 500;
+
+  letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   SONG COUNT
+========================================================= */
+
+.artist-card > span {
+  position: relative;
+
+  z-index: 2;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 11px;
+
+  padding:
+    5px
+    9px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.09);
+
+  border-radius: 20px;
+
+  background:
+    rgba(215, 181, 109, 0.045);
+
+  color: #bca266;
+
+  font-size: 7px;
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   CARD FOCUS
+========================================================= */
+
+.artist-card:focus-visible {
+  border-color:
+    rgba(85, 184, 174, 0.5);
+
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.55);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.artists-page:not(:has(.artists-header)) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #72878c;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1450px) {
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        auto-fill,
+        minmax(185px, 1fr)
+      );
+
+    gap: 22px;
+  }
+
+
+  .artist-card {
+    padding:
+      25px
+      16px
+      21px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .artists-page {
+    padding:
+      26px
+      20px
+      120px;
+  }
+
+
+  .artists-header {
+    min-height: 175px;
+
+    padding:
+      28px
+      26px;
+  }
+
+
+  .artists-header h1 {
+    font-size: 45px;
+  }
+
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        auto-fill,
+        minmax(155px, 1fr)
+      );
+
+    gap: 16px;
+  }
+
+
+  .artist-image {
+    width: 110px;
+    height: 110px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .artists-page {
+    padding:
+      16px
+      12px
+      150px;
+  }
+
+
+  .artists-header {
+    min-height: 155px;
+
+    margin-bottom: 24px;
+
+    padding:
+      23px
+      20px;
+
+    border-radius: 17px;
+  }
+
+
+  .artists-header h1 {
+    font-size: 38px;
+  }
+
+
+  .artists-header > span {
+    margin-top: 10px;
+
+    font-size: 9px;
+  }
+
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 11px;
+  }
+
+
+  .artist-card {
+    padding:
+      17px
+      8px
+      15px;
+
+    border-radius: 14px;
+  }
+
+
+  .artist-image {
+    width: 92px;
+    height: 92px;
+
+    margin-bottom: 14px;
+  }
+
+
+  .artist-image > svg {
+    font-size: 25px;
+  }
+
+
+  .artist-card h3 {
+    font-size: 9.5px;
+  }
+
+
+  .artist-card > p {
+    margin-top: 4px;
+
+    font-size: 7px;
+  }
+
+
+  .artist-card > span {
+    margin-top: 8px;
+
+    padding:
+      4px
+      7px;
+
+    font-size: 6.5px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .artists-page {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+
+  .artists-grid {
+    gap: 8px;
+  }
+
+
+  .artist-image {
+    width: 82px;
+    height: 82px;
+  }
+
+
+  .artist-card {
+    padding:
+      14px
+      6px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .artist-card,
+  .artist-image,
+  .artist-image img,
+  .artist-image > svg {
+    transition: none;
+  }
+
+}

@@ -1,0 +1,1474 @@
+/* =========================================================
+   KEERTHANA — PLAYLISTS
+   Premium Dark Navy + Teal + Muted Gold
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.playlists-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    30px
+    clamp(24px, 4vw, 54px)
+    150px;
+
+  overflow: hidden;
+
+  color: #f3f0e8;
+
+  background:
+    radial-gradient(
+      circle at 10% 4%,
+      rgba(47, 145, 136, 0.09),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(215, 181, 109, 0.04),
+      transparent 25%
+    ),
+    linear-gradient(
+      180deg,
+      #0a1c22 0%,
+      #07161b 42%,
+      #061217 100%
+    );
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.playlists-header {
+  position: relative;
+
+  width: 100%;
+  min-height: 170px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 28px;
+
+  padding:
+    34px
+    38px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 21px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(18, 54, 62, 0.97) 0%,
+      rgba(10, 37, 44, 0.98) 52%,
+      rgba(7, 24, 30, 0.99) 100%
+    );
+
+  box-shadow:
+    0 22px 55px
+    rgba(0, 0, 0, 0.23),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HEADER DECORATION
+========================================================= */
+
+.playlists-header::before {
+  content: "";
+
+  position: absolute;
+
+  width: 340px;
+  height: 340px;
+
+  top: -260px;
+  right: 10%;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.075);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.playlists-header::after {
+  content: "";
+
+  position: absolute;
+
+  width: 260px;
+  height: 260px;
+
+  right: -100px;
+  bottom: -175px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(51, 153, 144, 0.08);
+
+  filter: blur(45px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HEADER CONTENT
+========================================================= */
+
+.playlists-header > div {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+}
+
+
+/* YOUR MUSIC */
+
+.playlists-header > div > p {
+  margin:
+    0
+    0
+    8px;
+
+  color: #5fc0b6;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2.3px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.playlists-header h1 {
+  margin: 0;
+
+  color: #f7f3e9;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(45px, 5vw, 67px);
+
+  font-weight: 700;
+
+  line-height: 0.95;
+
+  letter-spacing: -0.8px;
+
+  text-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.24);
+}
+
+
+/* =========================================================
+   CREATE PLAYLIST BUTTON
+========================================================= */
+
+.create-playlist-button {
+  position: relative;
+  z-index: 2;
+
+  min-height: 43px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  flex-shrink: 0;
+
+  padding:
+    0
+    17px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.20);
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e5c57e,
+      #cfa95c
+    );
+
+  color: #08171c;
+
+  font-family: inherit;
+
+  font-size: 8.5px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 24px
+    rgba(0, 0, 0, 0.23),
+    0 7px 22px
+    rgba(215, 181, 109, 0.10),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.35);
+
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.create-playlist-button svg {
+  font-size: 9px;
+}
+
+
+.create-playlist-button:hover {
+  transform: translateY(-2px);
+
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.30),
+    0 9px 27px
+    rgba(215, 181, 109, 0.15);
+}
+
+
+.create-playlist-button:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================================
+   PLAYLIST GRID
+========================================================= */
+
+.playlist-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(180px, 1fr)
+    );
+
+  gap: 17px;
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   PLAYLIST CARD
+========================================================= */
+
+.playlist-card {
+  position: relative;
+
+  min-width: 0;
+
+  box-sizing: border-box;
+
+  padding: 13px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.05);
+
+  border-radius: 15px;
+
+  outline: none;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 33, 39, 0.94),
+      rgba(7, 19, 24, 0.97)
+    );
+
+  color: inherit;
+
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 11px 30px
+    rgba(0, 0, 0, 0.14);
+
+  transition:
+    transform 0.24s ease,
+    background 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+
+.playlist-card:hover {
+  transform: translateY(-5px);
+
+  border-color:
+    rgba(85, 184, 174, 0.14);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 44, 50, 0.97),
+      rgba(8, 24, 29, 0.99)
+    );
+
+  box-shadow:
+    0 20px 42px
+    rgba(0, 0, 0, 0.24);
+}
+
+
+/* TOP ACCENT */
+
+.playlist-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 20%;
+
+  width: 60%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(215, 181, 109, 0.45),
+      transparent
+    );
+
+  opacity: 0;
+
+  transition:
+    opacity 0.25s ease;
+}
+
+
+.playlist-card:hover::before {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   PLAYLIST COVER
+========================================================= */
+
+.playlist-cover-placeholder {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 14px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 12px;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      rgba(215, 181, 109, 0.10),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(32, 83, 84, 0.52),
+      rgba(12, 39, 45, 0.95)
+    );
+
+  color: #d7b56d;
+
+  font-size: 39px;
+
+  box-shadow:
+    0 9px 24px
+    rgba(0, 0, 0, 0.22);
+
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease;
+}
+
+
+.playlist-card:hover
+.playlist-cover-placeholder {
+  transform: scale(1.015);
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      rgba(215, 181, 109, 0.15),
+      transparent 36%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(36, 94, 93, 0.58),
+      rgba(12, 42, 48, 0.98)
+    );
+}
+
+
+/* =========================================================
+   MUSIC ICON DECORATION
+========================================================= */
+
+.playlist-cover-placeholder::before {
+  content: "";
+
+  position: absolute;
+
+  width: 95px;
+  height: 95px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  border-radius: 50%;
+}
+
+
+.playlist-cover-placeholder::after {
+  content: "";
+
+  position: absolute;
+
+  width: 135px;
+  height: 135px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.035);
+
+  border-radius: 50%;
+}
+
+
+.playlist-cover-placeholder svg {
+  position: relative;
+  z-index: 2;
+
+  filter:
+    drop-shadow(
+      0 5px 14px
+      rgba(0, 0, 0, 0.30)
+    );
+
+  transition:
+    transform 0.25s ease;
+}
+
+
+.playlist-card:hover
+.playlist-cover-placeholder svg {
+  transform:
+    scale(1.08)
+    rotate(-3deg);
+}
+
+
+/* =========================================================
+   PLAYLIST TITLE
+========================================================= */
+
+.playlist-card h3 {
+  overflow: hidden;
+
+  margin:
+    0
+    0
+    6px;
+
+  color: #e8ece9;
+
+  font-size: 10.5px;
+  font-weight: 700;
+
+  line-height: 1.35;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.playlist-card:hover h3 {
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   SONG COUNT
+========================================================= */
+
+.playlist-card > p {
+  margin: 0;
+
+  color: #657d82;
+
+  font-size: 8px;
+  font-weight: 550;
+}
+
+
+/* =========================================================
+   LOADING MESSAGE
+========================================================= */
+
+.playlist-message {
+  min-height: 330px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.045);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 31, 37, 0.88),
+      rgba(7, 19, 24, 0.94)
+    );
+
+  color: #748a8f;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  box-shadow:
+    0 14px 38px
+    rgba(0, 0, 0, 0.13);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.playlist-empty {
+  min-height: 390px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding:
+    40px
+    25px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 31, 37, 0.92),
+      rgba(7, 18, 23, 0.96)
+    );
+
+  text-align: center;
+
+  box-shadow:
+    0 15px 42px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   EMPTY ICON
+========================================================= */
+
+.playlist-empty > svg {
+  width: 75px;
+  height: 75px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 21px;
+
+  padding: 21px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.12);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.08),
+      rgba(49, 156, 145, 0.045)
+    );
+
+  color: #d7b56d;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.17);
+}
+
+
+/* =========================================================
+   EMPTY TITLE
+========================================================= */
+
+.playlist-empty h2 {
+  margin: 0;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size: 30px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   EMPTY DESCRIPTION
+========================================================= */
+
+.playlist-empty p {
+  margin:
+    9px
+    0
+    20px;
+
+  color: #687f84;
+
+  font-size: 9px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   EMPTY CREATE BUTTON
+========================================================= */
+
+.playlist-empty button {
+  min-height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding:
+    0
+    15px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.17);
+
+  border-radius: 9px;
+
+  background:
+    rgba(215, 181, 109, 0.09);
+
+  color: #d7b56d;
+
+  font-family: inherit;
+
+  font-size: 8.5px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.playlist-empty button:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(215, 181, 109, 0.30);
+
+  background:
+    rgba(215, 181, 109, 0.15);
+
+  color: #efd18b;
+}
+
+
+/* =========================================================
+   MODAL BACKDROP
+========================================================= */
+
+.playlist-modal-backdrop {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 20px;
+
+  background:
+    rgba(2, 10, 14, 0.78);
+
+  backdrop-filter:
+    blur(13px);
+
+  -webkit-backdrop-filter:
+    blur(13px);
+
+  animation:
+    playlistBackdropIn
+    0.18s ease-out;
+}
+
+
+@keyframes playlistBackdropIn {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+
+}
+
+
+/* =========================================================
+   CREATE PLAYLIST MODAL
+========================================================= */
+
+.playlist-modal {
+  position: relative;
+
+  width: min(100%, 440px);
+
+  box-sizing: border-box;
+
+  padding:
+    29px
+    30px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.075);
+
+  border-radius: 19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 38, 44, 0.99),
+      rgba(7, 23, 29, 0.995)
+    );
+
+  box-shadow:
+    0 35px 90px
+    rgba(0, 0, 0, 0.55),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.04);
+
+  animation:
+    playlistModalIn
+    0.22s ease-out;
+}
+
+
+@keyframes playlistModalIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(10px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* MODAL DECORATION */
+
+.playlist-modal::before {
+  content: "";
+
+  position: absolute;
+
+  width: 190px;
+  height: 190px;
+
+  top: -135px;
+  right: -75px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(51, 153, 144, 0.08);
+
+  filter: blur(30px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   MODAL TITLE
+========================================================= */
+
+.playlist-modal h2 {
+  position: relative;
+  z-index: 2;
+
+  margin:
+    0
+    0
+    25px;
+
+  color: #f3efe6;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size: 30px;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.playlist-modal form {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.playlist-modal label {
+  margin-bottom: 7px;
+
+  color: #9ba9a9;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+}
+
+
+.playlist-modal label:not(:first-child) {
+  margin-top: 17px;
+}
+
+
+/* =========================================================
+   INPUT + TEXTAREA
+========================================================= */
+
+.playlist-modal input,
+.playlist-modal textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #e9eeeb;
+
+  font-family: inherit;
+
+  font-size: 10px;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.playlist-modal input {
+  height: 44px;
+
+  padding:
+    0
+    13px;
+}
+
+
+.playlist-modal textarea {
+  min-height: 105px;
+
+  padding:
+    12px
+    13px;
+
+  line-height: 1.55;
+
+  resize: vertical;
+}
+
+
+/* PLACEHOLDER */
+
+.playlist-modal input::placeholder,
+.playlist-modal textarea::placeholder {
+  color: #4e666c;
+
+  opacity: 1;
+}
+
+
+/* FOCUS */
+
+.playlist-modal input:focus,
+.playlist-modal textarea:focus {
+  border-color:
+    rgba(85, 184, 174, 0.34);
+
+  background:
+    rgba(85, 184, 174, 0.035);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(85, 184, 174, 0.055);
+}
+
+
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
+
+.playlist-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  margin-top: 25px;
+}
+
+
+/* =========================================================
+   MODAL BUTTON COMMON
+========================================================= */
+
+.playlist-modal-actions button {
+  min-height: 39px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    0
+    16px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 8.5px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    filter 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* =========================================================
+   CANCEL
+========================================================= */
+
+.cancel-button {
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #819397;
+}
+
+
+.cancel-button:hover {
+  border-color:
+    rgba(255, 255, 255, 0.12);
+
+  background:
+    rgba(255, 255, 255, 0.055);
+
+  color: #d6dddd;
+}
+
+
+/* =========================================================
+   SAVE / CREATE
+========================================================= */
+
+.save-button {
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.18);
+
+  background:
+    linear-gradient(
+      135deg,
+      #e5c57e,
+      #cfa95c
+    );
+
+  color: #08171c;
+
+  box-shadow:
+    0 7px 20px
+    rgba(215, 181, 109, 0.10);
+}
+
+
+.save-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 10px 25px
+    rgba(215, 181, 109, 0.16);
+}
+
+
+.save-button:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+
+  filter: grayscale(0.35);
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+========================================================= */
+
+.create-playlist-button:focus-visible,
+.playlist-card:focus-visible,
+.playlist-empty button:focus-visible,
+.playlist-modal-actions button:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.65);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .playlists-page {
+    padding:
+      26px
+      26px
+      145px;
+  }
+
+
+  .playlists-header {
+    padding:
+      30px;
+  }
+
+
+  .playlist-grid {
+    grid-template-columns:
+      repeat(
+        auto-fill,
+        minmax(160px, 1fr)
+      );
+
+    gap: 14px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .playlists-page {
+    padding:
+      15px
+      12px
+      155px;
+  }
+
+
+  /* HEADER */
+
+  .playlists-header {
+    min-height: auto;
+
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 21px;
+
+    padding:
+      25px
+      20px;
+
+    border-radius: 17px;
+  }
+
+
+  .playlists-header > div > p {
+    margin-bottom: 5px;
+
+    font-size: 7px;
+  }
+
+
+  .playlists-header h1 {
+    font-size:
+      clamp(36px, 11vw, 48px);
+  }
+
+
+  .create-playlist-button {
+    width: 100%;
+
+    min-height: 42px;
+  }
+
+
+  /* GRID */
+
+  .playlist-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 10px;
+  }
+
+
+  .playlist-card {
+    padding: 9px;
+
+    border-radius: 12px;
+  }
+
+
+  .playlist-cover-placeholder {
+    margin-bottom: 10px;
+
+    border-radius: 9px;
+
+    font-size: 30px;
+  }
+
+
+  .playlist-card h3 {
+    margin-bottom: 4px;
+
+    font-size: 9.5px;
+  }
+
+
+  .playlist-card > p {
+    font-size: 7.5px;
+  }
+
+
+  /* EMPTY */
+
+  .playlist-empty {
+    min-height: 330px;
+
+    padding:
+      30px
+      20px;
+
+    border-radius: 15px;
+  }
+
+
+  .playlist-empty h2 {
+    font-size: 27px;
+  }
+
+
+  .playlist-message {
+    min-height: 280px;
+  }
+
+
+  /* MODAL */
+
+  .playlist-modal-backdrop {
+    align-items: flex-end;
+
+    padding:
+      12px;
+  }
+
+
+  .playlist-modal {
+    width: 100%;
+
+    padding:
+      25px
+      20px
+      22px;
+
+    border-radius:
+      18px
+      18px
+      14px
+      14px;
+  }
+
+
+  .playlist-modal h2 {
+    margin-bottom: 22px;
+
+    font-size: 28px;
+  }
+
+
+  .playlist-modal-actions {
+    display: grid;
+
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+
+  .playlist-modal-actions button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 390px) {
+
+  .playlists-page {
+    padding:
+      12px
+      9px
+      150px;
+  }
+
+
+  .playlists-header {
+    padding:
+      21px
+      16px;
+  }
+
+
+  .playlists-header h1 {
+    font-size: 35px;
+  }
+
+
+  .playlist-grid {
+    gap: 8px;
+  }
+
+
+  .playlist-card {
+    padding: 8px;
+  }
+
+
+  .playlist-cover-placeholder {
+    font-size: 27px;
+  }
+
+
+  .playlist-modal {
+    padding:
+      23px
+      17px
+      19px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .create-playlist-button,
+  .playlist-card,
+  .playlist-card::before,
+  .playlist-cover-placeholder,
+  .playlist-cover-placeholder svg,
+  .playlist-empty button,
+  .playlist-modal,
+  .playlist-modal-backdrop,
+  .playlist-modal-actions button {
+    transition: none;
+    animation: none;
+  }
+
+}

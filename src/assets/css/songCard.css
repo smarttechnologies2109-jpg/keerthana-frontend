@@ -1,0 +1,1022 @@
+/* =========================================================
+   KEERTHANA — PREMIUM SONG CARD
+
+   Deep Navy + Gold + Teal
+========================================================= */
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.song-card-component {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 9px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.045);
+
+  border-radius: 16px;
+
+  outline: none;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(16, 30, 35, 0.8),
+      rgba(8, 19, 24, 0.78)
+    );
+
+  box-shadow:
+    0 7px 24px
+    rgba(0, 0, 0, 0.14);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   SUBTLE CARD GLOW
+========================================================= */
+
+.song-card-component::before {
+  content: "";
+
+  position: absolute;
+
+  top: -70px;
+  right: -70px;
+
+  width: 130px;
+  height: 130px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(49, 156, 145, 0.055);
+
+  filter: blur(35px);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease;
+}
+
+
+/* =========================================================
+   CARD HOVER
+========================================================= */
+
+.song-card-component:hover {
+  transform:
+    translateY(-5px);
+
+  border-color:
+    rgba(85, 184, 174, 0.12);
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(20, 38, 43, 0.95),
+      rgba(10, 23, 28, 0.94)
+    );
+
+  box-shadow:
+    0 17px 40px
+    rgba(0, 0, 0, 0.28);
+}
+
+
+.song-card-component:hover::before {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   CURRENT SONG CARD
+========================================================= */
+
+.song-card-component.playing {
+  border-color:
+    rgba(215, 181, 109, 0.18);
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(215, 181, 109, 0.07),
+      rgba(49, 156, 145, 0.045),
+      rgba(8, 19, 24, 0.9)
+    );
+
+  box-shadow:
+    0 12px 35px
+    rgba(0, 0, 0, 0.25),
+    inset
+    0 1px 0
+    rgba(215, 181, 109, 0.05);
+}
+
+
+/* =========================================================
+   COVER
+========================================================= */
+
+.song-card-cover {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #102229,
+      #09171c
+    );
+
+  box-shadow:
+    0 7px 20px
+    rgba(0, 0, 0, 0.24);
+}
+
+
+/* =========================================================
+   IMAGE
+========================================================= */
+
+.song-card-cover img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.45s
+    cubic-bezier(
+      0.2,
+      0.7,
+      0.2,
+      1
+    ),
+    filter 0.3s ease;
+}
+
+
+.song-card-component:hover
+.song-card-cover img {
+  transform:
+    scale(1.055);
+
+  filter:
+    brightness(0.82);
+}
+
+
+/* =========================================================
+   IMAGE OVERLAY
+========================================================= */
+
+.song-card-cover::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 42%,
+      rgba(4, 11, 14, 0.1) 65%,
+      rgba(4, 11, 14, 0.58) 100%
+    );
+
+  pointer-events: none;
+
+  opacity: 0.45;
+
+  transition:
+    opacity 0.25s ease;
+}
+
+
+.song-card-component:hover
+.song-card-cover::after {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   PLAY OVERLAY
+========================================================= */
+
+.song-card-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 3;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+
+  padding: 11px;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+.song-card-play {
+  width: 43px;
+  height: 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.16);
+
+  border-radius: 50%;
+
+  outline: none;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f0d493 0%,
+      #d7b56d 55%,
+      #c49b4d 100%
+    );
+
+  color: #081116;
+
+  font-size: 13px;
+
+  box-shadow:
+    0 9px 28px
+    rgba(0, 0, 0, 0.4),
+    0 5px 20px
+    rgba(215, 181, 109, 0.18),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.35);
+
+  opacity: 0;
+
+  pointer-events: auto;
+
+  transform:
+    translateY(9px)
+    scale(0.9);
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* FaPlay optical correction */
+
+.song-card-play svg {
+  width: 12px;
+  height: 12px;
+}
+
+
+.song-card-play svg:not(:only-child) {
+  margin-left: 0;
+}
+
+
+/* =========================================================
+   SHOW PLAY
+========================================================= */
+
+.song-card-component:hover
+.song-card-play,
+.song-card-component:focus-within
+.song-card-play,
+.song-card-component.playing
+.song-card-play {
+  opacity: 1;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+/* =========================================================
+   PLAY HOVER
+========================================================= */
+
+.song-card-play:hover {
+  background:
+    linear-gradient(
+      145deg,
+      #f8e0a9,
+      #e1c17a
+    );
+
+  transform:
+    scale(1.08) !important;
+
+  box-shadow:
+    0 12px 32px
+    rgba(0, 0, 0, 0.45),
+    0 7px 25px
+    rgba(215, 181, 109, 0.28);
+}
+
+
+.song-card-play:active {
+  transform:
+    scale(0.95) !important;
+}
+
+
+/* =========================================================
+   PLAYING INDICATOR
+========================================================= */
+
+.song-playing-indicator {
+  position: absolute;
+
+  left: 10px;
+  bottom: 10px;
+
+  z-index: 4;
+
+  height: 24px;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap: 2px;
+
+  padding:
+    5px
+    7px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-radius: 8px;
+
+  background:
+    rgba(5, 14, 18, 0.76);
+
+  box-shadow:
+    0 5px 15px
+    rgba(0, 0, 0, 0.25);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* =========================================================
+   EQUALIZER BARS
+========================================================= */
+
+.song-playing-indicator span {
+  width: 2px;
+
+  border-radius: 3px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #e9cc8a,
+      #55b8ae
+    );
+
+  transform-origin: bottom;
+
+  animation:
+    songEqualizer
+    0.75s
+    ease-in-out
+    infinite alternate;
+}
+
+
+.song-playing-indicator
+span:nth-child(1) {
+  height: 7px;
+
+  animation-delay: 0s;
+}
+
+
+.song-playing-indicator
+span:nth-child(2) {
+  height: 13px;
+
+  animation-delay: 0.15s;
+}
+
+
+.song-playing-indicator
+span:nth-child(3) {
+  height: 9px;
+
+  animation-delay: 0.3s;
+}
+
+
+.song-playing-indicator
+span:nth-child(4) {
+  height: 15px;
+
+  animation-delay: 0.45s;
+}
+
+
+@keyframes songEqualizer {
+
+  0% {
+    transform:
+      scaleY(0.35);
+  }
+
+  100% {
+    transform:
+      scaleY(1);
+  }
+
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.song-card-content {
+  min-width: 0;
+
+  padding:
+    11px
+    3px
+    5px;
+}
+
+
+/* =========================================================
+   SONG TITLE
+========================================================= */
+
+.song-card-content h3 {
+  width: 100%;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #f4f1e8;
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  line-height: 1.45;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.song-card-component:hover
+.song-card-content h3 {
+  color: #ffffff;
+}
+
+
+.song-card-component.playing
+.song-card-content h3 {
+  color: #e9cc8a;
+}
+
+
+/* =========================================================
+   ENGLISH TITLE
+========================================================= */
+
+.song-card-english {
+  width: 100%;
+
+  margin:
+    3px
+    0
+    0;
+
+  overflow: hidden;
+
+  color: #6d8086;
+
+  font-size: 8.5px;
+  font-weight: 500;
+
+  line-height: 1.4;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ARTIST
+========================================================= */
+
+.song-card-artist {
+  width: 100%;
+
+  margin:
+    6px
+    0
+    0;
+
+  overflow: hidden;
+
+  color: #87989d;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  line-height: 1.35;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.song-card-component:hover
+.song-card-artist {
+  color: #a8b5b8;
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.song-card-category {
+  width: fit-content;
+  max-width: 100%;
+
+  display: block;
+
+  margin-top: 9px;
+
+  padding:
+    4px
+    8px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.12);
+
+  border-radius: 999px;
+
+  background:
+    rgba(49, 156, 145, 0.055);
+
+  color: #55b8ae;
+
+  font-size: 7px;
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing: 0.35px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   PLAYING CATEGORY
+========================================================= */
+
+.song-card-component.playing
+.song-card-category {
+  border-color:
+    rgba(215, 181, 109, 0.14);
+
+  background:
+    rgba(215, 181, 109, 0.055);
+
+  color: #d7b56d;
+}
+
+
+/* =========================================================
+   RESUME AREA
+========================================================= */
+
+.song-card-resume {
+  margin-top: 11px;
+}
+
+
+/* =========================================================
+   RESUME PROGRESS
+========================================================= */
+
+.song-card-progress {
+  position: relative;
+
+  width: 100%;
+  height: 3px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background:
+    rgba(255, 255, 255, 0.09);
+}
+
+
+/* =========================================================
+   PROGRESS FILL
+========================================================= */
+
+.song-card-progress-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #319c91 0%,
+      #55b8ae 55%,
+      #d7b56d 100%
+    );
+
+  box-shadow:
+    0 0 8px
+    rgba(85, 184, 174, 0.2);
+
+  transition:
+    width 0.3s ease;
+}
+
+
+/* =========================================================
+   LISTENED TEXT
+========================================================= */
+
+.song-card-resume > span {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #60757b;
+
+  font-size: 7px;
+  font-weight: 550;
+
+  text-align: right;
+}
+
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.song-card-component:focus-visible {
+  border-color:
+    rgba(85, 184, 174, 0.45);
+
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.25);
+
+  outline-offset: 2px;
+}
+
+
+.song-card-play:focus-visible {
+  outline:
+    2px solid
+    #ffffff;
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1600px) {
+
+  .song-card-component {
+    padding: 10px;
+
+    border-radius: 17px;
+  }
+
+
+  .song-card-cover {
+    border-radius: 13px;
+  }
+
+
+  .song-card-content h3 {
+    font-size: 12.5px;
+  }
+
+}
+
+
+/* =========================================================
+   LAPTOP
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .song-card-component {
+    padding: 8px;
+
+    border-radius: 14px;
+  }
+
+
+  .song-card-cover {
+    border-radius: 11px;
+  }
+
+
+  .song-card-play {
+    width: 40px;
+    height: 40px;
+  }
+
+
+  .song-card-content {
+    padding:
+      10px
+      2px
+      4px;
+  }
+
+
+  .song-card-content h3 {
+    font-size: 11px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .song-card-play {
+    width: 38px;
+    height: 38px;
+
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+
+  .song-card-content h3 {
+    font-size: 10.5px;
+  }
+
+
+  .song-card-category {
+    font-size: 6.5px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .song-card-component {
+    padding: 7px;
+
+    border-radius: 13px;
+
+    box-shadow:
+      0 6px 18px
+      rgba(0, 0, 0, 0.17);
+  }
+
+
+  .song-card-component:hover {
+    transform: none;
+  }
+
+
+  .song-card-cover {
+    border-radius: 10px;
+  }
+
+
+  .song-card-component:hover
+  .song-card-cover img {
+    transform: none;
+
+    filter: none;
+  }
+
+
+  .song-card-play {
+    width: 37px;
+    height: 37px;
+
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+
+  .song-card-overlay {
+    padding: 8px;
+  }
+
+
+  .song-playing-indicator {
+    left: 7px;
+    bottom: 7px;
+  }
+
+
+  .song-card-content {
+    padding:
+      9px
+      2px
+      3px;
+  }
+
+
+  .song-card-content h3 {
+    font-size: 10px;
+  }
+
+
+  .song-card-english {
+    font-size: 7.5px;
+  }
+
+
+  .song-card-artist {
+    margin-top: 5px;
+
+    font-size: 8px;
+  }
+
+
+  .song-card-category {
+    margin-top: 7px;
+
+    padding:
+      4px
+      7px;
+
+    font-size: 6px;
+  }
+
+
+  .song-card-resume {
+    margin-top: 8px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+  .song-card-component {
+    padding: 6px;
+  }
+
+
+  .song-card-play {
+    width: 34px;
+    height: 34px;
+
+    font-size: 11px;
+  }
+
+
+  .song-card-content h3 {
+    font-size: 9.5px;
+  }
+
+
+  .song-card-artist {
+    font-size: 7.5px;
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICES
+
+   Always expose play button because there is no hover.
+========================================================= */
+
+@media (hover: none) {
+
+  .song-card-play {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .song-card-component,
+  .song-card-cover img,
+  .song-card-play {
+    transition: none;
+  }
+
+
+  .song-playing-indicator span {
+    animation: none;
+  }
+
+}

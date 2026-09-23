@@ -1,0 +1,1357 @@
+/* =========================================================
+   KEERTHANA — ARTIST DETAILS
+   Premium Dark Navy + Teal + Muted Gold
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.artist-details-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    30px
+    clamp(24px, 4vw, 54px)
+    150px;
+
+  overflow: hidden;
+
+  color: #f3f0e8;
+
+  background:
+    radial-gradient(
+      circle at 12% 5%,
+      rgba(47, 145, 136, 0.09),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 8%,
+      rgba(215, 181, 109, 0.04),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      #0a1c22 0%,
+      #07161b 42%,
+      #061217 100%
+    );
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.artist-back {
+  position: relative;
+  z-index: 5;
+
+  min-height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-bottom: 25px;
+
+  padding:
+    0
+    13px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #82979b;
+
+  font-family: inherit;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.artist-back svg {
+  font-size: 9px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.artist-back:hover {
+  transform: translateY(-1px);
+
+  color: #e7ece9;
+
+  border-color:
+    rgba(85, 184, 174, 0.17);
+
+  background:
+    rgba(85, 184, 174, 0.055);
+}
+
+
+.artist-back:hover svg {
+  transform: translateX(-2px);
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.artist-hero {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap:
+    clamp(28px, 4vw, 46px);
+
+  box-sizing: border-box;
+
+  padding:
+    clamp(28px, 4vw, 48px);
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(19, 55, 63, 0.96) 0%,
+      rgba(10, 37, 44, 0.97) 48%,
+      rgba(7, 25, 31, 0.99) 100%
+    );
+
+  box-shadow:
+    0 24px 60px
+    rgba(0, 0, 0, 0.24),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HERO DECORATION
+========================================================= */
+
+.artist-hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  top: -300px;
+  right: 7%;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.075);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.artist-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  right: -140px;
+  bottom: -180px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(55, 159, 149, 0.07);
+
+  filter: blur(45px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   ARTIST IMAGE
+========================================================= */
+
+.artist-hero-image {
+  position: relative;
+  z-index: 2;
+
+  width:
+    clamp(190px, 21vw, 270px);
+
+  aspect-ratio: 1 / 1;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09);
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.10),
+      rgba(51, 153, 144, 0.07)
+    );
+
+  color: #d7b56d;
+
+  font-size: 60px;
+
+  box-shadow:
+    0 22px 48px
+    rgba(0, 0, 0, 0.42),
+    0 0 0 7px
+    rgba(255, 255, 255, 0.018);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+.artist-hero-image:hover {
+  transform:
+    translateY(-4px)
+    scale(1.015);
+
+  box-shadow:
+    0 30px 60px
+    rgba(0, 0, 0, 0.48),
+    0 0 0 7px
+    rgba(85, 184, 174, 0.025);
+}
+
+
+.artist-hero-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   HERO INFORMATION
+========================================================= */
+
+.artist-hero > div:last-child {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+
+  padding-bottom: 10px;
+}
+
+
+/* ARTIST LABEL */
+
+.artist-hero > div:last-child > span {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #62bbb2;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2.3px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   ARTIST NAME
+========================================================= */
+
+.artist-hero h1 {
+  max-width: 850px;
+
+  margin:
+    0
+    0
+    15px;
+
+  color: #f6f2e8;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(45px, 6vw, 80px);
+
+  font-weight: 700;
+
+  line-height: 0.95;
+
+  letter-spacing: -1px;
+
+  overflow-wrap: break-word;
+
+  text-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================================
+   ARTIST META
+========================================================= */
+
+.artist-hero p {
+  margin: 0;
+
+  color: #81979b;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.1px;
+}
+
+
+/* =========================================================
+   ARTIST ACTIONS
+========================================================= */
+
+.artist-actions {
+  display: flex;
+  align-items: center;
+
+  min-height: 90px;
+
+  padding:
+    0
+    8px;
+}
+
+
+/* =========================================================
+   MAIN PLAY BUTTON
+========================================================= */
+
+.artist-actions > button {
+  width: 57px;
+  height: 57px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.14);
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #efd18b,
+      #d7b56d
+    );
+
+  color: #07151a;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(0, 0, 0, 0.30),
+    0 8px 25px
+    rgba(215, 181, 109, 0.15),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.40);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+
+.artist-actions > button svg {
+  margin-left: 3px;
+}
+
+
+.artist-actions > button:hover:not(:disabled) {
+  transform:
+    translateY(-3px)
+    scale(1.055);
+
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 15px 35px
+    rgba(0, 0, 0, 0.35),
+    0 10px 30px
+    rgba(215, 181, 109, 0.22);
+}
+
+
+.artist-actions > button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+
+.artist-actions > button:disabled {
+  opacity: 0.30;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   SECTION HEADINGS
+========================================================= */
+
+.artist-details-page section:not(.artist-hero) {
+  position: relative;
+
+  margin-top: 10px;
+}
+
+
+.artist-details-page section:not(.artist-hero) > h2 {
+  position: relative;
+
+  margin:
+    0
+    0
+    16px;
+
+  padding-left: 14px;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  line-height: 1.1;
+}
+
+
+.artist-details-page section:not(.artist-hero) > h2::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 50%;
+
+  width: 3px;
+  height: 21px;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #5db9b0,
+      #d7b56d
+    );
+
+  transform:
+    translateY(-50%);
+}
+
+
+/* =========================================================
+   SONG LIST
+========================================================= */
+
+.artist-song-list {
+  width: 100%;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13, 29, 35, 0.92),
+      rgba(6, 18, 23, 0.95)
+    );
+
+  box-shadow:
+    0 16px 45px
+    rgba(0, 0, 0, 0.16);
+}
+
+
+/* =========================================================
+   SONG ROW
+========================================================= */
+
+.artist-song-row {
+  min-height: 72px;
+
+  display: grid;
+
+  grid-template-columns:
+    32px
+    48px
+    minmax(0, 1fr)
+    40px;
+
+  align-items: center;
+
+  gap: 13px;
+
+  box-sizing: border-box;
+
+  padding:
+    10px
+    18px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  transition:
+    background 0.2s ease;
+}
+
+
+.artist-song-row:last-child {
+  border-bottom: none;
+}
+
+
+.artist-song-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(51, 153, 144, 0.065),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+
+/* =========================================================
+   SONG NUMBER
+========================================================= */
+
+.artist-song-row > span:first-child {
+  color: #526a70;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SONG COVER
+========================================================= */
+
+.artist-song-row > img {
+  width: 45px;
+  height: 45px;
+
+  display: block;
+
+  object-fit: cover;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 8px;
+
+  background: #0b2026;
+
+  box-shadow:
+    0 5px 15px
+    rgba(0, 0, 0, 0.20);
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.artist-song-row:hover > img {
+  transform: scale(1.04);
+}
+
+
+/* =========================================================
+   SONG INFORMATION
+========================================================= */
+
+.artist-song-row > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+.artist-song-row > div strong {
+  overflow: hidden;
+
+  color: #e5ebe8;
+
+  font-size: 10.5px;
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.artist-song-row:hover
+> div strong {
+  color: #ffffff;
+}
+
+
+.artist-song-row > div span {
+  overflow: hidden;
+
+  color: #647c82;
+
+  font-size: 8.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   SONG PLAY BUTTON
+========================================================= */
+
+.artist-song-row > button {
+  width: 32px;
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #71868b;
+
+  font-size: 8px;
+
+  cursor: pointer;
+
+  opacity: 0.65;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.artist-song-row > button svg {
+  margin-left: 1px;
+}
+
+
+.artist-song-row:hover > button {
+  opacity: 1;
+
+  border-color:
+    rgba(215, 181, 109, 0.16);
+
+  background:
+    rgba(215, 181, 109, 0.07);
+
+  color: #d7b56d;
+}
+
+
+.artist-song-row > button:hover {
+  transform: scale(1.08);
+
+  border-color:
+    rgba(215, 181, 109, 0.26);
+
+  background:
+    rgba(215, 181, 109, 0.14);
+
+  color: #efd18b;
+
+  box-shadow:
+    0 5px 15px
+    rgba(215, 181, 109, 0.10);
+}
+
+
+/* =========================================================
+   ALBUMS SECTION
+========================================================= */
+
+.artist-albums {
+  margin-top: 42px !important;
+}
+
+
+/* =========================================================
+   ALBUM GRID
+========================================================= */
+
+.artist-album-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(170px, 1fr)
+    );
+
+  gap: 15px;
+}
+
+
+/* =========================================================
+   ALBUM CARD
+========================================================= */
+
+.artist-album-card {
+  position: relative;
+
+  min-width: 0;
+
+  box-sizing: border-box;
+
+  padding: 12px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.05);
+
+  border-radius: 14px;
+
+  outline: none;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 32, 38, 0.91),
+      rgba(7, 19, 24, 0.95)
+    );
+
+  color: inherit;
+
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(0, 0, 0, 0.13);
+
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+
+.artist-album-card:hover {
+  transform: translateY(-5px);
+
+  border-color:
+    rgba(85, 184, 174, 0.12);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 43, 49, 0.96),
+      rgba(8, 24, 29, 0.97)
+    );
+
+  box-shadow:
+    0 18px 38px
+    rgba(0, 0, 0, 0.22);
+}
+
+
+/* =========================================================
+   ALBUM COVER CONTAINER
+========================================================= */
+
+.artist-album-card > div {
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.07),
+      rgba(49, 156, 145, 0.045)
+    );
+
+  color: #b99d60;
+
+  font-size: 35px;
+
+  box-shadow:
+    0 8px 22px
+    rgba(0, 0, 0, 0.20);
+}
+
+
+/* =========================================================
+   ALBUM IMAGE
+========================================================= */
+
+.artist-album-card img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.35s ease;
+}
+
+
+.artist-album-card:hover img {
+  transform: scale(1.045);
+}
+
+
+/* =========================================================
+   ALBUM TITLE
+========================================================= */
+
+.artist-album-card h3 {
+  overflow: hidden;
+
+  margin:
+    0
+    0
+    6px;
+
+  color: #e6ebe8;
+
+  font-size: 10.5px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ALBUM SONG COUNT
+========================================================= */
+
+.artist-album-card > span {
+  color: #647b80;
+
+  font-size: 8px;
+  font-weight: 550;
+}
+
+
+/* =========================================================
+   EMPTY SONG LIST
+========================================================= */
+
+.artist-song-list:empty {
+  min-height: 120px;
+}
+
+
+/* =========================================================
+   ERROR PAGE
+========================================================= */
+
+.artist-details-page > p {
+  max-width: 600px;
+
+  margin:
+    20px
+    auto;
+
+  padding:
+    16px
+    18px;
+
+  border:
+    1px solid
+    rgba(220, 85, 94, 0.14);
+
+  border-radius: 11px;
+
+  background:
+    rgba(220, 85, 94, 0.05);
+
+  color: #df8b91;
+
+  font-size: 10px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+========================================================= */
+
+.artist-back:focus-visible,
+.artist-actions button:focus-visible,
+.artist-song-row button:focus-visible,
+.artist-album-card:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.65);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .artist-details-page {
+    padding:
+      25px
+      26px
+      140px;
+  }
+
+
+  .artist-hero {
+    gap: 28px;
+
+    padding: 30px;
+  }
+
+
+  .artist-hero-image {
+    width: 215px;
+  }
+
+
+  .artist-hero h1 {
+    font-size:
+      clamp(40px, 7vw, 60px);
+  }
+
+
+  .artist-album-grid {
+    grid-template-columns:
+      repeat(
+        auto-fill,
+        minmax(150px, 1fr)
+      );
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .artist-details-page {
+    padding:
+      15px
+      12px
+      155px;
+  }
+
+
+  /* BACK */
+
+  .artist-back {
+    margin-bottom: 15px;
+  }
+
+
+  /* HERO */
+
+  .artist-hero {
+    align-items: center;
+    flex-direction: column;
+
+    gap: 22px;
+
+    padding:
+      27px
+      18px;
+
+    border-radius: 17px;
+
+    text-align: center;
+  }
+
+
+  .artist-hero-image {
+    width:
+      min(66vw, 225px);
+  }
+
+
+  .artist-hero > div:last-child {
+    width: 100%;
+
+    padding-bottom: 0;
+  }
+
+
+  .artist-hero > div:last-child > span {
+    margin-bottom: 7px;
+
+    font-size: 7px;
+  }
+
+
+  .artist-hero h1 {
+    margin-bottom: 11px;
+
+    font-size:
+      clamp(36px, 12vw, 50px);
+
+    line-height: 1;
+  }
+
+
+  .artist-hero p {
+    font-size: 9px;
+  }
+
+
+  /* MAIN PLAY */
+
+  .artist-actions {
+    min-height: 80px;
+
+    justify-content: center;
+
+    padding: 0;
+  }
+
+
+  .artist-actions > button {
+    width: 54px;
+    height: 54px;
+  }
+
+
+  /* SECTION */
+
+  .artist-details-page
+  section:not(.artist-hero)
+  > h2 {
+    margin-bottom: 13px;
+
+    font-size: 25px;
+  }
+
+
+  /* SONG LIST */
+
+  .artist-song-list {
+    border-radius: 14px;
+  }
+
+
+  .artist-song-row {
+    min-height: 67px;
+
+    grid-template-columns:
+      23px
+      42px
+      minmax(0, 1fr)
+      32px;
+
+    gap: 8px;
+
+    padding:
+      9px
+      10px;
+  }
+
+
+  .artist-song-row > img {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 7px;
+  }
+
+
+  .artist-song-row > span:first-child {
+    font-size: 13px;
+  }
+
+
+  .artist-song-row > div strong {
+    font-size: 9.5px;
+  }
+
+
+  .artist-song-row > div span {
+    font-size: 7.5px;
+  }
+
+
+  .artist-song-row > button {
+    width: 30px;
+    height: 30px;
+
+    opacity: 1;
+  }
+
+
+  /* ALBUMS */
+
+  .artist-albums {
+    margin-top: 32px !important;
+  }
+
+
+  .artist-album-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+  }
+
+
+  .artist-album-card {
+    padding: 9px;
+
+    border-radius: 12px;
+  }
+
+
+  .artist-album-card > div {
+    margin-bottom: 9px;
+
+    border-radius: 9px;
+  }
+
+
+  .artist-album-card h3 {
+    font-size: 9.5px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 390px) {
+
+  .artist-details-page {
+    padding:
+      12px
+      9px
+      150px;
+  }
+
+
+  .artist-hero {
+    padding:
+      24px
+      14px;
+  }
+
+
+  .artist-hero-image {
+    width:
+      min(70vw, 210px);
+  }
+
+
+  .artist-hero h1 {
+    font-size:
+      clamp(33px, 12vw, 44px);
+  }
+
+
+  .artist-song-row {
+    grid-template-columns:
+      20px
+      38px
+      minmax(0, 1fr)
+      29px;
+
+    gap: 7px;
+
+    padding:
+      8px;
+  }
+
+
+  .artist-song-row > img {
+    width: 37px;
+    height: 37px;
+  }
+
+
+  .artist-song-row > button {
+    width: 28px;
+    height: 28px;
+  }
+
+
+  .artist-album-grid {
+    gap: 8px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .artist-back,
+  .artist-back svg,
+  .artist-hero-image,
+  .artist-actions > button,
+  .artist-song-row,
+  .artist-song-row > img,
+  .artist-song-row > button,
+  .artist-album-card,
+  .artist-album-card img {
+    transition: none;
+  }
+
+}

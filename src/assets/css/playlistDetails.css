@@ -1,0 +1,1617 @@
+/* =========================================================
+   KEERTHANA — PLAYLIST DETAILS
+   Premium Dark Navy + Teal + Gold UI
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.playlist-details-page {
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    30px
+    clamp(22px, 3vw, 44px)
+    140px;
+
+  color: #f4f1e8;
+
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(49, 156, 145, 0.07),
+      transparent 27%
+    ),
+    radial-gradient(
+      circle at 8% 90%,
+      rgba(215, 181, 109, 0.025),
+      transparent 30%
+    );
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.playlist-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 20px;
+
+  padding: 9px 13px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #82979b;
+
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.playlist-back-button:hover {
+  color: #ffffff;
+
+  border-color:
+    rgba(85, 184, 174, 0.18);
+
+  background:
+    rgba(85, 184, 174, 0.07);
+
+  transform:
+    translateX(-2px);
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.playlist-hero {
+  position: relative;
+
+  min-height: 260px;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap: 28px;
+
+  box-sizing: border-box;
+
+  padding: 30px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(20, 56, 65, 0.98),
+      rgba(11, 36, 44, 0.99) 52%,
+      rgba(6, 22, 28, 1)
+    );
+
+  box-shadow:
+    0 22px 55px
+    rgba(0, 0, 0, 0.22),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+.playlist-hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+  height: 350px;
+
+  right: -80px;
+  top: -250px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.08);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.playlist-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 280px;
+  height: 280px;
+
+  right: -80px;
+  bottom: -190px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(73, 180, 169, 0.065);
+
+  filter: blur(35px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   PLAYLIST COVER
+========================================================= */
+
+.playlist-large-cover {
+  position: relative;
+  z-index: 2;
+
+  width: 190px;
+  height: 190px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-radius: 17px;
+
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(85, 184, 174, 0.17),
+      rgba(7, 24, 30, 0.98) 72%
+    );
+
+  color: #62bdb4;
+
+  box-shadow:
+    0 18px 40px
+    rgba(0, 0, 0, 0.34);
+}
+
+
+.playlist-large-cover img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+.playlist-large-cover > svg {
+  font-size: 50px;
+
+  opacity: 0.7;
+}
+
+
+/* =========================================================
+   HERO INFO
+========================================================= */
+
+.playlist-hero-info {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+
+  padding-bottom: 5px;
+}
+
+
+.playlist-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #5fc0b6;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+
+.playlist-hero-info h1 {
+  margin: 0;
+
+  color: #faf6ec;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(40px, 5vw, 62px);
+
+  font-weight: 700;
+
+  line-height: 0.95;
+
+  letter-spacing: -0.7px;
+}
+
+
+.playlist-hero-info > p {
+  max-width: 620px;
+
+  margin:
+    13px
+    0
+    0;
+
+  color: #8ba0a4;
+
+  font-size: 9px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.playlist-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 18px;
+
+  color: #748a8f;
+
+  font-size: 8px;
+}
+
+
+.playlist-meta strong {
+  color: #d6b66e;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.8px;
+}
+
+
+/* =========================================================
+   ACTION BAR
+========================================================= */
+
+.playlist-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding:
+    23px
+    2px
+    25px;
+}
+
+
+/* =========================================================
+   MAIN PLAY
+========================================================= */
+
+.playlist-main-play {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #65c6bb,
+      #369b91
+    );
+
+  color: #061917;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(54, 155, 145, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+.playlist-main-play svg {
+  margin-left: 2px;
+}
+
+
+.playlist-main-play:hover:not(:disabled) {
+  transform:
+    scale(1.06);
+
+  filter:
+    brightness(1.08);
+
+  box-shadow:
+    0 14px 32px
+    rgba(54, 155, 145, 0.3);
+}
+
+
+.playlist-main-play:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ADD SONG BUTTON
+========================================================= */
+
+.playlist-add-button,
+.playlist-delete-button {
+  min-height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding:
+    0
+    14px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.playlist-add-button {
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.13);
+
+  background:
+    rgba(85, 184, 174, 0.055);
+
+  color: #71c8bf;
+}
+
+
+.playlist-add-button:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(85, 184, 174, 0.25);
+
+  background:
+    rgba(85, 184, 174, 0.1);
+
+  color: #8bddcf;
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+.playlist-delete-button {
+  border:
+    1px solid
+    rgba(218, 91, 98, 0.11);
+
+  background:
+    rgba(218, 91, 98, 0.04);
+
+  color: #b87378;
+}
+
+
+.playlist-delete-button:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(218, 91, 98, 0.22);
+
+  background:
+    rgba(218, 91, 98, 0.08);
+
+  color: #e39499;
+}
+
+
+/* =========================================================
+   SONG LIST
+========================================================= */
+
+.playlist-song-list {
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.05);
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 30, 36, 0.72),
+      rgba(7, 18, 23, 0.84)
+    );
+
+  box-shadow:
+    0 15px 40px
+    rgba(0, 0, 0, 0.13);
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.playlist-table-header {
+  display: grid;
+
+  grid-template-columns:
+    50px
+    minmax(220px, 1fr)
+    minmax(130px, 0.45fr)
+    45px;
+
+  align-items: center;
+
+  min-height: 40px;
+
+  padding:
+    0
+    16px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.045);
+
+  color: #52696e;
+
+  font-size: 6.5px;
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+}
+
+
+/* =========================================================
+   SONG ROW
+========================================================= */
+
+.playlist-song-row {
+  display: grid;
+
+  grid-template-columns:
+    50px
+    minmax(220px, 1fr)
+    minmax(130px, 0.45fr)
+    45px;
+
+  align-items: center;
+
+  min-height: 67px;
+
+  padding:
+    7px
+    16px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  transition:
+    background 0.2s ease;
+}
+
+
+.playlist-song-row:last-child {
+  border-bottom: none;
+}
+
+
+.playlist-song-row:hover {
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+
+/* =========================================================
+   SONG NUMBER
+========================================================= */
+
+.playlist-song-number {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.playlist-song-number > span {
+  color: #5d7378;
+
+  font-size: 8px;
+}
+
+
+.playlist-song-number > button {
+  width: 30px;
+  height: 30px;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.13);
+
+  border-radius: 50%;
+
+  background:
+    rgba(85, 184, 174, 0.07);
+
+  color: #66c1b7;
+
+  font-size: 8px;
+
+  cursor: pointer;
+}
+
+
+.playlist-song-row:hover
+.playlist-song-number > span {
+  display: none;
+}
+
+
+.playlist-song-row:hover
+.playlist-song-number > button {
+  display: flex;
+}
+
+
+/* =========================================================
+   SONG TITLE
+========================================================= */
+
+.playlist-song-title {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+.playlist-song-title img {
+  width: 45px;
+  height: 45px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 5px 14px
+    rgba(0, 0, 0, 0.2);
+}
+
+
+.playlist-song-title > div {
+  min-width: 0;
+}
+
+
+.playlist-song-title strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #e9eeea;
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+.playlist-song-title span {
+  display: block;
+
+  margin-top: 4px;
+
+  overflow: hidden;
+
+  color: #647a7f;
+
+  font-size: 7.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.playlist-song-category {
+  overflow: hidden;
+
+  color: #6f8589;
+
+  font-size: 8px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   REMOVE SONG
+========================================================= */
+
+.playlist-remove-song {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  justify-self: end;
+
+  border:
+    1px solid
+    transparent;
+
+  border-radius: 8px;
+
+  background:
+    transparent;
+
+  color: #596d71;
+
+  font-size: 9px;
+
+  cursor: pointer;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.playlist-song-row:hover
+.playlist-remove-song {
+  opacity: 1;
+}
+
+
+.playlist-remove-song:hover {
+  border-color:
+    rgba(218, 91, 98, 0.13);
+
+  background:
+    rgba(218, 91, 98, 0.065);
+
+  color: #dd858b;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.playlist-empty-state {
+  min-height: 320px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 35px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.05);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 31, 37, 0.8),
+      rgba(7, 18, 23, 0.9)
+    );
+
+  text-align: center;
+}
+
+
+.playlist-empty-state > svg {
+  width: 62px;
+  height: 62px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 18px;
+
+  padding: 18px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.11);
+
+  border-radius: 17px;
+
+  background:
+    rgba(85, 184, 174, 0.05);
+
+  color: #5ab8ae;
+}
+
+
+.playlist-empty-state h2 {
+  margin: 0;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 27px;
+}
+
+
+.playlist-empty-state p {
+  margin:
+    8px
+    0
+    18px;
+
+  color: #667c81;
+
+  font-size: 9px;
+}
+
+
+.playlist-empty-state button {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding:
+    10px
+    14px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.15);
+
+  border-radius: 9px;
+
+  background:
+    rgba(85, 184, 174, 0.08);
+
+  color: #70c8be;
+
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.playlist-loading {
+  min-height: 65vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #70858a;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.playlist-error {
+  margin-top: 20px;
+
+  padding:
+    14px
+    16px;
+
+  border:
+    1px solid
+    rgba(218, 91, 98, 0.16);
+
+  border-radius: 11px;
+
+  background:
+    rgba(218, 91, 98, 0.06);
+
+  color: #e09297;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.add-song-overlay {
+  position: fixed;
+
+  z-index: 9999;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 25px;
+
+  background:
+    rgba(2, 10, 13, 0.78);
+
+  backdrop-filter:
+    blur(10px);
+
+  -webkit-backdrop-filter:
+    blur(10px);
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.add-song-modal {
+  width:
+    min(650px, 100%);
+
+  max-height: 80vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  border-radius: 19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #10262d,
+      #07171c
+    );
+
+  box-shadow:
+    0 35px 90px
+    rgba(0, 0, 0, 0.55);
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.add-song-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding:
+    20px
+    22px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.05);
+
+  background:
+    rgba(255, 255, 255, 0.012);
+}
+
+
+.add-song-header > div > span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #58b9af;
+
+  font-size: 6.5px;
+  font-weight: 800;
+
+  letter-spacing: 1.7px;
+}
+
+
+.add-song-header h2 {
+  margin: 0;
+
+  color: #f4f0e7;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 27px;
+}
+
+
+.add-song-header > button {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #71868a;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.add-song-header > button:hover {
+  background:
+    rgba(218, 91, 98, 0.07);
+
+  color: #dc858b;
+}
+
+
+/* =========================================================
+   ADD SONG LIST
+========================================================= */
+
+.add-song-list {
+  flex: 1;
+
+  overflow-y: auto;
+
+  padding: 9px;
+}
+
+
+/* scrollbar */
+
+.add-song-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+
+.add-song-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.add-song-list::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   ADD SONG ROW
+========================================================= */
+
+.add-song-row {
+  display: grid;
+
+  grid-template-columns:
+    48px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 12px;
+
+  min-height: 64px;
+
+  box-sizing: border-box;
+
+  padding:
+    8px
+    10px;
+
+  border:
+    1px solid
+    transparent;
+
+  border-radius: 11px;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.add-song-row:hover {
+  border-color:
+    rgba(255, 255, 255, 0.04);
+
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+
+.add-song-row > img {
+  width: 45px;
+  height: 45px;
+
+  object-fit: cover;
+
+  border-radius: 8px;
+}
+
+
+/* =========================================================
+   ADD SONG INFO
+========================================================= */
+
+.add-song-info {
+  min-width: 0;
+}
+
+
+.add-song-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #e8ede9;
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+.add-song-info span {
+  display: block;
+
+  margin-top: 4px;
+
+  overflow: hidden;
+
+  color: #62777c;
+
+  font-size: 7.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.add-song-row > button {
+  min-width: 57px;
+
+  padding:
+    8px
+    11px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.13);
+
+  border-radius: 8px;
+
+  background:
+    rgba(85, 184, 174, 0.065);
+
+  color: #6bc5bb;
+
+  font-family: inherit;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.add-song-row > button:hover:not(:disabled) {
+  border-color:
+    rgba(85, 184, 174, 0.24);
+
+  background:
+    rgba(85, 184, 174, 0.12);
+
+  color: #89ddd4;
+}
+
+
+.add-song-row > button:disabled {
+  border-color:
+    rgba(255, 255, 255, 0.04);
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  color: #526468;
+
+  cursor: default;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .playlist-details-page {
+    padding:
+      24px
+      20px
+      130px;
+  }
+
+
+  .playlist-hero {
+    min-height: 230px;
+
+    gap: 22px;
+
+    padding: 25px;
+  }
+
+
+  .playlist-large-cover {
+    width: 160px;
+    height: 160px;
+  }
+
+
+  .playlist-hero-info h1 {
+    font-size: 44px;
+  }
+
+
+  .playlist-table-header,
+  .playlist-song-row {
+    grid-template-columns:
+      42px
+      minmax(190px, 1fr)
+      120px
+      40px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .playlist-details-page {
+    padding:
+      16px
+      12px
+      160px;
+  }
+
+
+  .playlist-back-button {
+    margin-bottom: 13px;
+  }
+
+
+  .playlist-hero {
+    min-height: auto;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 18px;
+
+    padding: 20px;
+
+    border-radius: 17px;
+  }
+
+
+  .playlist-large-cover {
+    width: 135px;
+    height: 135px;
+
+    border-radius: 14px;
+  }
+
+
+  .playlist-hero-info h1 {
+    font-size: 38px;
+  }
+
+
+  .playlist-hero-info > p {
+    font-size: 8.5px;
+  }
+
+
+  .playlist-actions {
+    padding:
+      18px
+      0
+      20px;
+  }
+
+
+  .playlist-main-play {
+    width: 46px;
+    height: 46px;
+  }
+
+
+  .playlist-add-button,
+  .playlist-delete-button {
+    min-height: 38px;
+
+    padding:
+      0
+      11px;
+
+    font-size: 7.5px;
+  }
+
+
+  /* Hide category on mobile */
+
+  .playlist-table-header {
+    grid-template-columns:
+      37px
+      minmax(0, 1fr)
+      37px;
+
+    padding:
+      0
+      10px;
+  }
+
+
+  .playlist-table-header
+  span:nth-child(3) {
+    display: none;
+  }
+
+
+  .playlist-song-row {
+    grid-template-columns:
+      37px
+      minmax(0, 1fr)
+      37px;
+
+    min-height: 64px;
+
+    padding:
+      7px
+      10px;
+  }
+
+
+  .playlist-song-category {
+    display: none;
+  }
+
+
+  .playlist-song-title {
+    gap: 9px;
+  }
+
+
+  .playlist-song-title img {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  .playlist-song-title strong {
+    font-size: 8.5px;
+  }
+
+
+  .playlist-remove-song {
+    opacity: 1;
+  }
+
+
+  .playlist-song-number > span {
+    display: none;
+  }
+
+
+  .playlist-song-number > button {
+    display: flex;
+
+    width: 27px;
+    height: 27px;
+  }
+
+
+  /* MODAL */
+
+  .add-song-overlay {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+
+  .add-song-modal {
+    width: 100%;
+
+    max-height: 82vh;
+
+    border-radius:
+      20px
+      20px
+      0
+      0;
+  }
+
+
+  .add-song-header {
+    padding:
+      18px
+      17px;
+  }
+
+
+  .add-song-header h2 {
+    font-size: 25px;
+  }
+
+
+  .add-song-list {
+    padding:
+      7px
+      8px
+      20px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .playlist-actions {
+    flex-wrap: wrap;
+  }
+
+
+  .playlist-delete-button {
+    margin-left: 57px;
+  }
+
+
+  .playlist-large-cover {
+    width: 120px;
+    height: 120px;
+  }
+
+
+  .playlist-hero-info h1 {
+    font-size: 34px;
+  }
+
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.playlist-main-play:focus-visible,
+.playlist-add-button:focus-visible,
+.playlist-delete-button:focus-visible,
+.playlist-back-button:focus-visible,
+.playlist-remove-song:focus-visible,
+.add-song-row > button:focus-visible,
+.add-song-header > button:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.55);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .playlist-back-button,
+  .playlist-main-play,
+  .playlist-add-button,
+  .playlist-delete-button,
+  .playlist-song-row,
+  .playlist-remove-song,
+  .add-song-row,
+  .add-song-row > button {
+    transition: none;
+  }
+
+}

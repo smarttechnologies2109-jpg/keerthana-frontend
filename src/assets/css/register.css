@@ -1,0 +1,940 @@
+/* =========================================================
+   KEERTHANA — AUTHENTICATION
+   Login / Register
+   Premium Dark Navy + Teal + Gold UI
+========================================================= */
+
+
+/* =========================================================
+   AUTH PAGE
+========================================================= */
+
+.auth-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 40px 20px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(49, 156, 145, 0.1),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(215, 181, 109, 0.055),
+      transparent 30%
+    ),
+    linear-gradient(
+      145deg,
+      #061217 0%,
+      #081b21 45%,
+      #051116 100%
+    );
+
+  color: #f4f1e8;
+}
+
+
+/* =========================================================
+   DECORATIVE BACKGROUND
+========================================================= */
+
+.auth-page::before {
+  content: "";
+
+  position: absolute;
+
+  width: 450px;
+  height: 450px;
+
+  top: -300px;
+  right: -130px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.07);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.auth-page::after {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+  height: 350px;
+
+  left: -220px;
+  bottom: -220px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.07);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   AUTH CARD
+========================================================= */
+
+.auth-card {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 420px;
+
+  box-sizing: border-box;
+
+  padding:
+    38px
+    38px
+    32px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 40, 47, 0.96),
+      rgba(7, 23, 28, 0.98)
+    );
+
+  box-shadow:
+    0 35px 90px
+    rgba(0, 0, 0, 0.42),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+
+  backdrop-filter: blur(18px);
+
+  -webkit-backdrop-filter: blur(18px);
+}
+
+
+/* =========================================================
+   CARD DECORATION
+========================================================= */
+
+.auth-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  top: -160px;
+  right: -130px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(85, 184, 174, 0.055);
+
+  pointer-events: none;
+}
+
+
+.auth-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 90px;
+  height: 2px;
+
+  top: 0;
+  left: 50%;
+
+  transform:
+    translateX(-50%);
+
+  border-radius:
+    0
+    0
+    3px
+    3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #55b8ae,
+      #d7b56d,
+      transparent
+    );
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.auth-logo {
+  position: relative;
+  z-index: 2;
+
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin:
+    0
+    auto
+    15px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.14);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.09),
+      rgba(85, 184, 174, 0.06)
+    );
+
+  color: #d7b56d;
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.22),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.04);
+}
+
+
+/* =========================================================
+   KEERTHANA BRAND
+========================================================= */
+
+.auth-card > h1 {
+  position: relative;
+  z-index: 2;
+
+  margin: 0;
+
+  color: #f7f3e9;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing: 2.5px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   BRAND SUBTITLE
+========================================================= */
+
+.auth-subtitle {
+  position: relative;
+  z-index: 2;
+
+  margin:
+    7px
+    0
+    29px;
+
+  color: #668087;
+
+  font-size: 7.5px;
+  font-weight: 600;
+
+  letter-spacing: 1.7px;
+
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   CREATE ACCOUNT TITLE
+========================================================= */
+
+.auth-card > h2 {
+  position: relative;
+  z-index: 2;
+
+  margin:
+    0
+    0
+    22px;
+
+  color: #f1eee6;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size: 26px;
+  font-weight: 700;
+
+  line-height: 1.1;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.auth-card form {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.auth-card form label {
+  display: block;
+
+  margin:
+    0
+    0
+    7px;
+
+  color: #9aabad;
+
+  font-size: 7.5px;
+  font-weight: 700;
+
+  letter-spacing: 0.4px;
+}
+
+
+/* spacing between inputs */
+
+.auth-card form input + label {
+  margin-top: 15px;
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.auth-card form input {
+  width: 100%;
+  height: 45px;
+
+  box-sizing: border-box;
+
+  padding:
+    0
+    14px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background:
+    rgba(2, 14, 18, 0.46);
+
+  color: #f2f4f0;
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+
+  font-size: 9px;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* =========================================================
+   PLACEHOLDER
+========================================================= */
+
+.auth-card form input::placeholder {
+  color:
+    rgba(132, 155, 160, 0.5);
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   INPUT HOVER
+========================================================= */
+
+.auth-card form input:hover {
+  border-color:
+    rgba(255, 255, 255, 0.1);
+
+  background:
+    rgba(3, 17, 21, 0.58);
+}
+
+
+/* =========================================================
+   INPUT FOCUS
+========================================================= */
+
+.auth-card form input:focus {
+  border-color:
+    rgba(85, 184, 174, 0.42);
+
+  background:
+    rgba(4, 20, 24, 0.75);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(85, 184, 174, 0.07);
+}
+
+
+/* =========================================================
+   AUTOFILL FIX
+========================================================= */
+
+.auth-card input:-webkit-autofill,
+.auth-card input:-webkit-autofill:hover,
+.auth-card input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f2f4f0;
+
+  -webkit-box-shadow:
+    0 0 0 1000px
+    #081c22
+    inset;
+
+  transition:
+    background-color 9999s ease-in-out 0s;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.auth-error {
+  position: relative;
+  z-index: 2;
+
+  margin-bottom: 17px;
+
+  padding:
+    11px
+    13px;
+
+  border:
+    1px solid
+    rgba(218, 91, 98, 0.17);
+
+  border-radius: 9px;
+
+  background:
+    rgba(218, 91, 98, 0.065);
+
+  color: #e29499;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON
+========================================================= */
+
+.auth-submit {
+  position: relative;
+
+  width: 100%;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 24px;
+
+  overflow: hidden;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #67c8bd,
+      #399d93
+    );
+
+  color: #061816;
+
+  font-family: inherit;
+
+  font-size: 8.5px;
+  font-weight: 800;
+
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(57, 157, 147, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+/* =========================================================
+   BUTTON SHINE
+========================================================= */
+
+.auth-submit::before {
+  content: "";
+
+  position: absolute;
+
+  width: 50px;
+  height: 120%;
+
+  top: -10%;
+  left: -70px;
+
+  transform:
+    skewX(-20deg);
+
+  background:
+    rgba(255, 255, 255, 0.12);
+
+  transition:
+    left 0.45s ease;
+}
+
+
+.auth-submit:hover:not(:disabled)::before {
+  left: calc(100% + 30px);
+}
+
+
+/* =========================================================
+   SUBMIT HOVER
+========================================================= */
+
+.auth-submit:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+
+  filter:
+    brightness(1.07);
+
+  box-shadow:
+    0 14px 32px
+    rgba(57, 157, 147, 0.28);
+}
+
+
+.auth-submit:active:not(:disabled) {
+  transform:
+    translateY(0);
+}
+
+
+/* =========================================================
+   DISABLED BUTTON
+========================================================= */
+
+.auth-submit:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   LOGIN / REGISTER SWITCH
+========================================================= */
+
+.auth-switch {
+  position: relative;
+  z-index: 2;
+
+  margin:
+    24px
+    0
+    0;
+
+  padding-top: 20px;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.045);
+
+  color: #6c8287;
+
+  font-size: 8px;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   LOGIN LINK
+========================================================= */
+
+.auth-switch a {
+  position: relative;
+
+  color: #d2b36d;
+
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.auth-switch a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -3px;
+
+  height: 1px;
+
+  background: #d2b36d;
+
+  transform:
+    scaleX(0);
+
+  transform-origin:
+    right;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.auth-switch a:hover {
+  color: #ebce87;
+}
+
+
+.auth-switch a:hover::after {
+  transform:
+    scaleX(1);
+
+  transform-origin:
+    left;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.auth-submit:focus-visible,
+.auth-switch a:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.55);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .auth-page {
+    padding:
+      30px
+      18px;
+  }
+
+
+  .auth-card {
+    max-width: 410px;
+
+    padding:
+      34px
+      32px
+      29px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .auth-page {
+    align-items: flex-start;
+
+    min-height: 100dvh;
+
+    padding:
+      28px
+      13px
+      40px;
+  }
+
+
+  .auth-card {
+    max-width: 100%;
+
+    padding:
+      30px
+      22px
+      26px;
+
+    border-radius: 18px;
+  }
+
+
+  .auth-logo {
+    width: 52px;
+    height: 52px;
+
+    margin-bottom: 13px;
+
+    border-radius: 15px;
+
+    font-size: 25px;
+  }
+
+
+  .auth-card > h1 {
+    font-size: 26px;
+
+    letter-spacing: 2px;
+  }
+
+
+  .auth-subtitle {
+    margin-bottom: 25px;
+  }
+
+
+  .auth-card > h2 {
+    margin-bottom: 20px;
+
+    font-size: 24px;
+  }
+
+
+  .auth-card form input {
+    height: 46px;
+
+    font-size: 10px;
+  }
+
+
+  .auth-submit {
+    height: 47px;
+
+    margin-top: 22px;
+
+    font-size: 9px;
+  }
+
+
+  .auth-switch {
+    margin-top: 21px;
+
+    padding-top: 18px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .auth-page {
+    padding:
+      20px
+      9px
+      30px;
+  }
+
+
+  .auth-card {
+    padding:
+      27px
+      17px
+      23px;
+  }
+
+
+  .auth-card > h1 {
+    font-size: 24px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .auth-card form input,
+  .auth-submit,
+  .auth-submit::before,
+  .auth-switch a,
+  .auth-switch a::after {
+    transition: none;
+  }
+
+}
+/* ================================
+   PASSWORD INPUT
+================================ */
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 48px;
+  box-sizing: border-box;
+}
+
+.password-toggle {
+  position: absolute;
+
+  right: 12px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  color: #777;
+
+  cursor: pointer;
+
+  border-radius: 6px;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #333;
+  background: #f3f3f3;
+}
+
+.password-toggle:focus {
+  outline: none;
+}
+
+.password-toggle svg {
+  display: block;
+}

@@ -1,0 +1,642 @@
+/* =========================================================
+   ADMIN HEADER
+========================================================= */
+
+.admin-header {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1000;
+
+  height: 72px;
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 24px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+}
+
+
+/* =========================================================
+   LEFT
+========================================================= */
+
+.admin-header-left {
+
+  display: flex;
+
+  align-items: center;
+
+  min-width: 0;
+
+  gap: 14px;
+
+}
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+.admin-header-menu-button {
+
+  display: none;
+
+  width: 40px;
+
+  height: 40px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #f4f4f5;
+
+  color: #18181b;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+}
+
+.admin-header-menu-button:hover {
+
+  background: #e4e4e7;
+
+}
+
+
+/* =========================================================
+   HISTORY BUTTONS
+========================================================= */
+
+.admin-header-history {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+.admin-header-circle-button {
+
+  width: 38px;
+
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #f4f4f5;
+
+  color: #52525b;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+}
+
+
+.admin-header-circle-button:hover {
+
+  background: #e4e4e7;
+
+  color: #7c3aed;
+
+  transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   ADMIN BRAND
+========================================================= */
+
+.admin-header-brand {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  border: none;
+
+  background: transparent;
+
+  padding: 0;
+
+  cursor: pointer;
+
+}
+
+
+.admin-header-logo {
+
+  width: 42px;
+
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #ec4899
+  );
+
+  color: #ffffff;
+
+  font-size: 23px;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 6px 18px
+    rgba(124, 58, 237, 0.22);
+
+}
+
+
+.admin-header-brand-text {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  line-height: 1.15;
+
+}
+
+
+.admin-header-brand-text strong {
+
+  color: #18181b;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.7px;
+
+}
+
+
+.admin-header-brand-text span {
+
+  margin-top: 3px;
+
+  color: #7c3aed;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+}
+
+
+/* =========================================================
+   PAGE INFO
+========================================================= */
+
+.admin-header-page-info {
+
+  min-width: 130px;
+
+  padding-left: 14px;
+
+  border-left: 1px solid #e4e4e7;
+
+}
+
+
+.admin-header-page-info span {
+
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #a1a1aa;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.2px;
+
+}
+
+
+.admin-header-page-info h2 {
+
+  margin: 0;
+
+  color: #18181b;
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+}
+
+
+/* =========================================================
+   RIGHT
+========================================================= */
+
+.admin-header-right {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+}
+
+
+/* =========================================================
+   ADMIN STATUS
+========================================================= */
+
+.admin-header-status {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 8px 12px;
+
+  border-radius: 20px;
+
+  background: #f4f4f5;
+
+  color: #52525b;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+}
+
+
+.admin-status-dot {
+
+  width: 8px;
+
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(34, 197, 94, 0.12);
+
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.admin-header-profile {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 5px 8px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+
+}
+
+
+.admin-header-profile:hover {
+
+  background: #f4f4f5;
+
+}
+
+
+.admin-header-avatar {
+
+  width: 38px;
+
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #9333ea
+  );
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+}
+
+
+.admin-header-user-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  line-height: 1.2;
+
+}
+
+
+.admin-header-user-info strong {
+
+  max-width: 140px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  color: #27272a;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+}
+
+
+.admin-header-user-info span {
+
+  margin-top: 3px;
+
+  color: #7c3aed;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.admin-header-logout {
+
+  width: 38px;
+
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+}
+
+
+.admin-header-logout:hover {
+
+  background: #fee2e2;
+
+  transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .admin-header-brand-text {
+
+    display: none;
+
+  }
+
+  .admin-header-page-info {
+
+    padding-left: 10px;
+
+  }
+
+  .admin-header-status {
+
+    display: none;
+
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-header {
+
+    height: 64px;
+
+    padding: 0 14px;
+
+  }
+
+
+  .admin-header-menu-button {
+
+    display: flex;
+
+  }
+
+
+  .admin-header-history {
+
+    display: none;
+
+  }
+
+
+  .admin-header-brand {
+
+    display: none;
+
+  }
+
+
+  .admin-header-page-info {
+
+    border-left: none;
+
+    padding-left: 0;
+
+  }
+
+
+  .admin-header-page-info span {
+
+    font-size: 8px;
+
+  }
+
+
+  .admin-header-page-info h2 {
+
+    font-size: 16px;
+
+  }
+
+
+  .admin-header-user-info {
+
+    display: none;
+
+  }
+
+
+  .admin-header-profile {
+
+    padding: 0;
+
+  }
+
+
+  .admin-header-avatar {
+
+    width: 36px;
+
+    height: 36px;
+
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .admin-header {
+
+    padding: 0 10px;
+
+  }
+
+
+  .admin-header-right {
+
+    gap: 7px;
+
+  }
+
+
+  .admin-header-logout {
+
+    width: 35px;
+
+    height: 35px;
+
+  }
+
+
+  .admin-header-page-info h2 {
+
+    font-size: 14px;
+
+  }
+
+}

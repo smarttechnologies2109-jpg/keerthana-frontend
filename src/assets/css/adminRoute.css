@@ -1,0 +1,333 @@
+/* =========================================================
+   KEERTHANA
+   ADMIN ROUTE / ACCESS LOADING SCREEN
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.admin-auth-loading {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100vh;
+
+  padding: 20px;
+
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(29, 185, 84, 0.09),
+      transparent 35%
+    ),
+    #080b09;
+
+  color: #ffffff;
+
+  z-index: 9999;
+}
+
+
+/* =========================================================
+   LOADING CARD
+========================================================= */
+
+.admin-auth-loading-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+  max-width: 380px;
+
+  padding: 42px 30px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.015)
+    );
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  overflow: hidden;
+}
+
+
+/* Green top highlight */
+
+.admin-auth-loading-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  width: 70%;
+  height: 1px;
+
+  transform: translateX(-50%);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(29, 185, 84, 0.8),
+      transparent
+    );
+}
+
+
+/* =========================================================
+   KEERTHANA LOGO
+========================================================= */
+
+.admin-auth-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 62px;
+  height: 62px;
+
+  margin-bottom: 30px;
+
+  border:
+    1px solid
+    rgba(29, 185, 84, 0.3);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(29, 185, 84, 0.22),
+      rgba(29, 185, 84, 0.07)
+    );
+
+  box-shadow:
+    0 12px 35px rgba(29, 185, 84, 0.12);
+}
+
+
+.admin-auth-logo span {
+  color: #2ee36f;
+
+  font-size: 28px;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.admin-auth-spinner {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  margin-bottom: 24px;
+
+  border:
+    3px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-top-color: #1ed760;
+
+  border-radius: 50%;
+
+  animation:
+    adminSpinnerRotate
+    0.85s
+    linear
+    infinite;
+}
+
+
+.admin-auth-spinner::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 5px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(29, 185, 84, 0.15);
+}
+
+
+@keyframes adminSpinnerRotate {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+.admin-auth-loading-text {
+  text-align: center;
+}
+
+
+.admin-auth-loading-text h2 {
+  margin:
+    0
+    0
+    8px;
+
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 750;
+
+  letter-spacing: 2px;
+}
+
+
+.admin-auth-loading-text p {
+  margin: 0;
+
+  color: #929b96;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  letter-spacing: 0.2px;
+}
+
+
+/* Animated loading dots effect */
+
+.admin-auth-loading-text p::after {
+  content: "";
+
+  display: inline-block;
+
+  width: 18px;
+
+  text-align: left;
+
+  animation:
+    adminLoadingDots
+    1.5s
+    infinite;
+}
+
+
+@keyframes adminLoadingDots {
+
+  0% {
+    content: "";
+  }
+
+  25% {
+    content: ".";
+  }
+
+  50% {
+    content: "..";
+  }
+
+  75%,
+  100% {
+    content: "...";
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .admin-auth-loading {
+    padding: 16px;
+  }
+
+
+  .admin-auth-loading-card {
+    max-width: 330px;
+
+    padding:
+      36px
+      22px;
+
+    border-radius: 20px;
+  }
+
+
+  .admin-auth-logo {
+    width: 56px;
+    height: 56px;
+
+    border-radius: 16px;
+  }
+
+
+  .admin-auth-logo span {
+    font-size: 25px;
+  }
+
+
+  .admin-auth-loading-text h2 {
+    font-size: 18px;
+  }
+
+
+  .admin-auth-loading-text p {
+    font-size: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .admin-auth-spinner {
+    animation-duration: 2s;
+  }
+
+}

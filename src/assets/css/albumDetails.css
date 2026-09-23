@@ -1,0 +1,1052 @@
+/* =========================================================
+   KEERTHANA — ALBUM DETAILS
+   Premium Christian Music UI
+   Dark Navy + Teal + Muted Gold
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.album-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    30px
+    clamp(24px, 4vw, 54px)
+    140px;
+
+  overflow: hidden;
+
+  color: #f3f0e8;
+
+  background:
+    radial-gradient(
+      circle at 15% 5%,
+      rgba(47, 145, 136, 0.09),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(215, 181, 109, 0.04),
+      transparent 25%
+    ),
+    linear-gradient(
+      180deg,
+      #0a1c22 0%,
+      #07161b 42%,
+      #061217 100%
+    );
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.album-back {
+  position: relative;
+  z-index: 5;
+
+  min-height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-bottom: 25px;
+
+  padding:
+    0
+    13px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #82979b;
+
+  font-family: inherit;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.album-back svg {
+  font-size: 9px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.album-back:hover {
+  transform: translateY(-1px);
+
+  color: #e7ece9;
+
+  border-color:
+    rgba(85, 184, 174, 0.17);
+
+  background:
+    rgba(85, 184, 174, 0.055);
+}
+
+
+.album-back:hover svg {
+  transform: translateX(-2px);
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.album-hero {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap:
+    clamp(25px, 4vw, 45px);
+
+  box-sizing: border-box;
+
+  padding:
+    clamp(26px, 4vw, 48px);
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(19, 55, 63, 0.96) 0%,
+      rgba(10, 37, 44, 0.97) 48%,
+      rgba(7, 25, 31, 0.99) 100%
+    );
+
+  box-shadow:
+    0 24px 60px
+    rgba(0, 0, 0, 0.24),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HERO DECORATION
+========================================================= */
+
+.album-hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  top: -300px;
+  right: 6%;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.075);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.album-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  right: -140px;
+  bottom: -180px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(55, 159, 149, 0.07);
+
+  filter: blur(45px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   ALBUM COVER
+========================================================= */
+
+.album-cover {
+  position: relative;
+  z-index: 2;
+
+  width:
+    clamp(180px, 20vw, 260px);
+
+  aspect-ratio: 1 / 1;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.10),
+      rgba(51, 153, 144, 0.06)
+    );
+
+  color: #d7b56d;
+
+  font-size: 60px;
+
+  box-shadow:
+    0 22px 48px
+    rgba(0, 0, 0, 0.38),
+    0 6px 18px
+    rgba(0, 0, 0, 0.22);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+.album-cover:hover {
+  transform:
+    translateY(-4px)
+    scale(1.01);
+
+  box-shadow:
+    0 28px 58px
+    rgba(0, 0, 0, 0.45);
+}
+
+
+.album-cover img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   ALBUM INFORMATION
+========================================================= */
+
+.album-info {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+
+  padding-bottom: 8px;
+}
+
+
+/* ALBUM LABEL */
+
+.album-info > span {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #62bbb2;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2.3px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   ALBUM TITLE
+========================================================= */
+
+.album-info h1 {
+  max-width: 800px;
+
+  margin:
+    0
+    0
+    14px;
+
+  color: #f6f2e8;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(42px, 6vw, 76px);
+
+  font-weight: 700;
+
+  line-height: 0.95;
+
+  letter-spacing: -1px;
+
+  overflow-wrap: break-word;
+
+  text-shadow:
+    0 7px 30px
+    rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================================
+   ARTIST LINK
+========================================================= */
+
+.album-artist-link {
+  display: inline-flex;
+  align-items: center;
+
+  margin: 0;
+
+  padding: 0;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #d5b76f;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.album-artist-link:hover {
+  transform: translateX(2px);
+
+  color: #efd38e;
+}
+
+
+/* =========================================================
+   SONG COUNT
+========================================================= */
+
+.album-info p {
+  margin:
+    9px
+    0
+    0;
+
+  color: #748b90;
+
+  font-size: 9px;
+  font-weight: 550;
+}
+
+
+/* =========================================================
+   ALBUM ACTIONS
+========================================================= */
+
+.album-actions {
+  position: relative;
+  z-index: 3;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 90px;
+
+  padding:
+    0
+    8px;
+}
+
+
+/* =========================================================
+   MAIN PLAY BUTTON
+========================================================= */
+
+.album-actions > button {
+  width: 55px;
+  height: 55px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.14);
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #efd18b,
+      #d7b56d
+    );
+
+  color: #07151a;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(0, 0, 0, 0.3),
+    0 8px 25px
+    rgba(215, 181, 109, 0.15),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.4);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+
+.album-actions > button svg {
+  margin-left: 3px;
+}
+
+
+.album-actions > button:hover:not(:disabled) {
+  transform:
+    translateY(-3px)
+    scale(1.055);
+
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 15px 35px
+    rgba(0, 0, 0, 0.35),
+    0 10px 30px
+    rgba(215, 181, 109, 0.22);
+}
+
+
+.album-actions > button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+
+.album-actions > button:disabled {
+  opacity: 0.3;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   SONG LIST
+========================================================= */
+
+.album-song-list {
+  width: 100%;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13, 29, 35, 0.92),
+      rgba(6, 18, 23, 0.95)
+    );
+
+  box-shadow:
+    0 16px 45px
+    rgba(0, 0, 0, 0.16);
+}
+
+
+/* =========================================================
+   SONG ROW
+========================================================= */
+
+.album-song-row {
+  position: relative;
+
+  min-height: 69px;
+
+  display: grid;
+
+  grid-template-columns:
+    36px
+    minmax(200px, 1fr)
+    minmax(120px, 230px)
+    42px;
+
+  align-items: center;
+
+  gap: 12px;
+
+  box-sizing: border-box;
+
+  padding:
+    10px
+    18px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.album-song-row:last-child {
+  border-bottom: none;
+}
+
+
+.album-song-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(51, 153, 144, 0.065),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+
+/* =========================================================
+   TRACK NUMBER
+========================================================= */
+
+.album-song-row > span:first-child {
+  color: #51696f;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SONG INFORMATION
+========================================================= */
+
+.album-song-row > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+.album-song-row > div strong {
+  overflow: hidden;
+
+  color: #e5ebe8;
+
+  font-size: 10.5px;
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.album-song-row:hover
+> div strong {
+  color: #ffffff;
+}
+
+
+.album-song-row > div > span {
+  overflow: hidden;
+
+  color: #647c82;
+
+  font-size: 8.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.album-category {
+  width: fit-content;
+  max-width: 210px;
+
+  overflow: hidden;
+
+  padding:
+    5px
+    9px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.09);
+
+  border-radius: 6px;
+
+  background:
+    rgba(85, 184, 174, 0.035);
+
+  color: #759b98 !important;
+
+  font-size: 7px !important;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ROW PLAY BUTTON
+========================================================= */
+
+.album-song-row > button {
+  width: 32px;
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #71868b;
+
+  font-size: 8px;
+
+  cursor: pointer;
+
+  opacity: 0.65;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.album-song-row > button svg {
+  margin-left: 1px;
+}
+
+
+.album-song-row:hover > button {
+  opacity: 1;
+
+  border-color:
+    rgba(215, 181, 109, 0.16);
+
+  background:
+    rgba(215, 181, 109, 0.07);
+
+  color: #d7b56d;
+}
+
+
+.album-song-row > button:hover {
+  transform: scale(1.08);
+
+  border-color:
+    rgba(215, 181, 109, 0.26);
+
+  background:
+    rgba(215, 181, 109, 0.14);
+
+  color: #efd18b;
+
+  box-shadow:
+    0 5px 15px
+    rgba(215, 181, 109, 0.10);
+}
+
+
+/* =========================================================
+   LOADING / ERROR
+========================================================= */
+
+.album-page:not(:has(.album-hero)) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #768d92;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   FOCUS STATES
+========================================================= */
+
+.album-back:focus-visible,
+.album-artist-link:focus-visible,
+.album-actions button:focus-visible,
+.album-song-row button:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.65);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .album-page {
+    padding:
+      25px
+      26px
+      135px;
+  }
+
+
+  .album-hero {
+    gap: 28px;
+
+    padding: 30px;
+  }
+
+
+  .album-cover {
+    width: 210px;
+  }
+
+
+  .album-info h1 {
+    font-size:
+      clamp(38px, 7vw, 58px);
+  }
+
+
+  .album-song-row {
+    grid-template-columns:
+      30px
+      minmax(170px, 1fr)
+      minmax(100px, 180px)
+      38px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .album-page {
+    padding:
+      15px
+      12px
+      150px;
+  }
+
+
+  /* BACK */
+
+  .album-back {
+    margin-bottom: 15px;
+  }
+
+
+  /* HERO */
+
+  .album-hero {
+    align-items: center;
+    flex-direction: column;
+
+    gap: 22px;
+
+    padding:
+      25px
+      18px;
+
+    border-radius: 17px;
+
+    text-align: center;
+  }
+
+
+  .album-cover {
+    width:
+      min(72vw, 240px);
+
+    border-radius: 16px;
+  }
+
+
+  .album-info {
+    width: 100%;
+
+    padding-bottom: 0;
+  }
+
+
+  .album-info > span {
+    margin-bottom: 7px;
+
+    font-size: 7px;
+  }
+
+
+  .album-info h1 {
+    margin-bottom: 11px;
+
+    font-size:
+      clamp(35px, 11vw, 49px);
+
+    line-height: 1;
+  }
+
+
+  .album-artist-link {
+    font-size: 10px;
+  }
+
+
+  /* PLAY */
+
+  .album-actions {
+    min-height: 78px;
+
+    justify-content: center;
+
+    padding: 0;
+  }
+
+
+  .album-actions > button {
+    width: 53px;
+    height: 53px;
+  }
+
+
+  /* SONG LIST */
+
+  .album-song-list {
+    border-radius: 14px;
+  }
+
+
+  .album-song-row {
+    min-height: 67px;
+
+    grid-template-columns:
+      25px
+      minmax(0, 1fr)
+      35px;
+
+    gap: 9px;
+
+    padding:
+      10px
+      12px;
+  }
+
+
+  .album-category {
+    display: none;
+  }
+
+
+  .album-song-row > span:first-child {
+    font-size: 14px;
+  }
+
+
+  .album-song-row > div strong {
+    font-size: 10px;
+  }
+
+
+  .album-song-row > div > span {
+    font-size: 8px;
+  }
+
+
+  .album-song-row > button {
+    width: 31px;
+    height: 31px;
+
+    opacity: 1;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 390px) {
+
+  .album-page {
+    padding:
+      12px
+      9px
+      145px;
+  }
+
+
+  .album-hero {
+    padding:
+      22px
+      14px;
+  }
+
+
+  .album-cover {
+    width:
+      min(75vw, 220px);
+  }
+
+
+  .album-info h1 {
+    font-size:
+      clamp(32px, 11vw, 43px);
+  }
+
+
+  .album-song-row {
+    padding:
+      9px
+      10px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .album-back,
+  .album-back svg,
+  .album-cover,
+  .album-artist-link,
+  .album-actions > button,
+  .album-song-row,
+  .album-song-row > button {
+    transition: none;
+  }
+
+}

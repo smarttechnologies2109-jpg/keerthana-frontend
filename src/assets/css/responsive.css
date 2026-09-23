@@ -1,0 +1,1176 @@
+/* =========================================================
+   KEERTHANA — GLOBAL RESPONSIVE CSS
+   Desktop / Laptop / Tablet / Mobile / Small Mobile
+========================================================= */
+
+
+/* =========================================================
+   GLOBAL SAFETY
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+
+  margin: 0;
+
+  overflow-x: hidden;
+}
+
+#root,
+.app {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+
+/* =========================================================
+   MEDIA SAFETY
+========================================================= */
+
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+
+/* =========================================================
+   TEXT OVERFLOW SAFETY
+========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+strong {
+  overflow-wrap: break-word;
+}
+
+
+/* =========================================================
+   DESKTOP
+   1201px+
+========================================================= */
+
+@media (min-width: 1201px) {
+
+  .main-content {
+    width:
+      calc(
+        100% - var(--sidebar-width)
+      );
+
+    margin-left:
+      var(--sidebar-width);
+  }
+
+}
+
+
+/* =========================================================
+   LAPTOP
+   901px — 1200px
+========================================================= */
+
+@media
+(min-width: 901px)
+and
+(max-width: 1200px) {
+
+  :root {
+    --sidebar-width: 220px;
+  }
+
+
+  .main-content {
+    width:
+      calc(
+        100% - var(--sidebar-width)
+      );
+
+    margin-left:
+      var(--sidebar-width);
+  }
+
+
+  /* PAGE SPACING */
+
+  .playlists-page,
+  .premium-page,
+  .artists-page,
+  .artist-details-page,
+  .album-page,
+  .admin-songs-page {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+
+  /* GRID */
+
+  .playlist-grid,
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(0, 1fr)
+      );
+
+    gap: 15px;
+  }
+
+
+  /* PREMIUM */
+
+  .premium-benefits {
+    gap: 14px;
+  }
+
+
+  .premium-plans {
+    gap: 14px;
+  }
+
+
+  .premium-plan-card {
+    padding: 22px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+   701px — 900px
+========================================================= */
+
+@media
+(min-width: 701px)
+and
+(max-width: 900px) {
+
+  :root {
+    --sidebar-width: 200px;
+  }
+
+
+  .main-content {
+    width:
+      calc(
+        100% - var(--sidebar-width)
+      );
+
+    margin-left:
+      var(--sidebar-width);
+  }
+
+
+  /* =======================================================
+     PAGE SPACING
+  ======================================================= */
+
+  .playlists-page,
+  .premium-page,
+  .artists-page,
+  .artist-details-page,
+  .album-page,
+  .admin-songs-page {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+
+  /* =======================================================
+     PLAYLISTS
+  ======================================================= */
+
+  .playlist-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+
+    gap: 12px;
+  }
+
+
+  /* =======================================================
+     ARTISTS
+  ======================================================= */
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+
+    gap: 14px;
+  }
+
+
+  /* =======================================================
+     ARTIST DETAILS
+  ======================================================= */
+
+  .artist-hero {
+    gap: 22px;
+  }
+
+
+  .artist-hero-image {
+    width: 180px;
+    height: 180px;
+  }
+
+
+  .artist-hero h1 {
+    font-size:
+      clamp(
+        36px,
+        6vw,
+        60px
+      );
+  }
+
+
+  /* =======================================================
+     ALBUM
+  ======================================================= */
+
+  .album-hero {
+    gap: 22px;
+  }
+
+
+  .album-cover {
+    width: 180px;
+    height: 180px;
+  }
+
+
+  /* =======================================================
+     PREMIUM
+  ======================================================= */
+
+  .premium-benefits {
+    grid-template-columns: 1fr;
+
+    max-width: 650px;
+  }
+
+
+  .premium-plans {
+    grid-template-columns: 1fr;
+
+    max-width: 600px;
+
+    margin:
+      0
+      auto;
+  }
+
+
+  .premium-plan-card {
+    min-height: auto;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   481px — 700px
+========================================================= */
+
+@media
+(min-width: 481px)
+and
+(max-width: 700px) {
+
+  :root {
+    --sidebar-width: 0px;
+    --player-height: 90px;
+  }
+
+
+  /* =======================================================
+     APP
+  ======================================================= */
+
+  .main-content {
+    width: 100%;
+
+    margin-left: 0;
+
+    padding-bottom:
+      calc(
+        var(--player-height) + 65px
+      );
+  }
+
+
+  /* =======================================================
+     PAGE SPACING
+  ======================================================= */
+
+  .playlists-page,
+  .premium-page,
+  .artists-page,
+  .artist-details-page,
+  .album-page,
+  .admin-songs-page {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+
+  /* =======================================================
+     HEADERS
+  ======================================================= */
+
+  .playlists-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .playlists-header h1 {
+    font-size: 38px;
+  }
+
+
+  /* =======================================================
+     PLAYLISTS
+  ======================================================= */
+
+  .playlist-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 10px;
+  }
+
+
+  /* =======================================================
+     ARTISTS
+  ======================================================= */
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 12px;
+  }
+
+
+  .artists-header h1 {
+    font-size: 38px;
+  }
+
+
+  /* =======================================================
+     ARTIST DETAILS
+  ======================================================= */
+
+  .artist-hero {
+    align-items: center;
+
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+
+  .artist-hero-image {
+    width: 180px;
+    height: 180px;
+  }
+
+
+  .artist-hero h1 {
+    font-size: 42px;
+  }
+
+
+  .artist-actions {
+    display: flex;
+
+    justify-content: center;
+  }
+
+
+  /* =======================================================
+     ALBUM
+  ======================================================= */
+
+  .album-hero {
+    align-items: center;
+
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+
+  .album-cover {
+    width: 180px;
+    height: 180px;
+  }
+
+
+  .album-info h1 {
+    font-size: 42px;
+  }
+
+
+  .album-actions {
+    display: flex;
+
+    justify-content: center;
+  }
+
+
+  .album-category {
+    display: none;
+  }
+
+
+  .album-song-row {
+    grid-template-columns:
+      35px
+      minmax(0, 1fr)
+      40px;
+  }
+
+
+  /* =======================================================
+     PREMIUM
+  ======================================================= */
+
+  .premium-hero h1 {
+    font-size: 42px;
+  }
+
+
+  .premium-benefits,
+  .premium-plans {
+    grid-template-columns: 1fr;
+  }
+
+
+  .premium-plan-card {
+    min-height: auto;
+  }
+
+
+  .premium-status-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  /* =======================================================
+     ADMIN SONGS
+  ======================================================= */
+
+  .admin-songs-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .admin-add-button {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   381px — 480px
+========================================================= */
+
+@media
+(min-width: 381px)
+and
+(max-width: 480px) {
+
+  :root {
+    --sidebar-width: 0px;
+    --player-height: 85px;
+  }
+
+
+  .main-content {
+    width: 100%;
+
+    margin-left: 0;
+
+    padding-bottom:
+      calc(
+        var(--player-height) + 70px
+      );
+  }
+
+
+  /* =======================================================
+     PAGE PADDING
+  ======================================================= */
+
+  .playlists-page,
+  .premium-page,
+  .artists-page,
+  .artist-details-page,
+  .album-page,
+  .admin-songs-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+
+  /* =======================================================
+     PLAYLIST
+  ======================================================= */
+
+  .playlists-header h1 {
+    font-size: 34px;
+  }
+
+
+  .playlist-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 8px;
+  }
+
+
+  .playlist-card {
+    padding: 7px;
+  }
+
+
+  .playlist-card h3 {
+    font-size: 11px;
+  }
+
+
+  .playlist-card p {
+    font-size: 9px;
+  }
+
+
+  /* =======================================================
+     ARTISTS
+  ======================================================= */
+
+  .artists-header h1 {
+    font-size: 34px;
+  }
+
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 9px;
+  }
+
+
+  .artist-card {
+    padding: 9px;
+  }
+
+
+  .artist-card h3 {
+    font-size: 12px;
+  }
+
+
+  .artist-card p,
+  .artist-card > span {
+    font-size: 9px;
+  }
+
+
+  /* =======================================================
+     ARTIST DETAILS
+  ======================================================= */
+
+  .artist-hero {
+    align-items: center;
+
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+
+  .artist-hero-image {
+    width: 165px;
+    height: 165px;
+  }
+
+
+  .artist-hero h1 {
+    font-size: 37px;
+  }
+
+
+  .artist-actions {
+    display: flex;
+
+    justify-content: center;
+  }
+
+
+  .artist-song-row {
+    grid-template-columns:
+      28px
+      42px
+      minmax(0, 1fr)
+      35px;
+
+    gap: 8px;
+
+    padding:
+      6px
+      5px;
+  }
+
+
+  .artist-song-row > img {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  /* =======================================================
+     ALBUM
+  ======================================================= */
+
+  .album-hero {
+    align-items: center;
+
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+
+  .album-cover {
+    width: 165px;
+    height: 165px;
+  }
+
+
+  .album-info h1 {
+    font-size: 37px;
+  }
+
+
+  .album-actions {
+    display: flex;
+
+    justify-content: center;
+  }
+
+
+  .album-category {
+    display: none;
+  }
+
+
+  .album-song-row {
+    grid-template-columns:
+      28px
+      minmax(0, 1fr)
+      35px;
+
+    gap: 8px;
+
+    padding:
+      7px
+      5px;
+  }
+
+
+  /* =======================================================
+     PREMIUM
+  ======================================================= */
+
+  .premium-crown {
+    width: 58px;
+    height: 58px;
+  }
+
+
+  .premium-hero h1 {
+    font-size: 37px;
+  }
+
+
+  .premium-hero > p {
+    font-size: 11px;
+  }
+
+
+  .premium-benefits,
+  .premium-plans {
+    grid-template-columns: 1fr;
+  }
+
+
+  .premium-plan-card {
+    min-height: auto;
+
+    padding: 20px;
+  }
+
+
+  .premium-status-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  /* =======================================================
+     MODAL
+  ======================================================= */
+
+  .playlist-modal-backdrop {
+    align-items: flex-end;
+
+    padding: 8px;
+  }
+
+
+  .playlist-modal {
+    max-width: none;
+
+    padding:
+      22px
+      17px;
+
+    border-radius:
+      18px
+      18px
+      12px
+      12px;
+  }
+
+
+  .playlist-modal-actions {
+    display: grid;
+
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+
+  .playlist-modal-actions button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL MOBILE
+   <= 380px
+========================================================= */
+
+@media (max-width: 380px) {
+
+  :root {
+    --sidebar-width: 0px;
+    --player-height: 82px;
+  }
+
+
+  .main-content {
+    width: 100%;
+
+    margin-left: 0;
+
+    padding-bottom:
+      calc(
+        var(--player-height) + 70px
+      );
+  }
+
+
+  /* =======================================================
+     PAGE
+  ======================================================= */
+
+  .playlists-page,
+  .premium-page,
+  .artists-page,
+  .artist-details-page,
+  .album-page,
+  .admin-songs-page {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+
+  /* =======================================================
+     PLAYLIST
+  ======================================================= */
+
+  .playlists-header h1 {
+    font-size: 31px;
+  }
+
+
+  .playlist-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 6px;
+  }
+
+
+  .playlist-card {
+    padding: 6px;
+  }
+
+
+  /* =======================================================
+     ARTISTS
+  ======================================================= */
+
+  .artists-header h1 {
+    font-size: 31px;
+  }
+
+
+  .artists-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 7px;
+  }
+
+
+  .artist-card {
+    padding: 7px;
+  }
+
+
+  /* =======================================================
+     ARTIST DETAILS
+  ======================================================= */
+
+  .artist-hero-image {
+    width: 150px;
+    height: 150px;
+  }
+
+
+  .artist-hero h1 {
+    font-size: 34px;
+  }
+
+
+  .artist-song-row {
+    grid-template-columns:
+      25px
+      38px
+      minmax(0, 1fr)
+      32px;
+
+    gap: 6px;
+  }
+
+
+  .artist-song-row > img {
+    width: 38px;
+    height: 38px;
+  }
+
+
+  /* =======================================================
+     ALBUM
+  ======================================================= */
+
+  .album-cover {
+    width: 150px;
+    height: 150px;
+  }
+
+
+  .album-info h1 {
+    font-size: 34px;
+  }
+
+
+  .album-song-row {
+    grid-template-columns:
+      25px
+      minmax(0, 1fr)
+      32px;
+
+    gap: 6px;
+  }
+
+
+  /* =======================================================
+     PREMIUM
+  ======================================================= */
+
+  .premium-hero h1 {
+    font-size: 34px;
+  }
+
+
+  .premium-current-plan {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+
+  .premium-plan-card {
+    padding: 17px;
+  }
+
+
+  .premium-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  /* =======================================================
+     AUTH
+  ======================================================= */
+
+  .auth-page {
+    padding:
+      20px
+      10px;
+  }
+
+
+  .auth-card {
+    padding:
+      28px
+      18px;
+
+    border-radius: 14px;
+  }
+
+
+  .auth-card > h1 {
+    font-size: 25px;
+
+    letter-spacing: 3px;
+  }
+
+
+  /* =======================================================
+     ADMIN
+  ======================================================= */
+
+  .admin-songs-header h1 {
+    font-size: 28px;
+  }
+
+
+  .admin-song-summary {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   ADMIN TABLET
+========================================================= */
+
+@media
+(min-width: 761px)
+and
+(max-width: 1000px) {
+
+  .admin-sidebar {
+    width: 220px;
+  }
+
+
+  .admin-main {
+    width:
+      calc(
+        100% - 220px
+      );
+
+    margin-left: 220px;
+  }
+
+
+  .admin-main .admin-page {
+    padding:
+      28px
+      22px
+      80px;
+  }
+
+}
+
+
+/* =========================================================
+   ADMIN MOBILE
+========================================================= */
+
+@media (max-width: 760px) {
+
+  .admin-layout {
+    display: block;
+  }
+
+
+  .admin-main {
+    width: 100%;
+
+    margin-left: 0;
+
+    padding-bottom: 75px;
+  }
+
+
+  .admin-main .admin-page {
+    padding:
+      22px
+      13px
+      100px;
+  }
+
+
+  .admin-sidebar {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    width: 100%;
+    height: 68px;
+  }
+
+
+  .admin-song-table-wrapper,
+  .admin-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+
+  .admin-song-table {
+    min-width: 650px;
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) {
+
+  .playlist-card:hover,
+  .artist-card:hover,
+  .premium-benefit-card:hover,
+  .premium-plan-card:hover {
+    transform: none;
+  }
+
+
+  .create-playlist-button:hover,
+  .premium-plan-button:hover:not(:disabled) {
+    transform: none;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    transition-duration:
+      0.01ms !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+  }
+
+}

@@ -1,0 +1,513 @@
+/* =========================================================
+   KEERTHANA ADS / PREMIUM PROMOTION
+   Deep Blue + Teal + Gold Theme
+========================================================= */
+
+.keerthana-ad {
+  position: relative;
+
+  width: 100%;
+  max-width: 1100px;
+
+  box-sizing: border-box;
+
+  margin: 24px auto;
+  padding: 14px 16px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(13, 38, 51, 0.98) 0%,
+      rgba(8, 28, 39, 0.98) 55%,
+      rgba(14, 47, 53, 0.98) 100%
+    );
+
+  color: #f8f5ec;
+
+  box-shadow:
+    0 12px 35px
+    rgba(0, 0, 0, 0.14);
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+/* =========================================================
+   SUBTLE BACKGROUND GLOW
+========================================================= */
+
+.keerthana-ad::before {
+  content: "";
+
+  position: absolute;
+
+  top: -100px;
+  right: -70px;
+
+  width: 230px;
+  height: 230px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(214, 174, 93, 0.13),
+      transparent 68%
+    );
+
+  pointer-events: none;
+}
+
+
+.keerthana-ad::after {
+  content: "";
+
+  position: absolute;
+
+  left: -90px;
+  bottom: -130px;
+
+  width: 260px;
+  height: 260px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(43, 169, 154, 0.09),
+      transparent 68%
+    );
+
+  pointer-events: none;
+}
+
+
+.keerthana-ad:hover {
+  border-color:
+    rgba(43, 169, 154, 0.18);
+
+  box-shadow:
+    0 16px 42px
+    rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   AD LABEL
+========================================================= */
+
+.keerthana-ad-label {
+  position: relative;
+
+  z-index: 2;
+
+  display: inline-block;
+
+  margin-bottom: 9px;
+
+  color: #d6ae5d;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1.8px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.keerthana-ad-content {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.keerthana-ad-icon {
+  width: 44px;
+  height: 44px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(43, 169, 154, 0.16);
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(43, 169, 154, 0.15),
+      rgba(214, 174, 93, 0.08)
+    );
+
+  color: #55c7b9;
+
+  font-size: 17px;
+
+  box-shadow:
+    0 6px 18px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+.keerthana-ad-text {
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.keerthana-ad-text strong {
+  overflow: hidden;
+
+  color: #f8f5ec;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+}
+
+
+.keerthana-ad-text span {
+  color: #8fa6aa;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   PREMIUM BUTTON
+========================================================= */
+
+.keerthana-ad-premium {
+  flex-shrink: 0;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 10px 17px;
+
+  border: none;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f0d28b 0%,
+      #d6ae5d 100%
+    );
+
+  color: #071923;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 24px
+    rgba(214, 174, 93, 0.16);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+.keerthana-ad-premium:hover {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 11px 30px
+    rgba(214, 174, 93, 0.25);
+
+  filter: brightness(1.05);
+}
+
+
+.keerthana-ad-premium:active {
+  transform:
+    translateY(0);
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.keerthana-ad-close {
+  width: 31px;
+  height: 31px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid transparent;
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #70878d;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.keerthana-ad-close:hover {
+  border-color:
+    rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(255, 255, 255, 0.055);
+
+  color: #f8f5ec;
+
+  transform:
+    rotate(5deg);
+}
+
+
+/* =========================================================
+   NOTE
+========================================================= */
+
+.keerthana-ad-note {
+  position: relative;
+
+  z-index: 2;
+
+  margin-top: 9px;
+
+  color: #647c82;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   OPTIONAL PREMIUM VERSION
+========================================================= */
+
+.keerthana-ad.premium {
+  border-color:
+    rgba(214, 174, 93, 0.16);
+
+  background:
+    linear-gradient(
+      135deg,
+      #0c2633 0%,
+      #0c2d36 55%,
+      #153a3d 100%
+    );
+}
+
+
+.keerthana-ad.premium
+.keerthana-ad-icon {
+  border-color:
+    rgba(214, 174, 93, 0.18);
+
+  background:
+    rgba(214, 174, 93, 0.1);
+
+  color: #e8c878;
+}
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+========================================================= */
+
+.keerthana-ad-premium:focus-visible,
+.keerthana-ad-close:focus-visible {
+  outline:
+    2px solid
+    #55c7b9;
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .keerthana-ad {
+    margin:
+      20px
+      auto;
+
+    padding:
+      13px
+      14px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .keerthana-ad {
+    margin:
+      16px
+      auto;
+
+    padding:
+      13px;
+
+    border-radius: 13px;
+  }
+
+
+  .keerthana-ad-content {
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+
+    gap: 11px;
+  }
+
+
+  .keerthana-ad-icon {
+    width: 40px;
+    height: 40px;
+
+    font-size: 15px;
+  }
+
+
+  .keerthana-ad-text {
+    min-width:
+      calc(100% - 90px);
+  }
+
+
+  .keerthana-ad-text strong {
+    font-size: 12px;
+  }
+
+
+  .keerthana-ad-text span {
+    font-size: 10px;
+  }
+
+
+  .keerthana-ad-premium {
+    margin-left: 51px;
+
+    padding:
+      9px
+      15px;
+  }
+
+
+  .keerthana-ad-close {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .keerthana-ad {
+    padding:
+      12px;
+  }
+
+
+  .keerthana-ad-label {
+    font-size: 7px;
+  }
+
+
+  .keerthana-ad-premium {
+    width:
+      calc(100% - 51px);
+
+    margin-left: 51px;
+  }
+
+}

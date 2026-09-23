@@ -1,0 +1,1340 @@
+/* =========================================================
+   KEERTHANA — LISTENING HISTORY
+   Premium Dark Navy + Teal + Muted Gold
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.history-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    30px
+    clamp(24px, 4vw, 54px)
+    150px;
+
+  overflow: hidden;
+
+  color: #f3f0e8;
+
+  background:
+    radial-gradient(
+      circle at 12% 4%,
+      rgba(47, 145, 136, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(215, 181, 109, 0.035),
+      transparent 25%
+    ),
+    linear-gradient(
+      180deg,
+      #0a1c22 0%,
+      #07161b 42%,
+      #061217 100%
+    );
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.history-header {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 25px;
+
+  padding:
+    30px
+    32px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(18, 53, 61, 0.96),
+      rgba(10, 36, 43, 0.97) 52%,
+      rgba(7, 24, 30, 0.99)
+    );
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.22),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.035);
+}
+
+
+/* =========================================================
+   HEADER DECORATION
+========================================================= */
+
+.history-header::before {
+  content: "";
+
+  position: absolute;
+
+  width: 280px;
+  height: 280px;
+
+  top: -195px;
+  right: 120px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.075);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.history-header::after {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  right: -100px;
+  bottom: -145px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(51, 153, 144, 0.07);
+
+  filter: blur(40px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HEADER MAIN
+========================================================= */
+
+.history-header-main {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 18px;
+}
+
+
+/* =========================================================
+   HEADER ICON
+========================================================= */
+
+.history-header-icon {
+  width: 58px;
+  height: 58px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.13);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.10),
+      rgba(49, 156, 145, 0.055)
+    );
+
+  color: #d7b56d;
+
+  font-size: 19px;
+
+  box-shadow:
+    0 10px 26px
+    rgba(0, 0, 0, 0.22),
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.04);
+}
+
+
+/* =========================================================
+   HEADER CONTENT
+========================================================= */
+
+.history-header-content {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   EYEBROW
+========================================================= */
+
+.history-eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #5fc0b6;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.history-header-content h1 {
+  margin: 0;
+
+  color: #f6f2e8;
+
+  font-family:
+    "Cormorant Garamond",
+    "Noto Serif Telugu",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(37px, 4vw, 50px);
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing: -0.5px;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.history-header-content p {
+  margin:
+    9px
+    0
+    0;
+
+  color: #7d9398;
+
+  font-size: 9.5px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   CLEAR HISTORY BUTTON
+========================================================= */
+
+.history-clear-button {
+  position: relative;
+  z-index: 2;
+
+  min-height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+
+  padding:
+    0
+    16px;
+
+  border:
+    1px solid
+    rgba(219, 88, 97, 0.14);
+
+  border-radius: 10px;
+
+  background:
+    rgba(219, 88, 97, 0.055);
+
+  color: #c9787e;
+
+  font-family: inherit;
+
+  font-size: 8.5px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.history-clear-button svg {
+  font-size: 9px;
+}
+
+
+.history-clear-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(219, 88, 97, 0.28);
+
+  background:
+    rgba(219, 88, 97, 0.11);
+
+  color: #ee969c;
+
+  box-shadow:
+    0 8px 22px
+    rgba(219, 88, 97, 0.09);
+}
+
+
+.history-clear-button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.history-error {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin-bottom: 18px;
+
+  padding:
+    13px
+    16px;
+
+  border:
+    1px solid
+    rgba(219, 88, 97, 0.16);
+
+  border-radius: 10px;
+
+  background:
+    rgba(219, 88, 97, 0.055);
+
+  color: #df8c92;
+
+  font-size: 9px;
+  font-weight: 650;
+}
+
+
+/* =========================================================
+   HISTORY LIST
+========================================================= */
+
+.history-list {
+  width: 100%;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13, 29, 35, 0.94),
+      rgba(6, 18, 23, 0.97)
+    );
+
+  box-shadow:
+    0 18px 48px
+    rgba(0, 0, 0, 0.17);
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.history-list-header {
+  min-height: 47px;
+
+  display: grid;
+
+  grid-template-columns:
+    42px
+    minmax(260px, 1.5fr)
+    minmax(130px, 0.8fr)
+    minmax(160px, 0.8fr)
+    42px;
+
+  align-items: center;
+
+  gap: 12px;
+
+  box-sizing: border-box;
+
+  padding:
+    0
+    18px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  background:
+    rgba(255, 255, 255, 0.015);
+}
+
+
+.history-list-header span {
+  color: #5f777d;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   HISTORY ROW
+========================================================= */
+
+.history-row {
+  position: relative;
+
+  min-height: 76px;
+
+  display: grid;
+
+  grid-template-columns:
+    42px
+    minmax(260px, 1.5fr)
+    minmax(130px, 0.8fr)
+    minmax(160px, 0.8fr)
+    42px;
+
+  align-items: center;
+
+  gap: 12px;
+
+  box-sizing: border-box;
+
+  padding:
+    10px
+    18px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.035);
+
+  transition:
+    background 0.2s ease;
+}
+
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+
+.history-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(51, 153, 144, 0.065),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+
+/* =========================================================
+   TRACK NUMBER
+========================================================= */
+
+.history-number {
+  color: #526a70;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SONG
+========================================================= */
+
+.history-song {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+}
+
+
+/* =========================================================
+   COVER
+========================================================= */
+
+.history-cover {
+  position: relative;
+
+  width: 49px;
+  height: 49px;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.065);
+
+  border-radius: 9px;
+
+  background: #0c2228;
+
+  box-shadow:
+    0 6px 18px
+    rgba(0, 0, 0, 0.23);
+}
+
+
+.history-cover img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
+}
+
+
+.history-row:hover
+.history-cover img {
+  transform: scale(1.06);
+
+  filter: brightness(0.72);
+}
+
+
+/* =========================================================
+   COVER PLAY OVERLAY
+========================================================= */
+
+.history-cover > button {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+
+  background:
+    rgba(3, 13, 17, 0.48);
+
+  color: #efd18b;
+
+  font-size: 11px;
+
+  cursor: pointer;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.history-cover > button svg {
+  margin-left: 2px;
+}
+
+
+.history-cover:hover > button {
+  opacity: 1;
+}
+
+
+.history-cover > button:hover {
+  background:
+    rgba(3, 13, 17, 0.65);
+}
+
+
+/* =========================================================
+   SONG INFORMATION
+========================================================= */
+
+.history-song-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.history-song-info strong {
+  max-width: 360px;
+
+  overflow: hidden;
+
+  color: #e6ece9;
+
+  font-size: 10.5px;
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.history-row:hover
+.history-song-info strong {
+  color: #ffffff;
+}
+
+
+.history-song-info > span {
+  max-width: 340px;
+
+  overflow: hidden;
+
+  color: #738a8f;
+
+  font-size: 8.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+.history-song-info small {
+  max-width: 340px;
+
+  overflow: hidden;
+
+  color: #566e74;
+
+  font-size: 7.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ALBUM
+========================================================= */
+
+.history-album {
+  max-width: 220px;
+
+  overflow: hidden;
+
+  color: #71888d;
+
+  font-size: 8.5px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.history-date {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #687f84;
+
+  font-size: 8px;
+
+  white-space: nowrap;
+}
+
+
+.history-date > svg {
+  flex-shrink: 0;
+
+  color: #547d7c;
+
+  font-size: 8px;
+}
+
+
+.history-date > span {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   MAIN ROW PLAY BUTTON
+========================================================= */
+
+.history-play-button {
+  width: 33px;
+  height: 33px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #74898e;
+
+  font-size: 8px;
+
+  cursor: pointer;
+
+  opacity: 0.65;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.history-play-button svg {
+  margin-left: 1px;
+}
+
+
+.history-row:hover
+.history-play-button {
+  opacity: 1;
+
+  border-color:
+    rgba(215, 181, 109, 0.15);
+
+  background:
+    rgba(215, 181, 109, 0.07);
+
+  color: #d7b56d;
+}
+
+
+.history-play-button:hover {
+  transform: scale(1.09);
+
+  border-color:
+    rgba(215, 181, 109, 0.28);
+
+  background:
+    rgba(215, 181, 109, 0.14);
+
+  color: #efd18b;
+
+  box-shadow:
+    0 6px 18px
+    rgba(215, 181, 109, 0.11);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.history-empty {
+  min-height: 400px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 40px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.055);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 31, 37, 0.92),
+      rgba(7, 18, 23, 0.96)
+    );
+
+  text-align: center;
+
+  box-shadow:
+    0 15px 42px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+.history-empty > svg {
+  width: 70px;
+  height: 70px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 20px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(215, 181, 109, 0.12);
+
+  border-radius: 19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(215, 181, 109, 0.08),
+      rgba(49, 156, 145, 0.045)
+    );
+
+  color: #d7b56d;
+}
+
+
+.history-empty h2 {
+  margin: 0;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 29px;
+  font-weight: 700;
+}
+
+
+.history-empty p {
+  margin:
+    8px
+    0
+    0;
+
+  color: #667e84;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.history-loading {
+  min-height: 70vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+.history-loading > svg {
+  width: 60px;
+  height: 60px;
+
+  box-sizing: border-box;
+
+  margin-bottom: 18px;
+
+  padding: 17px;
+
+  border:
+    1px solid
+    rgba(85, 184, 174, 0.12);
+
+  border-radius: 16px;
+
+  background:
+    rgba(85, 184, 174, 0.045);
+
+  color: #5db9b0;
+
+  animation:
+    historyPulse
+    1.6s ease-in-out
+    infinite;
+}
+
+
+.history-loading h2 {
+  margin: 0;
+
+  color: #e9ece8;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 27px;
+}
+
+
+.history-loading p {
+  margin:
+    7px
+    0
+    0;
+
+  color: #637a80;
+
+  font-size: 9px;
+}
+
+
+@keyframes historyPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.06);
+
+    opacity: 1;
+  }
+
+}
+
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.history-clear-button:focus-visible,
+.history-play-button:focus-visible,
+.history-cover button:focus-visible {
+  outline:
+    2px solid
+    rgba(85, 184, 174, 0.65);
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .history-page {
+    padding:
+      26px
+      26px
+      145px;
+  }
+
+
+  .history-list {
+    overflow-x: auto;
+  }
+
+
+  .history-list-header,
+  .history-row {
+    min-width: 800px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .history-page {
+    padding:
+      15px
+      12px
+      155px;
+  }
+
+
+  /* HEADER */
+
+  .history-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 20px;
+
+    padding:
+      23px
+      19px;
+
+    border-radius: 17px;
+  }
+
+
+  .history-header-main {
+    align-items: flex-start;
+
+    gap: 13px;
+  }
+
+
+  .history-header-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 13px;
+
+    font-size: 16px;
+  }
+
+
+  .history-header-content h1 {
+    font-size:
+      clamp(31px, 10vw, 40px);
+  }
+
+
+  .history-header-content p {
+    font-size: 8.5px;
+  }
+
+
+  .history-clear-button {
+    width: 100%;
+
+    min-height: 42px;
+  }
+
+
+  /* MOBILE LIST */
+
+  .history-list {
+    overflow: visible;
+
+    border: none;
+
+    background: transparent;
+
+    box-shadow: none;
+  }
+
+
+  .history-list-header {
+    display: none;
+  }
+
+
+  .history-row {
+    min-width: 0;
+    min-height: 78px;
+
+    grid-template-columns:
+      23px
+      minmax(0, 1fr)
+      34px;
+
+    gap: 9px;
+
+    margin-bottom: 8px;
+
+    padding:
+      10px
+      11px;
+
+    border:
+      1px solid
+      rgba(255, 255, 255, 0.05);
+
+    border-radius: 12px;
+
+    background:
+      linear-gradient(
+        145deg,
+        rgba(14, 31, 37, 0.93),
+        rgba(7, 19, 24, 0.96)
+      );
+  }
+
+
+  .history-row:last-child {
+    border-bottom:
+      1px solid
+      rgba(255, 255, 255, 0.05);
+  }
+
+
+  .history-number {
+    font-size: 13px;
+  }
+
+
+  .history-song {
+    gap: 10px;
+  }
+
+
+  .history-cover {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 8px;
+  }
+
+
+  .history-cover > button {
+    display: none;
+  }
+
+
+  .history-song-info strong {
+    max-width: none;
+
+    font-size: 9.5px;
+  }
+
+
+  .history-song-info > span {
+    max-width: none;
+
+    font-size: 7.5px;
+  }
+
+
+  .history-song-info small {
+    max-width: none;
+
+    font-size: 7px;
+  }
+
+
+  .history-album,
+  .history-date {
+    display: none;
+  }
+
+
+  .history-play-button {
+    width: 31px;
+    height: 31px;
+
+    opacity: 1;
+  }
+
+
+  /* EMPTY */
+
+  .history-empty {
+    min-height: 330px;
+
+    padding: 30px 20px;
+
+    border-radius: 15px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 390px) {
+
+  .history-page {
+    padding:
+      12px
+      9px
+      150px;
+  }
+
+
+  .history-header {
+    padding:
+      20px
+      16px;
+  }
+
+
+  .history-header-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+
+  .history-header-content h1 {
+    font-size: 30px;
+  }
+
+
+  .history-row {
+    grid-template-columns:
+      19px
+      minmax(0, 1fr)
+      30px;
+
+    gap: 7px;
+
+    padding:
+      9px
+      8px;
+  }
+
+
+  .history-cover {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  .history-play-button {
+    width: 29px;
+    height: 29px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .history-clear-button,
+  .history-cover img,
+  .history-cover button,
+  .history-play-button {
+    transition: none;
+  }
+
+
+  .history-loading > svg {
+    animation: none;
+  }
+
+}

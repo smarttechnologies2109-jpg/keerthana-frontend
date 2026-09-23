@@ -1,0 +1,1229 @@
+/* =========================================================
+   KEERTHANA PREMIUM
+   Professional Premium Subscription UI
+   Navy + Teal + Warm Gold
+========================================================= */
+
+.premium-page {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  padding: 30px clamp(20px, 3vw, 46px) 150px;
+
+  color: #f4f1e8;
+
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(215, 181, 109, 0.06),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 10% 60%,
+      rgba(78, 181, 170, 0.04),
+      transparent 28%
+    );
+
+  font-family:
+    "Noto Sans Telugu",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.premium-hero {
+  position: relative;
+
+  min-height: 350px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  margin-bottom: 28px;
+  padding: 55px 30px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(215, 181, 109, 0.12);
+  border-radius: 28px;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(222, 188, 112, 0.15),
+      transparent 36%
+    ),
+    radial-gradient(
+      circle at 85% 70%,
+      rgba(73, 177, 166, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #123038 0%,
+      #0a242b 45%,
+      #071a20 100%
+    );
+
+  text-align: center;
+
+  box-shadow:
+    0 28px 65px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+
+.premium-hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  top: -300px;
+  left: 50%;
+
+  border: 1px solid rgba(215, 181, 109, 0.09);
+  border-radius: 50%;
+
+  transform: translateX(-50%);
+
+  box-shadow:
+    0 0 0 55px rgba(215, 181, 109, 0.015),
+    0 0 0 110px rgba(215, 181, 109, 0.008);
+
+  pointer-events: none;
+}
+
+
+.premium-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  right: -100px;
+  bottom: -120px;
+
+  border-radius: 50%;
+
+  background: rgba(70, 178, 166, 0.07);
+
+  filter: blur(30px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   CROWN
+========================================================= */
+
+.premium-crown {
+  position: relative;
+  z-index: 2;
+
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 17px;
+
+  border: 1px solid rgba(223, 190, 116, 0.2);
+  border-radius: 19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(223, 190, 116, 0.14),
+      rgba(223, 190, 116, 0.035)
+    );
+
+  color: #e2c078;
+
+  font-size: 27px;
+
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(215, 181, 109, 0.07);
+}
+
+
+/* =========================================================
+   PREMIUM BRAND
+========================================================= */
+
+.premium-brand {
+  position: relative;
+  z-index: 2;
+
+  margin-bottom: 10px;
+
+  color: #d8b970;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 2.8px;
+
+  text-transform: uppercase;
+}
+
+
+.premium-hero h1 {
+  position: relative;
+  z-index: 2;
+
+  max-width: 720px;
+
+  margin: 0;
+
+  color: #f7f2e7;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: clamp(42px, 5vw, 67px);
+  font-weight: 700;
+
+  line-height: 0.98;
+
+  letter-spacing: -0.7px;
+}
+
+
+.premium-hero > p {
+  position: relative;
+  z-index: 2;
+
+  max-width: 520px;
+
+  margin: 16px auto 0;
+
+  color: #7c9499;
+
+  font-size: 10px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   CURRENT PLAN
+========================================================= */
+
+.premium-current-plan {
+  position: relative;
+  z-index: 2;
+
+  min-width: 220px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-top: 27px;
+  padding: 12px 20px;
+
+  border: 1px solid rgba(215, 181, 109, 0.12);
+  border-radius: 12px;
+
+  background: rgba(5, 18, 22, 0.35);
+
+  backdrop-filter: blur(12px);
+}
+
+
+.premium-current-plan span {
+  color: #637c81;
+
+  font-size: 7px;
+  font-weight: 600;
+}
+
+
+.premium-current-plan strong {
+  margin-top: 3px;
+
+  color: #e0c27b;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 18px;
+}
+
+
+.premium-current-plan small {
+  margin-top: 3px;
+
+  color: #738b8f;
+
+  font-size: 7px;
+}
+
+
+/* =========================================================
+   PAYMENT MESSAGE
+========================================================= */
+
+.premium-payment-message {
+  max-width: 700px;
+
+  margin: 0 auto 28px;
+  padding: 13px 18px;
+
+  border: 1px solid rgba(215, 181, 109, 0.14);
+  border-radius: 11px;
+
+  background: rgba(215, 181, 109, 0.05);
+
+  color: #d4b975;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  text-align: center;
+}
+
+
+.premium-payment-message.success {
+  border-color: rgba(79, 187, 143, 0.18);
+
+  background: rgba(79, 187, 143, 0.06);
+
+  color: #74caa2;
+}
+
+
+/* =========================================================
+   BENEFITS
+========================================================= */
+
+.premium-benefits {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 15px;
+
+  margin-bottom: 55px;
+}
+
+
+.premium-benefit-card {
+  min-width: 0;
+
+  padding: 23px;
+
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 34, 40, 0.92),
+      rgba(7, 21, 26, 0.95)
+    );
+
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.14);
+
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+}
+
+
+.premium-benefit-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(89, 186, 176, 0.14);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 40, 46, 0.96),
+      rgba(8, 24, 29, 0.98)
+    );
+}
+
+
+.premium-benefit-icon {
+  width: 43px;
+  height: 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 15px;
+
+  border: 1px solid rgba(86, 188, 177, 0.13);
+  border-radius: 12px;
+
+  background: rgba(86, 188, 177, 0.055);
+
+  color: #66beb5;
+
+  font-size: 16px;
+}
+
+
+.premium-benefit-card h3 {
+  margin: 0;
+
+  color: #ecefe9;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+
+.premium-benefit-card p {
+  margin: 7px 0 0;
+
+  color: #687f84;
+
+  font-size: 8px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   PLANS SECTION
+========================================================= */
+
+.premium-plans-section {
+  margin-bottom: 55px;
+}
+
+
+.premium-section-title {
+  max-width: 550px;
+
+  margin: 0 auto 30px;
+
+  text-align: center;
+}
+
+
+.premium-section-title > span {
+  color: #60b9b0;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 2.3px;
+}
+
+
+.premium-section-title h2 {
+  margin: 7px 0 0;
+
+  color: #f1eee5;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 36px;
+  font-weight: 700;
+}
+
+
+.premium-section-title p {
+  margin: 8px auto 0;
+
+  color: #687f84;
+
+  font-size: 8.5px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   LOADING / ERROR
+========================================================= */
+
+.premium-plans-loading,
+.premium-plans-error {
+  max-width: 600px;
+
+  margin: 20px auto;
+  padding: 18px;
+
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+
+  background: rgba(11, 28, 33, 0.8);
+
+  color: #72898e;
+
+  font-size: 9px;
+
+  text-align: center;
+}
+
+
+.premium-plans-error {
+  border-color: rgba(220, 85, 95, 0.16);
+
+  background: rgba(220, 85, 95, 0.05);
+
+  color: #df8d94;
+}
+
+
+/* =========================================================
+   PLAN GRID
+========================================================= */
+
+.premium-plans {
+  max-width: 1040px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  align-items: stretch;
+
+  gap: 18px;
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   PLAN CARD
+========================================================= */
+
+.premium-plan-card {
+  position: relative;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  padding: 28px 25px 25px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      155deg,
+      rgba(16, 36, 42, 0.96),
+      rgba(7, 21, 26, 0.98)
+    );
+
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.18);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+.premium-plan-card:hover {
+  transform: translateY(-6px);
+
+  border-color: rgba(90, 188, 178, 0.13);
+
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.26);
+}
+
+
+/* =========================================================
+   FEATURED MONTHLY
+========================================================= */
+
+.premium-plan-featured {
+  border-color: rgba(215, 181, 109, 0.24);
+
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(215, 181, 109, 0.08),
+      transparent 35%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(22, 43, 46, 0.98),
+      rgba(8, 24, 28, 0.99)
+    );
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25),
+    0 0 35px rgba(215, 181, 109, 0.025);
+}
+
+
+.premium-plan-featured:hover {
+  border-color: rgba(215, 181, 109, 0.36);
+}
+
+
+/* =========================================================
+   POPULAR BADGE
+========================================================= */
+
+.premium-popular {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 5px 8px;
+
+  border: 1px solid rgba(215, 181, 109, 0.14);
+  border-radius: 20px;
+
+  background: rgba(215, 181, 109, 0.07);
+
+  color: #d8b970;
+
+  font-size: 6px;
+  font-weight: 800;
+
+  letter-spacing: 0.6px;
+}
+
+
+/* =========================================================
+   CURRENT BADGE
+========================================================= */
+
+.premium-current-badge {
+  width: fit-content;
+
+  margin-bottom: 13px;
+  padding: 5px 8px;
+
+  border: 1px solid rgba(77, 186, 143, 0.14);
+  border-radius: 20px;
+
+  background: rgba(77, 186, 143, 0.06);
+
+  color: #72c89f;
+
+  font-size: 6px;
+  font-weight: 800;
+
+  letter-spacing: 0.6px;
+}
+
+
+/* =========================================================
+   PLAN TEXT
+========================================================= */
+
+.premium-plan-subtitle {
+  display: block;
+
+  padding-right: 65px;
+
+  color: #5fb6ad;
+
+  font-size: 7px;
+  font-weight: 700;
+
+  letter-spacing: 0.7px;
+
+  text-transform: uppercase;
+}
+
+
+.premium-plan-card h3 {
+  margin: 8px 0 0;
+
+  color: #f0ede5;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 26px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.premium-price {
+  display: flex;
+  align-items: flex-end;
+
+  gap: 7px;
+
+  margin-top: 20px;
+}
+
+
+.premium-price strong {
+  color: #e1c17a;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 39px;
+  font-weight: 700;
+
+  line-height: 0.9;
+}
+
+
+.premium-price span {
+  padding-bottom: 3px;
+
+  color: #61797e;
+
+  font-size: 7px;
+}
+
+
+.premium-duration {
+  margin-top: 8px;
+
+  color: #72878c;
+
+  font-size: 7px;
+}
+
+
+/* =========================================================
+   FEATURE LIST
+========================================================= */
+
+.premium-feature-list {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 11px;
+
+  margin-top: 26px;
+  padding-top: 20px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+
+.premium-feature {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  color: #85979a;
+
+  font-size: 8px;
+
+  line-height: 1.4;
+}
+
+
+.premium-feature svg {
+  flex-shrink: 0;
+
+  color: #5eb7ae;
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   PLAN BUTTON
+========================================================= */
+
+.premium-plan-button {
+  width: 100%;
+  min-height: 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 26px;
+  padding: 0 14px;
+
+  border: 1px solid rgba(89, 186, 176, 0.14);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(74, 169, 159, 0.18),
+      rgba(74, 169, 159, 0.08)
+    );
+
+  color: #73c8bf;
+
+  font-family: inherit;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.premium-plan-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  border-color: rgba(95, 196, 185, 0.28);
+
+  background:
+    linear-gradient(
+      135deg,
+      #69c1b8,
+      #4ca99f
+    );
+
+  color: #061416;
+}
+
+
+/* FEATURED PLAN BUTTON */
+
+.premium-plan-featured
+.premium-plan-button:not(:disabled) {
+  border-color: rgba(215, 181, 109, 0.18);
+
+  background:
+    linear-gradient(
+      135deg,
+      #e6c77f,
+      #cfaa60
+    );
+
+  color: #0a1517;
+
+  box-shadow:
+    0 10px 24px rgba(215, 181, 109, 0.1);
+}
+
+
+.premium-plan-featured
+.premium-plan-button:hover:not(:disabled) {
+  background:
+    linear-gradient(
+      135deg,
+      #efd28c,
+      #d8b468
+    );
+}
+
+
+/* DISABLED */
+
+.premium-plan-button:disabled {
+  cursor: default;
+
+  border-color: rgba(255, 255, 255, 0.05);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #52676b;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   SUBSCRIPTION STATUS
+========================================================= */
+
+.premium-status {
+  padding: 27px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 33, 39, 0.92),
+      rgba(7, 21, 26, 0.96)
+    );
+
+  box-shadow:
+    0 15px 38px rgba(0, 0, 0, 0.15);
+}
+
+
+.premium-status > div:first-child > span {
+  color: #5eb4ac;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 1.8px;
+}
+
+
+.premium-status > div:first-child h3 {
+  margin: 5px 0 0;
+
+  color: #f0ede6;
+
+  font-family:
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+
+  font-size: 25px;
+}
+
+
+/* =========================================================
+   STATUS GRID
+========================================================= */
+
+.premium-status-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(150px, 1fr));
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+
+.premium-status-item {
+  min-width: 0;
+
+  padding: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 11px;
+
+  background: rgba(4, 17, 21, 0.38);
+}
+
+
+.premium-status-item span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #526a6f;
+
+  font-size: 6.5px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.6px;
+}
+
+
+.premium-status-item strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #c9d1cd;
+
+  font-size: 8.5px;
+  font-weight: 650;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.premium-plan-button:focus-visible {
+  outline: 2px solid rgba(98, 195, 185, 0.6);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 950px) {
+
+  .premium-page {
+    padding:
+      24px
+      22px
+      145px;
+  }
+
+
+  .premium-benefits {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+
+  .premium-plans {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    max-width: 700px;
+  }
+
+
+  .premium-plan-card:last-child {
+    grid-column: 1 / -1;
+
+    width: calc(50% - 9px);
+
+    justify-self: center;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .premium-page {
+    padding:
+      14px
+      12px
+      160px;
+  }
+
+
+  .premium-hero {
+    min-height: 320px;
+
+    padding:
+      40px
+      20px;
+
+    border-radius: 21px;
+  }
+
+
+  .premium-crown {
+    width: 57px;
+    height: 57px;
+
+    font-size: 24px;
+  }
+
+
+  .premium-hero h1 {
+    font-size: 42px;
+  }
+
+
+  .premium-hero > p {
+    font-size: 8.5px;
+  }
+
+
+  .premium-benefits {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 45px;
+  }
+
+
+  .premium-benefit-card {
+    padding: 18px;
+
+    display: grid;
+
+    grid-template-columns:
+      44px
+      1fr;
+
+    column-gap: 13px;
+
+    align-items: center;
+  }
+
+
+  .premium-benefit-icon {
+    grid-row: 1 / 3;
+
+    margin: 0;
+  }
+
+
+  .premium-benefit-card h3 {
+    font-size: 18px;
+  }
+
+
+  .premium-benefit-card p {
+    margin-top: 2px;
+  }
+
+
+  .premium-section-title h2 {
+    font-size: 31px;
+  }
+
+
+  .premium-plans {
+    grid-template-columns: 1fr;
+
+    max-width: 430px;
+  }
+
+
+  .premium-plan-card:last-child {
+    grid-column: auto;
+
+    width: 100%;
+  }
+
+
+  .premium-plan-card {
+    padding:
+      25px
+      21px
+      22px;
+  }
+
+
+  .premium-status {
+    padding: 20px;
+  }
+
+
+  .premium-status-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+  .premium-page {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+
+  .premium-hero {
+    min-height: 300px;
+
+    padding:
+      35px
+      17px;
+  }
+
+
+  .premium-hero h1 {
+    font-size: 36px;
+  }
+
+
+  .premium-current-plan {
+    min-width: 190px;
+  }
+
+
+  .premium-plan-card {
+    border-radius: 17px;
+  }
+
+
+  .premium-price strong {
+    font-size: 35px;
+  }
+
+
+  .premium-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .premium-benefit-card,
+  .premium-plan-card,
+  .premium-plan-button {
+    transition: none;
+  }
+
+}
