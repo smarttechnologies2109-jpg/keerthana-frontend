@@ -13,15 +13,46 @@ import {
   FaImage,
 } from "react-icons/fa";
 
-import API
-  from "../../services/api";
+import API from "../../services/api";
 
 import {
   getMediaUrl,
   DEFAULT_ALBUM,
 } from "../../utils/media";
 
-import "../../assets/css/manageAlbums.css";
+import "../../assets/css/admin/manageAlbums.css";
+
+
+/* =========================================================
+   LANGUAGES
+========================================================= */
+
+const LANGUAGES = [
+  {
+    value: "Telugu",
+    label: "తెలుగు",
+  },
+  {
+    value: "Hindi",
+    label: "हिन्दी",
+  },
+  {
+    value: "English",
+    label: "English",
+  },
+  {
+    value: "Malayalam",
+    label: "മലയാളം",
+  },
+  {
+    value: "Kannada",
+    label: "ಕನ್ನಡ",
+  },
+  {
+    value: "Tamil",
+    label: "தமிழ்",
+  },
+];
 
 
 function ManageAlbums() {
@@ -81,15 +112,11 @@ function ManageAlbums() {
 
   const [form, setForm] =
     useState({
-
       title: "",
-
+      language: "Telugu",
       artist_id: "",
-
       release_year: "",
-
       cover_url: "",
-
     });
 
 
@@ -113,40 +140,35 @@ function ManageAlbums() {
     try {
 
       setLoading(true);
-
       setError("");
-
 
       const [
         albumsResponse,
         artistsResponse,
-      ] =
-        await Promise.all([
+      ] = await Promise.all([
 
-          API.get(
-            "/admin/albums"
-          ),
+        API.get(
+          "/admin/albums"
+        ),
 
-          API.get(
-            "/admin/artists"
-          ),
+        API.get(
+          "/admin/artists"
+        ),
 
-        ]);
+      ]);
 
 
       setAlbums(
         albumsResponse
           .data
-          .albums ||
-        []
+          .albums || []
       );
 
 
       setArtists(
         artistsResponse
           .data
-          .artists ||
-        []
+          .artists || []
       );
 
 
@@ -157,14 +179,12 @@ function ManageAlbums() {
         error
       );
 
-
       setError(
         error.response
           ?.data
           ?.message ||
         "Unable to load albums."
       );
-
 
     } finally {
 
@@ -198,22 +218,16 @@ function ManageAlbums() {
 
 
     setForm({
-
       title: "",
-
+      language: "Telugu",
       artist_id: "",
-
       release_year: "",
-
       cover_url: "",
-
     });
 
 
     setError("");
-
     setSuccess("");
-
     setShowForm(true);
 
   };
@@ -253,6 +267,10 @@ function ManageAlbums() {
         album.title ||
         "",
 
+      language:
+        album.language ||
+        "Telugu",
+
       artist_id:
         album.artist_id
           ? String(
@@ -275,9 +293,7 @@ function ManageAlbums() {
 
 
     setError("");
-
     setSuccess("");
-
     setShowForm(true);
 
   };
@@ -292,7 +308,6 @@ function ManageAlbums() {
     if (saving) {
       return;
     }
-
 
     setShowForm(false);
 
@@ -318,18 +333,29 @@ function ManageAlbums() {
     const {
       name,
       value,
-    } =
-      event.target;
+    } = event.target;
+
+
+    if (
+      name === "language"
+    ) {
+
+      setForm(
+        (previous) => ({
+          ...previous,
+          language: value,
+          artist_id: "",
+        })
+      );
+
+      return;
+    }
 
 
     setForm(
       (previous) => ({
-
         ...previous,
-
-        [name]:
-          value,
-
+        [name]: value,
       })
     );
 
@@ -365,8 +391,6 @@ function ManageAlbums() {
     }
 
 
-    /* IMAGE CHECK */
-
     if (
       !file.type.startsWith(
         "image/"
@@ -383,8 +407,6 @@ function ManageAlbums() {
 
     }
 
-
-    /* SIZE CHECK - 5 MB */
 
     if (
       file.size >
@@ -446,6 +468,25 @@ function ManageAlbums() {
     }
 
 
+    const validLanguage =
+      LANGUAGES.some(
+        (language) =>
+          language.value ===
+          form.language
+      );
+
+
+    if (!validLanguage) {
+
+      setError(
+        "Please select a valid album language."
+      );
+
+      return;
+
+    }
+
+
     if (
       form.release_year
     ) {
@@ -480,13 +521,8 @@ function ManageAlbums() {
       setSaving(true);
 
       setError("");
-
       setSuccess("");
 
-
-      /* =================================================
-         FORM DATA
-      ================================================= */
 
       const formData =
         new FormData();
@@ -495,6 +531,12 @@ function ManageAlbums() {
       formData.append(
         "title",
         form.title.trim()
+      );
+
+
+      formData.append(
+        "language",
+        form.language
       );
 
 
@@ -510,11 +552,6 @@ function ManageAlbums() {
       );
 
 
-      /*
-        Only append the file when
-        the user selected a new image.
-      */
-
       if (coverFile) {
 
         formData.append(
@@ -525,9 +562,7 @@ function ManageAlbums() {
       }
 
 
-      /* =================================================
-         UPDATE
-      ================================================= */
+      /* UPDATE */
 
       if (
         editingAlbum
@@ -552,9 +587,7 @@ function ManageAlbums() {
       }
 
 
-      /* =================================================
-         CREATE
-      ================================================= */
+      /* CREATE */
 
       else {
 
@@ -598,14 +631,12 @@ function ManageAlbums() {
         error
       );
 
-
       setError(
         error.response
           ?.data
           ?.message ||
         "Unable to save album."
       );
-
 
     } finally {
 
@@ -642,7 +673,6 @@ function ManageAlbums() {
       );
 
       setError("");
-
       setSuccess("");
 
 
@@ -692,7 +722,7 @@ function ManageAlbums() {
 
 
   /* =====================================================
-     FILTER
+     SEARCH
   ===================================================== */
 
   const query =
@@ -713,14 +743,12 @@ function ManageAlbums() {
         return [
 
           album.title,
-
           album.artist_name,
-
+          album.language,
           album.release_year,
 
         ]
           .filter(Boolean)
-
           .some(
             (value) =>
               String(value)
@@ -771,6 +799,19 @@ function ManageAlbums() {
 
 
   /* =====================================================
+     LANGUAGE MATCHING ARTISTS
+  ===================================================== */
+
+  const filteredArtists =
+    artists.filter(
+      (artist) =>
+        (artist.language ||
+          "Telugu") ===
+        form.language
+    );
+
+
+  /* =====================================================
      LOADING
   ===================================================== */
 
@@ -798,9 +839,7 @@ function ManageAlbums() {
     <div className="admin-page">
 
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
       <div className="admin-header">
 
@@ -837,16 +876,12 @@ function ManageAlbums() {
       </div>
 
 
-      {/* =================================================
-          MESSAGES
-      ================================================= */}
+      {/* MESSAGES */}
 
       {error && (
 
         <div className="admin-error">
-
           {error}
-
         </div>
 
       )}
@@ -855,17 +890,13 @@ function ManageAlbums() {
       {success && (
 
         <div className="admin-success">
-
           {success}
-
         </div>
 
       )}
 
 
-      {/* =================================================
-          TOOLBAR
-      ================================================= */}
+      {/* SEARCH */}
 
       <div className="admin-song-toolbar">
 
@@ -881,7 +912,7 @@ function ManageAlbums() {
                 event.target.value
               )
             }
-            placeholder="Search albums or artists..."
+            placeholder="Search albums, artists or language..."
           />
 
         </div>
@@ -894,9 +925,7 @@ function ManageAlbums() {
           <span>
 
             {filteredAlbums.length}
-
             {" "}
-
             {filteredAlbums.length === 1
               ? "Album"
               : "Albums"}
@@ -908,9 +937,7 @@ function ManageAlbums() {
       </div>
 
 
-      {/* =================================================
-          TABLE
-      ================================================= */}
+      {/* TABLE */}
 
       {filteredAlbums.length === 0 ? (
 
@@ -964,6 +991,10 @@ function ManageAlbums() {
                 </th>
 
                 <th>
+                  Language
+                </th>
+
+                <th>
                   Artist
                 </th>
 
@@ -995,6 +1026,15 @@ function ManageAlbums() {
                     );
 
 
+                  const languageLabel =
+                    LANGUAGES.find(
+                      (language) =>
+                        language.value ===
+                        album.language
+                    )?.label ||
+                    "తెలుగు";
+
+
                   return (
 
                     <tr
@@ -1013,7 +1053,9 @@ function ManageAlbums() {
 
                             <img
                               src={cover}
-                              alt={album.title}
+                              alt={
+                                album.title
+                              }
                               onError={(
                                 event
                               ) => {
@@ -1028,12 +1070,19 @@ function ManageAlbums() {
 
 
                           <strong>
-
                             {album.title}
-
                           </strong>
 
                         </div>
+
+                      </td>
+
+
+                      {/* LANGUAGE */}
+
+                      <td>
+
+                        {languageLabel}
 
                       </td>
 
@@ -1129,9 +1178,7 @@ function ManageAlbums() {
       )}
 
 
-      {/* =================================================
-          ADD / EDIT MODAL
-      ================================================= */}
+      {/* ADD / EDIT MODAL */}
 
       {showForm && (
 
@@ -1165,6 +1212,7 @@ function ManageAlbums() {
                 type="button"
                 className="admin-modal-close"
                 onClick={closeForm}
+                disabled={saving}
               >
 
                 <FaTimes />
@@ -1183,6 +1231,50 @@ function ManageAlbums() {
             >
 
 
+              {/* LANGUAGE */}
+
+              <div className="admin-field">
+
+                <label>
+                  Album Language *
+                </label>
+
+
+                <select
+                  name="language"
+                  value={
+                    form.language
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                >
+
+                  {LANGUAGES.map(
+                    (language) => (
+
+                      <option
+                        key={
+                          language.value
+                        }
+                        value={
+                          language.value
+                        }
+                      >
+
+                        {language.label}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+
               {/* TITLE */}
 
               <div className="admin-field">
@@ -1190,6 +1282,7 @@ function ManageAlbums() {
                 <label>
                   Album Title *
                 </label>
+
 
                 <input
                   type="text"
@@ -1200,7 +1293,9 @@ function ManageAlbums() {
                   onChange={
                     handleChange
                   }
-                  placeholder="Album title"
+                  placeholder={
+                    `${form.language} album title`
+                  }
                   required
                 />
 
@@ -1214,6 +1309,7 @@ function ManageAlbums() {
                 <label>
                   Artist
                 </label>
+
 
                 <select
                   name="artist_id"
@@ -1230,26 +1326,54 @@ function ManageAlbums() {
                   </option>
 
 
-                  {artists.map(
-                    (artist) => (
+                  {filteredArtists.length === 0 ? (
 
-                      <option
-                        key={
-                          artist.id
-                        }
-                        value={
-                          artist.id
-                        }
-                      >
+                    <option
+                      value=""
+                      disabled
+                    >
+                      No {form.language} artists available
+                    </option>
 
-                        {artist.name}
+                  ) : (
 
-                      </option>
+                    filteredArtists.map(
+                      (artist) => (
 
+                        <option
+                          key={
+                            artist.id
+                          }
+                          value={
+                            artist.id
+                          }
+                        >
+
+                          {artist.name}
+
+                        </option>
+
+                      )
                     )
+
                   )}
 
                 </select>
+
+
+                <small>
+
+                  Only{" "}
+                  {
+                    LANGUAGES.find(
+                      (language) =>
+                        language.value ===
+                        form.language
+                    )?.label
+                  }{" "}
+                  artists are shown.
+
+                </small>
 
               </div>
 
@@ -1261,6 +1385,7 @@ function ManageAlbums() {
                 <label>
                   Release Year
                 </label>
+
 
                 <input
                   type="number"
@@ -1279,9 +1404,7 @@ function ManageAlbums() {
               </div>
 
 
-              {/* =================================================
-                  COVER IMAGE
-              ================================================= */}
+              {/* COVER */}
 
               <div className="admin-field">
 
@@ -1290,13 +1413,10 @@ function ManageAlbums() {
                 </label>
 
 
-                <div
-                  className="album-cover-upload"
-                >
+                <div className="album-cover-upload">
 
-                  <div
-                    className="album-cover-upload-preview"
-                  >
+
+                  <div className="album-cover-upload-preview">
 
                     <img
                       src={
@@ -1317,9 +1437,7 @@ function ManageAlbums() {
                   </div>
 
 
-                  <div
-                    className="album-cover-upload-content"
-                  >
+                  <div className="album-cover-upload-content">
 
                     <div className="album-cover-upload-icon">
 
@@ -1343,13 +1461,12 @@ function ManageAlbums() {
                     </span>
 
 
-                    <label
-                      className="admin-primary-button album-cover-select"
-                    >
+                    <label className="admin-primary-button album-cover-select">
 
                       <FaImage />
 
                       Choose Image
+
 
                       <input
                         type="file"
@@ -1368,9 +1485,11 @@ function ManageAlbums() {
 
 
                 <small>
+
                   Cover image is optional.
                   If you don't upload an image,
                   the default album cover will be used.
+
                 </small>
 
               </div>
@@ -1390,9 +1509,7 @@ function ManageAlbums() {
                     closeForm
                   }
                 >
-
                   Cancel
-
                 </button>
 
 

@@ -1,0 +1,322 @@
+.owner-login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(124, 58, 237, 0.25),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(37, 99, 235, 0.2),
+      transparent 35%
+    ),
+    #09090f;
+  box-sizing: border-box;
+}
+
+.owner-login-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 42px;
+  border-radius: 24px;
+  background: rgba(20, 20, 31, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.owner-login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.owner-logo {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 18px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #2563eb
+  );
+  color: #ffffff;
+  font-size: 26px;
+  box-shadow:
+    0 10px 30px rgba(124, 58, 237, 0.35);
+}
+
+.owner-login-header h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.owner-login-header p {
+  margin: 8px 0 0;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.owner-login-error {
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-size: 14px;
+}
+
+.owner-input-group {
+  margin-bottom: 20px;
+}
+
+.owner-input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.owner-input-wrapper {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 15px;
+  border-radius: 12px;
+  background: #11111b;
+  border: 1px solid #292936;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.owner-input-wrapper:focus-within {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.owner-input-wrapper > svg {
+  flex-shrink: 0;
+  color: #8b5cf6;
+  font-size: 16px;
+}
+
+.owner-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.owner-input-wrapper input::placeholder {
+  color: #6b7280;
+}
+
+.owner-password-toggle {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.owner-password-toggle:hover {
+  color: #ffffff;
+}
+
+.owner-login-button {
+  width: 100%;
+  height: 52px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #2563eb
+  );
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.owner-login-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 25px rgba(124, 58, 237, 0.3);
+}
+
+.owner-login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.owner-login-footer {
+  margin-top: 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.owner-login-footer span {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.owner-login-footer small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .owner-login-page {
+    padding: 20px;
+  }
+
+  .owner-login-card {
+    padding: 30px 22px;
+    border-radius: 20px;
+  }
+
+  .owner-login-header h1 {
+    font-size: 24px;
+  }
+}
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+.owner-forgot-password {
+  width: 100%;
+  margin-top: -8px;
+  margin-bottom: 18px;
+  text-align: right;
+}
+
+.owner-forgot-password a {
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.owner-forgot-password a:hover {
+  color: #3730a3;
+  text-decoration: underline;
+}
+/* =========================================================
+   PASSWORD INPUT
+========================================================= */
+
+.owner-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.owner-input-wrapper > svg {
+  position: absolute;
+  left: 15px;
+  z-index: 2;
+
+  color: #6b7280;
+  font-size: 15px;
+
+  pointer-events: none;
+}
+
+/* Password input */
+.owner-input-wrapper input {
+  width: 100%;
+  height: 50px;
+
+  box-sizing: border-box;
+
+  padding: 0 48px 0 44px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #111827;
+
+  font-size: 14px;
+}
+
+/* Eye button */
+.owner-password-toggle {
+  position: absolute;
+
+  right: 7px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #6b7280;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  z-index: 5;
+}
+
+.owner-password-toggle:hover {
+  background: #f3f4f6;
+  color: #4f46e5;
+}
+
+.owner-password-toggle:focus {
+  outline: none;
+
+  background: #f3f4f6;
+  color: #4f46e5;
+}
+
+.owner-password-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

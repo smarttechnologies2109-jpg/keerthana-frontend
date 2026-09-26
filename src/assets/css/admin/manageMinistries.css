@@ -1,0 +1,1199 @@
+/* =========================================================
+   KEERTHANA - MANAGE MINISTRIES
+   IMPORTANT:
+   Works with existing AdminSidebar + AdminHeader
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.admin-ministries-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #f5f7fb;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+/*
+  Sidebar is handled by AdminSidebar.
+  Header is handled by AdminHeader.
+
+  Give the ministries content its own safe area.
+*/
+
+.admin-ministries-main {
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+
+  /*
+    Change these two values ONLY if your existing
+    sidebar/header use different sizes.
+  */
+
+  margin-left: 250px;
+  padding-top: 75px;
+
+  padding-bottom: 40px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.admin-ministries-header {
+  width: calc(100% - 50px);
+  margin: 25px auto 0;
+
+  min-height: 75px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 20px 24px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.admin-ministries-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  min-width: 0;
+}
+
+
+.admin-ministries-title-icon {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eef2ff;
+  color: #4f46e5;
+
+  font-size: 23px;
+}
+
+
+.admin-ministries-title h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 25px;
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+
+.admin-ministries-title p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.admin-ministry-add-button {
+  flex-shrink: 0;
+
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #4f46e5;
+  color: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+
+.admin-ministry-add-button:hover {
+  background: #4338ca;
+}
+
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.admin-ministry-alert {
+  width: calc(100% - 50px);
+
+  margin: 18px auto 0;
+
+  box-sizing: border-box;
+
+  padding: 13px 16px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+
+.admin-ministry-alert.error {
+  background: #fef2f2;
+  color: #b91c1c;
+
+  border: 1px solid #fecaca;
+}
+
+
+.admin-ministry-alert.success {
+  background: #f0fdf4;
+  color: #15803d;
+
+  border: 1px solid #bbf7d0;
+}
+
+
+/* =========================================================
+   FORM CARD
+========================================================= */
+
+.admin-ministry-form-card {
+  width: calc(100% - 50px);
+
+  margin: 20px auto 0;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   FORM HEADER
+========================================================= */
+
+.admin-ministry-form-header {
+  min-height: 65px;
+
+  padding: 18px 22px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.admin-ministry-form-header h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+.admin-ministry-form-header p {
+  margin: 4px 0 0;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+.admin-ministry-close-button {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #f3f4f6;
+  color: #6b7280;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+
+.admin-ministry-close-button:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.admin-ministry-form {
+  padding: 22px;
+
+  box-sizing: border-box;
+
+  display: grid;
+
+  gap: 18px;
+}
+
+
+.admin-ministry-field {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.admin-ministry-field label {
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+.admin-ministry-field label span {
+  color: #dc2626;
+
+  margin-left: 3px;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.admin-ministry-field input,
+.admin-ministry-field select,
+.admin-ministry-field textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #111827;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-ministry-field input,
+.admin-ministry-field select {
+  height: 43px;
+
+  padding: 0 12px;
+}
+
+
+.admin-ministry-field textarea {
+  min-height: 105px;
+
+  padding: 11px 12px;
+
+  resize: vertical;
+}
+
+
+.admin-ministry-field input:focus,
+.admin-ministry-field select:focus,
+.admin-ministry-field textarea:focus {
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+
+.admin-ministry-field small {
+  color: #6b7280;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   IMAGE UPLOAD
+========================================================= */
+
+.admin-ministry-upload-box {
+  position: relative;
+
+  width: 100%;
+  min-height: 130px;
+
+  box-sizing: border-box;
+
+  padding: 20px;
+
+  border: 2px dashed #c7d2fe;
+  border-radius: 11px;
+
+  background: #f8faff;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  gap: 9px;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-ministry-upload-box:hover {
+  border-color: #818cf8;
+
+  background: #f5f3ff;
+}
+
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+.admin-ministry-upload-box input[type="file"] {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   BROWSE BUTTON
+========================================================= */
+
+.admin-ministry-upload-button {
+  min-height: 40px;
+
+  padding: 0 17px;
+
+  box-sizing: border-box;
+
+  border-radius: 8px;
+
+  background: #4f46e5;
+  color: #ffffff !important;
+
+  display: inline-flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-ministry-upload-button:hover {
+  background: #4338ca;
+}
+
+
+/* =========================================================
+   IMAGE PREVIEW
+========================================================= */
+
+.admin-ministry-image-preview {
+  width: 150px;
+  height: 150px;
+
+  margin-top: 3px;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #f3f4f6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.admin-ministry-image-preview img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   FORM BUTTONS
+========================================================= */
+
+.admin-ministry-form-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding-top: 3px;
+}
+
+
+.admin-ministry-cancel-button,
+.admin-ministry-save-button {
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  border-radius: 8px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.admin-ministry-cancel-button {
+  background: #ffffff;
+
+  color: #374151;
+
+  border: 1px solid #d1d5db;
+}
+
+
+.admin-ministry-cancel-button:hover {
+  background: #f9fafb;
+}
+
+
+.admin-ministry-save-button {
+  background: #4f46e5;
+
+  color: #ffffff;
+
+  border: none;
+}
+
+
+.admin-ministry-save-button:hover {
+  background: #4338ca;
+}
+
+
+.admin-ministry-cancel-button:disabled,
+.admin-ministry-save-button:disabled,
+.admin-ministry-close-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   LIST CARD
+========================================================= */
+
+.admin-ministry-list-card {
+  width: calc(100% - 50px);
+
+  margin: 20px auto 0;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   LIST HEADER
+========================================================= */
+
+.admin-ministry-list-header {
+  padding: 18px 22px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.admin-ministry-list-header > div {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+
+.admin-ministry-list-header h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+.admin-ministry-list-header span {
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.admin-ministry-loading {
+  min-height: 250px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+}
+
+
+.admin-ministry-loading p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+.admin-ministry-spinner {
+  width: 32px;
+  height: 32px;
+
+  border: 4px solid #e5e7eb;
+
+  border-top-color: #4f46e5;
+
+  border-radius: 50%;
+
+  animation: ministrySpin 0.8s linear infinite;
+}
+
+
+@keyframes ministrySpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.admin-ministry-empty {
+  min-height: 280px;
+
+  padding: 35px 20px;
+
+  box-sizing: border-box;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+.admin-ministry-empty > svg {
+  margin-bottom: 13px;
+
+  font-size: 44px;
+
+  color: #a5b4fc;
+}
+
+
+.admin-ministry-empty h3 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 18px;
+}
+
+
+.admin-ministry-empty p {
+  max-width: 400px;
+
+  margin: 7px 0 18px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+.admin-ministry-empty-button {
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #4f46e5;
+
+  color: #ffffff;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   MINISTRY GRID
+========================================================= */
+
+.admin-ministry-grid {
+  padding: 22px;
+
+  box-sizing: border-box;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(250px, 1fr)
+    );
+
+  gap: 18px;
+}
+
+
+/* =========================================================
+   MINISTRY CARD
+========================================================= */
+
+.admin-ministry-card {
+  min-width: 0;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-ministry-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================================================
+   CARD IMAGE
+========================================================= */
+
+.admin-ministry-card-image {
+  width: 100%;
+  height: 170px;
+
+  background: #f3f4f6;
+
+  overflow: hidden;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+
+.admin-ministry-card-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+
+.admin-ministry-card-image > svg {
+  color: #a5b4fc;
+
+  font-size: 48px;
+}
+
+
+/* =========================================================
+   CARD CONTENT
+========================================================= */
+
+.admin-ministry-card-content {
+  padding: 16px;
+
+  box-sizing: border-box;
+}
+
+
+.admin-ministry-card-content h3 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  line-height: 1.4;
+
+  word-break: break-word;
+}
+
+
+.admin-ministry-language {
+  width: fit-content;
+
+  margin-top: 8px;
+
+  padding: 4px 9px;
+
+  border-radius: 20px;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+.admin-ministry-card-content p {
+  margin: 10px 0 0;
+
+  color: #6b7280;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+
+  word-break: break-word;
+}
+
+
+.admin-ministry-card-content p.no-description {
+  color: #9ca3af;
+
+  font-style: italic;
+}
+
+
+/* =========================================================
+   CARD FOOTER
+========================================================= */
+
+.admin-ministry-card-footer {
+  margin-top: 15px;
+
+  padding-top: 12px;
+
+  border-top: 1px solid #e5e7eb;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+
+.admin-ministry-card-footer > span {
+  color: #9ca3af;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   CARD ACTIONS
+========================================================= */
+
+.admin-ministry-card-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+
+.admin-ministry-edit-button,
+.admin-ministry-delete-button {
+  width: 32px;
+  height: 32px;
+
+  border-radius: 7px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-ministry-edit-button {
+  border: 1px solid #c7d2fe;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+}
+
+
+.admin-ministry-edit-button:hover {
+  background: #e0e7ff;
+}
+
+
+.admin-ministry-delete-button {
+  border: 1px solid #fecaca;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+}
+
+
+.admin-ministry-delete-button:hover {
+  background: #fee2e2;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1400px) {
+
+  .admin-ministries-main {
+    margin-left: 260px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .admin-ministries-main {
+    margin-left: 220px;
+
+    padding-top: 70px;
+  }
+
+
+  .admin-ministries-header,
+  .admin-ministry-form-card,
+  .admin-ministry-list-card,
+  .admin-ministry-alert {
+    width: calc(100% - 35px);
+  }
+
+
+  .admin-ministry-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-ministries-main {
+    margin-left: 0;
+
+    padding-top: 70px;
+  }
+
+
+  .admin-ministries-header {
+    width: calc(100% - 30px);
+
+    margin-top: 15px;
+
+    padding: 17px;
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  .admin-ministry-add-button {
+    width: 100%;
+  }
+
+
+  .admin-ministry-alert,
+  .admin-ministry-form-card,
+  .admin-ministry-list-card {
+    width: calc(100% - 30px);
+  }
+
+
+  .admin-ministry-form-card,
+  .admin-ministry-list-card {
+    margin-top: 15px;
+  }
+
+
+  .admin-ministry-grid {
+    grid-template-columns: 1fr;
+
+    padding: 16px;
+  }
+
+
+  .admin-ministry-form {
+    padding: 17px;
+  }
+
+
+  .admin-ministry-form-actions {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+  }
+
+
+  .admin-ministry-cancel-button,
+  .admin-ministry-save-button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .admin-ministries-title-icon {
+    width: 46px;
+    height: 46px;
+
+    font-size: 20px;
+  }
+
+
+  .admin-ministries-title h1 {
+    font-size: 21px;
+  }
+
+
+  .admin-ministries-title p {
+    font-size: 11px;
+  }
+
+
+  .admin-ministry-form-header {
+    padding: 16px;
+  }
+
+
+  .admin-ministry-form {
+    padding: 16px;
+  }
+
+
+  .admin-ministry-list-header {
+    padding: 16px;
+  }
+
+
+  .admin-ministry-grid {
+    padding: 14px;
+  }
+
+
+  .admin-ministry-card-image {
+    height: 160px;
+  }
+
+
+  .admin-ministry-image-preview {
+    width: 130px;
+    height: 130px;
+  }
+
+}

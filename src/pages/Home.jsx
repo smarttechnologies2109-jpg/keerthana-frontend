@@ -22,12 +22,18 @@ import {
 } from "../context/PlayerContext";
 
 import {
-  getMediaUrl,
+  getSongCover,
+  getAlbumCover,
+  getArtistImage,
+  getCategoryImage,
 } from "../utils/media";
 
 import "../assets/css/home.css";
 
 
+/* =====================================================
+   HOME
+===================================================== */
 
 function Home() {
 
@@ -59,28 +65,29 @@ function Home() {
 
   const [albums, setAlbums] =
     useState([]);
-const [
-  recentlyPlayed,
-  setRecentlyPlayed,
-] =
-  useState([]);
 
+  const [
+    recentlyPlayed,
+    setRecentlyPlayed,
+  ] =
+    useState([]);
 
-/* =====================================================
-   CONTINUE LISTENING
-===================================================== */
+  const [
+    continueListening,
+    setContinueListening,
+  ] =
+    useState([]);
 
-const [
-  continueListening,
-  setContinueListening,
-] =
-  useState([]);
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(true);
 
-
-const [loading, setLoading] =
-  useState(true);
-
-  const [error, setError] =
+  const [
+    error,
+    setError,
+  ] =
     useState("");
 
 
@@ -92,43 +99,116 @@ const [loading, setLoading] =
 
     let active = true;
 
-    const normalizeHistorySongs = (items = []) =>
-      items
+
+    /* ===================================================
+       NORMALIZE HISTORY SONGS
+    =================================================== */
+
+    const normalizeHistorySongs = (
+      items = []
+    ) => {
+
+      return items
+
         .map((item) => {
-          if (item?.song && typeof item.song === "object") {
+
+          if (
+            item?.song &&
+            typeof item.song === "object"
+          ) {
+
             return {
+
               ...item.song,
+
               played_at:
                 item.played_at ||
                 item.updated_at ||
                 item.song.played_at ||
                 null,
+
             };
+
           }
 
           return item;
+
         })
-        .filter((song) => song && song.id);
 
-    const dedupeSongs = (items = [], limit = 6) => {
-      const unique = new Map();
+        .filter(
+          (song) =>
+            song &&
+            song.id
+        );
 
-      for (const song of items) {
-        if (song?.id && !unique.has(song.id)) {
-          unique.set(song.id, song);
-        }
-      }
-
-      return Array.from(unique.values()).slice(0, limit);
     };
 
-    const loadHome = async ({ showLoader = false } = {}) => {
-      try {
-        if (showLoader) {
-          setLoading(true);
+
+    /* ===================================================
+       DEDUPE SONGS
+    =================================================== */
+
+    const dedupeSongs = (
+      items = [],
+      limit = 6
+    ) => {
+
+      const unique =
+        new Map();
+
+
+      for (
+        const song of items
+      ) {
+
+        if (
+          song?.id &&
+          !unique.has(
+            song.id
+          )
+        ) {
+
+          unique.set(
+            song.id,
+            song
+          );
+
         }
 
+      }
+
+
+      return Array
+        .from(
+          unique.values()
+        )
+        .slice(
+          0,
+          limit
+        );
+
+    };
+
+
+    /* ===================================================
+       LOAD HOME
+    =================================================== */
+
+    const loadHome = async ({
+      showLoader = false,
+    } = {}) => {
+
+      try {
+
+        if (showLoader) {
+
+          setLoading(true);
+
+        }
+
+
         setError("");
+
 
         const [
           songsResponse,
@@ -136,134 +216,293 @@ const [loading, setLoading] =
           albumsResponse,
           historyResponse,
           continueResponse,
-        ] = await Promise.all([
-          API.get("/songs"),
-          API.get("/artists"),
-          API.get("/albums"),
+        ] =
+          await Promise.all([
 
-          API.get("/history").catch(() => ({
-            data: { history: [] },
-          })),
+            API.get(
+              "/songs"
+            ),
 
-          API.get("/history/continue").catch(() => ({
-            data: { songs: [] },
-          })),
-        ]);
+            API.get(
+              "/artists"
+            ),
+
+            API.get(
+              "/albums"
+            ),
+
+            API.get(
+              "/history"
+            ).catch(() => ({
+
+              data: {
+                history: [],
+              },
+
+            })),
+
+            API.get(
+              "/history/continue"
+            ).catch(() => ({
+
+              data: {
+                songs: [],
+              },
+
+            })),
+
+          ]);
+
 
         if (!active) {
+
           return;
+
         }
 
-        setSongs(songsResponse.data.songs || []);
-        setArtists(artistsResponse.data.artists || []);
-        setAlbums(albumsResponse.data.albums || []);
 
-        const historyData =
-          historyResponse.data.history ||
-          historyResponse.data.songs ||
-          historyResponse.data.recently_played ||
-          [];
+        /* ===============================================
+           SONGS
+        =============================================== */
 
-        setRecentlyPlayed(
-          dedupeSongs(
-            normalizeHistorySongs(historyData),
-            6
-          )
+        setSongs(
+          songsResponse
+            .data
+            .songs || []
         );
 
-        const continueData =
-          continueResponse.data.songs ||
-          continueResponse.data.history ||
-          continueResponse.data.continue_listening ||
+
+        /* ===============================================
+           ARTISTS
+        =============================================== */
+
+        setArtists(
+          artistsResponse
+            .data
+            .artists || []
+        );
+
+
+        /* ===============================================
+           ALBUMS
+        =============================================== */
+
+        setAlbums(
+          albumsResponse
+            .data
+            .albums || []
+        );
+
+
+        /* ===============================================
+           HISTORY
+        =============================================== */
+
+        const historyData =
+          historyResponse
+            .data
+            .history ||
+
+          historyResponse
+            .data
+            .songs ||
+
+          historyResponse
+            .data
+            .recently_played ||
+
           [];
 
+
+        setRecentlyPlayed(
+
+          dedupeSongs(
+
+            normalizeHistorySongs(
+              historyData
+            ),
+
+            6
+
+          )
+
+        );
+
+
+        /* ===============================================
+           CONTINUE LISTENING
+        =============================================== */
+
+        const continueData =
+          continueResponse
+            .data
+            .songs ||
+
+          continueResponse
+            .data
+            .history ||
+
+          continueResponse
+            .data
+            .continue_listening ||
+
+          [];
+
+
         const validContinueSongs =
-          normalizeHistorySongs(continueData)
-            .filter((song) => {
-              const progress =
-                Number(song.progress_seconds) || 0;
+          normalizeHistorySongs(
+            continueData
+          )
+            .filter(
+              (song) => {
 
-              const songDuration =
-                Number(song.duration) || 0;
+                const progress =
+                  Number(
+                    song.progress_seconds
+                  ) || 0;
 
-              return (
-                song.completed !== true &&
-                progress > 5 &&
-                (
-                  songDuration <= 0 ||
-                  progress < songDuration
-                )
-              );
-            });
+
+                const songDuration =
+                  Number(
+                    song.duration
+                  ) || 0;
+
+
+                return (
+
+                  song.completed !==
+                  true &&
+
+                  progress > 5 &&
+
+                  (
+                    songDuration <= 0 ||
+
+                    progress <
+                      songDuration
+                  )
+
+                );
+
+              }
+            );
+
 
         setContinueListening(
+
           dedupeSongs(
+
             validContinueSongs,
+
             6
+
           )
+
         );
 
       } catch (error) {
+
         if (!active) {
+
           return;
+
         }
+
 
         console.error(
           "Home loading error:",
           error
         );
 
+
         setError(
           "Unable to load KEERTHANA"
         );
 
       } finally {
-        if (active && showLoader) {
+
+        if (
+          active &&
+          showLoader
+        ) {
+
           setLoading(false);
+
         }
+
       }
+
     };
+
+
+    /* ===================================================
+       INITIAL LOAD
+    =================================================== */
 
     loadHome({
       showLoader: true,
     });
 
-    /*
-      Refresh listening data when the user
-      returns to the browser/app.
-    */
-    const handleWindowFocus = () => {
-      loadHome();
-    };
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
+    /* ===================================================
+       REFRESH ON WINDOW FOCUS
+    =================================================== */
+
+    const handleWindowFocus =
+      () => {
+
         loadHome();
-      }
-    };
+
+      };
+
+
+    /* ===================================================
+       REFRESH ON VISIBILITY
+    =================================================== */
+
+    const handleVisibilityChange =
+      () => {
+
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+
+          loadHome();
+
+        }
+
+      };
+
 
     window.addEventListener(
       "focus",
       handleWindowFocus
     );
 
+
     document.addEventListener(
       "visibilitychange",
       handleVisibilityChange
     );
 
+
     return () => {
+
       active = false;
+
 
       window.removeEventListener(
         "focus",
         handleWindowFocus
       );
 
+
       document.removeEventListener(
         "visibilitychange",
         handleVisibilityChange
       );
+
     };
 
   }, []);
@@ -274,7 +513,10 @@ const [loading, setLoading] =
   ===================================================== */
 
   const latestSongs =
-    songs.slice(0, 8);
+    songs.slice(
+      0,
+      8
+    );
 
 
   const featuredSongs =
@@ -286,53 +528,130 @@ const [loading, setLoading] =
 
   const displayFeatured =
     featuredSongs.length > 0
-      ? featuredSongs.slice(0, 6)
-      : songs.slice(0, 6);
+
+      ? featuredSongs.slice(
+          0,
+          6
+        )
+
+      : songs.slice(
+          0,
+          6
+        );
 
 
   const homeArtists =
-    artists.slice(0, 6);
+    artists.slice(
+      0,
+      6
+    );
 
 
   const homeAlbums =
-    albums.slice(0, 6);
+    albums.slice(
+      0,
+      6
+    );
 
 
-  const categories = [
+  /* =====================================================
+     CATEGORIES
 
-    ...new Set(
+     IMPORTANT:
+     Backend should return:
 
-      songs
+     category_id
+     category_name
+     category_image_url
 
-        .map(
-          (song) =>
-            song.category_name
+     or:
+
+     category_image
+  ===================================================== */
+
+  const categoryMap =
+    new Map();
+
+
+  songs.forEach(
+    (song) => {
+
+      if (
+        !song.category_id ||
+        !song.category_name
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        !categoryMap.has(
+          song.category_id
         )
+      ) {
 
-        .filter(Boolean)
+        categoryMap.set(
 
-    ),
+          song.category_id,
 
-  ].slice(0, 8);
+          {
+
+            id:
+              song.category_id,
+
+            name:
+              song.category_name,
+
+            image_url:
+              song.category_image_url ||
+              song.category_image ||
+              null,
+
+          }
+
+        );
+
+      }
+
+    }
+  );
+
+
+  const categories =
+    Array
+      .from(
+        categoryMap.values()
+      )
+      .slice(
+        0,
+        8
+      );
 
 
   /* =====================================================
      PLAY FIRST SONG
   ===================================================== */
 
-  const handleHeroPlay = () => {
+  const handleHeroPlay =
+    () => {
 
-    if (songs.length === 0) {
-      return;
-    }
+      if (
+        songs.length === 0
+      ) {
+
+        return;
+
+      }
 
 
-    playSong(
-      songs[0],
-      songs
-    );
+      playSong(
+        songs[0],
+        songs
+      );
 
-  };
+    };
 
 
   /* =====================================================
@@ -348,17 +667,23 @@ const [loading, setLoading] =
         <div className="home-loading">
 
           <div className="loading-logo">
+
             ♪
+
           </div>
 
 
           <h2>
+
             KEERTHANA
+
           </h2>
 
 
           <p>
+
             Loading Christian Music...
+
           </p>
 
         </div>
@@ -486,7 +811,6 @@ const [loading, setLoading] =
 
           <div className="home-card-grid">
 
-
             {displayFeatured.map(
               (song) => (
 
@@ -513,7 +837,6 @@ const [loading, setLoading] =
               )
             )}
 
-
           </div>
 
         </HomeSection>
@@ -528,8 +851,11 @@ const [loading, setLoading] =
       {recentlyPlayed.length > 0 && (
 
         <HomeSection
+
           title="Recently Played"
+
           subtitle="Continue with songs you listened to recently"
+
         >
 
           <div className="home-card-grid">
@@ -538,11 +864,25 @@ const [loading, setLoading] =
               (song) => (
 
                 <SongCard
-                  key={`recent-${song.id}`}
+
+                  key={
+                    `recent-${song.id}`
+                  }
+
                   song={song}
-                  queue={recentlyPlayed}
-                  playSong={playSong}
-                  navigate={navigate}
+
+                  queue={
+                    recentlyPlayed
+                  }
+
+                  playSong={
+                    playSong
+                  }
+
+                  navigate={
+                    navigate
+                  }
+
                 />
 
               )
@@ -562,8 +902,11 @@ const [loading, setLoading] =
       {continueListening.length > 0 && (
 
         <HomeSection
+
           title="Continue Listening"
+
           subtitle="Pick up where you left off"
+
         >
 
           <div className="continue-listening-grid">
@@ -572,11 +915,25 @@ const [loading, setLoading] =
               (song) => (
 
                 <ContinueListeningCard
-                  key={`continue-${song.id}`}
+
+                  key={
+                    `continue-${song.id}`
+                  }
+
                   song={song}
-                  queue={continueListening}
-                  playSong={playSong}
-                  navigate={navigate}
+
+                  queue={
+                    continueListening
+                  }
+
+                  playSong={
+                    playSong
+                  }
+
+                  navigate={
+                    navigate
+                  }
+
                 />
 
               )
@@ -589,9 +946,6 @@ const [loading, setLoading] =
       )}
 
 
-      {/* <AdBanner
-        placement="home"
-      /> */}
       {/* =================================================
           LATEST SONGS
       ================================================= */}
@@ -605,13 +959,14 @@ const [loading, setLoading] =
           subtitle="New music on KEERTHANA"
 
           action={() =>
-            navigate("/search")
+            navigate(
+              "/search"
+            )
           }
 
         >
 
           <div className="latest-song-list">
-
 
             {latestSongs.map(
               (song, index) => (
@@ -641,7 +996,6 @@ const [loading, setLoading] =
               )
             )}
 
-
           </div>
 
         </HomeSection>
@@ -662,65 +1016,64 @@ const [loading, setLoading] =
           subtitle="Christian worship artists"
 
           action={() =>
-            navigate("/artists")
+            navigate(
+              "/artists"
+            )
           }
 
         >
 
           <div className="home-artist-grid">
 
-
             {homeArtists.map(
               (artist) => {
 
-
                 const image =
-                  artist.image_url
-                    ? getMediaUrl(
-                        artist.image_url
-                      )
-                    : null;
+                  getArtistImage(
+                    artist
+                  );
 
 
                 return (
 
                   <button
+
                     type="button"
 
                     className="home-artist-card"
 
-                    key={artist.id}
+                    key={
+                      artist.id
+                    }
 
                     onClick={() =>
                       navigate(
                         `/artists/${artist.id}`
                       )
                     }
+
                   >
 
                     <div className="home-artist-image">
 
+                      <img
+                        src={image}
 
-                      {image ? (
+                        alt={
+                          artist.name
+                        }
 
-                        <img
-                          src={image}
-                          alt={artist.name}
+                        onError={(event) => {
 
-                          onError={(event) => {
+                          event.currentTarget.onerror =
+                            null;
 
-                            event.currentTarget.style.display =
-                              "none";
+                          event.currentTarget.src =
+                            "/images/default-artist.png";
 
-                          }}
-                        />
+                        }}
 
-                      ) : (
-
-                        <FaMicrophone />
-
-                      )}
-
+                      />
 
                     </div>
 
@@ -746,7 +1099,6 @@ const [loading, setLoading] =
               }
             )}
 
-
           </div>
 
         </HomeSection>
@@ -767,58 +1119,65 @@ const [loading, setLoading] =
           subtitle="Christian music collections"
 
           action={() =>
-            navigate("/albums")
+            navigate(
+              "/albums"
+            )
           }
 
         >
 
           <div className="home-card-grid">
 
-
             {homeAlbums.map(
               (album) => {
 
-
                 const cover =
-                  album.cover_url
-                    ? getMediaUrl(
-                        album.cover_url
-                      )
-                    : null;
+                  getAlbumCover(
+                    album
+                  );
 
 
                 return (
 
                   <button
+
                     type="button"
 
                     className="home-album-card"
 
-                    key={album.id}
+                    key={
+                      album.id
+                    }
 
                     onClick={() =>
                       navigate(
                         `/albums/${album.id}`
                       )
                     }
+
                   >
 
                     <div className="home-album-cover">
 
+                      <img
 
-                      {cover ? (
+                        src={cover}
 
-                        <img
-                          src={cover}
-                          alt={album.title}
-                        />
+                        alt={
+                          album.title
+                        }
 
-                      ) : (
+                        onError={(event) => {
 
-                        <FaCompactDisc />
+                          event.currentTarget.onerror =
+                            null;
 
-                      )}
+                          event.currentTarget.src =
+                            "/images/default-album.png";
 
+                        }}
+
+                      />
 
                     </div>
 
@@ -856,7 +1215,6 @@ const [loading, setLoading] =
               }
             )}
 
-
           </div>
 
         </HomeSection>
@@ -880,48 +1238,84 @@ const [loading, setLoading] =
 
           <div className="category-grid">
 
-
             {categories.map(
-              (category) => (
+              (category) => {
 
-                <button
-                  type="button"
-
-                  className="category-card"
-
-                  key={category}
-
-                  onClick={() =>
-                    navigate(
-                      `/search?q=${encodeURIComponent(
-                        category
-                      )}`
-                    )
-                  }
-                >
-
-                  <FaMusic />
+                const image =
+                  getCategoryImage(
+                    category
+                  );
 
 
-                  <strong>
+                return (
 
-                    {category}
+                  <button
 
-                  </strong>
+                    type="button"
+
+                    className="category-card"
+
+                    key={
+                      category.id
+                    }
+
+                    onClick={() =>
+                      navigate(
+                        `/search?q=${encodeURIComponent(
+                          category.name
+                        )}`
+                      )
+                    }
+
+                  >
+
+                    {/* CATEGORY IMAGE */}
+
+                    <div className="category-image">
+
+                      <img
+
+                        src={image}
+
+                        alt={
+                          category.name
+                        }
+
+                        onError={(event) => {
+
+                          event.currentTarget.onerror =
+                            null;
+
+                          event.currentTarget.src =
+                            "/images/default-category.png";
+
+                        }}
+
+                      />
+
+                    </div>
 
 
-                  <span>
+                    <strong>
 
-                    Explore
+                      {category.name}
 
-                  </span>
+                    </strong>
 
 
-                </button>
+                    <span>
 
-              )
+                      Explore
+
+                    </span>
+
+
+                  </button>
+
+                );
+
+              }
             )}
-
 
           </div>
 
@@ -935,21 +1329,22 @@ const [loading, setLoading] =
       ================================================= */}
 
       {!error &&
+
         songs.length === 0 &&
+
         artists.length === 0 &&
+
         albums.length === 0 && (
 
           <div className="home-empty">
 
             <FaMusic />
 
-
             <h2>
 
               Welcome to KEERTHANA
 
             </h2>
-
 
             <p>
 
@@ -962,7 +1357,6 @@ const [loading, setLoading] =
           </div>
 
         )}
-
 
     </div>
 
@@ -986,9 +1380,7 @@ function HomeSection({
 
     <section className="home-section">
 
-
       <div className="home-section-heading">
-
 
         <div>
 
@@ -1015,11 +1407,13 @@ function HomeSection({
         {action && (
 
           <button
+
             type="button"
 
             onClick={
               action
             }
+
           >
 
             Show All
@@ -1030,12 +1424,10 @@ function HomeSection({
 
         )}
 
-
       </div>
 
 
       {children}
-
 
     </section>
 
@@ -1055,80 +1447,57 @@ function SongCard({
   navigate,
 }) {
 
-  /* =====================================================
-     COVER
-  ===================================================== */
-
   const cover =
-    song.cover_url
-      ? getMediaUrl(
-          song.cover_url
-        )
-      : "/images/default-cover.png";
-
-
-  /* =====================================================
-     OPEN SONG DETAILS / LYRICS
-  ===================================================== */
-
-  const openSongDetails = () => {
-
-    navigate(
-      `/songs/${song.id}`
+    getSongCover(
+      song
     );
 
-  };
+
+  const openSongDetails =
+    () => {
+
+      navigate(
+        `/songs/${song.id}`
+      );
+
+    };
 
 
-  /* =====================================================
-     PLAY
-  ===================================================== */
+  const handlePlay =
+    (event) => {
 
-  const handlePlay = (
-    event
-  ) => {
-
-    /*
-      Do not open SongDetails
-      when Play button is clicked.
-    */
-
-    event.stopPropagation();
+      event.stopPropagation();
 
 
-    playSong(
-      song,
-      queue
-    );
+      playSong(
+        song,
+        queue
+      );
 
-  };
+    };
 
 
-  /* =====================================================
-     KEYBOARD
-  ===================================================== */
+  const handleKeyDown =
+    (event) => {
 
-  const handleKeyDown = (
-    event
-  ) => {
+      if (
+        event.key === "Enter" ||
+        event.key === " "
+      ) {
 
-    if (
-      event.key === "Enter" ||
-      event.key === " "
-    ) {
+        event.preventDefault();
 
-      event.preventDefault();
+        openSongDetails();
 
-      openSongDetails();
+      }
 
-    }
-
-  };
+    };
 
 
   return (
 
     <div
+
       className="home-song-card"
 
       onClick={
@@ -1142,15 +1511,13 @@ function SongCard({
       role="button"
 
       tabIndex={0}
+
     >
-
-
-      {/* COVER */}
 
       <div className="home-song-cover">
 
-
         <img
+
           src={cover}
 
           alt={
@@ -1159,28 +1526,19 @@ function SongCard({
 
           onError={(event) => {
 
-            /*
-              Prevent endless error loop
-            */
+            event.currentTarget.onerror =
+              null;
 
-            if (
-              !event.currentTarget.src.endsWith(
-                "/images/default-cover.png"
-              )
-            ) {
-
-              event.currentTarget.src =
-                "/images/default-cover.png";
-
-            }
+            event.currentTarget.src =
+              "/images/default-cover.png";
 
           }}
+
         />
 
 
-        {/* PLAY BUTTON */}
-
         <button
+
           type="button"
 
           className="home-card-play"
@@ -1192,20 +1550,17 @@ function SongCard({
           aria-label={
             `Play ${song.title}`
           }
+
         >
 
           <FaPlay />
 
         </button>
 
-
       </div>
 
 
-      {/* SONG INFORMATION */}
-
       <div className="home-song-info">
-
 
         <h3>
 
@@ -1243,9 +1598,7 @@ function SongCard({
 
         )}
 
-
       </div>
-
 
     </div>
 
@@ -1266,166 +1619,289 @@ function ContinueListeningCard({
 }) {
 
   const cover =
-    song.cover_url
-      ? getMediaUrl(song.cover_url)
-      : "/images/default-cover.png";
+    getSongCover(
+      song
+    );
+
 
   const progress =
     Math.max(
       0,
-      Number(song.progress_seconds) || 0
+      Number(
+        song.progress_seconds
+      ) || 0
     );
+
 
   const songDuration =
     Math.max(
       0,
-      Number(song.duration) || 0
+      Number(
+        song.duration
+      ) || 0
     );
+
 
   const progressPercent =
     songDuration > 0
+
       ? Math.min(
           100,
           Math.max(
             0,
-            (progress / songDuration) * 100
+            (
+              progress /
+              songDuration
+            ) * 100
           )
         )
+
       : 0;
 
-  const formatProgressTime = (seconds) => {
-    const safeSeconds =
-      Math.max(
-        0,
-        Math.floor(Number(seconds) || 0)
+
+  const formatProgressTime =
+    (seconds) => {
+
+      const safeSeconds =
+        Math.max(
+          0,
+          Math.floor(
+            Number(
+              seconds
+            ) || 0
+          )
+        );
+
+
+      const minutes =
+        Math.floor(
+          safeSeconds / 60
+        );
+
+
+      const remainingSeconds =
+        safeSeconds % 60;
+
+
+      return `${minutes}:${remainingSeconds
+        .toString()
+        .padStart(
+          2,
+          "0"
+        )}`;
+
+    };
+
+
+  const openSong =
+    () => {
+
+      navigate(
+        `/songs/${song.id}`
       );
 
-    const minutes =
-      Math.floor(safeSeconds / 60);
+    };
 
-    const remainingSeconds =
-      safeSeconds % 60;
 
-    return `${minutes}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  const handleContinue =
+    (event) => {
 
-  const openSong = () => {
-    navigate(
-      `/songs/${song.id}`
-    );
-  };
+      event.stopPropagation();
 
-  const handleContinue = (event) => {
-    event.stopPropagation();
 
-    playSong(
-      song,
-      queue,
-      progress
-    );
-  };
+      playSong(
+        song,
+        queue,
+        progress
+      );
+
+    };
+
 
   return (
 
     <div
+
       className="continue-card"
-      onClick={openSong}
+
+      onClick={
+        openSong
+      }
+
       onKeyDown={(event) => {
+
         if (
           event.key === "Enter" ||
           event.key === " "
         ) {
+
           event.preventDefault();
+
           openSong();
+
         }
+
       }}
+
       role="button"
+
       tabIndex={0}
+
     >
 
       <div className="continue-cover">
 
         <img
+
           src={cover}
-          alt={song.title || "Song cover"}
+
+          alt={
+            song.title ||
+            "Song cover"
+          }
+
           onError={(event) => {
-            if (
-              !event.currentTarget.src.endsWith(
-                "/images/default-cover.png"
-              )
-            ) {
-              event.currentTarget.src =
-                "/images/default-cover.png";
-            }
+
+            event.currentTarget.onerror =
+              null;
+
+            event.currentTarget.src =
+              "/images/default-cover.png";
+
           }}
+
         />
 
+
         <button
+
           type="button"
+
           className="continue-play"
-          onClick={handleContinue}
-          aria-label={
-            `Continue ${song.title || "song"}`
+
+          onClick={
+            handleContinue
           }
+
+          aria-label={
+            `Continue ${
+              song.title ||
+              "song"
+            }`
+          }
+
           title="Continue listening"
+
         >
+
           <FaPlay />
+
         </button>
 
       </div>
 
+
       <div className="continue-info">
 
         <h3>
-          {song.title || "Unknown Song"}
+
+          {song.title ||
+            "Unknown Song"}
+
         </h3>
 
+
         {song.title_english && (
+
           <p className="continue-english-title">
+
             {song.title_english}
+
           </p>
+
         )}
 
+
         <p className="continue-artist">
-          {song.artist_name || "KEERTHANA"}
+
+          {song.artist_name ||
+            "KEERTHANA"}
+
         </p>
+
 
         <div className="continue-progress">
 
           <div className="continue-progress-track">
+
             <div
+
               className="continue-progress-fill"
+
               style={{
-                width: `${progressPercent}%`,
+                width:
+                  `${progressPercent}%`,
               }}
+
             />
+
           </div>
 
+
           <div className="continue-progress-time">
-            <span>
-              {formatProgressTime(progress)}
-            </span>
 
             <span>
+
               {
-                songDuration > 0
-                  ? formatProgressTime(songDuration)
-                  : "--:--"
+                formatProgressTime(
+                  progress
+                )
               }
+
             </span>
+
+
+            <span>
+
+              {
+
+                songDuration > 0
+
+                  ? formatProgressTime(
+                      songDuration
+                    )
+
+                  : "--:--"
+
+              }
+
+            </span>
+
           </div>
 
         </div>
 
+
         <button
+
           type="button"
+
           className="continue-button"
-          onClick={handleContinue}
+
+          onClick={
+            handleContinue
+          }
+
         >
+
           <FaPlay />
-          <span>Continue</span>
+
+          <span>
+
+            Continue
+
+          </span>
+
         </button>
 
       </div>
@@ -1433,6 +1909,7 @@ function ContinueListeningCard({
     </div>
 
   );
+
 }
 
 
@@ -1449,48 +1926,39 @@ function LatestSongRow({
 }) {
 
   const cover =
-    song.cover_url
-      ? getMediaUrl(
-          song.cover_url
-        )
-      : "/images/default-cover.png";
-
-
-  /* =====================================================
-     OPEN SONG
-  ===================================================== */
-
-  const openSong = () => {
-
-    navigate(
-      `/songs/${song.id}`
+    getSongCover(
+      song
     );
 
-  };
+
+  const openSong =
+    () => {
+
+      navigate(
+        `/songs/${song.id}`
+      );
+
+    };
 
 
-  /* =====================================================
-     PLAY SONG
-  ===================================================== */
+  const handlePlay =
+    (event) => {
 
-  const handlePlay = (
-    event
-  ) => {
-
-    event.stopPropagation();
+      event.stopPropagation();
 
 
-    playSong(
-      song,
-      songs
-    );
+      playSong(
+        song,
+        songs
+      );
 
-  };
+    };
 
 
   return (
 
     <div
+
       className="latest-song-row"
 
       onClick={
@@ -1515,8 +1983,8 @@ function LatestSongRow({
         }
 
       }}
-    >
 
+    >
 
       {/* NUMBER */}
 
@@ -1531,8 +1999,8 @@ function LatestSongRow({
 
       <div className="latest-cover">
 
-
         <img
+
           src={cover}
 
           alt={
@@ -1541,22 +2009,19 @@ function LatestSongRow({
 
           onError={(event) => {
 
-            if (
-              !event.currentTarget.src.endsWith(
-                "/images/default-cover.png"
-              )
-            ) {
+            event.currentTarget.onerror =
+              null;
 
-              event.currentTarget.src =
-                "/images/default-cover.png";
-
-            }
+            event.currentTarget.src =
+              "/images/default-cover.png";
 
           }}
+
         />
 
 
         <button
+
           type="button"
 
           onClick={
@@ -1566,12 +2031,12 @@ function LatestSongRow({
           aria-label={
             `Play ${song.title}`
           }
+
         >
 
           <FaPlay />
 
         </button>
-
 
       </div>
 
@@ -1579,7 +2044,6 @@ function LatestSongRow({
       {/* SONG INFO */}
 
       <div className="latest-info">
-
 
         <strong>
 
@@ -1600,6 +2064,7 @@ function LatestSongRow({
 
 
         <button
+
           type="button"
 
           onClick={(event) => {
@@ -1618,6 +2083,7 @@ function LatestSongRow({
             }
 
           }}
+
         >
 
           {song.artist_name ||
@@ -1625,13 +2091,13 @@ function LatestSongRow({
 
         </button>
 
-
       </div>
 
 
       {/* ALBUM */}
 
       <button
+
         type="button"
 
         className="latest-album"
@@ -1652,10 +2118,13 @@ function LatestSongRow({
           }
 
         }}
+
       >
 
         {song.album_title ||
+
           song.category_name ||
+
           "Christian Music"}
 
       </button>
@@ -1664,6 +2133,7 @@ function LatestSongRow({
       {/* PLAY */}
 
       <button
+
         type="button"
 
         className="latest-play"
@@ -1675,12 +2145,12 @@ function LatestSongRow({
         aria-label={
           `Play ${song.title}`
         }
+
       >
 
         <FaPlay />
 
       </button>
-
 
     </div>
 

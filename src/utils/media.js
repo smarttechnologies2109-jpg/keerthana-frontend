@@ -19,6 +19,12 @@ export const DEFAULT_ALBUM =
 export const DEFAULT_ARTIST =
   "/images/default-artist.png";
 
+export const DEFAULT_MINISTRY =
+  "/images/default-ministry.png";
+
+export const DEFAULT_CATEGORY =
+  "/images/default-category.png";
+
 
 /* =====================================================
    GET BACKEND MEDIA URL
@@ -92,5 +98,37 @@ export function getArtistImage(artist) {
 
   return getMediaUrl(
     artist.image_url
+  );
+}
+
+
+/* =====================================================
+   MINISTRY IMAGE
+===================================================== */
+
+export function getMinistryImage(ministry) {
+
+  if (!ministry?.image_url) {
+    return DEFAULT_MINISTRY;
+  }
+
+  return getMediaUrl(
+    ministry.image_url
+  );
+}
+
+
+/* =====================================================
+   CATEGORY IMAGE
+===================================================== */
+
+export function getCategoryImage(category) {
+
+  if (!category?.image_url) {
+    return DEFAULT_CATEGORY;
+  }
+
+  return getMediaUrl(
+    category.image_url
   );
 }

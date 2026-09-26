@@ -1,0 +1,8 @@
+{
+  "appId": "com.keerthana.music",
+  "appName": "Keerthana",
+  "webDir": "dist",
+  "android": {
+    "zoomEnabled": true
+  }
+}

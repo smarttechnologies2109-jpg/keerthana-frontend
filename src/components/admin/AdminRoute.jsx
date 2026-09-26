@@ -7,7 +7,7 @@ import {
   useAuth,
 } from "../../context/AuthContext";
 
-import "../../assets/css/adminRoute.css";
+import "../../assets/css/admin/adminRoute.css";
 
 
 function AdminRoute({ children }) {
@@ -87,7 +87,7 @@ function AdminRoute({ children }) {
      LOGGED IN BUT NOT ADMIN
   ===================================================== */
 
-  if (user.role !== "admin") {
+  if (user.role !== "ADMIN") {
 
     console.warn(
       "Admin access denied.",

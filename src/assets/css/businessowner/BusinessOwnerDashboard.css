@@ -1,0 +1,546 @@
+/* =========================================================
+   BUSINESS OWNER DASHBOARD
+========================================================= */
+
+.owner-dashboard-page {
+  min-height: 100vh;
+
+  background: #f5f7fb;
+
+  color: #1f2937;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.owner-dashboard-header {
+  width: 100%;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  position: sticky;
+  top: 0;
+
+  z-index: 100;
+}
+
+.owner-dashboard-header-content {
+  min-height: 82px;
+
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 16px 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   HEADER TITLE
+========================================================= */
+
+.owner-dashboard-title {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+}
+
+.owner-dashboard-title-icon {
+  width: 48px;
+  height: 48px;
+
+  border-radius: 12px;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 21px;
+}
+
+.owner-dashboard-title h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 23px;
+
+  font-weight: 700;
+}
+
+.owner-dashboard-title p {
+  margin: 4px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   LOGOUT BUTTON
+========================================================= */
+
+.owner-logout-btn {
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background: #dc3545;
+
+  color: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.owner-logout-btn:hover {
+  background: #c82333;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 14px rgba(220, 53, 69, 0.2);
+}
+
+.owner-logout-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.owner-dashboard-main {
+  width: 100%;
+
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 30px 32px 50px;
+}
+
+
+/* =========================================================
+   BUSINESS INFO
+========================================================= */
+
+.owner-business-info {
+  width: 100%;
+
+  margin-bottom: 28px;
+
+  padding: 23px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  box-shadow:
+    0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.business-info-icon {
+  width: 58px;
+  height: 58px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 25px;
+}
+
+.business-info-content h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 19px;
+
+  font-weight: 700;
+}
+
+.business-info-content p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   DASHBOARD GRID
+========================================================= */
+
+.owner-dashboard-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   DASHBOARD CARD
+========================================================= */
+
+.owner-dashboard-card {
+  min-height: 270px;
+
+  padding: 25px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  display: flex;
+  flex-direction: column;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 3px 12px rgba(15, 23, 42, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.owner-dashboard-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 10px 25px rgba(15, 23, 42, 0.09);
+}
+
+
+/* =========================================================
+   CARD ICON
+========================================================= */
+
+.dashboard-card-icon {
+  width: 58px;
+  height: 58px;
+
+  margin-bottom: 18px;
+
+  border-radius: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 25px;
+}
+
+
+/* =========================================================
+   MUSIC CARD
+========================================================= */
+
+.music-card .dashboard-card-icon {
+  background: #eef2ff;
+
+  color: #4f46e5;
+}
+
+.music-card:hover {
+  border-color: #c7d2fe;
+}
+
+.music-card .dashboard-card-btn {
+  background: #4f46e5;
+}
+
+.music-card .dashboard-card-btn:hover {
+  background: #4338ca;
+}
+
+
+/* =========================================================
+   USERS CARD
+========================================================= */
+
+.users-card .dashboard-card-icon {
+  background: #ecfdf5;
+
+  color: #059669;
+}
+
+.users-card:hover {
+  border-color: #a7f3d0;
+}
+
+.users-card .dashboard-card-btn {
+  background: #059669;
+}
+
+.users-card .dashboard-card-btn:hover {
+  background: #047857;
+}
+
+
+/* =========================================================
+   STATISTICS CARD
+========================================================= */
+
+.statistics-card .dashboard-card-icon {
+  background: #eff6ff;
+
+  color: #2563eb;
+}
+
+.statistics-card:hover {
+  border-color: #bfdbfe;
+}
+
+.statistics-card .dashboard-card-btn {
+  background: #2563eb;
+}
+
+.statistics-card .dashboard-card-btn:hover {
+  background: #1d4ed8;
+}
+
+
+/* =========================================================
+   CARD CONTENT
+========================================================= */
+
+.dashboard-card-content {
+  flex: 1;
+}
+
+.dashboard-card-content h3 {
+  margin: 0 0 9px;
+
+  color: #111827;
+
+  font-size: 18px;
+
+  font-weight: 700;
+}
+
+.dashboard-card-content p {
+  margin: 0;
+
+  max-width: 330px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   CARD BUTTON
+========================================================= */
+
+.dashboard-card-btn {
+  width: fit-content;
+
+  min-height: 40px;
+
+  margin-top: 20px;
+
+  padding: 0 14px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  color: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.dashboard-card-btn:hover {
+  transform: translateX(2px);
+}
+
+.dashboard-card-btn svg {
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+  .owner-dashboard-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+  .owner-dashboard-header-content {
+    min-height: auto;
+
+    padding: 14px 16px;
+
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .owner-dashboard-title {
+    width: 100%;
+  }
+
+  .owner-logout-btn {
+    width: 100%;
+  }
+
+  .owner-dashboard-main {
+    padding: 20px 15px 35px;
+  }
+
+  .owner-business-info {
+    padding: 18px;
+
+    margin-bottom: 20px;
+  }
+
+  .business-info-icon {
+    width: 50px;
+    height: 50px;
+
+    font-size: 21px;
+  }
+
+  .business-info-content h2 {
+    font-size: 17px;
+  }
+
+  .owner-dashboard-grid {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .owner-dashboard-card {
+    min-height: 240px;
+
+    padding: 20px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+  .owner-dashboard-title-icon {
+    width: 42px;
+    height: 42px;
+
+    font-size: 18px;
+  }
+
+  .owner-dashboard-title h1 {
+    font-size: 19px;
+  }
+
+  .owner-dashboard-title p {
+    font-size: 11px;
+  }
+
+  .owner-business-info {
+    align-items: flex-start;
+  }
+
+  .dashboard-card-content h3 {
+    font-size: 17px;
+  }
+
+  .dashboard-card-content p {
+    font-size: 12px;
+  }
+
+  .dashboard-card-btn {
+    width: 100%;
+  }
+}

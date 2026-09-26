@@ -10,12 +10,54 @@ import {
   FaTags,
   FaTimes,
   FaTrash,
+  FaUpload,
+  FaImage,
 } from "react-icons/fa";
 
 import API
   from "../../services/api";
 
-import "../../assets/css/manageCategories.css";
+import "../../assets/css/admin/manageCategories.css";
+
+
+/* =========================================================
+   LANGUAGES
+========================================================= */
+
+const LANGUAGES = [
+  {
+    value: "Telugu",
+    label: "తెలుగు",
+  },
+  {
+    value: "Hindi",
+    label: "हिन्दी",
+  },
+  {
+    value: "English",
+    label: "English",
+  },
+  {
+    value: "Malayalam",
+    label: "മലയാളം",
+  },
+  {
+    value: "Kannada",
+    label: "ಕನ್ನಡ",
+  },
+  {
+    value: "Tamil",
+    label: "தமிழ்",
+  },
+];
+
+
+/* =========================================================
+   DEFAULT CATEGORY IMAGE
+========================================================= */
+
+const DEFAULT_CATEGORY_IMAGE =
+  "/images/default-category.png";
 
 
 function ManageCategories() {
@@ -37,6 +79,11 @@ function ManageCategories() {
   const [
     saving,
     setSaving,
+  ] = useState(false);
+
+  const [
+    uploadingImage,
+    setUploadingImage,
   ] = useState(false);
 
   const [
@@ -84,6 +131,31 @@ function ManageCategories() {
     setName,
   ] = useState("");
 
+  const [
+    language,
+    setLanguage,
+  ] = useState("Telugu");
+
+
+  /* =====================================================
+     IMAGE
+  ===================================================== */
+
+  const [
+    imageFile,
+    setImageFile,
+  ] = useState(null);
+
+  const [
+    imagePreview,
+    setImagePreview,
+  ] = useState("");
+
+  const [
+    imageUrl,
+    setImageUrl,
+  ] = useState("");
+
 
   /* =====================================================
      LOAD CATEGORIES
@@ -95,21 +167,17 @@ function ManageCategories() {
       try {
 
         setLoading(true);
-
         setError("");
-
 
         const response =
           await API.get(
             "/admin/categories"
           );
 
-
         setCategories(
           response.data.categories ||
           []
         );
-
 
       } catch (error) {
 
@@ -118,14 +186,12 @@ function ManageCategories() {
           error
         );
 
-
         setError(
           error.response
             ?.data
             ?.message ||
           "Unable to load categories."
         );
-
 
       } finally {
 
@@ -144,7 +210,7 @@ function ManageCategories() {
 
 
   /* =====================================================
-     ADD
+     OPEN ADD
   ===================================================== */
 
   const openAdd = () => {
@@ -152,6 +218,16 @@ function ManageCategories() {
     setEditingCategory(null);
 
     setName("");
+
+    setLanguage("Telugu");
+
+    setImageFile(null);
+
+    setImageUrl("");
+
+    setImagePreview(
+      DEFAULT_CATEGORY_IMAGE
+    );
 
     setError("");
 
@@ -163,7 +239,7 @@ function ManageCategories() {
 
 
   /* =====================================================
-     EDIT
+     OPEN EDIT
   ===================================================== */
 
   const openEdit = (
@@ -176,6 +252,23 @@ function ManageCategories() {
 
     setName(
       category.name || ""
+    );
+
+    setLanguage(
+      category.language ||
+      "Telugu"
+    );
+
+    setImageFile(null);
+
+    setImageUrl(
+      category.image_url ||
+      ""
+    );
+
+    setImagePreview(
+      category.image_url ||
+      DEFAULT_CATEGORY_IMAGE
     );
 
     setError("");
@@ -193,9 +286,30 @@ function ManageCategories() {
 
   const closeForm = () => {
 
-    if (saving) {
+    if (
+      saving ||
+      uploadingImage
+    ) {
       return;
     }
+
+
+    if (imagePreview) {
+
+      if (
+        imagePreview.startsWith(
+          "blob:"
+        )
+      ) {
+
+        URL.revokeObjectURL(
+          imagePreview
+        );
+
+      }
+
+    }
+
 
     setShowForm(false);
 
@@ -203,185 +317,449 @@ function ManageCategories() {
 
     setName("");
 
+    setLanguage("Telugu");
+
+    setImageFile(null);
+
+    setImageUrl("");
+
+    setImagePreview("");
+
   };
+
+
+  /* =====================================================
+     IMAGE SELECT
+  ===================================================== */
+
+  const handleImageChange = (
+    event
+  ) => {
+
+    const file =
+      event.target.files?.[0];
+
+
+    if (!file) {
+      return;
+    }
+
+
+    /* -----------------------------------------------------
+       FILE TYPE
+    ----------------------------------------------------- */
+
+    if (
+      !file.type.startsWith(
+        "image/"
+      )
+    ) {
+
+      setError(
+        "Please select a valid image file."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       FILE SIZE
+       MAX 5 MB
+    ----------------------------------------------------- */
+
+    if (
+      file.size >
+      5 * 1024 * 1024
+    ) {
+
+      setError(
+        "Image size must be less than 5 MB."
+      );
+
+      event.target.value = "";
+
+      return;
+
+    }
+
+
+    setError("");
+
+    setImageFile(file);
+
+
+    /* -----------------------------------------------------
+       REMOVE OLD BLOB URL
+    ----------------------------------------------------- */
+
+    if (
+      imagePreview?.startsWith(
+        "blob:"
+      )
+    ) {
+
+      URL.revokeObjectURL(
+        imagePreview
+      );
+
+    }
+
+
+    /* -----------------------------------------------------
+       CREATE PREVIEW
+    ----------------------------------------------------- */
+
+    const preview =
+      URL.createObjectURL(
+        file
+      );
+
+    setImagePreview(
+      preview
+    );
+
+  };
+
+
+  /* =====================================================
+     UPLOAD IMAGE
+  ===================================================== */
+
+  const uploadImage =
+    async () => {
+
+      if (!imageFile) {
+
+        return (
+          imageUrl ||
+          ""
+        );
+
+      }
+
+
+      try {
+
+        setUploadingImage(true);
+
+
+        const formData =
+          new FormData();
+
+
+        formData.append(
+          "image",
+          imageFile
+        );
+
+
+        /*
+          Backend expected:
+
+          POST /api/admin/upload
+
+          field:
+          image
+        */
+
+        const response =
+          await API.post(
+            "/admin/upload",
+            formData,
+            {
+              headers: {
+                "Content-Type":
+                  "multipart/form-data",
+              },
+            }
+          );
+
+
+        const uploadedUrl =
+          response.data?.url ||
+          response.data?.image_url ||
+          response.data?.path;
+
+
+        if (!uploadedUrl) {
+
+          throw new Error(
+            "Image upload response did not contain an image URL."
+          );
+
+        }
+
+
+        return uploadedUrl;
+
+      } catch (error) {
+
+        console.error(
+          "Category image upload error:",
+          error
+        );
+
+        throw new Error(
+          error.response
+            ?.data
+            ?.message ||
+          "Failed to upload category image."
+        );
+
+      } finally {
+
+        setUploadingImage(false);
+
+      }
+
+    };
 
 
   /* =====================================================
      SAVE
   ===================================================== */
 
-  const handleSubmit = async (
-    event
-  ) => {
+  const handleSubmit =
+    async (event) => {
 
-    event.preventDefault();
-
-
-    const cleanName =
-      name.trim();
+      event.preventDefault();
 
 
-    if (!cleanName) {
-
-      setError(
-        "Category name is required."
-      );
-
-      return;
-
-    }
+      const cleanName =
+        name.trim();
 
 
-    try {
+      if (!cleanName) {
 
-      setSaving(true);
-
-      setError("");
-
-      setSuccess("");
-
-
-      if (
-        editingCategory
-      ) {
-
-        await API.put(
-          `/admin/categories/${editingCategory.id}`,
-          {
-            name: cleanName,
-          }
+        setError(
+          "Category name is required."
         );
 
-
-        setSuccess(
-          "Category updated successfully!"
-        );
-
-      } else {
-
-        await API.post(
-          "/admin/categories",
-          {
-            name: cleanName,
-          }
-        );
-
-
-        setSuccess(
-          "Category created successfully!"
-        );
+        return;
 
       }
 
 
-      await loadCategories();
+      const validLanguage =
+        LANGUAGES.some(
+          (item) =>
+            item.value ===
+            language
+        );
 
 
-      setShowForm(false);
+      if (!validLanguage) {
 
-      setEditingCategory(null);
+        setError(
+          "Please select a valid language."
+        );
 
-      setName("");
+        return;
 
-
-    } catch (error) {
-
-      console.error(
-        "Save category error:",
-        error
-      );
+      }
 
 
-      setError(
-        error.response
-          ?.data
-          ?.message ||
-        "Unable to save category."
-      );
+      try {
+
+        setSaving(true);
+
+        setError("");
+
+        setSuccess("");
 
 
-    } finally {
+        /* -------------------------------------------------
+           UPLOAD IMAGE
+        ------------------------------------------------- */
 
-      setSaving(false);
+        let finalImageUrl =
+          imageUrl;
 
-    }
 
-  };
+        if (imageFile) {
+
+          finalImageUrl =
+            await uploadImage();
+
+        }
+
+
+        /* -------------------------------------------------
+           UPDATE
+        ------------------------------------------------- */
+
+        if (
+          editingCategory
+        ) {
+
+          await API.put(
+            `/admin/categories/${editingCategory.id}`,
+            {
+              name:
+                cleanName,
+
+              language:
+                language,
+
+              image_url:
+                finalImageUrl,
+            }
+          );
+
+
+          setSuccess(
+            "Category updated successfully!"
+          );
+
+        }
+
+
+        /* -------------------------------------------------
+           CREATE
+        ------------------------------------------------- */
+
+        else {
+
+          await API.post(
+            "/admin/categories",
+            {
+              name:
+                cleanName,
+
+              language:
+                language,
+
+              image_url:
+                finalImageUrl,
+            }
+          );
+
+
+          setSuccess(
+            "Category created successfully!"
+          );
+
+        }
+
+
+        await loadCategories();
+
+
+        setShowForm(false);
+
+        setEditingCategory(null);
+
+        setName("");
+
+        setLanguage("Telugu");
+
+        setImageFile(null);
+
+        setImageUrl("");
+
+        setImagePreview("");
+
+
+      } catch (error) {
+
+        console.error(
+          "Save category error:",
+          error
+        );
+
+        setError(
+          error.response
+            ?.data
+            ?.message ||
+          error.message ||
+          "Unable to save category."
+        );
+
+      } finally {
+
+        setSaving(false);
+
+      }
+
+    };
 
 
   /* =====================================================
      DELETE
   ===================================================== */
 
-  const handleDelete = async (
-    category
-  ) => {
+  const handleDelete =
+    async (category) => {
 
-    const confirmed =
-      window.confirm(
-        `Delete category "${category.name}"?`
-      );
-
-
-    if (!confirmed) {
-      return;
-    }
+      const confirmed =
+        window.confirm(
+          `Delete category "${category.name}"?`
+        );
 
 
-    try {
-
-      setDeletingId(
-        category.id
-      );
-
-      setError("");
-
-      setSuccess("");
+      if (!confirmed) {
+        return;
+      }
 
 
-      await API.delete(
-        `/admin/categories/${category.id}`
-      );
+      try {
+
+        setDeletingId(
+          category.id
+        );
+
+        setError("");
+
+        setSuccess("");
 
 
-      setCategories(
-        (previous) =>
-          previous.filter(
-            (item) =>
-              item.id !==
-              category.id
-          )
-      );
+        await API.delete(
+          `/admin/categories/${category.id}`
+        );
 
 
-      setSuccess(
-        "Category deleted successfully!"
-      );
+        setCategories(
+          (previous) =>
+            previous.filter(
+              (item) =>
+                item.id !==
+                category.id
+            )
+        );
 
 
-    } catch (error) {
-
-      console.error(
-        "Delete category error:",
-        error
-      );
+        setSuccess(
+          "Category deleted successfully!"
+        );
 
 
-      setError(
-        error.response
-          ?.data
-          ?.message ||
-        "Unable to delete category."
-      );
+      } catch (error) {
+
+        console.error(
+          "Delete category error:",
+          error
+        );
 
 
-    } finally {
+        setError(
+          error.response
+            ?.data
+            ?.message ||
+          "Unable to delete category."
+        );
 
-      setDeletingId(null);
 
-    }
+      } finally {
 
-  };
+        setDeletingId(null);
+
+      }
+
+    };
 
 
   /* =====================================================
@@ -403,14 +781,42 @@ function ManageCategories() {
         }
 
 
-        return category.name
-          ?.toLowerCase()
-          .includes(
-            query
-          );
+        return (
+
+          category.name
+            ?.toLowerCase()
+            .includes(query)
+
+          ||
+
+          category.language
+            ?.toLowerCase()
+            .includes(query)
+
+        );
 
       }
     );
+
+
+  /* =====================================================
+     LANGUAGE LABEL
+  ===================================================== */
+
+  const getLanguageLabel = (
+    value
+  ) => {
+
+    return (
+      LANGUAGES.find(
+        (item) =>
+          item.value ===
+          value
+      )?.label ||
+      "తెలుగు"
+    );
+
+  };
 
 
   /* =====================================================
@@ -467,9 +873,7 @@ function ManageCategories() {
 
         <button
           type="button"
-
           className="admin-primary-button"
-
           onClick={
             openAdd
           }
@@ -516,7 +920,6 @@ function ManageCategories() {
 
       <div className="admin-song-toolbar">
 
-
         <div className="admin-song-search">
 
           <FaSearch />
@@ -524,18 +927,15 @@ function ManageCategories() {
 
           <input
             type="text"
-
             value={
               search
             }
-
             onChange={(event) =>
               setSearch(
                 event.target.value
               )
             }
-
-            placeholder="Search categories..."
+            placeholder="Search categories or language..."
           />
 
         </div>
@@ -551,14 +951,16 @@ function ManageCategories() {
 
             {" "}
 
-            {filteredCategories.length === 1
-              ? "Category"
-              : "Categories"}
+            {
+              filteredCategories.length ===
+              1
+                ? "Category"
+                : "Categories"
+            }
 
           </span>
 
         </div>
-
 
       </div>
 
@@ -568,7 +970,7 @@ function ManageCategories() {
       =============================================== */}
 
       {filteredCategories.length ===
-        0 ? (
+      0 ? (
 
         <div className="admin-empty-state">
 
@@ -591,9 +993,7 @@ function ManageCategories() {
 
             <button
               type="button"
-
               className="admin-primary-button"
-
               onClick={
                 openAdd
               }
@@ -624,6 +1024,12 @@ function ManageCategories() {
                 </th>
 
                 <th>
+                  Language
+                </th>
+
+              
+
+                <th>
                   Songs
                 </th>
 
@@ -647,13 +1053,29 @@ function ManageCategories() {
                     }
                   >
 
+                    {/* CATEGORY */}
+
                     <td>
 
                       <div className="admin-category-cell">
 
                         <div className="admin-category-icon">
 
-                          <FaTags />
+                          <img
+                            src={
+                              category.image_url ||
+                              DEFAULT_CATEGORY_IMAGE
+                            }
+                            alt={
+                              category.name
+                            }
+                            onError={(event) => {
+
+                              event.currentTarget.src =
+                                DEFAULT_CATEGORY_IMAGE;
+
+                            }}
+                          />
 
                         </div>
 
@@ -669,6 +1091,21 @@ function ManageCategories() {
                     </td>
 
 
+                    {/* LANGUAGE */}
+
+                    <td>
+
+                      {getLanguageLabel(
+                        category.language
+                      )}
+
+                    </td>
+
+
+                   
+
+                    {/* SONGS */}
+
                     <td>
 
                       {category.song_count ??
@@ -677,18 +1114,16 @@ function ManageCategories() {
                     </td>
 
 
+                    {/* ACTIONS */}
+
                     <td>
 
                       <div className="admin-table-actions">
 
-
                         <button
                           type="button"
-
                           className="admin-action-button edit"
-
                           title="Edit Category"
-
                           onClick={() =>
                             openEdit(
                               category
@@ -703,16 +1138,12 @@ function ManageCategories() {
 
                         <button
                           type="button"
-
                           className="admin-action-button delete"
-
                           title="Delete Category"
-
                           disabled={
                             deletingId ===
                             category.id
                           }
-
                           onClick={() =>
                             handleDelete(
                               category
@@ -723,7 +1154,6 @@ function ManageCategories() {
                           <FaTrash />
 
                         </button>
-
 
                       </div>
 
@@ -755,6 +1185,8 @@ function ManageCategories() {
           <div className="admin-modal admin-category-modal">
 
 
+            {/* MODAL HEADER */}
+
             <div className="admin-modal-header">
 
               <div>
@@ -776,11 +1208,13 @@ function ManageCategories() {
 
               <button
                 type="button"
-
                 className="admin-modal-close"
-
                 onClick={
                   closeForm
+                }
+                disabled={
+                  saving ||
+                  uploadingImage
                 }
               >
 
@@ -791,11 +1225,61 @@ function ManageCategories() {
             </div>
 
 
+            {/* FORM */}
+
             <form
               onSubmit={
                 handleSubmit
               }
             >
+
+
+              {/* LANGUAGE */}
+
+              <div className="admin-field">
+
+                <label>
+                  Category Language *
+                </label>
+
+
+                <select
+                  value={
+                    language
+                  }
+                  onChange={(event) =>
+                    setLanguage(
+                      event.target.value
+                    )
+                  }
+                  required
+                >
+
+                  {LANGUAGES.map(
+                    (item) => (
+
+                      <option
+                        key={
+                          item.value
+                        }
+                        value={
+                          item.value
+                        }
+                      >
+
+                        {item.label}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+
+              {/* CATEGORY NAME */}
 
               <div className="admin-field">
 
@@ -806,37 +1290,119 @@ function ManageCategories() {
 
                 <input
                   type="text"
-
                   value={
                     name
                   }
-
                   onChange={(event) =>
                     setName(
                       event.target.value
                     )
                   }
-
-                  placeholder="Example: Worship"
-
+                  placeholder={
+                    language === "Telugu"
+                      ? "ఉదా: ఆరాధన"
+                      : language === "Hindi"
+                        ? "उदाहरण: आराधना"
+                        : language === "Malayalam"
+                          ? "ഉദാ: ആരാധന"
+                          : language === "Kannada"
+                            ? "ಉದಾ: ಆರಾಧನೆ"
+                            : language === "Tamil"
+                              ? "உதா: ஆராதனை"
+                              : "Example: Worship"
+                  }
                   autoFocus
+                  required
                 />
 
               </div>
 
+
+              {/* =========================================
+                  IMAGE
+              ========================================= */}
+
+              <div className="admin-field">
+
+                <label>
+                  Category Image
+                </label>
+
+
+                <div className="admin-category-upload">
+
+                  <input
+                    id="category-image"
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    onChange={
+                      handleImageChange
+                    }
+                    disabled={
+                      saving ||
+                      uploadingImage
+                    }
+                  />
+
+
+                  <label
+                    htmlFor="category-image"
+                    className="admin-category-browse-button"
+                  >
+
+                    <FaUpload />
+
+                    Browse Image
+
+                  </label>
+
+
+                  <p>
+
+                    PNG, JPG, JPEG or WEBP
+                    <br />
+                    Maximum 5 MB
+
+                  </p>
+
+                </div>
+
+
+                {/* IMAGE PREVIEW */}
+
+                <div className="admin-category-image-preview">
+
+                  <img
+                    src={
+                      imagePreview ||
+                      DEFAULT_CATEGORY_IMAGE
+                    }
+                    alt="Category preview"
+                    onError={(event) => {
+
+                      event.currentTarget.src =
+                        DEFAULT_CATEGORY_IMAGE;
+
+                    }}
+                  />
+
+                </div>
+
+              </div>
+
+
+              {/* ACTIONS */}
 
               <div className="admin-form-actions">
 
 
                 <button
                   type="button"
-
                   className="admin-cancel-button"
-
                   disabled={
-                    saving
+                    saving ||
+                    uploadingImage
                   }
-
                   onClick={
                     closeForm
                   }
@@ -849,19 +1415,20 @@ function ManageCategories() {
 
                 <button
                   type="submit"
-
                   className="admin-primary-button"
-
                   disabled={
-                    saving
+                    saving ||
+                    uploadingImage
                   }
                 >
 
-                  {saving
-                    ? "Saving..."
-                    : editingCategory
-                      ? "Update Category"
-                      : "Add Category"}
+                  {uploadingImage
+                    ? "Uploading..."
+                    : saving
+                      ? "Saving..."
+                      : editingCategory
+                        ? "Update Category"
+                        : "Add Category"}
 
                 </button>
 

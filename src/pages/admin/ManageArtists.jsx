@@ -15,11 +15,43 @@ import {
 
 import API from "../../services/api";
 
-import "../../assets/css/manageArtists.css";
+import "../../assets/css/admin/manageArtists.css";
 
 
 const DEFAULT_ARTIST =
   "/images/default-artist.png";
+
+
+/* =========================================================
+   LANGUAGES
+========================================================= */
+
+const LANGUAGES = [
+  {
+    value: "Telugu",
+    label: "తెలుగు",
+  },
+  {
+    value: "Hindi",
+    label: "हिन्दी",
+  },
+  {
+    value: "English",
+    label: "English",
+  },
+  {
+    value: "Malayalam",
+    label: "മലയാളം",
+  },
+  {
+    value: "Kannada",
+    label: "ಕನ್ನಡ",
+  },
+  {
+    value: "Tamil",
+    label: "தமிழ்",
+  },
+];
 
 
 function ManageArtists() {
@@ -64,6 +96,7 @@ function ManageArtists() {
     useState({
       name: "",
       bio: "",
+      language: "Telugu",
       image_url: "",
     });
 
@@ -88,7 +121,6 @@ function ManageArtists() {
     try {
 
       setLoading(true);
-
       setError("");
 
       const response =
@@ -96,11 +128,9 @@ function ManageArtists() {
           "/admin/artists"
         );
 
-
       setArtists(
         response.data.artists || []
       );
-
 
     } catch (error) {
 
@@ -109,12 +139,10 @@ function ManageArtists() {
         error
       );
 
-
       setError(
         error.response?.data?.message ||
         "Unable to load artists."
       );
-
 
     } finally {
 
@@ -143,6 +171,7 @@ function ManageArtists() {
     setForm({
       name: "",
       bio: "",
+      language: "Telugu",
       image_url: "",
     });
 
@@ -153,9 +182,7 @@ function ManageArtists() {
     );
 
     setError("");
-
     setSuccess("");
-
     setShowForm(true);
 
   };
@@ -165,25 +192,27 @@ function ManageArtists() {
      OPEN EDIT
   ===================================================== */
 
-  const openEdit = (
-    artist
-  ) => {
+  const openEdit = (artist) => {
 
     setEditingArtist(
       artist
     );
 
     setForm({
+
       name:
         artist.name || "",
 
       bio:
         artist.bio || "",
 
+      language:
+        artist.language || "Telugu",
+
       image_url:
         artist.image_url || "",
-    });
 
+    });
 
     setImageFile(null);
 
@@ -192,11 +221,8 @@ function ManageArtists() {
       DEFAULT_ARTIST
     );
 
-
     setError("");
-
     setSuccess("");
-
     setShowForm(true);
 
   };
@@ -211,7 +237,6 @@ function ManageArtists() {
     if (saving) {
       return;
     }
-
 
     setShowForm(false);
 
@@ -230,22 +255,17 @@ function ManageArtists() {
      TEXT CHANGE
   ===================================================== */
 
-  const handleChange = (
-    event
-  ) => {
+  const handleChange = (event) => {
 
     const {
       name,
       value,
     } = event.target;
 
-
     setForm(
       (previous) => ({
         ...previous,
-
-        [name]:
-          value,
+        [name]: value,
       })
     );
 
@@ -263,18 +283,15 @@ function ManageArtists() {
     const file =
       event.target.files?.[0];
 
-
     if (!file) {
       return;
     }
-
 
     const allowedTypes = [
       "image/jpeg",
       "image/png",
       "image/webp",
     ];
-
 
     if (
       !allowedTypes.includes(
@@ -289,13 +306,7 @@ function ManageArtists() {
       event.target.value = "";
 
       return;
-
     }
-
-
-    /*
-     * Maximum 5 MB
-     */
 
     if (
       file.size >
@@ -309,18 +320,11 @@ function ManageArtists() {
       event.target.value = "";
 
       return;
-
     }
-
 
     setError("");
 
     setImageFile(file);
-
-
-    /*
-     * Create preview
-     */
 
     const previewUrl =
       URL.createObjectURL(
@@ -344,6 +348,7 @@ function ManageArtists() {
 
     event.preventDefault();
 
+    /* NAME */
 
     if (
       !form.name.trim()
@@ -354,7 +359,25 @@ function ManageArtists() {
       );
 
       return;
+    }
 
+
+    /* LANGUAGE */
+
+    const selectedLanguage =
+      LANGUAGES.some(
+        (language) =>
+          language.value ===
+          form.language
+      );
+
+    if (!selectedLanguage) {
+
+      setError(
+        "Please select a valid language."
+      );
+
+      return;
     }
 
 
@@ -363,15 +386,8 @@ function ManageArtists() {
       setSaving(true);
 
       setError("");
-
       setSuccess("");
 
-
-      /*
-       * IMPORTANT:
-       * Use FormData because we are
-       * uploading an image file.
-       */
 
       const formData =
         new FormData();
@@ -389,10 +405,11 @@ function ManageArtists() {
       );
 
 
-      /*
-       * Upload image only when
-       * user selected a file.
-       */
+      formData.append(
+        "language",
+        form.language
+      );
+
 
       if (imageFile) {
 
@@ -404,9 +421,7 @@ function ManageArtists() {
       }
 
 
-      /* =================================================
-         UPDATE
-      ================================================= */
+      /* UPDATE */
 
       if (editingArtist) {
 
@@ -415,17 +430,14 @@ function ManageArtists() {
           formData
         );
 
-
         setSuccess(
           "Artist updated successfully!"
         );
 
-
       }
 
-      /* =================================================
-         CREATE
-      ================================================= */
+
+      /* CREATE */
 
       else {
 
@@ -434,7 +446,6 @@ function ManageArtists() {
           formData
         );
 
-
         setSuccess(
           "Artist created successfully!"
         );
@@ -442,16 +453,8 @@ function ManageArtists() {
       }
 
 
-      /*
-       * Reload artists
-       */
-
       await loadArtists();
 
-
-      /*
-       * Close modal
-       */
 
       setShowForm(false);
 
@@ -471,12 +474,10 @@ function ManageArtists() {
         error
       );
 
-
       setError(
         error.response?.data?.message ||
         "Unable to save artist."
       );
-
 
     } finally {
 
@@ -500,23 +501,18 @@ function ManageArtists() {
         `Delete artist "${artist.name}"?`
       );
 
-
     if (!confirmed) {
       return;
     }
 
-
     try {
 
       setError("");
-
       setSuccess("");
-
 
       await API.delete(
         `/admin/artists/${artist.id}`
       );
-
 
       setArtists(
         (previous) =>
@@ -526,11 +522,9 @@ function ManageArtists() {
           )
       );
 
-
       setSuccess(
         "Artist deleted successfully!"
       );
-
 
     } catch (error) {
 
@@ -538,7 +532,6 @@ function ManageArtists() {
         "Delete artist error:",
         error
       );
-
 
       setError(
         error.response?.data?.message ||
@@ -563,11 +556,9 @@ function ManageArtists() {
             .trim()
             .toLowerCase();
 
-
         if (!query) {
           return true;
         }
-
 
         return (
           artist.name
@@ -575,6 +566,10 @@ function ManageArtists() {
             .includes(query) ||
 
           artist.bio
+            ?.toLowerCase()
+            .includes(query) ||
+
+          artist.language
             ?.toLowerCase()
             .includes(query)
         );
@@ -615,9 +610,7 @@ function ManageArtists() {
     <div className="admin-page">
 
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
       <div className="admin-header">
 
@@ -654,16 +647,12 @@ function ManageArtists() {
       </div>
 
 
-      {/* =================================================
-          MESSAGES
-      ================================================= */}
+      {/* MESSAGES */}
 
       {error && (
 
         <div className="admin-error">
-
           {error}
-
         </div>
 
       )}
@@ -672,17 +661,13 @@ function ManageArtists() {
       {success && (
 
         <div className="admin-success">
-
           {success}
-
         </div>
 
       )}
 
 
-      {/* =================================================
-          SEARCH
-      ================================================= */}
+      {/* SEARCH */}
 
       <div className="admin-song-toolbar">
 
@@ -711,7 +696,6 @@ function ManageArtists() {
           <span>
 
             {filteredArtists.length}
-
             {" Artists"}
 
           </span>
@@ -721,9 +705,7 @@ function ManageArtists() {
       </div>
 
 
-      {/* =================================================
-          TABLE
-      ================================================= */}
+      {/* TABLE */}
 
       <div className="admin-table-wrapper">
 
@@ -735,6 +717,10 @@ function ManageArtists() {
 
               <th>
                 Artist
+              </th>
+
+              <th>
+                Language
               </th>
 
               <th>
@@ -761,15 +747,13 @@ function ManageArtists() {
               <tr>
 
                 <td
-                  colSpan="4"
+                  colSpan="5"
                   style={{
                     textAlign: "center",
                     padding: "30px",
                   }}
                 >
-
                   No artists found.
-
                 </td>
 
               </tr>
@@ -784,8 +768,6 @@ function ManageArtists() {
                       artist.id
                     }
                   >
-
-                    {/* ARTIST */}
 
                     <td>
 
@@ -815,9 +797,7 @@ function ManageArtists() {
 
 
                         <strong>
-
                           {artist.name}
-
                         </strong>
 
                       </div>
@@ -825,7 +805,19 @@ function ManageArtists() {
                     </td>
 
 
-                    {/* BIO */}
+                    <td>
+
+                      {
+                        LANGUAGES.find(
+                          (language) =>
+                            language.value ===
+                            artist.language
+                        )?.label ||
+                        "తెలుగు"
+                      }
+
+                    </td>
+
 
                     <td>
 
@@ -839,8 +831,6 @@ function ManageArtists() {
                     </td>
 
 
-                    {/* SONG COUNT */}
-
                     <td>
 
                       {artist.song_count ??
@@ -848,8 +838,6 @@ function ManageArtists() {
 
                     </td>
 
-
-                    {/* ACTIONS */}
 
                     <td>
 
@@ -865,9 +853,7 @@ function ManageArtists() {
                             )
                           }
                         >
-
                           <FaEdit />
-
                         </button>
 
 
@@ -881,9 +867,7 @@ function ManageArtists() {
                             )
                           }
                         >
-
                           <FaTrash />
-
                         </button>
 
                       </div>
@@ -904,9 +888,7 @@ function ManageArtists() {
       </div>
 
 
-      {/* =================================================
-          ADD / EDIT MODAL
-      ================================================= */}
+      {/* MODAL */}
 
       {showForm && (
 
@@ -914,8 +896,6 @@ function ManageArtists() {
 
           <div className="admin-modal">
 
-
-            {/* MODAL HEADER */}
 
             <div className="admin-modal-header">
 
@@ -950,8 +930,6 @@ function ManageArtists() {
             </div>
 
 
-            {/* FORM */}
-
             <form
               onSubmit={
                 handleSubmit
@@ -983,6 +961,49 @@ function ManageArtists() {
               </div>
 
 
+              {/* LANGUAGE */}
+
+              <div className="admin-field">
+
+                <label>
+                  Artist Language *
+                </label>
+
+                <select
+                  name="language"
+                  value={
+                    form.language
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                >
+
+                  {LANGUAGES.map(
+                    (language) => (
+
+                      <option
+                        key={
+                          language.value
+                        }
+                        value={
+                          language.value
+                        }
+                      >
+
+                        {language.label}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+
               {/* BIO */}
 
               <div className="admin-field">
@@ -1006,9 +1027,7 @@ function ManageArtists() {
               </div>
 
 
-              {/* =================================================
-                  ARTIST COVER IMAGE
-              ================================================= */}
+              {/* IMAGE */}
 
               <div className="admin-field">
 
@@ -1019,8 +1038,6 @@ function ManageArtists() {
 
                 <div className="artist-image-upload">
 
-
-                  {/* PREVIEW */}
 
                   <div className="artist-image-preview">
 
@@ -1042,8 +1059,6 @@ function ManageArtists() {
 
                   </div>
 
-
-                  {/* CHOOSE FILE */}
 
                   <label
                     htmlFor="artist-cover-input"
@@ -1073,8 +1088,6 @@ function ManageArtists() {
                   />
 
 
-                  {/* FILE NAME */}
-
                   <div className="artist-file-name">
 
                     {imageFile
@@ -1098,9 +1111,7 @@ function ManageArtists() {
               </div>
 
 
-              {/* =================================================
-                  FORM ACTIONS
-              ================================================= */}
+              {/* ACTIONS */}
 
               <div className="admin-form-actions">
 
@@ -1114,9 +1125,7 @@ function ManageArtists() {
                     saving
                   }
                 >
-
                   Cancel
-
                 </button>
 
 

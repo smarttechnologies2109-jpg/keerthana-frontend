@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -12,6 +11,8 @@ function Register() {
 
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+
+  const [language, setLanguage] = useState("Telugu");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,10 +35,19 @@ function Register() {
       return;
     }
 
+    if (!language) {
+      setError("Please select your preferred language");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register(cleanName, cleanContact);
+      await register(
+        cleanName,
+        cleanContact,
+        language
+      );
 
       navigate("/");
     } catch (error) {
@@ -54,6 +64,7 @@ function Register() {
 
   return (
     <div className="auth-page">
+
       <div className="auth-card">
 
         <div className="auth-logo">
@@ -76,6 +87,8 @@ function Register() {
 
         <form onSubmit={handleSubmit}>
 
+          {/* NAME */}
+
           <label>
             Name
           </label>
@@ -90,6 +103,9 @@ function Register() {
             autoComplete="name"
             required
           />
+
+
+          {/* EMAIL / PHONE */}
 
           <label>
             Email or Phone Number
@@ -106,6 +122,38 @@ function Register() {
             required
           />
 
+
+          {/* LANGUAGE */}
+
+          <label>
+            Preferred Music Language
+          </label>
+
+          <select
+            value={language}
+            onChange={(event) =>
+              setLanguage(event.target.value)
+            }
+            required
+          >
+
+           <option value="Telugu">తెలుగు</option>
+
+<option value="Hindi">हिन्दी</option>
+
+<option value="English">English</option>
+
+<option value="Malayalam">മലയാളം</option>
+
+<option value="Kannada">ಕನ್ನಡ</option>
+
+<option value="Tamil">தமிழ்</option>
+
+          </select>
+
+
+          {/* REGISTER */}
+
           <button
             type="submit"
             className="auth-submit"
@@ -120,12 +168,15 @@ function Register() {
 
         <p className="auth-switch">
           Already have an account?{" "}
+
           <Link to="/login">
             Login
           </Link>
+
         </p>
 
       </div>
+
     </div>
   );
 }

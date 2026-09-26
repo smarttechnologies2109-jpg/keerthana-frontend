@@ -19,7 +19,7 @@ import {
 
 import API from "../../services/api";
 
-import "../../assets/css/addSong.css";
+import "../../assets/css/admin/addSong.css";
 
 
 function AddSong() {
@@ -29,31 +29,167 @@ function AddSong() {
 
 
   /* =====================================================
+     SUPPORTED LANGUAGES
+  ===================================================== */
+
+  const LANGUAGES = [
+    {
+      value: "Telugu",
+      nativeName: "తెలుగు",
+    },
+    {
+      value: "Hindi",
+      nativeName: "हिन्दी",
+    },
+    {
+      value: "English",
+      nativeName: "English",
+    },
+    {
+      value: "Malayalam",
+      nativeName: "മലയാളം",
+    },
+    {
+      value: "Kannada",
+      nativeName: "ಕನ್ನಡ",
+    },
+    {
+      value: "Tamil",
+      nativeName: "தமிழ்",
+    },
+  ];
+
+
+  /* =====================================================
+     LANGUAGE CONFIGURATION
+  ===================================================== */
+
+  const LANGUAGE_CONFIG = {
+
+    Telugu: {
+      nativeName: "తెలుగు",
+      titleLabel: "పాట పేరు",
+      titlePlaceholder: "తెలుగు పాట పేరు",
+      lyricsPlaceholder: `పల్లవి:
+మీ పాట పల్లవి...
+
+చరణం 1:
+మొదటి చరణం...
+
+చరణం 2:
+రెండవ చరణం...`,
+    },
+
+    Hindi: {
+      nativeName: "हिन्दी",
+      titleLabel: "गीत का नाम",
+      titlePlaceholder: "हिन्दी गीत का नाम",
+      lyricsPlaceholder: `पल्लवी:
+आपके गीत की पल्लवी...
+
+चरण 1:
+पहला चरण...
+
+चरण 2:
+दूसरा चरण...`,
+    },
+
+    English: {
+      nativeName: "English",
+      titleLabel: "Song Title",
+      titlePlaceholder: "Song title",
+      lyricsPlaceholder: `Chorus:
+Enter the chorus lyrics...
+
+Verse 1:
+Enter the first verse...
+
+Verse 2:
+Enter the second verse...`,
+    },
+
+    Malayalam: {
+      nativeName: "മലയാളം",
+      titleLabel: "പാട്ടിന്റെ പേര്",
+      titlePlaceholder: "മലയാളം പാട്ടിന്റെ പേര്",
+      lyricsPlaceholder: `പല്ലവി:
+പാട്ടിന്റെ പല്ലവി...
+
+ചരണം 1:
+ആദ്യ ചരണം...
+
+ചരണം 2:
+രണ്ടാം ചരണം...`,
+    },
+
+    Kannada: {
+      nativeName: "ಕನ್ನಡ",
+      titleLabel: "ಹಾಡಿನ ಹೆಸರು",
+      titlePlaceholder: "ಕನ್ನಡ ಹಾಡಿನ ಹೆಸರು",
+      lyricsPlaceholder: `ಪಲ್ಲವಿ:
+ಹಾಡಿನ ಪಲ್ಲವಿ...
+
+ಚರಣ 1:
+ಮೊದಲ ಚರಣ...
+
+ಚರಣ 2:
+ಎರಡನೇ ಚರಣ...`,
+    },
+
+    Tamil: {
+      nativeName: "தமிழ்",
+      titleLabel: "பாடல் பெயர்",
+      titlePlaceholder: "தமிழ் பாடல் பெயர்",
+      lyricsPlaceholder: `பல்லவி:
+பாடலின் பல்லவி...
+
+சரணம் 1:
+முதல் சரணம்...
+
+சரணம் 2:
+இரண்டாவது சரணம்...`,
+    },
+
+  };
+
+
+  /* =====================================================
      FORM STATE
   ===================================================== */
 
-  const [form, setForm] =
-    useState({
+  const [
+    form,
+    setForm,
+  ] = useState({
 
-      title: "",
+    title: "",
 
-      title_english: "",
+    title_english: "",
 
-      language: "Telugu",
+    language: "Telugu",
 
-      lyrics: "",
+    lyrics: "",
 
-      artist_id: "",
+    artist_id: "",
 
-      album_id: "",
+    album_id: "",
 
-      category_id: "",
+    category_id: "",
 
-      moods: [],
+    ministry_id: "",
 
-      featured: false,
+    moods: [],
 
-    });
+    featured: false,
+
+  });
+
+
+  const selectedLanguage =
+    LANGUAGE_CONFIG[
+      form.language
+    ] ||
+    LANGUAGE_CONFIG.Telugu;
 
 
   /* =====================================================
@@ -98,6 +234,18 @@ function AddSong() {
     categories,
     setCategories,
   ] = useState([]);
+
+
+  const [
+    ministries,
+    setMinistries,
+  ] = useState([]);
+
+
+  const [
+    ministriesLoading,
+    setMinistriesLoading,
+  ] = useState(true);
 
 
   /* =====================================================
@@ -205,96 +353,261 @@ function AddSong() {
 
 
   /* =====================================================
-     LOAD ARTISTS / ALBUMS / CATEGORIES
+     LOAD ALL DATA
   ===================================================== */
 
   useEffect(() => {
 
-    const loadData =
-      async () => {
+    const loadData = async () => {
 
-        try {
+      try {
 
-          setPageLoading(true);
+        setPageLoading(true);
 
-          setError("");
+        setMinistriesLoading(true);
 
-
-          const [
-            artistsResponse,
-            albumsResponse,
-            categoriesResponse,
-          ] = await Promise.all([
-
-            API.get(
-              "/artists"
-            ),
-
-            API.get(
-              "/albums"
-            ),
-
-            API.get(
-              "/categories"
-            ),
-
-          ]);
+        setError("");
 
 
-          setArtists(
-            artistsResponse
-              .data
-              .artists ||
-            []
+        const [
+          artistsResponse,
+          albumsResponse,
+          categoriesResponse,
+          ministriesResponse,
+        ] = await Promise.all([
+
+          API.get("/artists"),
+
+          API.get("/albums"),
+
+          API.get("/categories"),
+
+          API.get("/ministries"),
+
+        ]);
+
+
+        /* =================================================
+           ARTISTS
+        ================================================= */
+
+        setArtists(
+          Array.isArray(
+            artistsResponse.data?.artists
+          )
+            ? artistsResponse.data.artists
+            : Array.isArray(
+                artistsResponse.data
+              )
+              ? artistsResponse.data
+              : []
+        );
+
+
+        /* =================================================
+           ALBUMS
+        ================================================= */
+
+        setAlbums(
+          Array.isArray(
+            albumsResponse.data?.albums
+          )
+            ? albumsResponse.data.albums
+            : Array.isArray(
+                albumsResponse.data
+              )
+              ? albumsResponse.data
+              : []
+        );
+
+
+        /* =================================================
+           CATEGORIES
+        ================================================= */
+
+        setCategories(
+          Array.isArray(
+            categoriesResponse.data?.categories
+          )
+            ? categoriesResponse.data.categories
+            : Array.isArray(
+                categoriesResponse.data
+              )
+              ? categoriesResponse.data
+              : []
+        );
+
+
+        /* =================================================
+           MINISTRIES
+        ================================================= */
+
+        const ministryData =
+          ministriesResponse.data;
+
+
+        if (
+          Array.isArray(
+            ministryData
+          )
+        ) {
+
+          setMinistries(
+            ministryData
           );
 
+        } else if (
+          Array.isArray(
+            ministryData?.ministries
+          )
+        ) {
 
-          setAlbums(
-            albumsResponse
-              .data
-              .albums ||
-            []
+          setMinistries(
+            ministryData.ministries
           );
 
+        } else {
 
-          setCategories(
-            categoriesResponse
-              .data
-              .categories ||
-            []
-          );
-
-
-        } catch (error) {
-
-          console.error(
-            "Add Song form data error:",
-            error
-          );
-
-
-          setError(
-            error.response
-              ?.data
-              ?.message ||
-            "Unable to load artists, albums or categories."
-          );
-
-
-        } finally {
-
-          setPageLoading(
-            false
-          );
+          setMinistries([]);
 
         }
 
-      };
+
+      } catch (error) {
+
+        console.error(
+          "Add Song form data error:",
+          error
+        );
+
+
+        setError(
+          error.response?.data?.message ||
+          "Unable to load artists, albums, categories or ministries."
+        );
+
+
+      } finally {
+
+        setPageLoading(false);
+
+        setMinistriesLoading(false);
+
+      }
+
+    };
 
 
     loadData();
 
   }, []);
+
+
+  /* =====================================================
+     FILTER DATA BY SELECTED LANGUAGE
+  ===================================================== */
+
+  const filteredArtists =
+    artists.filter(
+      (artist) =>
+        String(
+          artist.language || ""
+        ).trim().toLowerCase() ===
+        String(
+          form.language
+        ).trim().toLowerCase()
+    );
+
+
+  const filteredAlbums =
+    albums.filter(
+      (album) =>
+        String(
+          album.language || ""
+        ).trim().toLowerCase() ===
+        String(
+          form.language
+        ).trim().toLowerCase()
+    );
+
+
+  const filteredCategories =
+    categories.filter(
+      (category) =>
+        String(
+          category.language || ""
+        ).trim().toLowerCase() ===
+        String(
+          form.language
+        ).trim().toLowerCase()
+    );
+
+
+  const filteredMinistries =
+    ministries.filter(
+      (ministry) =>
+        String(
+          ministry.language || ""
+        ).trim().toLowerCase() ===
+        String(
+          form.language
+        ).trim().toLowerCase()
+    );
+
+
+  /* =====================================================
+     LANGUAGE CHANGE
+  ===================================================== */
+
+  const handleLanguageChange = (
+    event
+  ) => {
+
+    const language =
+      event.target.value;
+
+
+    setForm(
+      (previous) => ({
+
+        ...previous,
+
+        language,
+
+        artist_id: "",
+
+        album_id: "",
+
+        category_id: "",
+
+        ministry_id: "",
+
+      })
+    );
+
+
+    setNewAlbum(
+      (previous) => ({
+
+        ...previous,
+
+        artist_id: "",
+
+      })
+    );
+
+
+    setShowArtistForm(false);
+
+    setShowAlbumForm(false);
+
+    setShowCategoryForm(false);
+
+    setError("");
+
+    setSuccess("");
+
+  };
 
 
   /* =====================================================
@@ -394,9 +707,6 @@ function AddSong() {
 
   /* =====================================================
      ARTIST CHANGE
-
-     When artist changes:
-     clear previously selected album.
   ===================================================== */
 
   const handleArtistChange = (
@@ -461,11 +771,11 @@ function AddSong() {
 
       try {
 
-        setQuickSaving(
-          true
-        );
+        setQuickSaving(true);
 
         setError("");
+
+        setSuccess("");
 
 
         const response =
@@ -479,6 +789,9 @@ function AddSong() {
                 newArtist
                   .bio
                   .trim(),
+
+              language:
+                form.language,
 
             }
           );
@@ -499,8 +812,6 @@ function AddSong() {
         }
 
 
-        /* ADD TO DROPDOWN */
-
         setArtists(
           (previous) => [
 
@@ -511,8 +822,6 @@ function AddSong() {
           ]
         );
 
-
-        /* AUTO SELECT ARTIST */
 
         setForm(
           (previous) => ({
@@ -530,8 +839,6 @@ function AddSong() {
         );
 
 
-        /* SET SAME ARTIST FOR NEW ALBUM */
-
         setNewAlbum(
           (previous) => ({
 
@@ -546,8 +853,6 @@ function AddSong() {
         );
 
 
-        /* RESET QUICK FORM */
-
         setNewArtist({
 
           name: "",
@@ -557,9 +862,7 @@ function AddSong() {
         });
 
 
-        setShowArtistForm(
-          false
-        );
+        setShowArtistForm(false);
 
 
         setSuccess(
@@ -586,9 +889,7 @@ function AddSong() {
 
       } finally {
 
-        setQuickSaving(
-          false
-        );
+        setQuickSaving(false);
 
       }
 
@@ -638,11 +939,11 @@ function AddSong() {
 
       try {
 
-        setQuickSaving(
-          true
-        );
+        setQuickSaving(true);
 
         setError("");
+
+        setSuccess("");
 
 
         const response =
@@ -666,6 +967,9 @@ function AddSong() {
                     )
                   : null,
 
+              language:
+                form.language,
+
             }
           );
 
@@ -685,8 +989,6 @@ function AddSong() {
         }
 
 
-        /* ADD TO DROPDOWN */
-
         setAlbums(
           (previous) => [
 
@@ -697,8 +999,6 @@ function AddSong() {
           ]
         );
 
-
-        /* AUTO SELECT ALBUM */
 
         setForm(
           (previous) => ({
@@ -714,8 +1014,6 @@ function AddSong() {
         );
 
 
-        /* RESET */
-
         setNewAlbum({
 
           title: "",
@@ -730,9 +1028,7 @@ function AddSong() {
         });
 
 
-        setShowAlbumForm(
-          false
-        );
+        setShowAlbumForm(false);
 
 
         setSuccess(
@@ -759,9 +1055,7 @@ function AddSong() {
 
       } finally {
 
-        setQuickSaving(
-          false
-        );
+        setQuickSaving(false);
 
       }
 
@@ -794,18 +1088,23 @@ function AddSong() {
 
       try {
 
-        setQuickSaving(
-          true
-        );
+        setQuickSaving(true);
 
         setError("");
+
+        setSuccess("");
 
 
         const response =
           await API.post(
             "/admin/categories",
             {
+
               name,
+
+              language:
+                form.language,
+
             }
           );
 
@@ -825,8 +1124,6 @@ function AddSong() {
         }
 
 
-        /* ADD TO DROPDOWN */
-
         setCategories(
           (previous) => [
 
@@ -837,8 +1134,6 @@ function AddSong() {
           ]
         );
 
-
-        /* AUTO SELECT */
 
         setForm(
           (previous) => ({
@@ -861,9 +1156,7 @@ function AddSong() {
         });
 
 
-        setShowCategoryForm(
-          false
-        );
+        setShowCategoryForm(false);
 
 
         setSuccess(
@@ -890,9 +1183,7 @@ function AddSong() {
 
       } finally {
 
-        setQuickSaving(
-          false
-        );
+        setQuickSaving(false);
 
       }
 
@@ -914,9 +1205,7 @@ function AddSong() {
 
 
     if (!file) {
-
       return;
-
     }
 
 
@@ -933,10 +1222,21 @@ function AddSong() {
     ];
 
 
+    const fileName =
+      file.name
+        .toLowerCase();
+
+
+    const validExtension =
+      fileName.endsWith(".mp3") ||
+      fileName.endsWith(".m4a");
+
+
     if (
       !allowedTypes.includes(
         file.type
-      )
+      ) &&
+      !validExtension
     ) {
 
       setError(
@@ -944,8 +1244,7 @@ function AddSong() {
       );
 
 
-      event.target.value =
-        "";
+      event.target.value = "";
 
       return;
 
@@ -968,8 +1267,7 @@ function AddSong() {
       );
 
 
-      event.target.value =
-        "";
+      event.target.value = "";
 
       return;
 
@@ -978,9 +1276,7 @@ function AddSong() {
 
     setError("");
 
-    setAudioFile(
-      file
-    );
+    setAudioFile(file);
 
   };
 
@@ -991,9 +1287,7 @@ function AddSong() {
 
   const removeAudio = () => {
 
-    setAudioFile(
-      null
-    );
+    setAudioFile(null);
 
 
     const input =
@@ -1003,10 +1297,7 @@ function AddSong() {
 
 
     if (input) {
-
-      input.value =
-        "";
-
+      input.value = "";
     }
 
   };
@@ -1027,9 +1318,7 @@ function AddSong() {
 
 
     if (!file) {
-
       return;
-
     }
 
 
@@ -1055,8 +1344,7 @@ function AddSong() {
       );
 
 
-      event.target.value =
-        "";
+      event.target.value = "";
 
       return;
 
@@ -1079,17 +1367,14 @@ function AddSong() {
       );
 
 
-      event.target.value =
-        "";
+      event.target.value = "";
 
       return;
 
     }
 
 
-    if (
-      coverPreview
-    ) {
+    if (coverPreview) {
 
       URL.revokeObjectURL(
         coverPreview
@@ -1104,15 +1389,9 @@ function AddSong() {
       );
 
 
-    setCoverFile(
-      file
-    );
+    setCoverFile(file);
 
-
-    setCoverPreview(
-      preview
-    );
-
+    setCoverPreview(preview);
 
     setError("");
 
@@ -1125,9 +1404,7 @@ function AddSong() {
 
   const removeCover = () => {
 
-    if (
-      coverPreview
-    ) {
+    if (coverPreview) {
 
       URL.revokeObjectURL(
         coverPreview
@@ -1136,14 +1413,9 @@ function AddSong() {
     }
 
 
-    setCoverFile(
-      null
-    );
+    setCoverFile(null);
 
-
-    setCoverPreview(
-      ""
-    );
+    setCoverPreview("");
 
 
     const input =
@@ -1153,10 +1425,7 @@ function AddSong() {
 
 
     if (input) {
-
-      input.value =
-        "";
-
+      input.value = "";
     }
 
   };
@@ -1171,9 +1440,7 @@ function AddSong() {
   ) => {
 
     if (!bytes) {
-
       return "0 MB";
-
     }
 
 
@@ -1182,9 +1449,7 @@ function AddSong() {
       (1024 * 1024);
 
 
-    return (
-      `${mb.toFixed(2)} MB`
-    );
+    return `${mb.toFixed(2)} MB`;
 
   };
 
@@ -1200,22 +1465,38 @@ function AddSong() {
 
       event.preventDefault();
 
-
       setError("");
 
       setSuccess("");
 
 
-      /* TITLE */
+      /* LANGUAGE */
 
       if (
-        !form
-          .title
-          .trim()
+        !LANGUAGES.some(
+          (language) =>
+            language.value ===
+            form.language
+        )
       ) {
 
         setError(
-          "Song title is required."
+          "Please select a valid song language."
+        );
+
+        return;
+
+      }
+
+
+      /* TITLE */
+
+      if (
+        !form.title.trim()
+      ) {
+
+        setError(
+          `${selectedLanguage.titleLabel} is required.`
         );
 
         return;
@@ -1268,42 +1549,177 @@ function AddSong() {
       }
 
 
-      try {
+      /* =================================================
+         FRONTEND LANGUAGE SAFETY CHECK
+      ================================================= */
 
-        setSaving(
-          true
+      const selectedArtist =
+        artists.find(
+          (artist) =>
+            String(
+              artist.id
+            ) ===
+            String(
+              form.artist_id
+            )
         );
 
 
-        /* =====================================
-           CREATE FORMDATA
-        ===================================== */
+      const selectedAlbum =
+        form.album_id
+          ? albums.find(
+              (album) =>
+                String(
+                  album.id
+                ) ===
+                String(
+                  form.album_id
+                )
+            )
+          : null;
+
+
+      const selectedCategory =
+        categories.find(
+          (category) =>
+            String(
+              category.id
+            ) ===
+            String(
+              form.category_id
+            )
+        );
+
+
+      const selectedMinistry =
+        form.ministry_id
+          ? ministries.find(
+              (ministry) =>
+                String(
+                  ministry.id
+                ) ===
+                String(
+                  form.ministry_id
+                )
+            )
+          : null;
+
+
+      const languageMatches = (
+        item
+      ) => {
+
+        if (!item) {
+          return true;
+        }
+
+
+        return (
+          String(
+            item.language || ""
+          ).trim().toLowerCase() ===
+          String(
+            form.language
+          ).trim().toLowerCase()
+        );
+
+      };
+
+
+      if (
+        !languageMatches(
+          selectedArtist
+        )
+      ) {
+
+        setError(
+          "Selected artist does not belong to the selected song language."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !languageMatches(
+          selectedAlbum
+        )
+      ) {
+
+        setError(
+          "Selected album does not belong to the selected song language."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !languageMatches(
+          selectedCategory
+        )
+      ) {
+
+        setError(
+          "Selected category does not belong to the selected song language."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !languageMatches(
+          selectedMinistry
+        )
+      ) {
+
+        setError(
+          "Selected ministry does not belong to the selected song language."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        setSaving(true);
+
 
         const formData =
           new FormData();
 
 
+        /* TITLE */
+
         formData.append(
           "title",
-          form
-            .title
-            .trim()
+          form.title.trim()
         );
 
+
+        /* ENGLISH TITLE */
 
         formData.append(
           "title_english",
-          form
-            .title_english
-            .trim()
+          form.title_english.trim()
         );
 
+
+        /* LANGUAGE */
 
         formData.append(
           "language",
           form.language
         );
 
+
+        /* LYRICS */
 
         formData.append(
           "lyrics",
@@ -1313,16 +1729,10 @@ function AddSong() {
 
         /* ARTIST */
 
-        if (
+        formData.append(
+          "artist_id",
           form.artist_id
-        ) {
-
-          formData.append(
-            "artist_id",
-            form.artist_id
-          );
-
-        }
+        );
 
 
         /* ALBUM */
@@ -1341,13 +1751,21 @@ function AddSong() {
 
         /* CATEGORY */
 
-        if (
+        formData.append(
+          "category_id",
           form.category_id
+        );
+
+
+        /* MINISTRY */
+
+        if (
+          form.ministry_id
         ) {
 
           formData.append(
-            "category_id",
-            form.category_id
+            "ministry_id",
+            form.ministry_id
           );
 
         }
@@ -1395,9 +1813,9 @@ function AddSong() {
         }
 
 
-        /* =====================================
+        /* =================================================
            SEND SONG
-        ===================================== */
+        ================================================= */
 
         const response =
           await API.post(
@@ -1447,9 +1865,7 @@ function AddSong() {
 
       } finally {
 
-        setSaving(
-          false
-        );
+        setSaving(false);
 
       }
 
@@ -1496,12 +1912,9 @@ function AddSong() {
 
       <div className="admin-form-header">
 
-
         <button
           type="button"
-
           className="admin-back-button"
-
           onClick={() =>
             navigate(
               "/admin/songs"
@@ -1530,18 +1943,19 @@ function AddSong() {
 
           <p>
             Add the song, artist,
-            album, category, mood,
-            audio and lyrics from
-            one page.
+            album, category, ministry,
+            mood, audio and lyrics
+            from one page.
           </p>
 
         </div>
 
-
       </div>
 
 
-      {/* ERROR */}
+      {/* =================================================
+          ERROR
+      ================================================= */}
 
       {error && (
 
@@ -1554,7 +1968,9 @@ function AddSong() {
       )}
 
 
-      {/* SUCCESS */}
+      {/* =================================================
+          SUCCESS
+      ================================================= */}
 
       {success && (
 
@@ -1573,10 +1989,7 @@ function AddSong() {
 
       <form
         className="admin-song-form"
-
-        onSubmit={
-          handleSubmit
-        }
+        onSubmit={handleSubmit}
       >
 
 
@@ -1585,7 +1998,6 @@ function AddSong() {
         ================================================= */}
 
         <div className="admin-form-section">
-
 
           <div className="admin-form-section-title">
 
@@ -1604,34 +2016,78 @@ function AddSong() {
           <div className="admin-form-grid">
 
 
-            {/* TITLE */}
+            {/* =================================================
+                LANGUAGE
+            ================================================= */}
 
             <div className="admin-field">
 
               <label>
-                Song Title *
+                Song Language
               </label>
+
+
+              <select
+                name="language"
+                value={form.language}
+                onChange={handleLanguageChange}
+                required
+              >
+
+                {LANGUAGES.map(
+                  (language) => (
+
+                    <option
+                      key={language.value}
+                      value={language.value}
+                    >
+                      {language.nativeName}
+                    </option>
+
+                  )
+                )}
+
+              </select>
+
+
+              <small>
+                Selected language:
+                {" "}
+                {selectedLanguage.nativeName}
+              </small>
+
+            </div>
+
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
+            <div className="admin-field">
+
+              <label>
+                {selectedLanguage.titleLabel} *
+              </label>
+
 
               <input
                 type="text"
-
                 name="title"
-
-                value={
-                  form.title
+                value={form.title}
+                onChange={handleChange}
+                placeholder={
+                  selectedLanguage.titlePlaceholder
                 }
-
-                onChange={
-                  handleChange
-                }
-
-                placeholder="Song title"
+                maxLength={255}
+                required
               />
 
             </div>
 
 
-            {/* ENGLISH TITLE */}
+            {/* =================================================
+                ENGLISH TITLE
+            ================================================= */}
 
             <div className="admin-field">
 
@@ -1639,58 +2095,15 @@ function AddSong() {
                 English Title
               </label>
 
+
               <input
                 type="text"
-
                 name="title_english"
-
-                value={
-                  form.title_english
-                }
-
-                onChange={
-                  handleChange
-                }
-
+                value={form.title_english}
+                onChange={handleChange}
                 placeholder="English title"
+                maxLength={255}
               />
-
-            </div>
-
-
-            {/* LANGUAGE */}
-
-            <div className="admin-field">
-
-              <label>
-                Language
-              </label>
-
-              <select
-                name="language"
-
-                value={
-                  form.language
-                }
-
-                onChange={
-                  handleChange
-                }
-              >
-
-                <option value="Telugu">
-                  Telugu
-                </option>
-
-                <option value="English">
-                  English
-                </option>
-
-                <option value="Hindi">
-                  Hindi
-                </option>
-
-              </select>
 
             </div>
 
@@ -1701,7 +2114,6 @@ function AddSong() {
 
             <div className="admin-field">
 
-
               <div className="admin-field-label-row">
 
                 <label>
@@ -1711,25 +2123,21 @@ function AddSong() {
 
                 <button
                   type="button"
-
                   className="admin-inline-add-button"
-
                   onClick={() => {
 
                     setError("");
+
+                    setSuccess("");
 
                     setShowArtistForm(
                       (previous) =>
                         !previous
                     );
 
-                    setShowAlbumForm(
-                      false
-                    );
+                    setShowAlbumForm(false);
 
-                    setShowCategoryForm(
-                      false
-                    );
+                    setShowCategoryForm(false);
 
                   }}
                 >
@@ -1745,14 +2153,9 @@ function AddSong() {
 
               <select
                 name="artist_id"
-
-                value={
-                  form.artist_id
-                }
-
-                onChange={
-                  handleArtistChange
-                }
+                value={form.artist_id}
+                onChange={handleArtistChange}
+                required
               >
 
                 <option value="">
@@ -1760,17 +2163,12 @@ function AddSong() {
                 </option>
 
 
-                {artists.map(
+                {filteredArtists.map(
                   (artist) => (
 
                     <option
-                      key={
-                        artist.id
-                      }
-
-                      value={
-                        artist.id
-                      }
+                      key={artist.id}
+                      value={artist.id}
                     >
 
                       {artist.name}
@@ -1783,12 +2181,19 @@ function AddSong() {
               </select>
 
 
-              {/* QUICK ARTIST */}
+              {filteredArtists.length === 0 && (
+
+                <small>
+                  No artists available for{" "}
+                  {selectedLanguage.nativeName}.
+                </small>
+
+              )}
+
 
               {showArtistForm && (
 
                 <div className="admin-quick-create">
-
 
                   <h4>
                     Add New Artist
@@ -1797,13 +2202,8 @@ function AddSong() {
 
                   <input
                     type="text"
-
                     placeholder="Artist name"
-
-                    value={
-                      newArtist.name
-                    }
-
+                    value={newArtist.name}
                     onChange={(
                       event
                     ) =>
@@ -1814,9 +2214,7 @@ function AddSong() {
                           ...previous,
 
                           name:
-                            event
-                              .target
-                              .value,
+                            event.target.value,
 
                         })
                       )
@@ -1827,13 +2225,8 @@ function AddSong() {
 
                   <textarea
                     rows="3"
-
                     placeholder="Artist bio (optional)"
-
-                    value={
-                      newArtist.bio
-                    }
-
+                    value={newArtist.bio}
                     onChange={(
                       event
                     ) =>
@@ -1844,9 +2237,7 @@ function AddSong() {
                           ...previous,
 
                           bio:
-                            event
-                              .target
-                              .value,
+                            event.target.value,
 
                         })
                       )
@@ -1857,18 +2248,11 @@ function AddSong() {
 
                   <div className="admin-quick-actions">
 
-
                     <button
                       type="button"
-
-                      disabled={
-                        quickSaving
-                      }
-
+                      disabled={quickSaving}
                       onClick={() =>
-                        setShowArtistForm(
-                          false
-                        )
+                        setShowArtistForm(false)
                       }
                     >
 
@@ -1879,16 +2263,9 @@ function AddSong() {
 
                     <button
                       type="button"
-
                       className="admin-primary-button"
-
-                      disabled={
-                        quickSaving
-                      }
-
-                      onClick={
-                        createArtist
-                      }
+                      disabled={quickSaving}
+                      onClick={createArtist}
                     >
 
                       <FaPlus />
@@ -1899,13 +2276,11 @@ function AddSong() {
 
                     </button>
 
-
                   </div>
 
                 </div>
 
               )}
-
 
             </div>
 
@@ -1916,7 +2291,6 @@ function AddSong() {
 
             <div className="admin-field">
 
-
               <div className="admin-field-label-row">
 
                 <label>
@@ -1926,12 +2300,12 @@ function AddSong() {
 
                 <button
                   type="button"
-
                   className="admin-inline-add-button"
-
                   onClick={() => {
 
                     setError("");
+
+                    setSuccess("");
 
 
                     if (
@@ -1965,14 +2339,9 @@ function AddSong() {
                     );
 
 
-                    setShowArtistForm(
-                      false
-                    );
+                    setShowArtistForm(false);
 
-
-                    setShowCategoryForm(
-                      false
-                    );
+                    setShowCategoryForm(false);
 
                   }}
                 >
@@ -1988,14 +2357,8 @@ function AddSong() {
 
               <select
                 name="album_id"
-
-                value={
-                  form.album_id
-                }
-
-                onChange={
-                  handleChange
-                }
+                value={form.album_id}
+                onChange={handleChange}
               >
 
                 <option value="">
@@ -2003,7 +2366,7 @@ function AddSong() {
                 </option>
 
 
-                {albums
+                {filteredAlbums
 
                   .filter(
                     (album) => {
@@ -2012,7 +2375,7 @@ function AddSong() {
                         !form.artist_id
                       ) {
 
-                        return true;
+                        return false;
 
                       }
 
@@ -2021,7 +2384,7 @@ function AddSong() {
                         !album.artist_id
                       ) {
 
-                        return true;
+                        return false;
 
                       }
 
@@ -2042,13 +2405,8 @@ function AddSong() {
                     (album) => (
 
                       <option
-                        key={
-                          album.id
-                        }
-
-                        value={
-                          album.id
-                        }
+                        key={album.id}
+                        value={album.id}
                       >
 
                         {album.title}
@@ -2069,12 +2427,9 @@ function AddSong() {
               </small>
 
 
-              {/* QUICK ALBUM */}
-
               {showAlbumForm && (
 
                 <div className="admin-quick-create">
-
 
                   <h4>
                     Add New Album
@@ -2083,13 +2438,8 @@ function AddSong() {
 
                   <input
                     type="text"
-
                     placeholder="Album title"
-
-                    value={
-                      newAlbum.title
-                    }
-
+                    value={newAlbum.title}
                     onChange={(
                       event
                     ) =>
@@ -2100,9 +2450,7 @@ function AddSong() {
                           ...previous,
 
                           title:
-                            event
-                              .target
-                              .value,
+                            event.target.value,
 
                         })
                       )
@@ -2113,18 +2461,12 @@ function AddSong() {
 
                   <input
                     type="number"
-
                     min="1900"
-
                     max="2100"
-
                     placeholder="Release year (optional)"
-
                     value={
-                      newAlbum
-                        .release_year
+                      newAlbum.release_year
                     }
-
                     onChange={(
                       event
                     ) =>
@@ -2135,9 +2477,7 @@ function AddSong() {
                           ...previous,
 
                           release_year:
-                            event
-                              .target
-                              .value,
+                            event.target.value,
 
                         })
                       )
@@ -2148,18 +2488,11 @@ function AddSong() {
 
                   <div className="admin-quick-actions">
 
-
                     <button
                       type="button"
-
-                      disabled={
-                        quickSaving
-                      }
-
+                      disabled={quickSaving}
                       onClick={() =>
-                        setShowAlbumForm(
-                          false
-                        )
+                        setShowAlbumForm(false)
                       }
                     >
 
@@ -2170,16 +2503,9 @@ function AddSong() {
 
                     <button
                       type="button"
-
                       className="admin-primary-button"
-
-                      disabled={
-                        quickSaving
-                      }
-
-                      onClick={
-                        createAlbum
-                      }
+                      disabled={quickSaving}
+                      onClick={createAlbum}
                     >
 
                       <FaPlus />
@@ -2190,14 +2516,11 @@ function AddSong() {
 
                     </button>
 
-
                   </div>
-
 
                 </div>
 
               )}
-
 
             </div>
 
@@ -2208,7 +2531,6 @@ function AddSong() {
 
             <div className="admin-field">
 
-
               <div className="admin-field-label-row">
 
                 <label>
@@ -2218,28 +2540,21 @@ function AddSong() {
 
                 <button
                   type="button"
-
                   className="admin-inline-add-button"
-
                   onClick={() => {
 
                     setError("");
 
+                    setSuccess("");
 
                     setShowCategoryForm(
                       (previous) =>
                         !previous
                     );
 
+                    setShowArtistForm(false);
 
-                    setShowArtistForm(
-                      false
-                    );
-
-
-                    setShowAlbumForm(
-                      false
-                    );
+                    setShowAlbumForm(false);
 
                   }}
                 >
@@ -2255,32 +2570,22 @@ function AddSong() {
 
               <select
                 name="category_id"
-
-                value={
-                  form.category_id
-                }
-
-                onChange={
-                  handleChange
-                }
+                value={form.category_id}
+                onChange={handleChange}
+                required
               >
 
                 <option value="">
-                  No Category
+                  Select Category
                 </option>
 
 
-                {categories.map(
+                {filteredCategories.map(
                   (category) => (
 
                     <option
-                      key={
-                        category.id
-                      }
-
-                      value={
-                        category.id
-                      }
+                      key={category.id}
+                      value={category.id}
                     >
 
                       {category.name}
@@ -2293,12 +2598,19 @@ function AddSong() {
               </select>
 
 
-              {/* QUICK CATEGORY */}
+              {filteredCategories.length === 0 && (
+
+                <small>
+                  No categories available for{" "}
+                  {selectedLanguage.nativeName}.
+                </small>
+
+              )}
+
 
               {showCategoryForm && (
 
                 <div className="admin-quick-create">
-
 
                   <h4>
                     Add New Category
@@ -2307,13 +2619,8 @@ function AddSong() {
 
                   <input
                     type="text"
-
                     placeholder="Category name"
-
-                    value={
-                      newCategory.name
-                    }
-
+                    value={newCategory.name}
                     onChange={(
                       event
                     ) =>
@@ -2321,9 +2628,7 @@ function AddSong() {
                       setNewCategory({
 
                         name:
-                          event
-                            .target
-                            .value,
+                          event.target.value,
 
                       })
 
@@ -2333,18 +2638,11 @@ function AddSong() {
 
                   <div className="admin-quick-actions">
 
-
                     <button
                       type="button"
-
-                      disabled={
-                        quickSaving
-                      }
-
+                      disabled={quickSaving}
                       onClick={() =>
-                        setShowCategoryForm(
-                          false
-                        )
+                        setShowCategoryForm(false)
                       }
                     >
 
@@ -2355,16 +2653,9 @@ function AddSong() {
 
                     <button
                       type="button"
-
                       className="admin-primary-button"
-
-                      disabled={
-                        quickSaving
-                      }
-
-                      onClick={
-                        createCategory
-                      }
+                      disabled={quickSaving}
+                      onClick={createCategory}
                     >
 
                       <FaPlus />
@@ -2375,13 +2666,91 @@ function AddSong() {
 
                     </button>
 
-
                   </div>
 
                 </div>
 
               )}
 
+            </div>
+
+
+            {/* =================================================
+                MINISTRY
+            ================================================= */}
+
+            <div className="admin-field">
+
+              <div className="admin-field-label-row">
+
+                <label htmlFor="ministry_id">
+                  Ministry
+                </label>
+
+              </div>
+
+
+              <select
+                id="ministry_id"
+                name="ministry_id"
+                value={form.ministry_id}
+                onChange={handleChange}
+                disabled={ministriesLoading}
+              >
+
+                <option value="">
+
+                  {ministriesLoading
+                    ? "Loading ministries..."
+                    : "No Ministry / General"}
+
+                </option>
+
+
+                {filteredMinistries.map(
+                  (ministry) => (
+
+                    <option
+                      key={ministry.id}
+                      value={ministry.id}
+                    >
+
+                      {ministry.name}
+
+                    </option>
+
+                  )
+                )}
+
+              </select>
+
+
+              <small>
+
+                Only ministries matching the
+                selected song language are shown.
+
+              </small>
+
+
+              {!ministriesLoading &&
+                filteredMinistries.length === 0 && (
+
+                  <small
+                    style={{
+                      display: "block",
+                      marginTop: "6px",
+                    }}
+                  >
+
+                    No ministries available for{" "}
+                    {selectedLanguage.nativeName}.
+                    You can add ministries from
+                    Admin → Ministries.
+
+                  </small>
+
+                )}
 
             </div>
 
@@ -2409,22 +2778,16 @@ function AddSong() {
 
               <div className="admin-mood-grid">
 
-
-                {/* WORSHIP */}
-
                 <label className="admin-mood-option">
 
                   <input
                     type="checkbox"
-
                     value="worship"
-
                     checked={
                       form.moods.includes(
                         "worship"
                       )
                     }
-
                     onChange={
                       handleMoodChange
                     }
@@ -2437,21 +2800,16 @@ function AddSong() {
                 </label>
 
 
-                {/* PRAISE */}
-
                 <label className="admin-mood-option">
 
                   <input
                     type="checkbox"
-
                     value="praise"
-
                     checked={
                       form.moods.includes(
                         "praise"
                       )
                     }
-
                     onChange={
                       handleMoodChange
                     }
@@ -2464,21 +2822,16 @@ function AddSong() {
                 </label>
 
 
-                {/* PRAYER */}
-
                 <label className="admin-mood-option">
 
                   <input
                     type="checkbox"
-
                     value="prayer"
-
                     checked={
                       form.moods.includes(
                         "prayer"
                       )
                     }
-
                     onChange={
                       handleMoodChange
                     }
@@ -2491,21 +2844,16 @@ function AddSong() {
                 </label>
 
 
-                {/* HOPE */}
-
                 <label className="admin-mood-option">
 
                   <input
                     type="checkbox"
-
                     value="hope"
-
                     checked={
                       form.moods.includes(
                         "hope"
                       )
                     }
-
                     onChange={
                       handleMoodChange
                     }
@@ -2518,21 +2866,16 @@ function AddSong() {
                 </label>
 
 
-                {/* PEACE */}
-
                 <label className="admin-mood-option">
 
                   <input
                     type="checkbox"
-
                     value="peace"
-
                     checked={
                       form.moods.includes(
                         "peace"
                       )
                     }
-
                     onChange={
                       handleMoodChange
                     }
@@ -2545,21 +2888,16 @@ function AddSong() {
                 </label>
 
 
-                {/* THANKSGIVING */}
-
                 <label className="admin-mood-option">
 
                   <input
                     type="checkbox"
-
                     value="thanksgiving"
-
                     checked={
                       form.moods.includes(
                         "thanksgiving"
                       )
                     }
-
                     onChange={
                       handleMoodChange
                     }
@@ -2571,11 +2909,9 @@ function AddSong() {
 
                 </label>
 
-
               </div>
 
             </div>
-
 
           </div>
 
@@ -2587,7 +2923,6 @@ function AddSong() {
         ================================================= */}
 
         <div className="admin-form-section">
-
 
           <div className="admin-form-section-title">
 
@@ -2609,7 +2944,6 @@ function AddSong() {
             {/* AUDIO */}
 
             <div className="admin-upload-box">
-
 
               <div className="admin-upload-icon">
 
@@ -2634,13 +2968,9 @@ function AddSong() {
 
                   <input
                     id="song-audio-input"
-
                     className="admin-file-input"
-
                     type="file"
-
                     accept=".mp3,.m4a,audio/mpeg,audio/mp4"
-
                     onChange={
                       handleAudioChange
                     }
@@ -2649,7 +2979,6 @@ function AddSong() {
 
                   <label
                     htmlFor="song-audio-input"
-
                     className="admin-upload-button"
                   >
 
@@ -2664,7 +2993,6 @@ function AddSong() {
               ) : (
 
                 <div className="admin-selected-file">
-
 
                   <div>
 
@@ -2685,11 +3013,9 @@ function AddSong() {
 
                   <button
                     type="button"
-
                     onClick={
                       removeAudio
                     }
-
                     aria-label="Remove audio"
                   >
 
@@ -2697,11 +3023,9 @@ function AddSong() {
 
                   </button>
 
-
                 </div>
 
               )}
-
 
             </div>
 
@@ -2709,7 +3033,6 @@ function AddSong() {
             {/* COVER */}
 
             <div className="admin-upload-box">
-
 
               {!coverPreview ? (
 
@@ -2723,11 +3046,7 @@ function AddSong() {
 
                 <img
                   className="admin-cover-preview"
-
-                  src={
-                    coverPreview
-                  }
-
+                  src={coverPreview}
                   alt="Song cover preview"
                 />
 
@@ -2750,13 +3069,9 @@ function AddSong() {
 
                   <input
                     id="song-cover-input"
-
                     className="admin-file-input"
-
                     type="file"
-
                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-
                     onChange={
                       handleCoverChange
                     }
@@ -2765,7 +3080,6 @@ function AddSong() {
 
                   <label
                     htmlFor="song-cover-input"
-
                     className="admin-upload-button"
                   >
 
@@ -2780,7 +3094,6 @@ function AddSong() {
               ) : (
 
                 <div className="admin-selected-file">
-
 
                   <div>
 
@@ -2801,11 +3114,9 @@ function AddSong() {
 
                   <button
                     type="button"
-
                     onClick={
                       removeCover
                     }
-
                     aria-label="Remove cover"
                   >
 
@@ -2817,9 +3128,7 @@ function AddSong() {
 
               )}
 
-
             </div>
-
 
           </div>
 
@@ -2832,16 +3141,15 @@ function AddSong() {
 
         <div className="admin-form-section">
 
-
           <div className="admin-form-section-title">
 
             <h2>
-              Lyrics
+              Lyrics — {selectedLanguage.nativeName}
             </h2>
 
             <p>
-              Add Pallavi and
-              Charanam lyrics.
+              Enter the lyrics in the selected
+              song language.
             </p>
 
           </div>
@@ -2851,29 +3159,15 @@ function AddSong() {
 
             <textarea
               name="lyrics"
-
-              value={
-                form.lyrics
-              }
-
-              onChange={
-                handleChange
-              }
-
+              value={form.lyrics}
+              onChange={handleChange}
               rows="16"
-
-              placeholder={`పల్లవి:
-మీ పాట పల్లవి...
-
-చరణం 1:
-మొదటి చరణం...
-
-చరణం 2:
-రెండవ చరణం...`}
+              placeholder={
+                selectedLanguage.lyricsPlaceholder
+              }
             />
 
           </div>
-
 
         </div>
 
@@ -2884,19 +3178,11 @@ function AddSong() {
 
         <label className="admin-checkbox">
 
-
           <input
             type="checkbox"
-
             name="featured"
-
-            checked={
-              form.featured
-            }
-
-            onChange={
-              handleChange
-            }
+            checked={form.featured}
+            onChange={handleChange}
           />
 
 
@@ -2913,7 +3199,6 @@ function AddSong() {
 
           </div>
 
-
         </label>
 
 
@@ -2923,17 +3208,13 @@ function AddSong() {
 
         <div className="admin-form-actions">
 
-
           <button
             type="button"
-
             className="admin-cancel-button"
-
             disabled={
               saving ||
               quickSaving
             }
-
             onClick={() =>
               navigate(
                 "/admin/songs"
@@ -2948,9 +3229,7 @@ function AddSong() {
 
           <button
             type="submit"
-
             className="admin-primary-button"
-
             disabled={
               saving ||
               quickSaving
@@ -2966,12 +3245,10 @@ function AddSong() {
 
           </button>
 
-
         </div>
 
 
       </form>
-
 
     </div>
 

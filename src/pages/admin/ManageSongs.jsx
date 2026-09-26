@@ -23,7 +23,7 @@ import {
   getMediaUrl,
 } from "../../utils/media";
 
-import "../../assets/css/manageSongs.css";
+import "../../assets/css/admin/manageSongs.css";
 
 function ManageSongs() {
 

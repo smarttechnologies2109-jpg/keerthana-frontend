@@ -24,7 +24,7 @@ import {
   getMediaUrl,
 } from "../../utils/media";
 
-import "../../assets/css/editSong.css";
+import "../../assets/css/admin/editSong.css";
 
 
 

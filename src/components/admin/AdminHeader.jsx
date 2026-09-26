@@ -14,7 +14,7 @@ import {
 
 import { useAuth } from "../../context/AuthContext";
 
-import "../../assets/css/adminHeader.css";
+import "../../assets/css/admin/adminHeader.css";
 
 
 function AdminHeader({ onToggleSidebar }) {

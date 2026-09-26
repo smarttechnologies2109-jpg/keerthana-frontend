@@ -297,103 +297,122 @@ export function AuthProvider({
 
 
   /* =====================================================
-     REGISTER USER
+   REGISTER USER
 
-     NAME + EMAIL OR PHONE
+   NAME + EMAIL OR PHONE + LANGUAGE
 
-     POST:
-     /auth/register
+   POST:
+   /auth/register
 
-     Body:
-     {
-       name,
-       contact
-     }
+   Body:
+   {
+     name,
+     contact,
+     language
+   }
 
-     NO PASSWORD
-     NO OTP
-  ===================================================== */
+   NO PASSWORD
+   NO OTP
+===================================================== */
 
-  const register =
-    async (
-      name,
-      contact
-    ) => {
+const register =
+  async (
+    name,
+    contact,
+    language
+  ) => {
 
-      const cleanName =
-        String(name || "")
-          .trim();
-
-
-      const cleanContact =
-        String(contact || "")
-          .trim();
+    const cleanName =
+      String(name || "")
+        .trim();
 
 
-      if (!cleanName) {
-
-        throw new Error(
-          "Name is required."
-        );
-
-      }
+    const cleanContact =
+      String(contact || "")
+        .trim();
 
 
-      if (!cleanContact) {
-
-        throw new Error(
-          "Email or phone number is required."
-        );
-
-      }
+    const cleanLanguage =
+      String(language || "")
+        .trim();
 
 
-      const response =
-        await API.post(
-          "/auth/register",
-          {
-            name:
-              cleanName,
+    if (!cleanName) {
 
-            contact:
-              cleanContact,
-          }
-        );
+      throw new Error(
+        "Name is required."
+      );
+
+    }
 
 
-      const {
-        token,
-        user: registeredUser,
-      } = response.data;
+    if (!cleanContact) {
+
+      throw new Error(
+        "Email or phone number is required."
+      );
+
+    }
 
 
-      if (!token) {
+    if (!cleanLanguage) {
 
-        throw new Error(
-          "Registration did not return an authentication token."
-        );
+      throw new Error(
+        "Preferred language is required."
+      );
 
-      }
-
-
-      if (!registeredUser) {
-
-        throw new Error(
-          "Registration did not return user data."
-        );
-
-      }
+    }
 
 
-      saveSession(
-        token,
-        registeredUser
+    const response =
+      await API.post(
+        "/auth/register",
+        {
+          name:
+            cleanName,
+
+          contact:
+            cleanContact,
+
+          language:
+            cleanLanguage,
+        }
       );
 
 
-      return registeredUser;
+    const {
+      token,
+      user: registeredUser,
+    } = response.data;
 
-    };
+
+    if (!token) {
+
+      throw new Error(
+        "Registration did not return an authentication token."
+      );
+
+    }
+
+
+    if (!registeredUser) {
+
+      throw new Error(
+        "Registration did not return user data."
+      );
+
+    }
+
+
+    saveSession(
+      token,
+      registeredUser
+    );
+
+
+    return registeredUser;
+
+  };
 
 
   /* =====================================================
@@ -461,7 +480,7 @@ export function AuthProvider({
        */
 
       if (
-        adminUser.role !== "admin"
+        adminUser.role !== "ADMIN"
       ) {
 
         throw new Error(

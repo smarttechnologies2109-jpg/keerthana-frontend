@@ -14,6 +14,8 @@ import "../assets/css/MoodPlaylists.css";
 import Sidebar from "../components/Sidebar";
 import MusicPlayer from "../components/MusicPlayer";
 
+import Header from "../components/Header";
+
 const moods = [
   {
     id: "worship",
@@ -60,6 +62,7 @@ const MoodPlaylists = () => {
     <div className="mood-page">
    <Sidebar/>
       {/* Header */}
+      <Header/>
       <div className="mood-page-header">
         <span className="mood-label">🎧 KEERTHANA</span>
 

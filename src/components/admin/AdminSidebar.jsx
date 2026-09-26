@@ -8,6 +8,7 @@ import {
   FaTags,
   FaUser,
   FaUsers,
+  FaChurch,
 } from "react-icons/fa";
 
 import {
@@ -19,7 +20,7 @@ import {
   useAuth,
 } from "../../context/AuthContext";
 
-import "../../assets/css/adminSidebar.css";
+import "../../assets/css/admin/adminSidebar.css";
 
 
 function AdminSidebar() {
@@ -78,7 +79,6 @@ function AdminSidebar() {
 
       <div className="admin-sidebar-brand">
 
-
         <div className="admin-brand-icon">
 
           ♪
@@ -106,24 +106,23 @@ function AdminSidebar() {
           ADMIN USER
       ================================================= */}
 
-      <div className="admin-sidebar-user">
+      {/* <div className="admin-sidebar-user">
 
-
-        <div className="admin-sidebar-avatar">
+        {/* <div className="admin-sidebar-avatar">
 
           <FaUser />
 
-        </div>
+        </div> */}
 
 
-        <div>
+        {/* <div>
 
-          <strong>
+          {/* <strong>
 
             {user?.name ||
               "Administrator"}
 
-          </strong>
+          </strong> 
 
 
           <span>
@@ -133,11 +132,11 @@ function AdminSidebar() {
 
           </span>
 
-        </div>
+        </div> 
 
 
       </div>
-
+ */}
 
       {/* =================================================
           NAVIGATION
@@ -152,6 +151,8 @@ function AdminSidebar() {
 
         </p>
 
+
+        {/* DASHBOARD */}
 
         <NavLink
           to="/admin"
@@ -249,14 +250,34 @@ function AdminSidebar() {
         </NavLink>
 
 
-        {/* USERS */}
+        {/* =================================================
+            MINISTRIES
+        ================================================= */}
 
         <NavLink
-          to="/admin/users"
+          to="/admin/ministries"
           className={
             navClass
           }
         >
+
+          <FaChurch />
+
+          <span>
+            Ministries
+          </span>
+
+        </NavLink>
+
+
+        {/* USERS */}
+
+        {/* <NavLink
+          to="/admin/users"
+          className={
+            navClass
+          }
+         >
 
           <FaUsers />
 
@@ -264,7 +285,7 @@ function AdminSidebar() {
             Users
           </span>
 
-        </NavLink>
+        </NavLink> */}
 
 
       </nav>

@@ -1583,3 +1583,190 @@
   }
 
 }
+/* =========================================================
+   CATEGORY IMAGE
+========================================================= */
+
+.admin-category-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  overflow: hidden;
+
+  background: #f3f4f6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.admin-category-icon img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+
+/* =========================================================
+   TABLE IMAGE
+========================================================= */
+
+.admin-category-table-image {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 8px;
+
+  overflow: hidden;
+
+  background: #f3f4f6;
+}
+
+
+.admin-category-table-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+
+/* =========================================================
+   IMAGE UPLOAD BOX
+========================================================= */
+
+.admin-category-upload {
+  position: relative;
+
+  width: 100%;
+  min-height: 130px;
+
+  box-sizing: border-box;
+
+  padding: 20px;
+
+  border: 2px dashed #c7d2fe;
+
+  border-radius: 12px;
+
+  background: #f8faff;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  gap: 9px;
+}
+
+
+.admin-category-upload input[type="file"] {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   BROWSE BUTTON
+========================================================= */
+
+.admin-category-browse-button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  background: #4f46e5;
+
+  color: #ffffff !important;
+
+  display: inline-flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+
+.admin-category-browse-button:hover {
+  background: #4338ca;
+}
+
+
+/* =========================================================
+   UPLOAD DESCRIPTION
+========================================================= */
+
+.admin-category-upload p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+.admin-category-image-preview {
+  width: 150px;
+  height: 150px;
+
+  margin-top: 12px;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #f3f4f6;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+
+.admin-category-image-preview img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}

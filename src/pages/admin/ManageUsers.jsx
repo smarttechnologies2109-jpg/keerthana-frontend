@@ -308,7 +308,7 @@ function ManageUsers() {
   const normalUserCount =
     users.filter(
       (user) =>
-        user.role === "user"
+        user.role === "USER"
     ).length;
 
 

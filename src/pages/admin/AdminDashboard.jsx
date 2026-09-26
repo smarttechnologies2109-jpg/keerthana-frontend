@@ -21,7 +21,7 @@ import {
 import API
   from "../../services/api";
 
-import "../../assets/css/adminDashboard.css";
+import "../../assets/css/admin/adminDashboard.css";
 
 
 function AdminDashboard() {
@@ -308,13 +308,13 @@ function AdminDashboard() {
           type="categories"
         />
 
-
+{/* 
         <StatCard
           icon={<FaUsers />}
           title="Users"
           value={stats.users}
           type="users"
-        />
+        /> */}
 
 
       </section>
@@ -417,7 +417,7 @@ function AdminDashboard() {
           />
 
 
-          <ManagementCard
+          {/* <ManagementCard
             icon={<FaUsers />}
             title="Users"
             description="View registered listeners and manage account roles."
@@ -430,7 +430,7 @@ function AdminDashboard() {
                 "/admin/users"
               )
             }
-          />
+          /> */}
 
 
         </div>

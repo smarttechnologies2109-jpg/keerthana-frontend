@@ -223,7 +223,7 @@ const KeerthanaAI = ({ songs = [] }) => {
           <div
             key={index}
             className={`ai-message ${
-              item.role === "user"
+              item.role === "USER"
                 ? "ai-user"
                 : "ai-assistant"
             }`}

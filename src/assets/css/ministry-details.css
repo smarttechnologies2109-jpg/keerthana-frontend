@@ -1,0 +1,819 @@
+:root {
+  --ministry-bg: #f7f8fc;
+  --ministry-card: #ffffff;
+  --ministry-text: #171923;
+  --ministry-muted: #737784;
+  --ministry-border: #e8e9ef;
+  --ministry-primary: #7c3aed;
+  --ministry-primary-dark: #6025c7;
+  --ministry-hover: #f5f1ff;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.ministry-details-page {
+  min-height: 100vh;
+  padding: 32px 40px 60px;
+  background: var(--ministry-bg);
+  color: var(--ministry-text);
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.ministry-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  border: none;
+  background: transparent;
+
+  color: var(--ministry-muted);
+
+  font-size: 15px;
+  font-weight: 600;
+
+  padding: 8px 0;
+  margin-bottom: 24px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ministry-back-btn:hover {
+  color: var(--ministry-primary);
+  transform: translateX(-3px);
+}
+
+
+/* =========================================================
+   MINISTRY HEADER
+========================================================= */
+
+.ministry-header {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 32px;
+
+  padding: 32px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #faf8ff 100%
+    );
+
+  border: 1px solid var(--ministry-border);
+  border-radius: 24px;
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.05);
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   MINISTRY IMAGE
+========================================================= */
+
+.ministry-header-image {
+  width: 190px;
+  height: 190px;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eee7ff,
+      #f7f4ff
+    );
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.ministry-header-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   HEADER CONTENT
+========================================================= */
+
+.ministry-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ministry-label {
+  display: inline-block;
+
+  margin-bottom: 8px;
+
+  color: var(--ministry-primary);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 1.8px;
+}
+
+.ministry-header-content h1 {
+  margin: 0 0 12px;
+
+  color: var(--ministry-text);
+
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.1;
+
+  font-weight: 800;
+
+  word-break: break-word;
+}
+
+.ministry-header-content p {
+  max-width: 800px;
+
+  margin: 0;
+
+  color: var(--ministry-muted);
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   SONG COUNT
+========================================================= */
+
+.ministry-song-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  margin-top: 20px;
+
+  color: var(--ministry-muted);
+}
+
+.ministry-song-count strong {
+  color: var(--ministry-primary);
+
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.ministry-song-count span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   SONG SECTION
+========================================================= */
+
+.ministry-songs-section {
+  margin-top: 38px;
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.ministry-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.ministry-section-heading h2 {
+  margin: 0;
+
+  color: var(--ministry-text);
+
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.ministry-section-heading p {
+  margin: 5px 0 0;
+
+  color: var(--ministry-muted);
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   SONG LIST
+========================================================= */
+
+.ministry-song-list {
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: var(--ministry-card);
+
+  border: 1px solid var(--ministry-border);
+  border-radius: 18px;
+
+  box-shadow:
+    0 6px 25px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   SONG ROW
+========================================================= */
+
+.ministry-song-row {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    45px
+    58px
+    minmax(220px, 1fr)
+    110px
+    70px
+    48px;
+
+  align-items: center;
+
+  gap: 14px;
+
+  min-height: 82px;
+
+  padding: 10px 18px;
+
+  background: var(--ministry-card);
+
+  border-bottom: 1px solid var(--ministry-border);
+
+  box-sizing: border-box;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ministry-song-row:last-child {
+  border-bottom: none;
+}
+
+.ministry-song-row:hover {
+  background: var(--ministry-hover);
+}
+
+
+/* =========================================================
+   SONG NUMBER
+========================================================= */
+
+.song-number {
+  color: #9699a5;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   SONG COVER
+========================================================= */
+
+.song-cover {
+  width: 58px;
+  height: 58px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background: #eeeeee;
+
+  flex-shrink: 0;
+}
+
+.song-cover img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   SONG INFO
+========================================================= */
+
+.song-info {
+  min-width: 0;
+}
+
+.song-info h3 {
+  margin: 0;
+
+  overflow: hidden;
+
+  color: var(--ministry-text);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  line-height: 1.4;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.song-info p {
+  margin: 2px 0;
+
+  overflow: hidden;
+
+  color: var(--ministry-muted);
+
+  font-size: 12px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.song-info span {
+  display: block;
+
+  overflow: hidden;
+
+  margin-top: 3px;
+
+  color: #8a8d98;
+
+  font-size: 12px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   LANGUAGE
+========================================================= */
+
+.song-language {
+  display: flex;
+  justify-content: center;
+}
+
+.song-language span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 65px;
+
+  padding: 5px 9px;
+
+  color: var(--ministry-primary);
+
+  background: #f2edff;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   DURATION
+========================================================= */
+
+.song-duration {
+  color: var(--ministry-muted);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+.song-play-btn {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  background: var(--ministry-primary);
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 15px rgba(124, 58, 237, 0.25);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.song-play-btn:hover {
+  background: var(--ministry-primary-dark);
+
+  transform: scale(1.08);
+
+  box-shadow:
+    0 7px 20px rgba(124, 58, 237, 0.35);
+}
+
+.song-play-btn:active {
+  transform: scale(0.96);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.ministry-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 280px;
+
+  padding: 40px;
+
+  background: var(--ministry-card);
+
+  border: 1px solid var(--ministry-border);
+  border-radius: 20px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+.ministry-empty-icon {
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 15px;
+
+  background: #f2edff;
+
+  border-radius: 50%;
+
+  font-size: 30px;
+}
+
+.ministry-empty h3 {
+  margin: 0 0 7px;
+
+  color: var(--ministry-text);
+
+  font-size: 19px;
+}
+
+.ministry-empty p {
+  margin: 0;
+
+  color: var(--ministry-muted);
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.ministry-loading {
+  min-height: 60vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--ministry-primary);
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.ministry-error {
+  min-height: 60vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  text-align: center;
+}
+
+.ministry-error h2 {
+  margin: 0 0 10px;
+
+  color: var(--ministry-text);
+
+  font-size: 25px;
+}
+
+.ministry-error p {
+  margin: 0 0 22px;
+
+  max-width: 500px;
+
+  color: var(--ministry-muted);
+
+  line-height: 1.6;
+}
+
+.ministry-error button {
+  padding: 11px 20px;
+
+  border: none;
+  border-radius: 10px;
+
+  color: #ffffff;
+
+  background: var(--ministry-primary);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ministry-error button:hover {
+  background: var(--ministry-primary-dark);
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .ministry-details-page {
+    padding: 25px 22px 50px;
+  }
+
+  .ministry-header {
+    padding: 25px;
+    gap: 24px;
+  }
+
+  .ministry-header-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .ministry-song-row {
+    grid-template-columns:
+      35px
+      55px
+      minmax(180px, 1fr)
+      90px
+      55px
+      45px;
+
+    gap: 10px;
+
+    padding: 10px 13px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .ministry-details-page {
+    padding: 18px 14px 40px;
+  }
+
+
+  /* Header */
+
+  .ministry-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    padding: 20px;
+
+    border-radius: 18px;
+  }
+
+  .ministry-header-image {
+    width: 130px;
+    height: 130px;
+
+    border-radius: 16px;
+  }
+
+  .ministry-header-content h1 {
+    font-size: 30px;
+  }
+
+  .ministry-header-content p {
+    font-size: 14px;
+  }
+
+
+  /* Songs */
+
+  .ministry-songs-section {
+    margin-top: 28px;
+  }
+
+  .ministry-section-heading h2 {
+    font-size: 22px;
+  }
+
+
+  /* Song list */
+
+  .ministry-song-list {
+    border-radius: 14px;
+  }
+
+
+  .ministry-song-row {
+    grid-template-columns:
+      28px
+      52px
+      minmax(0, 1fr)
+      40px;
+
+    gap: 10px;
+
+    min-height: 70px;
+
+    padding: 9px 10px;
+  }
+
+
+  .song-cover {
+    width: 52px;
+    height: 52px;
+  }
+
+
+  .song-language,
+  .song-duration {
+    display: none;
+  }
+
+
+  .song-play-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+
+  .song-number {
+    font-size: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .ministry-details-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .ministry-header {
+    padding: 16px;
+  }
+
+  .ministry-header-image {
+    width: 110px;
+    height: 110px;
+  }
+
+  .ministry-header-content h1 {
+    font-size: 26px;
+  }
+
+  .ministry-song-row {
+    grid-template-columns:
+      22px
+      46px
+      minmax(0, 1fr)
+      36px;
+
+    gap: 7px;
+
+    padding: 8px;
+  }
+
+  .song-cover {
+    width: 46px;
+    height: 46px;
+  }
+
+  .song-play-btn {
+    width: 32px;
+    height: 32px;
+
+    font-size: 11px;
+  }
+
+  .song-info h3 {
+    font-size: 13px;
+  }
+
+  .song-info p,
+  .song-info span {
+    font-size: 11px;
+  }
+
+}

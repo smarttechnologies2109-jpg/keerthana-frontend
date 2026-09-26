@@ -938,3 +938,381 @@
 .password-toggle svg {
   display: block;
 }
+/* =========================================================
+   KEERTHANA REGISTER PAGE
+========================================================= */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(139, 92, 246, 0.18),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(59, 130, 246, 0.14),
+      transparent 35%
+    ),
+    #0f1117;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 42px 38px;
+  background: rgba(25, 28, 38, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.45),
+    0 0 40px rgba(124, 58, 237, 0.08);
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.auth-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #4f46e5
+  );
+
+  color: #ffffff;
+
+  font-size: 36px;
+  font-weight: 700;
+
+  box-shadow:
+    0 12px 30px rgba(124, 58, 237, 0.35);
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.auth-card h1 {
+  margin: 0;
+  text-align: center;
+
+  color: #ffffff;
+
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+
+.auth-subtitle {
+  margin: 7px 0 28px;
+
+  text-align: center;
+
+  color: #9ca3af;
+
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.auth-card h2 {
+  margin: 0 0 24px;
+
+  color: #ffffff;
+
+  text-align: center;
+
+  font-size: 23px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.auth-error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+
+  background: rgba(239, 68, 68, 0.10);
+
+  color: #fca5a5;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.auth-card label {
+  margin-bottom: 8px;
+
+  color: #e5e7eb;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   INPUT + SELECT
+========================================================= */
+
+.auth-card input,
+.auth-card select {
+  width: 100%;
+  height: 50px;
+
+  margin-bottom: 18px;
+  padding: 0 15px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #343846;
+  border-radius: 11px;
+
+  outline: none;
+
+  background: #171a23;
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.auth-card input::placeholder {
+  color: #6b7280;
+}
+
+
+.auth-card input:hover,
+.auth-card select:hover {
+  border-color: #4b5563;
+}
+
+
+.auth-card input:focus,
+.auth-card select:focus {
+  border-color: #7c3aed;
+
+  background: #1a1d28;
+
+  box-shadow:
+    0 0 0 3px rgba(124, 58, 237, 0.14);
+}
+
+
+/* =========================================================
+   SELECT
+========================================================= */
+
+.auth-card select {
+  cursor: pointer;
+
+  appearance: auto;
+}
+
+
+.auth-card select option {
+  background: #171a23;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON
+========================================================= */
+
+.auth-submit {
+  width: 100%;
+  height: 52px;
+
+  margin-top: 6px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #4f46e5
+  );
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 25px rgba(124, 58, 237, 0.25);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 14px 30px rgba(124, 58, 237, 0.35);
+}
+
+
+.auth-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+
+.auth-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   LOGIN LINK
+========================================================= */
+
+.auth-switch {
+  margin: 25px 0 0;
+
+  text-align: center;
+
+  color: #9ca3af;
+
+  font-size: 14px;
+}
+
+
+.auth-switch a {
+  color: #a78bfa;
+
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+
+.auth-switch a:hover {
+  color: #c4b5fd;
+  text-decoration: underline;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .auth-page {
+    padding: 20px 14px;
+  }
+
+  .auth-card {
+    padding: 32px 22px;
+    border-radius: 20px;
+  }
+
+  .auth-logo {
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
+  }
+
+  .auth-card h1 {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+
+  .auth-card h2 {
+    font-size: 21px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .auth-card {
+    padding: 28px 18px;
+  }
+
+  .auth-card h1 {
+    font-size: 22px;
+  }
+
+  .auth-card input,
+  .auth-card select {
+    height: 48px;
+  }
+
+  .auth-submit {
+    height: 50px;
+  }
+
+}

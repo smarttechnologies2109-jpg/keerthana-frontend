@@ -12,8 +12,7 @@ import { useAuth } from "./AuthContext";
 
 const PlayerContext = createContext(null);
 
-const PLAYER_STORAGE_KEY =
-  "keerthana_player_state";
+const PLAYER_STORAGE_KEY = "keerthana_player_state";
 
 export function PlayerProvider({ children }) {
   /* =======================================================
@@ -24,33 +23,30 @@ export function PlayerProvider({ children }) {
 
   const historyIdRef = useRef(null);
 
-  const lastSavedProgressRef =
-    useRef(0);
+  const lastSavedProgressRef = useRef(0);
 
-  const songStartTimeRef =
-    useRef(0);
+  const songStartTimeRef = useRef(0);
 
-  const progressSavingRef =
-    useRef(false);
+  const progressSavingRef = useRef(false);
 
-  const restoringPlayerRef =
-    useRef(true);
+  const restoringPlayerRef = useRef(true);
 
-  const storageReadyRef =
-    useRef(false);
+  const storageReadyRef = useRef(false);
+
+  const restoringPositionRef = useRef(false);
+
+  const restoredTimeRef = useRef(0);
 
   /*
-    IMPORTANT:
-    These refs prevent the restored position
-    from being overwritten with 0 while the
-    audio element is loading.
-  */
-  const restoringPositionRef =
-    useRef(false);
-
-  const restoredTimeRef =
-    useRef(0);
-
+   * IMPORTANT
+   *
+   * This tells the audio loader that the song was
+   * selected by the user and should automatically play.
+   *
+   * On page refresh this stays false, so browser
+   * autoplay is not triggered.
+   */
+  const shouldAutoplayRef = useRef(false);
 
   /* =======================================================
      AUTH
@@ -58,171 +54,118 @@ export function PlayerProvider({ children }) {
 
   const { user } = useAuth();
 
-
   /* =======================================================
      STATE
   ======================================================= */
 
-  const [queue, setQueue] =
-    useState([]);
+  const [queue, setQueue] = useState([]);
 
-  const [currentSong, setCurrentSong] =
-    useState(null);
+  const [currentSong, setCurrentSong] = useState(null);
 
-  const [isPlaying, setIsPlaying] =
-    useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const [currentTime, setCurrentTime] =
-    useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
-  const [duration, setDuration] =
-    useState(0);
+  const [duration, setDuration] = useState(0);
 
-  const [volume, setVolume] =
-    useState(1);
+  const [volume, setVolume] = useState(1);
 
-  const [shuffle, setShuffle] =
-    useState(false);
+  const [shuffle, setShuffle] = useState(false);
 
-  const [repeatMode, setRepeatMode] =
-    useState("off");
-
+  const [repeatMode, setRepeatMode] = useState("off");
 
   /* =======================================================
-     RESTORE PLAYER STATE FROM LOCAL STORAGE
+     RESTORE PLAYER STATE
   ======================================================= */
 
   useEffect(() => {
     try {
-      const stored =
-        localStorage.getItem(
-          PLAYER_STORAGE_KEY
-        );
+      const stored = localStorage.getItem(
+        PLAYER_STORAGE_KEY
+      );
 
       if (!stored) {
-        restoringPlayerRef.current =
-          false;
-
-        storageReadyRef.current =
-          true;
-
+        restoringPlayerRef.current = false;
+        storageReadyRef.current = true;
         return;
       }
 
-      const state =
-        JSON.parse(stored);
-
+      const state = JSON.parse(stored);
 
       /* ---------------------------------------------------
-         RESTORE CURRENT SONG
+         CURRENT SONG
       --------------------------------------------------- */
 
       if (
         state.currentSong &&
         state.currentSong.audio_url
       ) {
-        setCurrentSong(
-          state.currentSong
-        );
+        setCurrentSong(state.currentSong);
       }
 
-
       /* ---------------------------------------------------
-         RESTORE QUEUE
+         QUEUE
       --------------------------------------------------- */
 
-      if (
-        Array.isArray(state.queue)
-      ) {
-        setQueue(
-          state.queue
-        );
+      if (Array.isArray(state.queue)) {
+        setQueue(state.queue);
       }
 
-
       /* ---------------------------------------------------
-         RESTORE CURRENT TIME
+         CURRENT TIME
       --------------------------------------------------- */
 
       const savedTime =
-        Number(
-          state.currentTime
-        ) || 0;
+        Number(state.currentTime) || 0;
 
       if (
         Number.isFinite(savedTime) &&
         savedTime >= 0
       ) {
-        restoredTimeRef.current =
-          savedTime;
+        restoredTimeRef.current = savedTime;
 
-        songStartTimeRef.current =
-          savedTime;
+        songStartTimeRef.current = savedTime;
 
-        /*
-          Tell the player that a position
-          needs to be restored after the
-          audio metadata is loaded.
-        */
         restoringPositionRef.current =
           savedTime > 0;
 
-        setCurrentTime(
-          savedTime
-        );
+        setCurrentTime(savedTime);
       }
 
-
       /* ---------------------------------------------------
-         RESTORE VOLUME
+         VOLUME
       --------------------------------------------------- */
 
       const savedVolume =
-        Number(
-          state.volume
-        );
+        Number(state.volume);
 
       if (
-        Number.isFinite(
-          savedVolume
-        )
+        Number.isFinite(savedVolume)
       ) {
         setVolume(
           Math.min(
             1,
-            Math.max(
-              0,
-              savedVolume
-            )
+            Math.max(0, savedVolume)
           )
         );
       }
 
-
       /* ---------------------------------------------------
-         RESTORE SHUFFLE
+         SHUFFLE
       --------------------------------------------------- */
 
       if (
-        typeof state.shuffle ===
-        "boolean"
+        typeof state.shuffle === "boolean"
       ) {
-        setShuffle(
-          state.shuffle
-        );
+        setShuffle(state.shuffle);
       }
 
-
       /* ---------------------------------------------------
-         RESTORE REPEAT MODE
+         REPEAT
       --------------------------------------------------- */
 
       if (
-        [
-          "off",
-          "all",
-          "one",
-        ].includes(
+        ["off", "all", "one"].includes(
           state.repeatMode
         )
       ) {
@@ -230,7 +173,6 @@ export function PlayerProvider({ children }) {
           state.repeatMode
         );
       }
-
     } catch (error) {
       console.error(
         "Player restore error:",
@@ -243,42 +185,29 @@ export function PlayerProvider({ children }) {
     }
 
     /*
-      Restoration from localStorage
-      has finished.
+     * IMPORTANT:
+     *
+     * Restored songs must NOT automatically play.
+     */
+    shouldAutoplayRef.current = false;
 
-      We still keep the restored
-      position protected until the
-      audio metadata is loaded.
-    */
-    restoringPlayerRef.current =
-      false;
+    restoringPlayerRef.current = false;
 
-    storageReadyRef.current =
-      true;
-
+    storageReadyRef.current = true;
   }, []);
-
 
   /* =======================================================
      SAVE PLAYER STATE
   ======================================================= */
 
   useEffect(() => {
-    if (
-      !storageReadyRef.current
-    ) {
+    if (!storageReadyRef.current) {
       return;
     }
 
     /*
-      IMPORTANT:
-
-      During refresh, React may briefly
-      render currentTime as 0 before the
-      audio metadata is loaded.
-
-      Do NOT overwrite the saved position.
-    */
+     * Don't overwrite restored position with 0.
+     */
     if (
       restoringPositionRef.current &&
       restoredTimeRef.current > 0
@@ -287,38 +216,29 @@ export function PlayerProvider({ children }) {
     }
 
     try {
-      const audio =
-        audioRef.current;
+      const audio = audioRef.current;
 
-      const actualTime =
-        audio
-          ? Number(
-              audio.currentTime
-            ) || 0
-          : Number(
-              currentTime
-            ) || 0;
+      const actualTime = audio
+        ? Number(audio.currentTime) || 0
+        : Number(currentTime) || 0;
 
       localStorage.setItem(
         PLAYER_STORAGE_KEY,
         JSON.stringify({
           currentSong,
           queue,
-          currentTime:
-            actualTime,
+          currentTime: actualTime,
           volume,
           shuffle,
           repeatMode,
         })
       );
-
     } catch (error) {
       console.error(
         "Player save error:",
         error
       );
     }
-
   }, [
     currentSong,
     queue,
@@ -328,75 +248,55 @@ export function PlayerProvider({ children }) {
     repeatMode,
   ]);
 
-
   /* =======================================================
-     SAVE BEFORE REFRESH / TAB CLOSE
+     SAVE BEFORE REFRESH
   ======================================================= */
 
   useEffect(() => {
-    const handleBeforeUnload =
-      () => {
+    const handleBeforeUnload = () => {
+      try {
+        const audio = audioRef.current;
 
-        try {
-          const audio =
-            audioRef.current;
+        let actualTime =
+          Number(currentTime) || 0;
 
-          let actualTime =
-            Number(
-              currentTime
-            ) || 0;
-
-          /*
-            Prefer the real audio element
-            position.
-          */
-          if (audio) {
-            actualTime =
-              Number(
-                audio.currentTime
-              ) || 0;
-          }
-
-          /*
-            Never overwrite a valid restored
-            position with 0 while restoring.
-          */
-          if (
-            restoringPositionRef.current &&
-            restoredTimeRef.current > 0 &&
-            actualTime === 0
-          ) {
-            actualTime =
-              restoredTimeRef.current;
-          }
-
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                actualTime,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-
-        } catch (error) {
-          console.error(
-            "Player unload save error:",
-            error
-          );
+        if (audio) {
+          actualTime =
+            Number(audio.currentTime) || 0;
         }
-      };
 
+        if (
+          restoringPositionRef.current &&
+          restoredTimeRef.current > 0 &&
+          actualTime === 0
+        ) {
+          actualTime =
+            restoredTimeRef.current;
+        }
+
+        localStorage.setItem(
+          PLAYER_STORAGE_KEY,
+          JSON.stringify({
+            currentSong,
+            queue,
+            currentTime: actualTime,
+            volume,
+            shuffle,
+            repeatMode,
+          })
+        );
+      } catch (error) {
+        console.error(
+          "Player unload save error:",
+          error
+        );
+      }
+    };
 
     window.addEventListener(
       "beforeunload",
       handleBeforeUnload
     );
-
 
     return () => {
       window.removeEventListener(
@@ -404,7 +304,6 @@ export function PlayerProvider({ children }) {
         handleBeforeUnload
       );
     };
-
   }, [
     currentSong,
     queue,
@@ -413,7 +312,6 @@ export function PlayerProvider({ children }) {
     shuffle,
     repeatMode,
   ]);
-
 
   /* =======================================================
      RECORD HISTORY
@@ -423,32 +321,21 @@ export function PlayerProvider({ children }) {
     song,
     startTime = 0
   ) => {
-
-    if (
-      !user ||
-      !song?.id
-    ) {
+    if (!user || !song?.id) {
       return;
     }
 
     try {
-      const response =
-        await API.post(
-          "/history/play",
-          {
-            song_id:
-              song.id,
-
-            progress_seconds:
-              Math.floor(
-                Number(
-                  startTime
-                ) || 0
-              ),
-
-            completed: false,
-          }
-        );
+      const response = await API.post(
+        "/history/play",
+        {
+          song_id: song.id,
+          progress_seconds: Math.floor(
+            Number(startTime) || 0
+          ),
+          completed: false,
+        }
+      );
 
       historyIdRef.current =
         response.data?.history?.id ||
@@ -456,11 +343,8 @@ export function PlayerProvider({ children }) {
 
       lastSavedProgressRef.current =
         Math.floor(
-          Number(
-            startTime
-          ) || 0
+          Number(startTime) || 0
         );
-
     } catch (error) {
       console.error(
         "History error:",
@@ -470,7 +354,6 @@ export function PlayerProvider({ children }) {
     }
   };
 
-
   /* =======================================================
      SAVE SERVER PROGRESS
   ======================================================= */
@@ -479,14 +362,12 @@ export function PlayerProvider({ children }) {
     time,
     completed = false
   ) => {
-
     if (
       !user ||
       !historyIdRef.current
     ) {
       return;
     }
-
 
     if (
       progressSavingRef.current &&
@@ -495,48 +376,36 @@ export function PlayerProvider({ children }) {
       return;
     }
 
-
-    const progress =
-      Math.max(
-        0,
-        Math.floor(
-          Number(
-            time
-          ) || 0
-        )
-      );
-
+    const progress = Math.max(
+      0,
+      Math.floor(
+        Number(time) || 0
+      )
+    );
 
     try {
-      progressSavingRef.current =
-        true;
+      progressSavingRef.current = true;
 
       await API.patch(
         `/history/${historyIdRef.current}/progress`,
         {
-          progress_seconds:
-            progress,
-
+          progress_seconds: progress,
           completed,
         }
       );
 
       lastSavedProgressRef.current =
         progress;
-
     } catch (error) {
       console.error(
         "Progress error:",
         error.response?.data ||
           error.message
       );
-
     } finally {
-      progressSavingRef.current =
-        false;
+      progressSavingRef.current = false;
     }
   };
-
 
   /* =======================================================
      PLAY SONG
@@ -547,7 +416,6 @@ export function PlayerProvider({ children }) {
     songList = [],
     startTime = 0
   ) => {
-
     if (!song?.audio_url) {
       console.error(
         "Song has no audio URL:",
@@ -557,7 +425,6 @@ export function PlayerProvider({ children }) {
       return;
     }
 
-
     /* ---------------------------------------------------
        SET QUEUE
     --------------------------------------------------- */
@@ -566,53 +433,37 @@ export function PlayerProvider({ children }) {
       Array.isArray(songList) &&
       songList.length
     ) {
-      setQueue(
-        songList
-      );
+      setQueue(songList);
     }
-
 
     /* ---------------------------------------------------
        SAME SONG
     --------------------------------------------------- */
 
     if (
-      currentSong?.id ===
-      song.id
+      currentSong?.id === song.id
     ) {
-
-      const audio =
-        audioRef.current;
+      const audio = audioRef.current;
 
       if (!audio) {
         return;
       }
 
-
-      const start =
-        Math.max(
-          0,
-          Number(
-            startTime
-          ) || 0
-        );
-
+      const start = Math.max(
+        0,
+        Number(startTime) || 0
+      );
 
       if (
         start > 0 &&
         Math.abs(
-          audio.currentTime -
-            start
+          audio.currentTime - start
         ) > 2
       ) {
-        audio.currentTime =
-          start;
+        audio.currentTime = start;
 
-        setCurrentTime(
-          start
-        );
+        setCurrentTime(start);
       }
-
 
       try {
         await audio.play();
@@ -621,14 +472,15 @@ export function PlayerProvider({ children }) {
           "Play error:",
           error
         );
+
+        setIsPlaying(false);
       }
 
       return;
     }
 
-
     /* ---------------------------------------------------
-       SAVE OLD SONG PROGRESS
+       SAVE OLD SONG
     --------------------------------------------------- */
 
     if (
@@ -640,33 +492,24 @@ export function PlayerProvider({ children }) {
       );
     }
 
-
     /* ---------------------------------------------------
        RESET HISTORY
     --------------------------------------------------- */
 
-    historyIdRef.current =
-      null;
+    historyIdRef.current = null;
 
-    lastSavedProgressRef.current =
-      0;
+    lastSavedProgressRef.current = 0;
 
-    progressSavingRef.current =
-      false;
-
+    progressSavingRef.current = false;
 
     /* ---------------------------------------------------
        START POSITION
     --------------------------------------------------- */
 
-    const safeStart =
-      Math.max(
-        0,
-        Number(
-          startTime
-        ) || 0
-      );
-
+    const safeStart = Math.max(
+      0,
+      Number(startTime) || 0
+    );
 
     songStartTimeRef.current =
       safeStart;
@@ -677,24 +520,23 @@ export function PlayerProvider({ children }) {
     restoringPositionRef.current =
       safeStart > 0;
 
+    /*
+     * VERY IMPORTANT
+     *
+     * User selected this song.
+     * Therefore the new audio must automatically play.
+     */
+    shouldAutoplayRef.current = true;
 
-    setCurrentTime(
-      safeStart
-    );
+    setCurrentTime(safeStart);
 
-    setDuration(
-      0
-    );
-
+    setDuration(0);
 
     /* ---------------------------------------------------
        SET SONG
     --------------------------------------------------- */
 
-    setCurrentSong(
-      song
-    );
-
+    setCurrentSong(song);
 
     /* ---------------------------------------------------
        RECORD HISTORY
@@ -706,15 +548,12 @@ export function PlayerProvider({ children }) {
     );
   };
 
-
   /* =======================================================
      LOAD CURRENT SONG
   ======================================================= */
 
   useEffect(() => {
-    const audio =
-      audioRef.current;
-
+    const audio = audioRef.current;
 
     if (
       !audio ||
@@ -723,961 +562,767 @@ export function PlayerProvider({ children }) {
       return;
     }
 
-
     /*
-      Load the new audio source.
-    */
+     * Load the new source.
+     */
     audio.load();
 
+    /*
+     * If this song was selected by the user,
+     * start playback after the browser has loaded
+     * enough audio.
+     *
+     * If this is a restored song after refresh,
+     * shouldAutoplayRef is false.
+     */
+    if (
+      shouldAutoplayRef.current
+    ) {
+      const playWhenReady = async () => {
+        try {
+          await audio.play();
+        } catch (error) {
+          console.error(
+            "Automatic song play error:",
+            error
+          );
+
+          setIsPlaying(false);
+        }
+      };
+
+      /*
+       * canplay is more reliable than immediately
+       * calling play() after audio.load().
+       */
+      audio.addEventListener(
+        "canplay",
+        playWhenReady,
+        { once: true }
+      );
+
+      return () => {
+        audio.removeEventListener(
+          "canplay",
+          playWhenReady
+        );
+      };
+    }
 
     /*
-      IMPORTANT:
-
-      Do NOT automatically play after
-      refresh.
-
-      Browser autoplay policies can
-      block playback.
-    */
-
+     * Restored player should remain paused.
+     */
     if (
       restoringPlayerRef.current
     ) {
-      setIsPlaying(
-        false
-      );
+      setIsPlaying(false);
     }
-
-  }, [
-    currentSong,
-  ]);
-
+  }, [currentSong]);
 
   /* =======================================================
      TOGGLE PLAY / PAUSE
   ======================================================= */
 
-  const togglePlay =
-    async () => {
+  const togglePlay = async () => {
+    const audio = audioRef.current;
 
-      const audio =
-        audioRef.current;
+    if (
+      !audio ||
+      !currentSong
+    ) {
+      return;
+    }
 
+    /* ---------------------------------------------------
+       PAUSE
+    --------------------------------------------------- */
 
-      if (
-        !audio ||
-        !currentSong
-      ) {
-        return;
-      }
+    if (isPlaying) {
+      audio.pause();
 
+      await saveProgress(
+        audio.currentTime
+      );
 
-      /* ---------------------------------------------------
-         PAUSE
-      --------------------------------------------------- */
+      return;
+    }
 
-      if (isPlaying) {
+    /* ---------------------------------------------------
+       PLAY
+    --------------------------------------------------- */
 
-        audio.pause();
-
-        await saveProgress(
-          audio.currentTime
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         PLAY
-      --------------------------------------------------- */
-
-      try {
-        await audio.play();
-      } catch (error) {
-        console.error(
-          "Play error:",
-          error
-        );
-      }
-    };
-
+    try {
+      await audio.play();
+    } catch (error) {
+      console.error(
+        "Play error:",
+        error
+      );
+    }
+  };
 
   /* =======================================================
-     TOGGLE SHUFFLE
+     SHUFFLE
   ======================================================= */
 
-  const toggleShuffle =
-    () => {
-      setShuffle(
-        (value) =>
-          !value
-      );
-    };
-
+  const toggleShuffle = () => {
+    setShuffle(
+      (value) => !value
+    );
+  };
 
   /* =======================================================
-     TOGGLE REPEAT
+     REPEAT
   ======================================================= */
 
-  const toggleRepeat =
-    () => {
+  const toggleRepeat = () => {
+    setRepeatMode((mode) => {
+      if (mode === "off") {
+        return "all";
+      }
 
-      setRepeatMode(
-        (mode) => {
+      if (mode === "all") {
+        return "one";
+      }
 
-          if (
-            mode === "off"
-          ) {
-            return "all";
-          }
-
-          if (
-            mode === "all"
-          ) {
-            return "one";
-          }
-
-          return "off";
-        }
-      );
-    };
-
+      return "off";
+    });
+  };
 
   /* =======================================================
      NEXT SONG
   ======================================================= */
 
-  const nextSong =
-    async () => {
+  const nextSong = async () => {
+    if (
+      !currentSong ||
+      !queue.length
+    ) {
+      return;
+    }
 
-      if (
-        !currentSong ||
-        !queue.length
-      ) {
-        return;
-      }
+    /* ---------------------------------------------------
+       SHUFFLE
+    --------------------------------------------------- */
 
+    if (
+      shuffle &&
+      queue.length > 1
+    ) {
+      const songs = queue.filter(
+        (song) =>
+          song.id !== currentSong.id
+      );
 
-      /* ---------------------------------------------------
-         SHUFFLE
-      --------------------------------------------------- */
+      const randomSong =
+        songs[
+          Math.floor(
+            Math.random() *
+              songs.length
+          )
+        ];
 
-      if (
-        shuffle &&
-        queue.length > 1
-      ) {
-
-        const songs =
-          queue.filter(
-            (song) =>
-              song.id !==
-              currentSong.id
-          );
-
-
-        const randomSong =
-          songs[
-            Math.floor(
-              Math.random() *
-                songs.length
-            )
-          ];
-
-
-        if (randomSong) {
-          await playSong(
-            randomSong,
-            queue
-          );
-        }
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         FIND CURRENT SONG
-      --------------------------------------------------- */
-
-      const index =
-        queue.findIndex(
-          (song) =>
-            song.id ===
-            currentSong.id
-        );
-
-
-      if (index < 0) {
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         NEXT
-      --------------------------------------------------- */
-
-      if (
-        index <
-        queue.length - 1
-      ) {
-
+      if (randomSong) {
         await playSong(
-          queue[
-            index + 1
-          ],
-          queue
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         REPEAT ALL
-      --------------------------------------------------- */
-
-      if (
-        repeatMode ===
-        "all"
-      ) {
-
-        await playSong(
-          queue[0],
+          randomSong,
           queue
         );
       }
-    };
 
+      return;
+    }
+
+    /* ---------------------------------------------------
+       FIND CURRENT
+    --------------------------------------------------- */
+
+    const index =
+      queue.findIndex(
+        (song) =>
+          song.id ===
+          currentSong.id
+      );
+
+    if (index < 0) {
+      return;
+    }
+
+    /* ---------------------------------------------------
+       NEXT
+    --------------------------------------------------- */
+
+    if (
+      index <
+      queue.length - 1
+    ) {
+      await playSong(
+        queue[index + 1],
+        queue
+      );
+
+      return;
+    }
+
+    /* ---------------------------------------------------
+       REPEAT ALL
+    --------------------------------------------------- */
+
+    if (
+      repeatMode === "all"
+    ) {
+      await playSong(
+        queue[0],
+        queue
+      );
+    }
+  };
 
   /* =======================================================
      PREVIOUS SONG
   ======================================================= */
 
-  const previousSong =
-    async () => {
+  const previousSong = async () => {
+    if (
+      !currentSong ||
+      !queue.length
+    ) {
+      return;
+    }
 
-      if (
-        !currentSong ||
-        !queue.length
-      ) {
-        return;
-      }
+    const audio =
+      audioRef.current;
 
+    /* ---------------------------------------------------
+       RESTART CURRENT
+    --------------------------------------------------- */
 
-      const audio =
-        audioRef.current;
+    if (
+      audio &&
+      audio.currentTime > 3
+    ) {
+      audio.currentTime = 0;
 
+      setCurrentTime(0);
 
-      /* ---------------------------------------------------
-         RESTART CURRENT SONG
-      --------------------------------------------------- */
+      await saveProgress(0);
 
-      if (
-        audio &&
-        audio.currentTime > 3
-      ) {
+      return;
+    }
 
-        audio.currentTime =
-          0;
+    /* ---------------------------------------------------
+       FIND CURRENT
+    --------------------------------------------------- */
 
-        setCurrentTime(
-          0
-        );
-
-        await saveProgress(
-          0
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         FIND CURRENT SONG
-      --------------------------------------------------- */
-
-      const index =
-        queue.findIndex(
-          (song) =>
-            song.id ===
-            currentSong.id
-        );
-
-
-      if (index < 0) {
-        return;
-      }
-
-
-      const previousIndex =
-        index <= 0
-          ? queue.length - 1
-          : index - 1;
-
-
-      await playSong(
-        queue[
-          previousIndex
-        ],
-        queue
+    const index =
+      queue.findIndex(
+        (song) =>
+          song.id ===
+          currentSong.id
       );
-    };
 
+    if (index < 0) {
+      return;
+    }
+
+    const previousIndex =
+      index <= 0
+        ? queue.length - 1
+        : index - 1;
+
+    await playSong(
+      queue[previousIndex],
+      queue
+    );
+  };
 
   /* =======================================================
      SEEK
   ======================================================= */
 
-  const seek =
-    (time) => {
+  const seek = (time) => {
+    const audio =
+      audioRef.current;
 
-      const audio =
-        audioRef.current;
+    if (!audio) {
+      return;
+    }
 
+    let value = Number(time);
 
-      if (!audio) {
-        return;
-      }
+    if (
+      !Number.isFinite(value)
+    ) {
+      value = 0;
+    }
 
+    value = Math.max(
+      0,
+      value
+    );
 
-      let value =
-        Number(time);
-
-
-      if (
-        !Number.isFinite(
-          value
-        )
-      ) {
-        value = 0;
-      }
-
-
-      value =
-        Math.max(
-          0,
-          value
-        );
-
-
-      if (
-        duration > 0
-      ) {
-        value =
-          Math.min(
-            value,
-            duration
-          );
-      }
-
-
-      audio.currentTime =
-        value;
-
-
-      setCurrentTime(
-        value
+    if (duration > 0) {
+      value = Math.min(
+        value,
+        duration
       );
+    }
 
+    audio.currentTime = value;
 
-      /*
-        Update local storage immediately.
-      */
-      if (
-        storageReadyRef.current
-      ) {
+    setCurrentTime(value);
 
-        try {
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                value,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-        } catch (error) {
-          console.error(
-            "Seek save error:",
-            error
-          );
-        }
+    if (
+      storageReadyRef.current
+    ) {
+      try {
+        localStorage.setItem(
+          PLAYER_STORAGE_KEY,
+          JSON.stringify({
+            currentSong,
+            queue,
+            currentTime: value,
+            volume,
+            shuffle,
+            repeatMode,
+          })
+        );
+      } catch (error) {
+        console.error(
+          "Seek save error:",
+          error
+        );
       }
-    };
-
+    }
+  };
 
   /* =======================================================
-     CHANGE VOLUME
+     VOLUME
   ======================================================= */
 
-  const changeVolume =
-    (value) => {
+  const changeVolume = (value) => {
+    const volumeValue = Math.min(
+      1,
+      Math.max(
+        0,
+        Number(value)
+      )
+    );
 
-      const volumeValue =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            Number(value)
-          )
-        );
+    setVolume(volumeValue);
 
-
-      setVolume(
-        volumeValue
-      );
-
-
-      if (
-        audioRef.current
-      ) {
-        audioRef.current.volume =
-          volumeValue;
-      }
-    };
-
+    if (audioRef.current) {
+      audioRef.current.volume =
+        volumeValue;
+    }
+  };
 
   /* =======================================================
      TIME UPDATE
   ======================================================= */
 
-  const handleTimeUpdate =
-    (event) => {
+  const handleTimeUpdate = (
+    event
+  ) => {
+    const time =
+      event.currentTarget
+        .currentTime;
 
-      const time =
-        event.currentTarget
-          .currentTime;
+    setCurrentTime(time);
 
+    if (
+      restoringPositionRef.current
+    ) {
+      return;
+    }
 
-      setCurrentTime(
-        time
-      );
+    const seconds =
+      Math.floor(time);
 
+    /* ---------------------------------------------------
+       LOCAL STORAGE
+    --------------------------------------------------- */
 
-      /*
-        VERY IMPORTANT:
-
-        While restoring the position after
-        refresh, the browser can emit a
-        timeupdate event with 0.
-
-        Do not save that 0.
-      */
-      if (
-        restoringPositionRef.current
-      ) {
-        return;
-      }
-
-
-      const seconds =
-        Math.floor(
-          time
+    if (
+      storageReadyRef.current
+    ) {
+      try {
+        localStorage.setItem(
+          PLAYER_STORAGE_KEY,
+          JSON.stringify({
+            currentSong,
+            queue,
+            currentTime: time,
+            volume,
+            shuffle,
+            repeatMode,
+          })
         );
-
-
-      /* ---------------------------------------------------
-         SAVE LOCAL STORAGE
-      --------------------------------------------------- */
-
-      if (
-        storageReadyRef.current
-      ) {
-
-        try {
-
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                time,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-
-        } catch (error) {
-
-          console.error(
-            "Realtime player save error:",
-            error
-          );
-        }
-      }
-
-
-      /* ---------------------------------------------------
-         SAVE SERVER HISTORY
-      --------------------------------------------------- */
-
-      if (
-        historyIdRef.current &&
-        seconds -
-          lastSavedProgressRef.current >=
-          10
-      ) {
-
-        saveProgress(
-          seconds
+      } catch (error) {
+        console.error(
+          "Realtime player save error:",
+          error
         );
       }
-    };
+    }
 
+    /* ---------------------------------------------------
+       SERVER HISTORY
+    --------------------------------------------------- */
+
+    if (
+      historyIdRef.current &&
+      seconds -
+        lastSavedProgressRef.current >=
+        10
+    ) {
+      saveProgress(seconds);
+    }
+  };
 
   /* =======================================================
      LOADED METADATA
   ======================================================= */
 
-  const handleLoadedMetadata =
-    (event) => {
+  const handleLoadedMetadata = (
+    event
+  ) => {
+    const audio =
+      event.currentTarget;
 
-      const audio =
-        event.currentTarget;
+    const newDuration =
+      Number.isFinite(
+        audio.duration
+      )
+        ? audio.duration
+        : 0;
 
+    setDuration(newDuration);
 
-      const newDuration =
-        Number.isFinite(
-          audio.duration
-        )
-          ? audio.duration
-          : 0;
+    const savedPosition =
+      Number(
+        restoredTimeRef.current
+      ) || 0;
 
-
-      setDuration(
-        newDuration
-      );
-
-
-      /*
-        Get the saved position.
-
-        This is the important part that
-        restores the song after refresh.
-      */
-      const savedPosition =
-        Number(
-          restoredTimeRef.current
-        ) || 0;
-
-
-      if (
-        savedPosition > 0 &&
-        newDuration > 0
-      ) {
-
-        const safePosition =
-          Math.min(
-            savedPosition,
-            Math.max(
-              0,
-              newDuration - 1
-            )
-          );
-
-
-        try {
-
-          audio.currentTime =
-            safePosition;
-
-        } catch (error) {
-
-          console.error(
-            "Unable to restore audio position:",
-            error
-          );
-        }
-
-
-        setCurrentTime(
-          safePosition
+    if (
+      savedPosition > 0 &&
+      newDuration > 0
+    ) {
+      const safePosition =
+        Math.min(
+          savedPosition,
+          Math.max(
+            0,
+            newDuration - 1
+          )
         );
 
-      } else {
-
-        setCurrentTime(
-          0
+      try {
+        audio.currentTime =
+          safePosition;
+      } catch (error) {
+        console.error(
+          "Unable to restore audio position:",
+          error
         );
       }
 
-
+      setCurrentTime(
+        safePosition
+      );
+    } else {
       /*
-        Audio position has now been restored.
+       * For a newly selected song with startTime 0,
+       * keep position at 0.
+       */
+      if (
+        !shouldAutoplayRef.current
+      ) {
+        setCurrentTime(0);
+      }
+    }
 
-        It is safe to save timeupdate
-        events again.
-      */
-      songStartTimeRef.current =
-        0;
+    /*
+     * Only clear restoration state when there was
+     * actually a restored position.
+     */
+    if (
+      restoringPositionRef.current
+    ) {
+      songStartTimeRef.current = 0;
 
-      restoredTimeRef.current =
-        0;
+      restoredTimeRef.current = 0;
 
       restoringPositionRef.current =
         false;
+    }
 
+    /* ---------------------------------------------------
+       VOLUME
+    --------------------------------------------------- */
 
-      /* ---------------------------------------------------
-         RESTORE VOLUME
-      --------------------------------------------------- */
-
-      audio.volume =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            Number(
-              volume
-            ) || 0
-          )
-        );
-    };
-
+    audio.volume = Math.min(
+      1,
+      Math.max(
+        0,
+        Number(volume) || 0
+      )
+    );
+  };
 
   /* =======================================================
      AUDIO PLAY EVENT
   ======================================================= */
 
-  const handlePlay =
-    () => {
-      setIsPlaying(
-        true
-      );
-    };
+  const handlePlay = () => {
+    setIsPlaying(true);
 
+    /*
+     * Once the browser successfully starts playback,
+     * autoplay request is completed.
+     */
+    shouldAutoplayRef.current =
+      false;
+  };
 
   /* =======================================================
      AUDIO PAUSE EVENT
   ======================================================= */
 
-  const handlePause =
-    () => {
+  const handlePause = () => {
+    setIsPlaying(false);
 
-      setIsPlaying(
-        false
-      );
+    const audio =
+      audioRef.current;
 
+    if (
+      audio &&
+      storageReadyRef.current
+    ) {
+      try {
+        let actualTime =
+          Number(
+            audio.currentTime
+          ) || 0;
 
-      const audio =
-        audioRef.current;
-
-
-      if (
-        audio &&
-        storageReadyRef.current
-      ) {
-
-        try {
-
-          let actualTime =
-            Number(
-              audio.currentTime
-            ) || 0;
-
-
-          /*
-            Never replace the restored
-            position with 0.
-          */
-          if (
-            restoringPositionRef.current &&
-            restoredTimeRef.current > 0 &&
-            actualTime === 0
-          ) {
-            actualTime =
-              restoredTimeRef.current;
-          }
-
-
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                actualTime,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-
-        } catch (error) {
-
-          console.error(
-            "Pause state save error:",
-            error
-          );
+        if (
+          restoringPositionRef.current &&
+          restoredTimeRef.current > 0 &&
+          actualTime === 0
+        ) {
+          actualTime =
+            restoredTimeRef.current;
         }
-      }
-    };
 
+        localStorage.setItem(
+          PLAYER_STORAGE_KEY,
+          JSON.stringify({
+            currentSong,
+            queue,
+            currentTime:
+              actualTime,
+            volume,
+            shuffle,
+            repeatMode,
+          })
+        );
+      } catch (error) {
+        console.error(
+          "Pause state save error:",
+          error
+        );
+      }
+    }
+  };
 
   /* =======================================================
      SONG ENDED
   ======================================================= */
 
-  const handleEnded =
-    async () => {
+  const handleEnded = async () => {
+    const audio =
+      audioRef.current;
 
-      const audio =
-        audioRef.current;
+    const finalTime =
+      audio?.duration ||
+      duration ||
+      currentTime;
 
+    await saveProgress(
+      finalTime,
+      true
+    );
 
-      const finalTime =
-        audio?.duration ||
-        duration ||
-        currentTime;
+    historyIdRef.current = null;
 
+    lastSavedProgressRef.current = 0;
 
-      await saveProgress(
-        finalTime,
-        true
+    /* ---------------------------------------------------
+       REPEAT ONE
+    --------------------------------------------------- */
+
+    if (
+      repeatMode === "one" &&
+      currentSong
+    ) {
+      await recordHistory(
+        currentSong,
+        0
       );
 
+      if (audio) {
+        audio.currentTime = 0;
 
-      historyIdRef.current =
-        null;
+        setCurrentTime(0);
 
-      lastSavedProgressRef.current =
-        0;
-
-
-      /* ---------------------------------------------------
-         REPEAT ONE
-      --------------------------------------------------- */
-
-      if (
-        repeatMode === "one" &&
-        currentSong
-      ) {
-
-        await recordHistory(
-          currentSong,
-          0
-        );
-
-
-        if (audio) {
-
-          audio.currentTime =
-            0;
-
-          setCurrentTime(
-            0
+        try {
+          await audio.play();
+        } catch (error) {
+          console.error(
+            "Repeat play error:",
+            error
           );
 
-
-          try {
-
-            await audio.play();
-
-          } catch (error) {
-
-            console.error(
-              "Repeat play error:",
-              error
-            );
-
-            setIsPlaying(
-              false
-            );
-          }
+          setIsPlaying(false);
         }
-
-        return;
       }
 
+      return;
+    }
 
-      /* ---------------------------------------------------
-         SHUFFLE
-      --------------------------------------------------- */
+    /* ---------------------------------------------------
+       SHUFFLE
+    --------------------------------------------------- */
 
-      if (
-        shuffle &&
-        queue.length > 1
-      ) {
+    if (
+      shuffle &&
+      queue.length > 1
+    ) {
+      await nextSong();
+      return;
+    }
 
-        await nextSong();
+    /* ---------------------------------------------------
+       FIND CURRENT
+    --------------------------------------------------- */
 
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         FIND CURRENT SONG
-      --------------------------------------------------- */
-
-      const index =
-        queue.findIndex(
-          (song) =>
-            song.id ===
-            currentSong?.id
-        );
-
-
-      /* ---------------------------------------------------
-         NEXT SONG
-      --------------------------------------------------- */
-
-      if (
-        index >= 0 &&
-        index <
-          queue.length - 1
-      ) {
-
-        await playSong(
-          queue[
-            index + 1
-          ],
-          queue
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         REPEAT ALL
-      --------------------------------------------------- */
-
-      if (
-        repeatMode === "all" &&
-        queue.length
-      ) {
-
-        await playSong(
-          queue[0],
-          queue
-        );
-
-        return;
-      }
-
-
-      /*
-        No next song.
-
-        Make sure UI shows paused.
-      */
-      setIsPlaying(
-        false
+    const index =
+      queue.findIndex(
+        (song) =>
+          song.id ===
+          currentSong?.id
       );
-    };
 
+    /* ---------------------------------------------------
+       NEXT
+    --------------------------------------------------- */
+
+    if (
+      index >= 0 &&
+      index <
+        queue.length - 1
+    ) {
+      await playSong(
+        queue[index + 1],
+        queue
+      );
+
+      return;
+    }
+
+    /* ---------------------------------------------------
+       REPEAT ALL
+    --------------------------------------------------- */
+
+    if (
+      repeatMode === "all" &&
+      queue.length
+    ) {
+      await playSong(
+        queue[0],
+        queue
+      );
+
+      return;
+    }
+
+    setIsPlaying(false);
+  };
 
   /* =======================================================
      AUDIO ERROR
   ======================================================= */
 
-  const handleAudioError =
-    (event) => {
+  const handleAudioError = (
+    event
+  ) => {
+    console.error(
+      "Audio error:",
+      event.currentTarget.error
+    );
 
-      console.error(
-        "Audio error:",
-        event.currentTarget.error
-      );
+    console.error(
+      "Audio URL:",
+      audioSrc
+    );
 
-      console.error(
-        "Audio URL:",
-        audioSrc
-      );
-
-      setIsPlaying(
-        false
-      );
-    };
-
+    setIsPlaying(false);
+  };
 
   /* =======================================================
      CLOSE PLAYER
   ======================================================= */
 
-  const closePlayer =
-    async () => {
+  const closePlayer = async () => {
+    const audio =
+      audioRef.current;
 
-      const audio =
-        audioRef.current;
-
-
-      if (
-        audio &&
-        historyIdRef.current
-      ) {
-
-        await saveProgress(
-          audio.currentTime
-        );
-      }
-
-
-      if (audio) {
-
-        audio.pause();
-
-        audio.currentTime =
-          0;
-      }
-
-
-      setIsPlaying(
-        false
+    if (
+      audio &&
+      historyIdRef.current
+    ) {
+      await saveProgress(
+        audio.currentTime
       );
+    }
 
-      setCurrentSong(
-        null
-      );
+    if (audio) {
+      audio.pause();
 
-      setQueue(
-        []
-      );
+      audio.currentTime = 0;
+    }
 
-      setCurrentTime(
-        0
-      );
+    shouldAutoplayRef.current =
+      false;
 
-      setDuration(
-        0
-      );
+    setIsPlaying(false);
 
-      setShuffle(
-        false
-      );
+    setCurrentSong(null);
 
-      setRepeatMode(
-        "off"
-      );
+    setQueue([]);
 
+    setCurrentTime(0);
 
-      historyIdRef.current =
-        null;
+    setDuration(0);
 
-      lastSavedProgressRef.current =
-        0;
+    setShuffle(false);
 
-      songStartTimeRef.current =
-        0;
+    setRepeatMode("off");
 
-      restoredTimeRef.current =
-        0;
+    historyIdRef.current = null;
 
-      restoringPositionRef.current =
-        false;
+    lastSavedProgressRef.current = 0;
 
+    songStartTimeRef.current = 0;
 
-      localStorage.removeItem(
-        PLAYER_STORAGE_KEY
-      );
-    };
+    restoredTimeRef.current = 0;
 
+    restoringPositionRef.current =
+      false;
+
+    localStorage.removeItem(
+      PLAYER_STORAGE_KEY
+    );
+  };
 
   /* =======================================================
      AUDIO SOURCE
@@ -1689,7 +1334,6 @@ export function PlayerProvider({ children }) {
           currentSong.audio_url
         )
       : undefined;
-
 
   /* =======================================================
      PROVIDER
@@ -1726,68 +1370,52 @@ export function PlayerProvider({ children }) {
         closePlayer,
       }}
     >
-
       {children}
 
-
       {/* =================================================
-          GLOBAL AUDIO ELEMENT
+          GLOBAL AUDIO
       ================================================= */}
 
       <audio
         ref={audioRef}
         src={audioSrc}
         preload="metadata"
-
         onTimeUpdate={
           handleTimeUpdate
         }
-
         onLoadedMetadata={
           handleLoadedMetadata
         }
-
         onPlay={
           handlePlay
         }
-
         onPause={
           handlePause
         }
-
         onEnded={
           handleEnded
         }
-
         onError={
           handleAudioError
         }
       />
-
     </PlayerContext.Provider>
   );
 }
 
-
 /* =========================================================
-   USE PLAYER HOOK
+   USE PLAYER
 ========================================================= */
 
 export function usePlayer() {
-
   const context =
-    useContext(
-      PlayerContext
-    );
-
+    useContext(PlayerContext);
 
   if (!context) {
-
     throw new Error(
       "usePlayer must be used inside PlayerProvider"
     );
   }
-
 
   return context;
 }

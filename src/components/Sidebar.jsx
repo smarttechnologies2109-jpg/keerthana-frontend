@@ -14,6 +14,7 @@ import {
   FaSignOutAlt,
   FaCompactDisc,
   FaMicrophone,
+  FaChurch,
   FaCrown,
   FaHistory,
   FaTimes,
@@ -184,7 +185,9 @@ function Sidebar({
             <nav className="sidebar-nav">
 
 
-              {/* HOME */}
+              {/* =================================================
+                  HOME
+              ================================================= */}
 
               <NavLink
                 to="/"
@@ -205,7 +208,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* SEARCH */}
+              {/* =================================================
+                  SEARCH
+              ================================================= */}
 
               <NavLink
                 to="/search"
@@ -226,7 +231,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* YOUR LIBRARY */}
+              {/* =================================================
+                  YOUR LIBRARY
+              ================================================= */}
 
               <NavLink
                 to="/library"
@@ -247,7 +254,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* ARTISTS */}
+              {/* =================================================
+                  ARTISTS
+              ================================================= */}
 
               <NavLink
                 to="/artists"
@@ -268,7 +277,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* ALBUMS */}
+              {/* =================================================
+                  ALBUMS
+              ================================================= */}
 
               <NavLink
                 to="/albums"
@@ -289,7 +300,32 @@ function Sidebar({
               </NavLink>
 
 
-              {/* MOOD PLAYLISTS */}
+              {/* =================================================
+                  MINISTRIES
+              ================================================= */}
+
+              <NavLink
+                to="/ministries"
+                className={navClass}
+                onClick={
+                  handleNavigation
+                }
+              >
+
+                <span className="sidebar-icon">
+                  <FaChurch />
+                </span>
+
+                <span className="sidebar-label">
+                  Ministries
+                </span>
+
+              </NavLink>
+
+
+              {/* =================================================
+                  MOOD PLAYLISTS
+              ================================================= */}
 
               <NavLink
                 to="/mood-playlists"
@@ -329,7 +365,9 @@ function Sidebar({
             <nav className="sidebar-nav">
 
 
-              {/* LIKED SONGS */}
+              {/* =================================================
+                  LIKED SONGS
+              ================================================= */}
 
               <NavLink
                 to="/liked-songs"
@@ -350,7 +388,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* PLAYLISTS */}
+              {/* =================================================
+                  PLAYLISTS
+              ================================================= */}
 
               <NavLink
                 to="/playlists"
@@ -371,7 +411,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* LISTENING HISTORY */}
+              {/* =================================================
+                  LISTENING HISTORY
+              ================================================= */}
 
               <NavLink
                 to="/history"
@@ -415,7 +457,9 @@ function Sidebar({
               </NavLink>
 
 
-              {/* KEERTHANA AI */}
+              {/* =================================================
+                  KEERTHANA AI
+              ================================================= */}
 
               <NavLink
                 to="/keerthana-ai"
@@ -492,7 +536,9 @@ function Sidebar({
             <>
 
 
-              {/* PROFILE */}
+              {/* =================================================
+                  PROFILE
+              ================================================= */}
 
               <button
                 type="button"
@@ -535,7 +581,9 @@ function Sidebar({
               </button>
 
 
-              {/* LOGOUT */}
+              {/* =================================================
+                  LOGOUT
+              ================================================= */}
 
               <button
                 type="button"
@@ -558,7 +606,9 @@ function Sidebar({
 
           ) : (
 
-            /* LOGIN */
+            /* =================================================
+                LOGIN
+            ================================================= */
 
             <NavLink
               to="/login"

@@ -1,0 +1,2594 @@
+/* =========================================================
+   KEERTHANA ADMIN
+   ADD SONG PAGE
+   Professional Responsive Admin UI
+========================================================= */
+
+
+/* =========================================================
+   ROOT VARIABLES
+========================================================= */
+
+:root {
+  --admin-primary: #6c4df6;
+  --admin-primary-dark: #5638d9;
+  --admin-primary-light: #f1edff;
+
+  --admin-text: #171923;
+  --admin-text-secondary: #606779;
+  --admin-text-light: #8b93a5;
+
+  --admin-border: #e4e7ec;
+  --admin-border-dark: #d5d9e2;
+
+  --admin-background: #f5f7fb;
+  --admin-card: #ffffff;
+
+  --admin-success: #16a34a;
+  --admin-success-bg: #ecfdf3;
+
+  --admin-error: #dc2626;
+  --admin-error-bg: #fef2f2;
+
+  --admin-warning: #d97706;
+  --admin-warning-bg: #fff7ed;
+
+  --admin-radius-sm: 8px;
+  --admin-radius-md: 12px;
+  --admin-radius-lg: 16px;
+  --admin-radius-xl: 20px;
+
+  --admin-shadow-sm:
+    0 2px 8px rgba(15, 23, 42, 0.05);
+
+  --admin-shadow-md:
+    0 8px 25px rgba(15, 23, 42, 0.07);
+
+  --admin-shadow-lg:
+    0 18px 50px rgba(15, 23, 42, 0.09);
+
+  --admin-transition: 0.2s ease;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.admin-page {
+  width: 100%;
+  min-height: 100vh;
+
+  padding: 35px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8f9fd 0%,
+      #f4f6fa 100%
+    );
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-form-header {
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto 25px;
+
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.admin-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: var(--admin-radius-md);
+
+  background: #ffffff;
+
+  color: var(--admin-text-secondary);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background var(--admin-transition),
+    border-color var(--admin-transition),
+    color var(--admin-transition),
+    transform var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+.admin-back-button svg {
+  font-size: 13px;
+}
+
+.admin-back-button:hover {
+  background: var(--admin-primary-light);
+
+  border-color: #cfc5ff;
+
+  color: var(--admin-primary);
+
+  transform: translateX(-2px);
+
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.admin-back-button:active {
+  transform: translateX(0);
+}
+
+
+/* =========================================================
+   HEADER CONTENT
+========================================================= */
+
+.admin-form-header > div {
+  min-width: 0;
+}
+
+.admin-form-header span {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: var(--admin-primary);
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+}
+
+.admin-form-header h1 {
+  margin: 0;
+
+  color: var(--admin-text);
+
+  font-size: 30px;
+
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  letter-spacing: -0.5px;
+}
+
+.admin-form-header p {
+  margin: 8px 0 0;
+
+  max-width: 700px;
+
+  color: var(--admin-text-secondary);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.admin-loading {
+  min-height: 70vh;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: var(--admin-text-secondary);
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+.admin-loading::after {
+  content: "";
+
+  width: 18px;
+  height: 18px;
+
+  margin-left: 12px;
+
+  border: 2px solid #ddd7ff;
+
+  border-top-color: var(--admin-primary);
+
+  border-radius: 50%;
+
+  animation: adminSpinner 0.7s linear infinite;
+}
+
+@keyframes adminSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.admin-error,
+.admin-success {
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto 20px;
+
+  padding: 14px 17px;
+
+  border-radius: var(--admin-radius-md);
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  line-height: 1.5;
+
+  box-sizing: border-box;
+}
+
+.admin-error {
+  background: var(--admin-error-bg);
+
+  border: 1px solid #fecaca;
+
+  color: var(--admin-error);
+
+  box-shadow:
+    0 3px 10px rgba(220, 38, 38, 0.04);
+}
+
+.admin-success {
+  background: var(--admin-success-bg);
+
+  border: 1px solid #bbf7d0;
+
+  color: var(--admin-success);
+
+  box-shadow:
+    0 3px 10px rgba(22, 163, 74, 0.04);
+}
+
+
+/* =========================================================
+   MAIN FORM
+========================================================= */
+
+.admin-song-form {
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+
+/* =========================================================
+   FORM SECTION
+========================================================= */
+
+.admin-form-section {
+  width: 100%;
+
+  padding: 28px;
+
+  background: var(--admin-card);
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: var(--admin-radius-xl);
+
+  box-shadow: var(--admin-shadow-sm);
+
+  box-sizing: border-box;
+}
+
+.admin-form-section:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.admin-form-section-title {
+  padding-bottom: 20px;
+
+  margin-bottom: 24px;
+
+  border-bottom: 1px solid #eef0f4;
+}
+
+.admin-form-section-title h2 {
+  margin: 0;
+
+  color: var(--admin-text);
+
+  font-size: 19px;
+
+  font-weight: 750;
+
+  letter-spacing: -0.2px;
+}
+
+.admin-form-section-title p {
+  margin: 6px 0 0;
+
+  color: var(--admin-text-secondary);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM GRID
+========================================================= */
+
+.admin-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 22px 20px;
+}
+
+
+/* =========================================================
+   FORM FIELD
+========================================================= */
+
+.admin-field {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.admin-field > label {
+  display: block;
+
+  color: #303544;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   FIELD LABEL ROW
+========================================================= */
+
+.admin-field-label-row {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.admin-field-label-row label {
+  color: #303544;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   INPUT / SELECT / TEXTAREA
+========================================================= */
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  width: 100%;
+
+  min-height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: var(--admin-radius-md);
+
+  background: #ffffff;
+
+  color: var(--admin-text);
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition),
+    background var(--admin-transition);
+}
+
+.admin-field textarea {
+  min-height: 120px;
+
+  padding: 13px 14px;
+
+  resize: vertical;
+
+  line-height: 1.65;
+}
+
+.admin-field input::placeholder,
+.admin-field textarea::placeholder {
+  color: #a1a7b4;
+}
+
+.admin-field input:hover,
+.admin-field select:hover,
+.admin-field textarea:hover {
+  border-color: var(--admin-border-dark);
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+  border-color: var(--admin-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(108, 77, 246, 0.10);
+
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   SELECT
+========================================================= */
+
+.admin-field select {
+  cursor: pointer;
+
+  appearance: auto;
+}
+
+.admin-field select:disabled {
+  background: #f5f6f8;
+
+  color: #9ca3af;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FIELD SMALL TEXT
+========================================================= */
+
+.admin-field small {
+  margin-top: 1px;
+
+  color: var(--admin-text-light);
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   INLINE ADD BUTTON
+========================================================= */
+
+.admin-inline-add-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  min-height: 30px;
+
+  padding: 0 10px;
+
+  border: 1px solid #dcd5ff;
+
+  border-radius: 7px;
+
+  background: var(--admin-primary-light);
+
+  color: var(--admin-primary);
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background var(--admin-transition),
+    border-color var(--admin-transition),
+    color var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+.admin-inline-add-button svg {
+  font-size: 10px;
+}
+
+.admin-inline-add-button:hover {
+  background: var(--admin-primary);
+
+  border-color: var(--admin-primary);
+
+  color: #ffffff;
+
+  transform: translateY(-1px);
+}
+
+.admin-inline-add-button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   QUICK CREATE BOX
+========================================================= */
+
+.admin-quick-create {
+  margin-top: 12px;
+
+  padding: 17px;
+
+  border: 1px solid #ddd8ff;
+
+  border-radius: var(--admin-radius-md);
+
+  background:
+    linear-gradient(
+      135deg,
+      #faf9ff,
+      #f5f2ff
+    );
+
+  animation: quickCreateOpen 0.2s ease;
+}
+
+@keyframes quickCreateOpen {
+  from {
+    opacity: 0;
+
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+.admin-quick-create h4 {
+  margin: 0 0 13px;
+
+  color: var(--admin-text);
+
+  font-size: 13px;
+
+  font-weight: 750;
+}
+
+.admin-quick-create input,
+.admin-quick-create textarea {
+  width: 100%;
+
+  margin-bottom: 10px;
+
+  padding: 11px 12px;
+
+  border: 1px solid #dddde7;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: var(--admin-text);
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+.admin-quick-create textarea {
+  resize: vertical;
+
+  line-height: 1.5;
+}
+
+.admin-quick-create input:focus,
+.admin-quick-create textarea:focus {
+  border-color: var(--admin-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(108, 77, 246, 0.08);
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.admin-quick-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  margin-top: 4px;
+}
+
+.admin-quick-actions button {
+  min-height: 34px;
+
+  padding: 0 12px;
+
+  border-radius: 8px;
+
+  border: 1px solid var(--admin-border);
+
+  background: #ffffff;
+
+  color: var(--admin-text-secondary);
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all var(--admin-transition);
+}
+
+.admin-quick-actions button:hover {
+  border-color: var(--admin-border-dark);
+
+  background: #f8f9fb;
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+========================================================= */
+
+.admin-primary-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 44px;
+
+  padding: 0 20px;
+
+  border: 1px solid var(--admin-primary);
+
+  border-radius: 10px;
+
+  background: var(--admin-primary);
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background var(--admin-transition),
+    border-color var(--admin-transition),
+    transform var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+.admin-primary-button:hover {
+  background: var(--admin-primary-dark);
+
+  border-color: var(--admin-primary-dark);
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 18px rgba(108, 77, 246, 0.22);
+}
+
+.admin-primary-button:active {
+  transform: translateY(0);
+}
+
+.admin-primary-button:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   MINISTRY DROPDOWN
+   Dynamic Ministry Support
+========================================================= */
+
+.admin-field select[name="ministry_id"] {
+  border-color: #d9d1ff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #fbfaff
+    );
+}
+
+.admin-field select[name="ministry_id"]:focus {
+  border-color: var(--admin-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(108, 77, 246, 0.11);
+}
+
+
+/* =========================================================
+   MOODS
+========================================================= */
+
+.admin-mood-field {
+  grid-column: 1 / -1;
+}
+
+.admin-mood-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 5px;
+}
+
+
+/* =========================================================
+   MOOD OPTION
+========================================================= */
+
+.admin-mood-option {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-height: 46px;
+
+  padding: 0 13px;
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--admin-transition),
+    background var(--admin-transition),
+    box-shadow var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+.admin-mood-option:hover {
+  border-color: #cfc6ff;
+
+  background: #faf9ff;
+
+  transform: translateY(-1px);
+}
+
+.admin-mood-option input {
+  width: 17px;
+
+  height: 17px;
+
+  margin: 0;
+
+  accent-color: var(--admin-primary);
+
+  cursor: pointer;
+}
+
+.admin-mood-option span {
+  color: #3d4351;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.admin-mood-option:has(input:checked) {
+  border-color: #cfc4ff;
+
+  background: var(--admin-primary-light);
+
+  box-shadow:
+    0 3px 10px rgba(108, 77, 246, 0.07);
+}
+
+.admin-mood-option:has(input:checked) span {
+  color: var(--admin-primary);
+}
+
+
+/* =========================================================
+   MEDIA UPLOAD GRID
+========================================================= */
+
+.admin-upload-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   UPLOAD BOX
+========================================================= */
+
+.admin-upload-box {
+  min-height: 270px;
+
+  padding: 28px 22px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  border: 1.5px dashed #d5d9e3;
+
+  border-radius: var(--admin-radius-lg);
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfcfe,
+      #f9fafc
+    );
+
+  box-sizing: border-box;
+
+  transition:
+    border-color var(--admin-transition),
+    background var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+.admin-upload-box:hover {
+  border-color: #bdb1ff;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fdfcff,
+      #f8f6ff
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(108, 77, 246, 0.04);
+}
+
+
+/* =========================================================
+   UPLOAD ICON
+========================================================= */
+
+.admin-upload-icon {
+  width: 58px;
+  height: 58px;
+
+  margin-bottom: 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: var(--admin-primary-light);
+
+  color: var(--admin-primary);
+
+  font-size: 22px;
+}
+
+.admin-upload-box h3 {
+  margin: 0;
+
+  color: var(--admin-text);
+
+  font-size: 15px;
+
+  font-weight: 750;
+}
+
+.admin-upload-box > p {
+  margin: 6px 0 17px;
+
+  color: var(--admin-text-light);
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+.admin-file-input {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  overflow: hidden;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   UPLOAD BUTTON
+========================================================= */
+
+.admin-upload-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border: 1px solid #d8d1ff;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: var(--admin-primary);
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background var(--admin-transition),
+    border-color var(--admin-transition),
+    color var(--admin-transition),
+    transform var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+.admin-upload-button svg {
+  font-size: 14px;
+}
+
+.admin-upload-button:hover {
+  background: var(--admin-primary);
+
+  border-color: var(--admin-primary);
+
+  color: #ffffff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 15px rgba(108, 77, 246, 0.18);
+}
+
+
+/* =========================================================
+   SELECTED FILE
+========================================================= */
+
+.admin-selected-file {
+  width: 100%;
+
+  max-width: 420px;
+
+  min-height: 58px;
+
+  padding: 10px 11px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  border: 1px solid #dcd7f8;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  box-sizing: border-box;
+
+  text-align: left;
+}
+
+.admin-selected-file > div {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.admin-selected-file strong {
+  overflow: hidden;
+
+  color: var(--admin-text);
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.admin-selected-file span {
+  color: var(--admin-text-light);
+
+  font-size: 11px;
+}
+
+.admin-selected-file button {
+  flex: 0 0 auto;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 8px;
+
+  background: #fff5f5;
+
+  color: #dc2626;
+
+  cursor: pointer;
+
+  transition: all var(--admin-transition);
+}
+
+.admin-selected-file button:hover {
+  background: #dc2626;
+
+  color: #ffffff;
+
+  border-color: #dc2626;
+}
+
+
+/* =========================================================
+   COVER PREVIEW
+========================================================= */
+
+.admin-cover-preview {
+  width: 130px;
+
+  height: 130px;
+
+  margin-bottom: 15px;
+
+  object-fit: cover;
+
+  border-radius: 14px;
+
+  border: 1px solid var(--admin-border);
+
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.10);
+}
+
+
+/* =========================================================
+   LYRICS
+========================================================= */
+
+.admin-form-section textarea[name="lyrics"] {
+  width: 100%;
+
+  min-height: 300px;
+
+  padding: 16px;
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: 12px;
+
+  background: #fcfcfd;
+
+  color: var(--admin-text);
+
+  font-family:
+    "Noto Sans Telugu",
+    "Noto Sans",
+    Arial,
+    sans-serif;
+
+  font-size: 14px;
+
+  line-height: 1.8;
+
+  resize: vertical;
+
+  box-sizing: border-box;
+}
+
+.admin-form-section textarea[name="lyrics"]:focus {
+  background: #ffffff;
+
+  border-color: var(--admin-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(108, 77, 246, 0.09);
+}
+
+
+/* =========================================================
+   FEATURED CHECKBOX
+========================================================= */
+
+.admin-checkbox {
+  width: 100%;
+
+  padding: 17px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: var(--admin-radius-md);
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color var(--admin-transition),
+    background var(--admin-transition),
+    box-shadow var(--admin-transition);
+}
+
+.admin-checkbox:hover {
+  border-color: #d0c7ff;
+
+  background: #fbfaff;
+}
+
+.admin-checkbox input {
+  flex: 0 0 auto;
+
+  width: 19px;
+  height: 19px;
+
+  margin: 0;
+
+  accent-color: var(--admin-primary);
+
+  cursor: pointer;
+}
+
+.admin-checkbox > div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.admin-checkbox strong {
+  color: var(--admin-text);
+
+  font-size: 13px;
+
+  font-weight: 750;
+}
+
+.admin-checkbox span {
+  color: var(--admin-text-secondary);
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.admin-form-actions {
+  width: 100%;
+
+  padding: 5px 0 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
+
+/* =========================================================
+   CANCEL BUTTON
+========================================================= */
+
+.admin-cancel-button {
+  min-width: 105px;
+
+  min-height: 46px;
+
+  padding: 0 18px;
+
+  border: 1px solid var(--admin-border);
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: var(--admin-text-secondary);
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--admin-transition),
+    border-color var(--admin-transition),
+    color var(--admin-transition);
+}
+
+.admin-cancel-button:hover {
+  background: #f8f9fb;
+
+  border-color: var(--admin-border-dark);
+
+  color: var(--admin-text);
+}
+
+.admin-cancel-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SAVE BUTTON
+========================================================= */
+
+.admin-form-actions .admin-primary-button {
+  min-width: 145px;
+
+  min-height: 46px;
+}
+
+.admin-form-actions .admin-primary-button svg {
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+========================================================= */
+
+.admin-back-button:focus-visible,
+.admin-inline-add-button:focus-visible,
+.admin-primary-button:focus-visible,
+.admin-cancel-button:focus-visible,
+.admin-upload-button:focus-visible,
+.admin-selected-file button:focus-visible {
+  outline: 3px solid rgba(108, 77, 246, 0.22);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   DISABLED ELEMENTS
+========================================================= */
+
+.admin-song-form button:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.65;
+}
+
+.admin-song-form input:disabled,
+.admin-song-form textarea:disabled,
+.admin-song-form select:disabled {
+  background: #f4f5f7;
+
+  color: #9ca3af;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVE - 1024px
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  .admin-page {
+    padding: 28px 22px;
+  }
+
+  .admin-form-section {
+    padding: 24px;
+  }
+
+  .admin-form-header h1 {
+    font-size: 27px;
+  }
+
+  .admin-form-grid {
+    gap: 19px 16px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - 768px
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-page {
+    padding: 22px 15px;
+  }
+
+  .admin-form-header {
+    align-items: flex-start;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+  }
+
+  .admin-back-button {
+    flex: 0 0 auto;
+
+    width: 42px;
+
+    padding: 0;
+
+    font-size: 0;
+  }
+
+  .admin-back-button svg {
+    font-size: 14px;
+  }
+
+  .admin-form-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-form-header p {
+    font-size: 13px;
+  }
+
+  .admin-form-section {
+    padding: 20px;
+
+    border-radius: 15px;
+  }
+
+  .admin-form-section-title {
+    margin-bottom: 20px;
+
+    padding-bottom: 16px;
+  }
+
+  .admin-form-section-title h2 {
+    font-size: 17px;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+  .admin-mood-field {
+    grid-column: auto;
+  }
+
+  .admin-mood-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-upload-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-upload-box {
+    min-height: 250px;
+  }
+
+  .admin-form-actions {
+    padding-bottom: 10px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - 560px
+========================================================= */
+
+@media (max-width: 560px) {
+
+  .admin-page {
+    padding: 15px 10px;
+  }
+
+  .admin-form-header {
+    gap: 11px;
+  }
+
+  .admin-form-header span {
+    font-size: 9px;
+
+    letter-spacing: 1.1px;
+  }
+
+  .admin-form-header h1 {
+    font-size: 21px;
+  }
+
+  .admin-form-header p {
+    margin-top: 5px;
+
+    font-size: 12px;
+  }
+
+  .admin-form-section {
+    padding: 17px;
+
+    border-radius: 13px;
+  }
+
+  .admin-form-section-title h2 {
+    font-size: 16px;
+  }
+
+  .admin-form-section-title p {
+    font-size: 12px;
+  }
+
+  .admin-field input,
+  .admin-field select {
+    min-height: 44px;
+
+    font-size: 13px;
+  }
+
+  .admin-field textarea {
+    font-size: 13px;
+  }
+
+  .admin-field-label-row {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 7px;
+  }
+
+  .admin-inline-add-button {
+    align-self: flex-start;
+  }
+
+  .admin-mood-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-upload-box {
+    min-height: 230px;
+
+    padding: 22px 15px;
+  }
+
+  .admin-selected-file {
+    max-width: 100%;
+  }
+
+  .admin-form-actions {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+
+    gap: 9px;
+  }
+
+  .admin-cancel-button,
+  .admin-form-actions .admin-primary-button {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - 380px
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .admin-page {
+    padding: 12px 8px;
+  }
+
+  .admin-form-section {
+    padding: 14px;
+  }
+
+  .admin-form-header h1 {
+    font-size: 19px;
+  }
+
+  .admin-form-header p {
+    font-size: 11px;
+  }
+
+  .admin-upload-box {
+    min-height: 215px;
+  }
+
+  .admin-upload-icon {
+    width: 50px;
+    height: 50px;
+
+    font-size: 19px;
+  }
+
+  .admin-cover-preview {
+    width: 110px;
+    height: 110px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .admin-page *,
+  .admin-page *::before,
+  .admin-page *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+
+    scroll-behavior: auto !important;
+  }
+
+}
+.admin-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px;
+  box-sizing: border-box;
+  background: #f6f7fb;
+  color: #1f2937;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-form-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.admin-form-header > div {
+  flex: 1;
+}
+
+.admin-form-header span {
+  display: inline-block;
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  color: #7c3aed;
+  text-transform: uppercase;
+}
+
+.admin-form-header h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #111827;
+}
+
+.admin-form-header p {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.admin-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-back-button:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.admin-error,
+.admin-success {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.admin-error {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.admin-success {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.admin-loading {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   MAIN FORM
+========================================================= */
+
+.admin-song-form {
+  width: 100%;
+}
+
+
+/* =========================================================
+   FORM SECTION
+========================================================= */
+
+.admin-form-section {
+  width: 100%;
+  margin-bottom: 24px;
+  padding: 26px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+}
+
+.admin-form-section-title {
+  margin-bottom: 22px;
+}
+
+.admin-form-section-title h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.admin-form-section-title p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM GRID
+========================================================= */
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+
+/* =========================================================
+   FIELD
+========================================================= */
+
+.admin-field {
+  min-width: 0;
+}
+
+.admin-field > label,
+.admin-field-label-row label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.admin-field-label-row label {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.admin-field input[type="text"],
+.admin-field input[type="number"],
+.admin-field input[type="email"],
+.admin-field input[type="url"],
+.admin-field select,
+.admin-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #111827;
+  font-family: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-field input[type="text"],
+.admin-field input[type="number"],
+.admin-field input[type="email"],
+.admin-field input[type="url"],
+.admin-field select {
+  height: 46px;
+  padding: 0 13px;
+}
+
+.admin-field textarea {
+  min-height: 260px;
+  padding: 14px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.admin-field input::placeholder,
+.admin-field textarea::placeholder {
+  color: #9ca3af;
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10);
+}
+
+.admin-field select {
+  cursor: pointer;
+}
+
+.admin-field select:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.admin-field small {
+  display: block;
+  margin-top: 7px;
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   INLINE ADD BUTTON
+========================================================= */
+
+.admin-inline-add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 7px;
+  background: #f3e8ff;
+  color: #7c3aed;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-inline-add-button:hover {
+  background: #ede9fe;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   QUICK CREATE
+========================================================= */
+
+.admin-quick-create {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid #ddd6fe;
+  border-radius: 12px;
+  background: #faf5ff;
+}
+
+.admin-quick-create h4 {
+  margin: 0 0 12px;
+  color: #5b21b6;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.admin-quick-create input,
+.admin-quick-create textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  border: 1px solid #ddd6fe;
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: #111827;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.admin-quick-create input {
+  height: 42px;
+  padding: 0 12px;
+}
+
+.admin-quick-create textarea {
+  min-height: 90px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.admin-quick-create input:focus,
+.admin-quick-create textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.admin-quick-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.admin-quick-actions button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+========================================================= */
+
+.admin-primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.admin-primary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(124, 58, 237, 0.24);
+}
+
+.admin-primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   MOODS
+========================================================= */
+
+.admin-mood-field {
+  grid-column: 1 / -1;
+}
+
+.admin-mood-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.admin-mood-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-mood-option:hover {
+  border-color: #c4b5fd;
+  background: #faf5ff;
+}
+
+.admin-mood-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+
+.admin-mood-option input:checked + span {
+  color: #6d28d9;
+}
+
+
+/* =========================================================
+   UPLOAD GRID
+========================================================= */
+
+.admin-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+
+/* =========================================================
+   UPLOAD BOX
+========================================================= */
+
+.admin-upload-box {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  box-sizing: border-box;
+  border: 2px dashed #d1d5db;
+  border-radius: 14px;
+  background: #fafafa;
+  text-align: center;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-upload-box:hover {
+  border-color: #a78bfa;
+  background: #faf5ff;
+}
+
+.admin-upload-icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: #f3e8ff;
+  color: #7c3aed;
+  font-size: 23px;
+}
+
+.admin-upload-box h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.admin-upload-box p {
+  margin: 6px 0 16px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+.admin-file-input {
+  display: none;
+}
+
+
+/* =========================================================
+   UPLOAD BUTTON
+========================================================= */
+
+.admin-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid #ddd6fe;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #6d28d9;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-upload-button:hover {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   SELECTED FILE
+========================================================= */
+
+.admin-selected-file {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+}
+
+.admin-selected-file > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-selected-file strong {
+  overflow: hidden;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-selected-file span {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.admin-selected-file button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   COVER PREVIEW
+========================================================= */
+
+.admin-cover-preview {
+  width: 125px;
+  height: 125px;
+  object-fit: cover;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.admin-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  padding: 17px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.admin-checkbox input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+
+.admin-checkbox div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-checkbox strong {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-checkbox span {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 25px;
+}
+
+.admin-cancel-button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-cancel-button:hover {
+  background: #f9fafb;
+}
+
+.admin-cancel-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.admin-page ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.admin-page ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.admin-page ::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+  background: #d1d5db;
+}
+
+.admin-page ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .admin-page {
+    padding: 22px;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-mood-field {
+    grid-column: auto;
+  }
+
+  .admin-upload-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-mood-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .admin-page {
+    padding: 15px;
+  }
+
+  .admin-form-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .admin-form-header h1 {
+    font-size: 25px;
+  }
+
+  .admin-form-header p {
+    font-size: 13px;
+  }
+
+  .admin-form-section {
+    padding: 18px;
+    border-radius: 13px;
+  }
+
+  .admin-form-grid {
+    gap: 17px;
+  }
+
+  .admin-mood-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-upload-grid {
+    gap: 15px;
+  }
+
+  .admin-upload-box {
+    min-height: 230px;
+    padding: 18px;
+  }
+
+  .admin-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .admin-form-actions button {
+    width: 100%;
+  }
+
+  .admin-primary-button,
+  .admin-cancel-button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .admin-page {
+    padding: 10px;
+  }
+
+  .admin-form-section {
+    padding: 15px;
+  }
+
+  .admin-form-header h1 {
+    font-size: 22px;
+  }
+
+  .admin-inline-add-button {
+    font-size: 10px;
+    padding: 4px 7px;
+  }
+
+  .admin-field-label-row {
+    align-items: flex-start;
+  }
+
+}
