@@ -1,13 +1,12 @@
+
 import {
-  FaArrowLeft,
   FaCompactDisc,
   FaHome,
   FaMicrophone,
   FaMusic,
+  FaFlag,
   FaSignOutAlt,
   FaTags,
-  FaUser,
-  FaUsers,
   FaChurch,
 } from "react-icons/fa";
 
@@ -26,7 +25,6 @@ import "../../assets/css/admin/adminSidebar.css";
 function AdminSidebar() {
 
   const {
-    user,
     logout,
   } = useAuth();
 
@@ -103,47 +101,15 @@ function AdminSidebar() {
 
 
       {/* =================================================
-          ADMIN USER
-      ================================================= */}
-
-      {/* <div className="admin-sidebar-user">
-
-        {/* <div className="admin-sidebar-avatar">
-
-          <FaUser />
-
-        </div> */}
-
-
-        {/* <div>
-
-          {/* <strong>
-
-            {user?.name ||
-              "Administrator"}
-
-          </strong> 
-
-
-          <span>
-
-            {user?.email ||
-              "KEERTHANA Admin"}
-
-          </span>
-
-        </div> 
-
-
-      </div>
- */}
-
-      {/* =================================================
           NAVIGATION
       ================================================= */}
 
       <nav className="admin-sidebar-nav">
 
+
+        {/* =================================================
+            OVERVIEW
+        ================================================= */}
 
         <p className="admin-nav-title">
 
@@ -157,9 +123,7 @@ function AdminSidebar() {
         <NavLink
           to="/admin"
           end
-          className={
-            navClass
-          }
+          className={navClass}
         >
 
           <FaHome />
@@ -170,6 +134,10 @@ function AdminSidebar() {
 
         </NavLink>
 
+
+        {/* =================================================
+            MANAGEMENT
+        ================================================= */}
 
         <p className="admin-nav-title admin-nav-title-space">
 
@@ -182,9 +150,7 @@ function AdminSidebar() {
 
         <NavLink
           to="/admin/songs"
-          className={
-            navClass
-          }
+          className={navClass}
         >
 
           <FaMusic />
@@ -196,13 +162,27 @@ function AdminSidebar() {
         </NavLink>
 
 
+        {/* SONG REPORTS */}
+
+        <NavLink
+          to="/admin/songs/reports"
+          className={navClass}
+        >
+
+          <FaFlag />
+
+          <span>
+            Song Reports
+          </span>
+
+        </NavLink>
+
+
         {/* ARTISTS */}
 
         <NavLink
           to="/admin/artists"
-          className={
-            navClass
-          }
+          className={navClass}
         >
 
           <FaMicrophone />
@@ -218,9 +198,7 @@ function AdminSidebar() {
 
         <NavLink
           to="/admin/albums"
-          className={
-            navClass
-          }
+          className={navClass}
         >
 
           <FaCompactDisc />
@@ -236,9 +214,7 @@ function AdminSidebar() {
 
         <NavLink
           to="/admin/categories"
-          className={
-            navClass
-          }
+          className={navClass}
         >
 
           <FaTags />
@@ -256,9 +232,7 @@ function AdminSidebar() {
 
         <NavLink
           to="/admin/ministries"
-          className={
-            navClass
-          }
+          className={navClass}
         >
 
           <FaChurch />
@@ -268,24 +242,6 @@ function AdminSidebar() {
           </span>
 
         </NavLink>
-
-
-        {/* USERS */}
-
-        {/* <NavLink
-          to="/admin/users"
-          className={
-            navClass
-          }
-         >
-
-          <FaUsers />
-
-          <span>
-            Users
-          </span>
-
-        </NavLink> */}
 
 
       </nav>
@@ -298,28 +254,12 @@ function AdminSidebar() {
       <div className="admin-sidebar-bottom">
 
 
-        {/* <NavLink
-          to="/"
-          className="admin-back-link"
-        >
-
-          <FaArrowLeft />
-
-          <span>
-            Back to KEERTHANA
-          </span>
-
-        </NavLink> */}
-
+        {/* LOGOUT */}
 
         <button
           type="button"
-
           className="admin-logout-button"
-
-          onClick={
-            handleLogout
-          }
+          onClick={handleLogout}
         >
 
           <FaSignOutAlt />
@@ -342,3 +282,4 @@ function AdminSidebar() {
 
 
 export default AdminSidebar;
+

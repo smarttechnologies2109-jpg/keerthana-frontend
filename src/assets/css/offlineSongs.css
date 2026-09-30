@@ -1,0 +1,520 @@
+/* src/assets/css/offlineSongs.css */
+
+.offline-songs-page {
+  min-height: 100vh;
+  padding: 32px 20px 120px;
+  background: #faf8f2;
+  color: #12372a;
+}
+
+/* Header */
+
+.offline-songs-header {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.offline-header-icon {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #12372a;
+  color: #c9a45c;
+  font-size: 27px;
+  box-shadow: 0 8px 24px rgba(18, 55, 42, 0.15);
+}
+
+.offline-songs-header span {
+  display: block;
+  margin-bottom: 4px;
+  color: #c9a45c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.offline-songs-header h1 {
+  margin: 0;
+  color: #12372a;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.offline-songs-header p {
+  margin: 7px 0 0;
+  color: #66736d;
+  font-size: 15px;
+}
+
+/* Count */
+
+.offline-songs-count {
+  max-width: 1100px;
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border: 1px solid rgba(18, 55, 42, 0.1);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #12372a;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(18, 55, 42, 0.05);
+}
+
+.offline-songs-count svg {
+  color: #c9a45c;
+}
+
+/* Loading */
+
+.offline-loading {
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.offline-loading svg {
+  margin-bottom: 18px;
+  color: #c9a45c;
+  font-size: 42px;
+  animation: offlineDownloadPulse 1.2s ease-in-out infinite;
+}
+
+.offline-loading h2 {
+  margin: 0;
+  color: #12372a;
+  font-size: 24px;
+}
+
+.offline-loading p {
+  margin: 8px 0 0;
+  color: #6d7772;
+  font-size: 14px;
+}
+
+/* Empty */
+
+.offline-empty {
+  max-width: 560px;
+  margin: 70px auto;
+  padding: 45px 25px;
+  text-align: center;
+  border: 1px solid rgba(18, 55, 42, 0.1);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 35px rgba(18, 55, 42, 0.08);
+}
+
+.offline-empty-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(201, 164, 92, 0.13);
+  color: #c9a45c;
+  font-size: 30px;
+}
+
+.offline-empty h2 {
+  margin: 0;
+  color: #12372a;
+  font-size: 25px;
+}
+
+.offline-empty p {
+  max-width: 420px;
+  margin: 10px auto 22px;
+  color: #6d7772;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.offline-empty button {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: #12372a;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.offline-empty button:hover {
+  background: #0b281e;
+  transform: translateY(-1px);
+}
+
+/* Song list */
+
+.offline-song-list {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Song card */
+
+.offline-song-card {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 46px 46px;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px 9px 9px;
+  border: 1px solid rgba(18, 55, 42, 0.09);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 5px 20px rgba(18, 55, 42, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.offline-song-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(201, 164, 92, 0.45);
+  box-shadow: 0 9px 26px rgba(18, 55, 42, 0.09);
+}
+
+.offline-song-card.current {
+  border-color: rgba(201, 164, 92, 0.65);
+  box-shadow: 0 8px 28px rgba(201, 164, 92, 0.12);
+}
+
+/* Cover */
+
+.offline-song-cover {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px;
+  background: #eef1ed;
+  cursor: pointer;
+}
+
+.offline-song-cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.offline-song-cover:hover img {
+  transform: scale(1.05);
+}
+
+/* Song info */
+
+.offline-song-info {
+  min-width: 0;
+  padding: 5px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.offline-song-info strong {
+  width: 100%;
+  overflow: hidden;
+  color: #12372a;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.offline-song-info span {
+  margin-top: 4px;
+  color: #7a837f;
+  font-size: 13px;
+}
+
+.offline-song-info small {
+  margin-top: 4px;
+  color: #a17d2f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Play button */
+
+.offline-play-button,
+.offline-delete-button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.offline-play-button {
+  border: 1px solid rgba(18, 55, 42, 0.15);
+  background: #f7f8f5;
+  color: #12372a;
+  font-size: 14px;
+}
+
+.offline-play-button:hover {
+  background: #12372a;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.offline-playing-icon {
+  font-size: 18px;
+  line-height: 1;
+  animation: offlinePlayingPulse 1s ease-in-out infinite;
+}
+
+/* Delete */
+
+.offline-delete-button {
+  border: 1px solid rgba(180, 70, 70, 0.12);
+  background: #fff8f8;
+  color: #b45c5c;
+  font-size: 14px;
+}
+
+.offline-delete-button:hover {
+  background: #b45c5c;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.offline-delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Animations */
+
+@keyframes offlineDownloadPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes offlinePlayingPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(1.25);
+  }
+}
+
+/* Tablet */
+
+@media (max-width: 768px) {
+  .offline-songs-page {
+    padding: 25px 14px 110px;
+  }
+
+  .offline-songs-header {
+    gap: 14px;
+  }
+
+  .offline-header-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 15px;
+    font-size: 23px;
+  }
+
+  .offline-songs-header h1 {
+    font-size: 27px;
+  }
+
+  .offline-songs-header p {
+    font-size: 14px;
+  }
+
+  .offline-song-card {
+    grid-template-columns: 58px minmax(0, 1fr) 42px 42px;
+    gap: 11px;
+    min-height: 74px;
+  }
+
+  .offline-song-cover {
+    width: 58px;
+    height: 58px;
+  }
+
+  .offline-song-info strong {
+    font-size: 15px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 520px) {
+  .offline-songs-page {
+    padding: 20px 10px 105px;
+  }
+
+  .offline-songs-header {
+    align-items: flex-start;
+  }
+
+  .offline-header-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    font-size: 20px;
+  }
+
+  .offline-songs-header span {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .offline-songs-header h1 {
+    font-size: 23px;
+  }
+
+  .offline-songs-header p {
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .offline-songs-count {
+    margin-bottom: 14px;
+    padding: 10px 13px;
+    font-size: 13px;
+  }
+
+  .offline-song-list {
+    gap: 9px;
+  }
+
+  .offline-song-card {
+    grid-template-columns: 52px minmax(0, 1fr) 38px 38px;
+    gap: 8px;
+    padding: 7px;
+    border-radius: 13px;
+  }
+
+  .offline-song-cover {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+  }
+
+  .offline-song-info strong {
+    font-size: 14px;
+  }
+
+  .offline-song-info span {
+    font-size: 11px;
+  }
+
+  .offline-song-info small {
+    font-size: 10px;
+  }
+
+  .offline-play-button,
+  .offline-delete-button {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .offline-empty {
+    margin: 45px auto;
+    padding: 35px 18px;
+  }
+
+  .offline-empty-icon {
+    width: 65px;
+    height: 65px;
+    font-size: 25px;
+  }
+
+  .offline-empty h2 {
+    font-size: 22px;
+  }
+
+  .offline-empty p {
+    font-size: 14px;
+  }
+}
+
+/* Small phones */
+
+@media (max-width: 360px) {
+  .offline-songs-header h1 {
+    font-size: 20px;
+  }
+
+  .offline-songs-header p {
+    font-size: 11px;
+  }
+
+  .offline-song-card {
+    grid-template-columns: 48px minmax(0, 1fr) 34px 34px;
+    gap: 6px;
+  }
+
+  .offline-song-cover {
+    width: 48px;
+    height: 48px;
+  }
+
+  .offline-song-info strong {
+    font-size: 13px;
+  }
+
+  .offline-play-button,
+  .offline-delete-button {
+    width: 32px;
+    height: 32px;
+  }
+}

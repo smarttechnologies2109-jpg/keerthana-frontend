@@ -5,22 +5,25 @@ import React, {
 } from "react";
 
 import {
+  FaBars,
+  FaBell,
   FaChevronLeft,
   FaChevronRight,
-  FaSearch,
-  FaUser,
-  FaSignOutAlt,
-  FaBars,
   FaMicrophone,
   FaMicrophoneSlash,
+  FaSearch,
+  FaUser,
+  FaMusic,
 } from "react-icons/fa";
 
 import {
+  Link,
   useLocation,
   useNavigate,
 } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
+import { useNotifications } from "../context/NotificationsContext";
 
 import "../assets/css/header.css";
 
@@ -28,23 +31,23 @@ function Header({ onToggleSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { unreadCount } = useNotifications();
+
+  /* =====================================================
+     SEARCH
+  ===================================================== */
+
+  const [searchValue, setSearchValue] = useState("");
 
   /* =====================================================
      VOICE SEARCH
   ===================================================== */
 
-  const [searchValue, setSearchValue] =
-    useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(true);
 
-  const [isListening, setIsListening] =
-    useState(false);
-
-  const [voiceSupported, setVoiceSupported] =
-    useState(true);
-
-  const recognitionRef =
-    useRef(null);
+  const recognitionRef = useRef(null);
 
   /* =====================================================
      PAGE TITLE
@@ -53,7 +56,7 @@ function Header({ onToggleSidebar }) {
   const getPageTitle = () => {
     const path = location.pathname;
 
-    if (path === "/") {
+    if (path === "/" || path === "/home") {
       return "Home";
     }
 
@@ -90,6 +93,10 @@ function Header({ onToggleSidebar }) {
       return "Liked Songs";
     }
 
+    if (path.startsWith("/favorites")) {
+      return "Favorites";
+    }
+
     if (path.startsWith("/playlists")) {
       return "Playlists";
     }
@@ -106,33 +113,25 @@ function Header({ onToggleSidebar }) {
       return "Profile";
     }
 
+    if (path.startsWith("/offline-songs")) {
+      return "Offline Songs";
+    }
+
+    if (path.startsWith("/notifications")) {
+      return "Notifications";
+    }
+
     return "KEERTHANA";
   };
 
   /* =====================================================
-     LOGOUT
-  ===================================================== */
-
-  const handleLogout = () => {
-    logout();
-
-    navigate(
-      "/login",
-      {
-        replace: true,
-      }
-    );
-  };
-
-  /* =====================================================
-     SEARCH
+     SEARCH SUBMIT
   ===================================================== */
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
 
-    const value =
-      String(searchValue || "").trim();
+    const value = searchValue.trim();
 
     if (!value) {
       navigate("/search");
@@ -145,7 +144,7 @@ function Header({ onToggleSidebar }) {
   };
 
   /* =====================================================
-     VOICE SEARCH
+     VOICE SEARCH SETUP
   ===================================================== */
 
   useEffect(() => {
@@ -158,14 +157,11 @@ function Header({ onToggleSidebar }) {
       return;
     }
 
-    const recognition =
-      new SpeechRecognition();
+    const recognition = new SpeechRecognition();
 
     recognition.continuous = false;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
-
-    // Voice language
     recognition.lang = "en-IN";
 
     recognition.onstart = () => {
@@ -176,16 +172,15 @@ function Header({ onToggleSidebar }) {
       let transcript = "";
 
       for (
-        let i = event.resultIndex;
-        i < event.results.length;
-        i++
+        let index = event.resultIndex;
+        index < event.results.length;
+        index++
       ) {
         transcript +=
-          event.results[i][0].transcript;
+          event.results[index][0].transcript;
       }
 
-      transcript =
-        transcript.trim();
+      transcript = transcript.trim();
 
       if (transcript) {
         setSearchValue(transcript);
@@ -222,13 +217,12 @@ function Header({ onToggleSidebar }) {
       setIsListening(false);
     };
 
-    recognitionRef.current =
-      recognition;
+    recognitionRef.current = recognition;
 
     return () => {
       try {
         recognition.stop();
-      } catch (error) {
+      } catch {
         // Ignore cleanup errors
       }
 
@@ -237,7 +231,7 @@ function Header({ onToggleSidebar }) {
   }, [navigate]);
 
   /* =====================================================
-     START VOICE SEARCH
+     VOICE SEARCH CONTROL
   ===================================================== */
 
   const startVoiceSearch = () => {
@@ -254,10 +248,6 @@ function Header({ onToggleSidebar }) {
       );
     }
   };
-
-  /* =====================================================
-     STOP VOICE SEARCH
-  ===================================================== */
 
   const stopVoiceSearch = () => {
     if (!recognitionRef.current) {
@@ -276,10 +266,6 @@ function Header({ onToggleSidebar }) {
     setIsListening(false);
   };
 
-  /* =====================================================
-     VOICE BUTTON
-  ===================================================== */
-
   const handleVoiceSearch = () => {
     if (!voiceSupported) {
       alert(
@@ -297,21 +283,26 @@ function Header({ onToggleSidebar }) {
   };
 
   /* =====================================================
-     KEYBOARD SEARCH
+     KEYBOARD SEARCH SHORTCUT
   ===================================================== */
 
-  const handleSearchKeyDown = (event) => {
-    if (event.key !== "/") {
-      return;
-    }
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== "/") {
+        return;
+      }
 
-    const target =
-      event.target;
+      const target = event.target;
 
-    if (
-      target.tagName !== "INPUT" &&
-      target.tagName !== "TEXTAREA"
-    ) {
+      const isTyping =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (isTyping) {
+        return;
+      }
+
       event.preventDefault();
 
       const searchInput =
@@ -319,22 +310,18 @@ function Header({ onToggleSidebar }) {
           ".header-search-input"
         );
 
-      if (searchInput) {
-        searchInput.focus();
-      }
-    }
-  };
+      searchInput?.focus();
+    };
 
-  useEffect(() => {
     window.addEventListener(
       "keydown",
-      handleSearchKeyDown
+      handleKeyDown
     );
 
     return () => {
       window.removeEventListener(
         "keydown",
-        handleSearchKeyDown
+        handleKeyDown
       );
     };
   }, []);
@@ -352,7 +339,7 @@ function Header({ onToggleSidebar }) {
 
       <div className="keerthana-header-left">
 
-        {/* MOBILE HAMBURGER */}
+        {/* MENU */}
 
         <button
           type="button"
@@ -364,8 +351,7 @@ function Header({ onToggleSidebar }) {
           <FaBars />
         </button>
 
-
-        {/* BACK / FORWARD */}
+        {/* DESKTOP NAVIGATION */}
 
         <div className="header-history-buttons">
 
@@ -391,37 +377,27 @@ function Header({ onToggleSidebar }) {
 
         </div>
 
-
         {/* MOBILE BRAND */}
 
-        <div className="header-mobile-brand">
-
+        <Link
+          to="/home"
+          className="header-mobile-brand"
+        >
           <div className="header-mobile-logo">
-            ♪
+            <FaMusic />
           </div>
 
           <div className="header-mobile-brand-text">
-
-            <strong>
-              KEERTHANA
-            </strong>
-
-            <span>
-              Christian Music
-            </span>
-
+            <strong>KEERTHANA</strong>
+            <span>Christian Music</span>
           </div>
+        </Link>
 
-        </div>
-
-
-        {/* CURRENT PAGE TITLE */}
+        {/* PAGE TITLE */}
 
         <div className="header-page-info">
 
-          <span>
-            KEERTHANA
-          </span>
+          <span>KEERTHANA</span>
 
           <h2>
             {getPageTitle()}
@@ -431,17 +407,13 @@ function Header({ onToggleSidebar }) {
 
       </div>
 
-
       {/* =================================================
           RIGHT
       ================================================= */}
 
       <div className="keerthana-header-right">
 
-
-        {/* =================================================
-            SEARCH + VOICE SEARCH
-        ================================================= */}
+        {/* SEARCH */}
 
         <form
           className={`header-search-box ${
@@ -452,14 +424,7 @@ function Header({ onToggleSidebar }) {
           onSubmit={handleSearchSubmit}
         >
 
-          {/* SEARCH ICON */}
-
-          <FaSearch
-            className="header-search-icon"
-          />
-
-
-          {/* SEARCH INPUT */}
+          <FaSearch className="header-search-icon" />
 
           <input
             type="text"
@@ -477,10 +442,10 @@ function Header({ onToggleSidebar }) {
                 : "Search songs, artists..."
             }
             autoComplete="off"
+            aria-label="Search"
           />
 
-
-          {/* VOICE SEARCH BUTTON */}
+          {/* VOICE */}
 
           {voiceSupported && (
             <button
@@ -502,33 +467,42 @@ function Header({ onToggleSidebar }) {
                   : "Voice search"
               }
             >
-
               {isListening ? (
                 <FaMicrophoneSlash />
               ) : (
                 <FaMicrophone />
               )}
-
             </button>
           )}
 
+          {/* KEYBOARD */}
 
-          {/* KEYBOARD SHORTCUT */}
-
-          <kbd>
-            /
-          </kbd>
+          <kbd>/</kbd>
 
         </form>
 
+        {/* NOTIFICATIONS */}
 
-        {/* =================================================
-            USER ACCOUNT INDICATOR
-            NO PROFILE NAVIGATION
-        ================================================= */}
+        <Link
+          to="/notifications"
+          className="header-notification-button"
+          title="Notifications"
+          aria-label="Notifications"
+        >
+          <FaBell />
 
-        {!user ? (
+          {unreadCount > 0 && (
+            <span className="header-notification-badge">
+              {unreadCount > 99
+                ? "99+"
+                : unreadCount}
+            </span>
+          )}
+        </Link>
 
+        {/* LOGIN */}
+
+        {!user && (
           <button
             type="button"
             className="header-login-button"
@@ -536,68 +510,10 @@ function Header({ onToggleSidebar }) {
               navigate("/login")
             }
           >
-
             <FaUser />
 
-            <span>
-              Login
-            </span>
-
+            <span>Login</span>
           </button>
-
-        ) : (
-
-          <div className="header-user">
-
-            {/* USER DISPLAY ONLY */}
-
-            {/* <div
-              className="header-profile-display"
-              title={user?.name || "User"}
-             >
-
-              <div className="header-avatar">
-
-                {user?.name
-                  ? user.name
-                      .charAt(0)
-                      .toUpperCase()
-                  : "U"}
-
-              </div>
-
-
-              <div className="header-user-info">
-
-                <strong>
-                  {user?.name || "User"}
-                </strong>
-
-                <span>
-                  Listener
-                </span>
-
-              </div>
-
-            </div>
- */}
-
-            {/* LOGOUT */}
-
-            {/* <button
-              type="button"
-              className="header-logout-button"
-              onClick={handleLogout}
-              aria-label="Logout"
-              title="Logout"
-              >
-
-              <FaSignOutAlt />
-
-            </button> */}
-
-          </div>
-
         )}
 
       </div>

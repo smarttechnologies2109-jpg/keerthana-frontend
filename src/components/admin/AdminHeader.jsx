@@ -5,6 +5,8 @@ import {
   FaChevronRight,
   FaSignOutAlt,
   FaBars,
+  FaMusic,
+  FaShieldAlt,
 } from "react-icons/fa";
 
 import {
@@ -16,23 +18,18 @@ import { useAuth } from "../../context/AuthContext";
 
 import "../../assets/css/admin/adminHeader.css";
 
-
 function AdminHeader({ onToggleSidebar }) {
-
   const navigate = useNavigate();
   const location = useLocation();
 
   const { user, logout } = useAuth();
-
 
   /* =========================================================
      PAGE TITLE
   ========================================================= */
 
   const getPageTitle = () => {
-
     const path = location.pathname;
-
 
     if (
       path === "/admin" ||
@@ -41,13 +38,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Dashboard";
     }
 
-
     if (
       path.startsWith("/admin/dashboard")
     ) {
       return "Dashboard";
     }
-
 
     if (
       path === "/admin/songs/add"
@@ -55,13 +50,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Add Song";
     }
 
-
     if (
       path.startsWith("/admin/songs/")
     ) {
       return "Edit Song";
     }
-
 
     if (
       path.startsWith("/admin/songs")
@@ -69,13 +62,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Manage Songs";
     }
 
-
     if (
       path === "/admin/artists/add"
     ) {
       return "Add Artist";
     }
-
 
     if (
       path.startsWith("/admin/artists/")
@@ -83,13 +74,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Edit Artist";
     }
 
-
     if (
       path.startsWith("/admin/artists")
     ) {
       return "Manage Artists";
     }
-
 
     if (
       path === "/admin/albums/add"
@@ -97,13 +86,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Add Album";
     }
 
-
     if (
       path.startsWith("/admin/albums/")
     ) {
       return "Edit Album";
     }
-
 
     if (
       path.startsWith("/admin/albums")
@@ -111,13 +98,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Manage Albums";
     }
 
-
     if (
       path.startsWith("/admin/categories")
     ) {
       return "Manage Categories";
     }
-
 
     if (
       path.startsWith("/admin/users")
@@ -125,13 +110,11 @@ function AdminHeader({ onToggleSidebar }) {
       return "Manage Users";
     }
 
-
     if (
       path.startsWith("/admin/analytics")
     ) {
       return "Analytics";
     }
-
 
     if (
       path.startsWith("/admin/profile")
@@ -139,110 +122,97 @@ function AdminHeader({ onToggleSidebar }) {
       return "Admin Profile";
     }
 
-
     return "Admin Panel";
   };
-
 
   /* =========================================================
      LOGOUT
   ========================================================= */
 
-const handleLogout = () => {
-  logout();
+  const handleLogout = () => {
+    logout();
 
-  navigate("/admin/login", {
-    replace: true,
-  });
-};
-
+    navigate("/admin/login", {
+      replace: true,
+    });
+  };
 
   /* =========================================================
      ADMIN HOME
   ========================================================= */
 
   const handleLogoClick = () => {
-
     navigate("/admin");
-
   };
-
 
   /* =========================================================
      ADMIN PROFILE
   ========================================================= */
 
   const handleProfile = () => {
-
     navigate("/admin/profile");
-
   };
-
 
   /* =========================================================
      KEYBOARD SHORTCUT
   ========================================================= */
 
   useEffect(() => {
-
     const handleKeyDown = (event) => {
-
-      if (
-        event.key === "/" &&
-        event.target.tagName !== "INPUT" &&
-        event.target.tagName !== "TEXTAREA"
-      ) {
-
-        event.preventDefault();
-
-        const searchInput =
-          document.querySelector(
-            ".admin-header-search-input"
-          );
-
-        if (searchInput) {
-          searchInput.focus();
-        }
-
+      if (event.key !== "/") {
+        return;
       }
 
-    };
+      const target = event.target;
 
+      const isTyping =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (isTyping) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const searchInput =
+        document.querySelector(
+          ".admin-header-search-input"
+        );
+
+      if (searchInput) {
+        searchInput.focus();
+      }
+    };
 
     window.addEventListener(
       "keydown",
       handleKeyDown
     );
 
-
     return () => {
-
       window.removeEventListener(
         "keydown",
         handleKeyDown
       );
-
     };
-
   }, []);
-
 
   /* =========================================================
      RENDER
   ========================================================= */
 
   return (
-
     <header className="admin-header">
 
       {/* =====================================================
-          LEFT SECTION
+          LEFT
       ===================================================== */}
 
       <div className="admin-header-left">
 
-
-        {/* MOBILE MENU */}
+        {/* SIDEBAR MENU */}
 
         <button
           type="button"
@@ -253,7 +223,6 @@ const handleLogout = () => {
         >
           <FaBars />
         </button>
-
 
         {/* BACK / FORWARD */}
 
@@ -269,7 +238,6 @@ const handleLogout = () => {
             <FaChevronLeft />
           </button>
 
-
           <button
             type="button"
             className="admin-header-circle-button"
@@ -282,8 +250,7 @@ const handleLogout = () => {
 
         </div>
 
-
-        {/* ADMIN BRAND */}
+        {/* BRAND */}
 
         <button
           type="button"
@@ -293,9 +260,8 @@ const handleLogout = () => {
         >
 
           <div className="admin-header-logo">
-            ♪
+            <FaMusic />
           </div>
-
 
           <div className="admin-header-brand-text">
 
@@ -304,20 +270,23 @@ const handleLogout = () => {
             </strong>
 
             <span>
-              Admin Panel
+              Administration
             </span>
 
           </div>
 
         </button>
 
+        {/* DIVIDER */}
+
+        <div className="admin-header-divider"></div>
 
         {/* PAGE TITLE */}
 
         <div className="admin-header-page-info">
 
           <span>
-            KEERTHANA ADMIN
+            ADMIN PANEL
           </span>
 
           <h2>
@@ -328,26 +297,35 @@ const handleLogout = () => {
 
       </div>
 
-
       {/* =====================================================
-          RIGHT SECTION
+          RIGHT
       ===================================================== */}
 
       <div className="admin-header-right">
-
 
         {/* ADMIN STATUS */}
 
         <div className="admin-header-status">
 
-          <span className="admin-status-dot"></span>
-
-          <span>
-            Administrator
+          <span className="admin-status-indicator">
+            <span className="admin-status-dot"></span>
           </span>
+
+          <div className="admin-status-text">
+            <strong>
+              Online
+            </strong>
+
+            <span>
+              Administrator
+            </span>
+          </div>
 
         </div>
 
+        {/* SEPARATOR */}
+
+        <div className="admin-header-right-divider"></div>
 
         {/* PROFILE */}
 
@@ -356,6 +334,7 @@ const handleLogout = () => {
           className="admin-header-profile"
           onClick={handleProfile}
           title="Admin Profile"
+          aria-label="Open admin profile"
         >
 
           <div className="admin-header-avatar">
@@ -368,7 +347,6 @@ const handleLogout = () => {
 
           </div>
 
-
           <div className="admin-header-user-info">
 
             <strong>
@@ -376,13 +354,12 @@ const handleLogout = () => {
             </strong>
 
             <span>
-              Admin
+              Administrator
             </span>
 
           </div>
 
         </button>
-
 
         {/* LOGOUT */}
 
@@ -399,10 +376,7 @@ const handleLogout = () => {
       </div>
 
     </header>
-
   );
-
 }
-
 
 export default AdminHeader;

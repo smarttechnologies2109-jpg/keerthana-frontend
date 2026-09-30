@@ -8,7 +8,15 @@ import {
   useParams,
 } from "react-router-dom";
 
+import {
+  FaArrowLeft,
+  FaPause,
+  FaPlay,
+} from "react-icons/fa";
+
 import API from "../services/api";
+
+import { usePlayer } from "../context/usePlayer";
 
 import "../assets/css/ministry-details.css";
 
@@ -18,6 +26,18 @@ const MinistryDetails = () => {
   const { id } = useParams();
 
   const navigate = useNavigate();
+
+
+  /* =====================================================
+     GLOBAL PLAYER
+  ===================================================== */
+
+  const {
+    playSong,
+    togglePlay,
+    currentSong,
+    isPlaying,
+  } = usePlayer();
 
 
   const [ministry, setMinistry] =
@@ -48,7 +68,7 @@ const MinistryDetails = () => {
 
 
         /* -----------------------------------------------
-           Load ministry
+           LOAD MINISTRY
         ----------------------------------------------- */
 
         const ministryResponse =
@@ -62,14 +82,13 @@ const MinistryDetails = () => {
 
 
         /* -----------------------------------------------
-           Load ministry songs
+           LOAD MINISTRY SONGS
         ----------------------------------------------- */
 
         const songsResponse =
           await API.get(
             `/ministries/${id}/songs`
           );
-
 
         const songData =
           songsResponse.data;
@@ -88,7 +107,9 @@ const MinistryDetails = () => {
           Array.isArray(songData)
         ) {
 
-          setSongs(songData);
+          setSongs(
+            songData
+          );
 
         } else {
 
@@ -125,19 +146,190 @@ const MinistryDetails = () => {
 
 
   /* =====================================================
+     CHECK WHETHER SONG BELONGS TO THIS MINISTRY
+  ===================================================== */
+
+  const isMinistrySong = (song) => {
+
+    return songs.some(
+      (ministrySong) =>
+        Number(ministrySong.id) ===
+        Number(song?.id)
+    );
+
+  };
+
+
+  /* =====================================================
+     CHECK CURRENT SONG
+  ===================================================== */
+
+  const isCurrentSong = (song) => {
+
+    return (
+      currentSong &&
+      Number(currentSong.id) ===
+        Number(song?.id)
+    );
+
+  };
+
+
+  /* =====================================================
+     MINISTRY PLAY / PAUSE
+  ===================================================== */
+
+  const handleMinistryPlayPause =
+    async () => {
+
+      if (!songs.length) {
+        return;
+      }
+
+
+      /*
+        Check whether the currently loaded
+        song belongs to this ministry.
+      */
+
+      const currentBelongsToMinistry =
+        currentSong &&
+        isMinistrySong(currentSong);
+
+
+      /*
+        If a ministry song is already loaded,
+        toggle Play / Pause.
+      */
+
+      if (currentBelongsToMinistry) {
+
+        await togglePlay();
+
+        return;
+
+      }
+
+
+      /*
+        Otherwise start the first song
+        from this ministry.
+      */
+
+      const firstPlayableSong =
+        songs.find(
+          (song) =>
+            song?.audio_url
+        );
+
+
+      if (!firstPlayableSong) {
+
+        console.warn(
+          "No playable songs found in this ministry."
+        );
+
+        return;
+
+      }
+
+
+      await playSong(
+        firstPlayableSong,
+        songs
+      );
+
+    };
+
+
+  /* =====================================================
+     SONG PLAY / PAUSE
+  ===================================================== */
+
+  const handleSongPlayPause =
+    async (song) => {
+
+      if (!song?.audio_url) {
+
+        console.warn(
+          "Song does not have an audio URL:",
+          song
+        );
+
+        return;
+
+      }
+
+
+      /*
+        SAME SONG
+        --------------------------------
+        If this song is currently loaded:
+
+        Playing → Pause
+        Paused  → Play
+      */
+
+      if (
+        currentSong &&
+        Number(currentSong.id) ===
+          Number(song.id)
+      ) {
+
+        await togglePlay();
+
+        return;
+
+      }
+
+
+      /*
+        DIFFERENT SONG
+        --------------------------------
+        Start the selected song.
+
+        The ministry songs become
+        the current player queue.
+      */
+
+      await playSong(
+        song,
+        songs
+      );
+
+    };
+
+
+  /* =====================================================
+     MINISTRY PLAYING STATE
+  ===================================================== */
+
+  const ministryIsPlaying =
+    Boolean(
+      currentSong &&
+      isPlaying &&
+      isMinistrySong(currentSong)
+    );
+
+
+  /* =====================================================
      LOADING
   ===================================================== */
 
   if (loading) {
 
     return (
+
       <div className="ministry-details-page">
 
         <div className="ministry-loading">
+
           Loading ministry...
+
         </div>
 
       </div>
+
     );
 
   }
@@ -150,6 +342,7 @@ const MinistryDetails = () => {
   if (error) {
 
     return (
+
       <div className="ministry-details-page">
 
         <div className="ministry-error">
@@ -163,6 +356,7 @@ const MinistryDetails = () => {
           </p>
 
           <button
+            type="button"
             onClick={() =>
               navigate("/ministries")
             }
@@ -173,6 +367,7 @@ const MinistryDetails = () => {
         </div>
 
       </div>
+
     );
 
   }
@@ -185,6 +380,7 @@ const MinistryDetails = () => {
   if (!ministry) {
 
     return (
+
       <div className="ministry-details-page">
 
         <div className="ministry-error">
@@ -194,6 +390,7 @@ const MinistryDetails = () => {
           </h2>
 
           <button
+            type="button"
             onClick={() =>
               navigate("/ministries")
             }
@@ -204,13 +401,14 @@ const MinistryDetails = () => {
         </div>
 
       </div>
+
     );
 
   }
 
 
   /* =====================================================
-     IMAGE
+     MINISTRY IMAGE
   ===================================================== */
 
   const ministryImage =
@@ -230,16 +428,23 @@ const MinistryDetails = () => {
 
 
       {/* =================================================
-         BACK
+         BACK BUTTON
       ================================================= */}
 
       <button
+        type="button"
         className="ministry-back-btn"
         onClick={() =>
           navigate("/ministries")
         }
       >
-        ← Back to Ministries
+
+        <FaArrowLeft />
+
+        <span>
+          Back to Ministries
+        </span>
+
       </button>
 
 
@@ -255,8 +460,10 @@ const MinistryDetails = () => {
             src={ministryImage}
             alt={ministry.name}
             onError={(e) => {
+
               e.currentTarget.src =
                 "/default-ministry.png";
+
             }}
           />
 
@@ -269,15 +476,20 @@ const MinistryDetails = () => {
             MINISTRY
           </span>
 
+
           <h1>
             {ministry.name}
           </h1>
 
+
           {ministry.description && (
+
             <p>
               {ministry.description}
             </p>
+
           )}
+
 
           <div className="ministry-song-count">
 
@@ -293,16 +505,54 @@ const MinistryDetails = () => {
 
           </div>
 
+
+          {/* =================================================
+             MINISTRY PLAY / PAUSE BUTTON
+          ================================================= */}
+
+          <button
+            type="button"
+            className={`ministry-play-btn ${
+              ministryIsPlaying
+                ? "is-playing"
+                : ""
+            }`}
+            onClick={
+              handleMinistryPlayPause
+            }
+            disabled={!songs.length}
+            aria-label={
+              ministryIsPlaying
+                ? "Pause ministry"
+                : "Play ministry"
+            }
+          >
+
+            {ministryIsPlaying
+              ? <FaPause />
+              : <FaPlay />
+            }
+
+            <span>
+              {ministryIsPlaying
+                ? "Pause"
+                : "Play"
+              }
+            </span>
+
+          </button>
+
         </div>
 
       </section>
 
 
       {/* =================================================
-         SONGS
+         SONGS SECTION
       ================================================= */}
 
       <section className="ministry-songs-section">
+
 
         <div className="ministry-section-heading">
 
@@ -320,6 +570,10 @@ const MinistryDetails = () => {
 
         </div>
 
+
+        {/* =================================================
+           NO SONGS
+        ================================================= */}
 
         {songs.length === 0 ? (
 
@@ -347,6 +601,10 @@ const MinistryDetails = () => {
             {songs.map(
               (song, index) => {
 
+                /* -----------------------------------------
+                   SONG IMAGE
+                ----------------------------------------- */
+
                 const songImage =
                   song.cover_url ||
                   song.album_cover ||
@@ -354,68 +612,131 @@ const MinistryDetails = () => {
                   "/default-song.png";
 
 
+                /* -----------------------------------------
+                   CURRENT SONG
+                ----------------------------------------- */
+
+                const songIsCurrent =
+                  isCurrentSong(song);
+
+
+                /* -----------------------------------------
+                   PLAYING STATE
+                ----------------------------------------- */
+
+                const songIsPlaying =
+                  songIsCurrent &&
+                  isPlaying;
+
+
                 return (
 
                   <div
                     key={song.id}
-                    className="ministry-song-row"
-                    onClick={() =>
-                      navigate(
-                        `/songs/${song.id}`
-                      )
-                    }
+                    className={`ministry-song-row ${
+                      songIsCurrent
+                        ? "is-current"
+                        : ""
+                    }`}
                   >
 
+
+                    {/* -------------------------------------
+                       NUMBER
+                    ------------------------------------- */}
+
                     <div className="song-number">
+
                       {index + 1}
+
                     </div>
 
 
-                    <div className="song-cover">
+                    {/* -------------------------------------
+                       COVER
+                    ------------------------------------- */}
+
+                    <div
+                      className="song-cover"
+                      onClick={() =>
+                        navigate(
+                          `/songs/${song.id}`
+                        )
+                      }
+                    >
 
                       <img
                         src={songImage}
                         alt={song.title}
                         onError={(e) => {
+
                           e.currentTarget.src =
                             "/default-song.png";
+
                         }}
                       />
 
                     </div>
 
 
-                    <div className="song-info">
+                    {/* -------------------------------------
+                       SONG INFORMATION
+                    ------------------------------------- */}
+
+                    <div
+                      className="song-info"
+                      onClick={() =>
+                        navigate(
+                          `/songs/${song.id}`
+                        )
+                      }
+                    >
 
                       <h3>
                         {song.title}
                       </h3>
 
+
                       {song.title_english && (
+
                         <p>
                           {song.title_english}
                         </p>
+
                       )}
 
+
                       <span>
+
                         {song.artist_name ||
                           song.artist ||
                           "Unknown Artist"}
+
                       </span>
 
                     </div>
 
 
+                    {/* -------------------------------------
+                       LANGUAGE
+                    ------------------------------------- */}
+
                     <div className="song-language">
 
                       {song.language && (
+
                         <span>
                           {song.language}
                         </span>
+
                       )}
 
                     </div>
 
+
+                    {/* -------------------------------------
+                       DURATION
+                    ------------------------------------- */}
 
                     <div className="song-duration">
 
@@ -424,26 +745,50 @@ const MinistryDetails = () => {
                             song.duration / 60
                           )}:${String(
                             song.duration % 60
-                          ).padStart(2, "0")}`
+                          ).padStart(
+                            2,
+                            "0"
+                          )}`
                         : "--:--"}
 
                     </div>
 
 
+                    {/* -------------------------------------
+                       PLAY / PAUSE BUTTON
+                    ------------------------------------- */}
+
                     <button
-                      className="song-play-btn"
+                      type="button"
+                      className={`song-play-btn ${
+                        songIsPlaying
+                          ? "is-playing"
+                          : ""
+                      }`}
                       onClick={(e) => {
 
                         e.stopPropagation();
 
-                        navigate(
-                          `/songs/${song.id}`
+                        handleSongPlayPause(
+                          song
                         );
 
                       }}
+                      disabled={!song?.audio_url}
+                      aria-label={
+                        songIsPlaying
+                          ? "Pause song"
+                          : "Play song"
+                      }
                     >
-                      ▶
+
+                      {songIsPlaying
+                        ? <FaPause />
+                        : <FaPlay />
+                      }
+
                     </button>
+
 
                   </div>
 
@@ -459,7 +804,9 @@ const MinistryDetails = () => {
       </section>
 
     </div>
+
   );
+
 };
 
 

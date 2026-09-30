@@ -28,10 +28,24 @@ export function LikedSongsProvider({
   } = useAuth();
 
 
-  const [likedSongs, setLikedSongs] =
+  const [
+    likedSongs,
+    setLikedSongs,
+  ] =
     useState([]);
 
-  const [loading, setLoading] =
+
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(false);
+
+
+  const [
+    syncing,
+    setSyncing,
+  ] =
     useState(false);
 
 
@@ -40,54 +54,168 @@ export function LikedSongsProvider({
   ===================================== */
 
   const fetchLikedSongs =
-    useCallback(async () => {
+    useCallback(
+      async (
+        showLoading = false
+      ) => {
 
-      if (!user) {
+        if (!user) {
 
-        setLikedSongs([]);
+          setLikedSongs([]);
 
-        return;
+          setLoading(false);
 
-      }
+          return;
 
-
-      try {
-
-        setLoading(true);
+        }
 
 
-        const response =
-          await API.get(
-            "/liked-songs"
+        try {
+
+          if (showLoading) {
+
+            setLoading(true);
+
+          } else {
+
+            setSyncing(true);
+
+          }
+
+
+          const response =
+            await API.get(
+              "/liked-songs"
+            );
+
+
+          const songs =
+            Array.isArray(
+              response?.data?.songs
+            )
+              ? response.data.songs
+              : [];
+
+
+          /*
+            Server is the source of truth.
+            This replaces the local list with
+            the latest server data.
+          */
+
+          setLikedSongs(
+            songs
           );
 
 
-        setLikedSongs(
-          response.data.songs || []
-        );
+        } catch (error) {
+
+          console.error(
+            "Liked songs error:",
+            error
+          );
+
+        } finally {
+
+          if (showLoading) {
+
+            setLoading(false);
+
+          } else {
+
+            setSyncing(false);
+
+          }
+
+        }
+
+      },
+      [user]
+    );
 
 
-      } catch (error) {
-
-        console.error(
-          "Liked songs error:",
-          error
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    }, [user]);
-
+  /* =====================================
+     INITIAL FETCH
+  ===================================== */
 
   useEffect(() => {
 
-    fetchLikedSongs();
+    fetchLikedSongs(
+      true
+    );
 
-  }, [fetchLikedSongs]);
+  }, [
+    fetchLikedSongs,
+  ]);
+
+
+  /* =====================================
+     SYNC WHEN APP BECOMES ACTIVE
+  ===================================== */
+
+  useEffect(() => {
+
+    if (!user) {
+
+      return;
+
+    }
+
+
+    const handleVisibilityChange =
+      () => {
+
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+
+          fetchLikedSongs();
+
+        }
+
+      };
+
+
+    const handleWindowFocus =
+      () => {
+
+        fetchLikedSongs();
+
+      };
+
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+
+    window.addEventListener(
+      "focus",
+      handleWindowFocus
+    );
+
+
+    return () => {
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+
+      window.removeEventListener(
+        "focus",
+        handleWindowFocus
+      );
+
+    };
+
+  }, [
+    user,
+    fetchLikedSongs,
+  ]);
 
 
   /* =====================================
@@ -104,7 +232,9 @@ export function LikedSongsProvider({
           )
         ),
 
-      [likedSongs]
+      [
+        likedSongs,
+      ]
     );
 
 
@@ -113,13 +243,28 @@ export function LikedSongsProvider({
   ===================================== */
 
   const isLiked =
-    (songId) => {
+    useCallback(
+      (songId) => {
 
-      return likedSongIds.has(
-        Number(songId)
-      );
+        if (
+          songId === undefined ||
+          songId === null
+        ) {
 
-    };
+          return false;
+
+        }
+
+
+        return likedSongIds.has(
+          Number(songId)
+        );
+
+      },
+      [
+        likedSongIds,
+      ]
+    );
 
 
   /* =====================================
@@ -127,47 +272,47 @@ export function LikedSongsProvider({
   ===================================== */
 
   const likeSong =
-    async (song) => {
+    useCallback(
+      async (song) => {
 
-      if (!user) {
+        if (!user) {
 
-        throw new Error(
-          "LOGIN_REQUIRED"
-        );
-
-      }
-
-
-      await API.post(
-        `/liked-songs/${song.id}`
-      );
-
-
-      setLikedSongs(
-        (current) => {
-
-          const exists =
-            current.some(
-              (item) =>
-                Number(item.id) ===
-                Number(song.id)
-            );
-
-
-          if (exists) {
-            return current;
-          }
-
-
-          return [
-            song,
-            ...current,
-          ];
+          throw new Error(
+            "LOGIN_REQUIRED"
+          );
 
         }
-      );
 
-    };
+
+        if (!song?.id) {
+
+          return;
+
+        }
+
+
+        /*
+          Keep your existing backend endpoint.
+        */
+
+        await API.post(
+          `/liked-songs/${song.id}`
+        );
+
+
+        /*
+          Fetch again from server so the
+          context always matches the backend.
+        */
+
+        await fetchLikedSongs();
+
+      },
+      [
+        user,
+        fetchLikedSongs,
+      ]
+    );
 
 
   /* =====================================
@@ -175,32 +320,45 @@ export function LikedSongsProvider({
   ===================================== */
 
   const unlikeSong =
-    async (songId) => {
+    useCallback(
+      async (songId) => {
 
-      if (!user) {
+        if (!user) {
 
-        throw new Error(
-          "LOGIN_REQUIRED"
+          throw new Error(
+            "LOGIN_REQUIRED"
+          );
+
+        }
+
+
+        if (
+          songId === undefined ||
+          songId === null
+        ) {
+
+          return;
+
+        }
+
+
+        await API.delete(
+          `/liked-songs/${songId}`
         );
 
-      }
 
+        /*
+          Refresh from server after removing.
+        */
 
-      await API.delete(
-        `/liked-songs/${songId}`
-      );
+        await fetchLikedSongs();
 
-
-      setLikedSongs(
-        (current) =>
-          current.filter(
-            (song) =>
-              Number(song.id) !==
-              Number(songId)
-          )
-      );
-
-    };
+      },
+      [
+        user,
+        fetchLikedSongs,
+      ]
+    );
 
 
   /* =====================================
@@ -208,35 +366,63 @@ export function LikedSongsProvider({
   ===================================== */
 
   const toggleLike =
-    async (song) => {
+    useCallback(
+      async (song) => {
 
-      if (
-        isLiked(song.id)
-      ) {
+        if (!song?.id) {
 
-        await unlikeSong(
-          song.id
-        );
+          return;
 
-      } else {
+        }
 
-        await likeSong(song);
 
-      }
+        if (
+          isLiked(
+            song.id
+          )
+        ) {
 
-    };
+          await unlikeSong(
+            song.id
+          );
 
+        } else {
+
+          await likeSong(
+            song
+          );
+
+        }
+
+      },
+      [
+        isLiked,
+        likeSong,
+        unlikeSong,
+      ]
+    );
+
+
+  /* =====================================
+     CONTEXT
+  ===================================== */
 
   return (
 
     <LikedSongsContext.Provider
       value={{
         likedSongs,
+
         loading,
 
+        syncing,
+
         isLiked,
+
         likeSong,
+
         unlikeSong,
+
         toggleLike,
 
         refreshLikedSongs:
@@ -252,6 +438,10 @@ export function LikedSongsProvider({
 
 }
 
+
+/* =====================================
+   HOOK
+===================================== */
 
 export function useLikedSongs() {
 

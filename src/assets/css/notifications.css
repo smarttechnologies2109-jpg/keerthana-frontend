@@ -1,0 +1,490 @@
+/* =====================================================
+   NOTIFICATIONS PAGE
+===================================================== */
+
+.notifications-page {
+  width: 100%;
+  min-height: 100%;
+
+  padding: 28px;
+
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.notifications-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 22px;
+}
+
+.notifications-header-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.notifications-header-icon {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #12372a;
+
+  color: #c9a45c;
+
+  font-size: 21px;
+}
+
+.notifications-header-title span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #888;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+}
+
+.notifications-header-title h1 {
+  margin: 0;
+
+  color: #12372a;
+
+  font-size: 30px;
+}
+
+.notifications-header-title p {
+  margin: 5px 0 0;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   HEADER ACTIONS
+===================================================== */
+
+.notifications-header-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.notifications-header-actions button {
+  min-height: 40px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dedede;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #12372a;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.notifications-header-actions button:hover {
+  background: #faf8f2;
+}
+
+.notifications-header-actions button:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+.notifications-summary {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 13px 16px;
+
+  margin-bottom: 15px;
+
+  border-radius: 11px;
+
+  background: #faf8f2;
+
+  color: #12372a;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   LIST
+===================================================== */
+
+.notifications-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+/* =====================================================
+   NOTIFICATION
+===================================================== */
+
+.notification-item {
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  padding: 16px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #ededed;
+
+  border-radius: 13px;
+
+  background: #ffffff;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.notification-item:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 20px rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+}
+
+.notification-item.unread {
+  border-color:
+    rgba(
+      18,
+      55,
+      42,
+      0.25
+    );
+
+  background:
+    rgba(
+      18,
+      55,
+      42,
+      0.025
+    );
+}
+
+
+/* =====================================================
+   ICON
+===================================================== */
+
+.notification-icon {
+  width: 44px;
+  height: 44px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #faf8f2;
+
+  color: #c9a45c;
+
+  font-size: 16px;
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.notification-content {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.notification-content strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #222;
+
+  font-size: 14px;
+}
+
+.notification-content p {
+  margin: 0;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+.notification-content small {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #999;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   UNREAD DOT
+===================================================== */
+
+.notification-unread-dot {
+  width: 9px;
+  height: 9px;
+
+  flex-shrink: 0;
+
+  margin-top: 7px;
+
+  border-radius: 50%;
+
+  background: #c9a45c;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.notifications-empty {
+  padding: 70px 20px;
+
+  text-align: center;
+}
+
+.notifications-empty-icon {
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: #faf8f2;
+
+  color: #c9a45c;
+
+  font-size: 25px;
+}
+
+.notifications-empty h2 {
+  margin: 0 0 7px;
+
+  color: #12372a;
+}
+
+.notifications-empty p {
+  margin: 0;
+
+  color: #888;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.notifications-loading {
+  min-height: 60vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.notifications-loading svg {
+  margin-bottom: 14px;
+
+  color: #c9a45c;
+
+  font-size: 30px;
+}
+
+.notifications-loading h2 {
+  margin: 0 0 7px;
+
+  color: #12372a;
+}
+
+.notifications-loading p {
+  margin: 0;
+
+  color: #888;
+}
+
+
+/* =====================================================
+   SPIN
+===================================================== */
+
+.notifications-spin {
+  animation:
+    notificationsSpin
+    1s linear infinite;
+}
+
+@keyframes notificationsSpin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 700px) {
+
+  .notifications-page {
+    padding: 18px;
+  }
+
+  .notifications-header {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .notifications-header-title {
+    align-items: flex-start;
+  }
+
+  .notifications-header-title h1 {
+    font-size: 25px;
+  }
+
+  .notifications-header-actions {
+    width: 100%;
+  }
+
+  .notifications-header-actions button {
+    flex: 1;
+  }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .notifications-page {
+    padding: 14px;
+  }
+
+  .notifications-header-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .notification-item {
+    padding: 13px;
+  }
+
+  .notification-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+}

@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   NavLink,
   useNavigate,
@@ -10,6 +11,8 @@ import {
   FaBookOpen,
   FaMusic,
   FaHeart,
+  FaBookmark,
+  FaRegBookmark,
   FaSignInAlt,
   FaSignOutAlt,
   FaCompactDisc,
@@ -21,26 +24,25 @@ import {
   FaListUl,
   FaRobot,
   FaChartBar,
+  FaDownload,
+  FaBell,
+  FaChevronRight,
 } from "react-icons/fa";
 
 import { useAuth } from "../context/AuthContext";
 
 import "../assets/css/sidebar.css";
 
-
 function Sidebar({
   isOpen,
   onToggle,
 }) {
-
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   const {
     user,
     logout,
   } = useAuth();
-
 
   /* =========================================================
      NAVIGATION CLASS
@@ -53,47 +55,45 @@ function Sidebar({
       isActive ? "active" : ""
     }`;
 
-
   /* =========================================================
      LOGOUT
   ========================================================= */
 
   const handleLogout = () => {
-
     logout();
 
     onToggle?.();
 
-    navigate(
-      "/login",
-      {
-        replace: true,
-      }
-    );
-
+    navigate("/login", {
+      replace: true,
+    });
   };
-
 
   /* =========================================================
      MOBILE NAVIGATION
   ========================================================= */
 
   const handleNavigation = () => {
-
-    if (
-      window.innerWidth <= 700
-    ) {
-
+    if (window.innerWidth <= 700) {
       onToggle?.();
-
     }
-
   };
 
+  /* =========================================================
+     PROFILE
+  ========================================================= */
+
+  const handleProfile = () => {
+    navigate("/profile");
+    handleNavigation();
+  };
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <>
-
       {/* =====================================================
           MOBILE OVERLAY
       ===================================================== */}
@@ -108,7 +108,6 @@ function Sidebar({
         aria-hidden="true"
       />
 
-
       {/* =====================================================
           SIDEBAR
       ===================================================== */}
@@ -121,9 +120,8 @@ function Sidebar({
         }`}
       >
 
-
         {/* ===================================================
-            MOBILE CLOSE BUTTON
+            MOBILE CLOSE
         =================================================== */}
 
         <button
@@ -131,10 +129,9 @@ function Sidebar({
           className="sidebar-mobile-close"
           onClick={onToggle}
           aria-label="Close menu"
+          title="Close menu"
         >
-
           <FaTimes />
-
         </button>
 
 
@@ -142,12 +139,19 @@ function Sidebar({
             BRAND
         =================================================== */}
 
-        <div className="sidebar-brand">
+        <button
+          type="button"
+          className="sidebar-brand"
+          onClick={() => {
+            navigate("/home");
+            handleNavigation();
+          }}
+          aria-label="Go to home"
+        >
 
           <div className="sidebar-brand-logo">
-            ♪
+            <FaMusic />
           </div>
-
 
           <div className="sidebar-brand-text">
 
@@ -161,7 +165,7 @@ function Sidebar({
 
           </div>
 
-        </div>
+        </button>
 
 
         {/* ===================================================
@@ -175,26 +179,23 @@ function Sidebar({
               EXPLORE
           ================================================= */}
 
-          <div className="sidebar-section">
+          <section className="sidebar-section">
 
-            <div className="sidebar-section-title">
-              EXPLORE
+            <div className="sidebar-section-heading">
+              <span>
+                EXPLORE
+              </span>
             </div>
 
 
             <nav className="sidebar-nav">
 
-
-              {/* =================================================
-                  HOME
-              ================================================= */}
+              {/* HOME */}
 
               <NavLink
                 to="/"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -205,19 +206,38 @@ function Sidebar({
                   Home
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  SEARCH
-              ================================================= */}
+              {/* ALL SONGS */}
+
+              <NavLink
+                to="/songs"
+                className={navClass}
+                onClick={handleNavigation}
+              >
+
+                <span className="sidebar-icon">
+                  <FaMusic />
+                </span>
+
+                <span className="sidebar-label">
+                  All Songs
+                </span>
+
+                <FaChevronRight className="sidebar-item-arrow" />
+
+              </NavLink>
+
+
+              {/* SEARCH */}
 
               <NavLink
                 to="/search"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -228,19 +248,17 @@ function Sidebar({
                   Search
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  YOUR LIBRARY
-              ================================================= */}
+              {/* LIBRARY */}
 
               <NavLink
                 to="/library"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -251,19 +269,17 @@ function Sidebar({
                   Your Library
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  ARTISTS
-              ================================================= */}
+              {/* ARTISTS */}
 
               <NavLink
                 to="/artists"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -274,19 +290,17 @@ function Sidebar({
                   Artists
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  ALBUMS
-              ================================================= */}
+              {/* ALBUMS */}
 
               <NavLink
                 to="/albums"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -297,19 +311,17 @@ function Sidebar({
                   Albums
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  MINISTRIES
-              ================================================= */}
+              {/* MINISTRIES */}
 
               <NavLink
                 to="/ministries"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -320,19 +332,17 @@ function Sidebar({
                   Ministries
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  MOOD PLAYLISTS
-              ================================================= */}
+              {/* MOOD PLAYLISTS */}
 
               <NavLink
                 to="/mood-playlists"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -343,41 +353,40 @@ function Sidebar({
                   Mood Playlists
                 </span>
 
-              </NavLink>
+                <FaChevronRight className="sidebar-item-arrow" />
 
+              </NavLink>
 
             </nav>
 
-          </div>
+          </section>
 
 
           {/* =================================================
               YOUR MUSIC
           ================================================= */}
 
-          <div className="sidebar-section">
+          <section className="sidebar-section">
 
-            <div className="sidebar-section-title">
-              YOUR MUSIC
+            <div className="sidebar-section-heading">
+              <span>
+                YOUR MUSIC
+              </span>
             </div>
 
 
             <nav className="sidebar-nav">
 
 
-              {/* =================================================
-                  LIKED SONGS
-              ================================================= */}
+              {/* LIKED SONGS */}
 
               <NavLink
                 to="/liked-songs"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
-                <span className="sidebar-icon">
+                <span className="sidebar-icon sidebar-heart-icon">
                   <FaHeart />
                 </span>
 
@@ -385,19 +394,59 @@ function Sidebar({
                   Liked Songs
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  PLAYLISTS
-              ================================================= */}
+              {/* FAVORITES */}
+
+              <NavLink
+                to="/favorites"
+                className={navClass}
+                onClick={handleNavigation}
+              >
+
+                <span className="sidebar-icon sidebar-favorite-icon">
+                  <FaBookmark />
+                </span>
+
+                <span className="sidebar-label">
+                  Favorites
+                </span>
+
+                <FaChevronRight className="sidebar-item-arrow" />
+
+              </NavLink>
+
+
+              {/* DOWNLOADS */}
+
+              <NavLink
+                to="/downloads"
+                className={navClass}
+                onClick={handleNavigation}
+              >
+
+                <span className="sidebar-icon">
+                  <FaDownload />
+                </span>
+
+                <span className="sidebar-label">
+                  Downloads
+                </span>
+
+                <FaChevronRight className="sidebar-item-arrow" />
+
+              </NavLink>
+
+
+              {/* PLAYLISTS */}
 
               <NavLink
                 to="/playlists"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -408,19 +457,17 @@ function Sidebar({
                   Playlists
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  LISTENING HISTORY
-              ================================================= */}
+              {/* HISTORY */}
 
               <NavLink
                 to="/history"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -431,19 +478,17 @@ function Sidebar({
                   Listening History
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  LISTENING STATISTICS
-              ================================================= */}
+              {/* STATISTICS */}
 
               <NavLink
                 to="/statistics"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -454,19 +499,38 @@ function Sidebar({
                   Statistics
                 </span>
 
+                <FaChevronRight className="sidebar-item-arrow" />
+
               </NavLink>
 
 
-              {/* =================================================
-                  KEERTHANA AI
-              ================================================= */}
+              {/* NOTIFICATIONS */}
+
+              <NavLink
+                to="/notifications"
+                className={navClass}
+                onClick={handleNavigation}
+              >
+
+                <span className="sidebar-icon">
+                  <FaBell />
+                </span>
+
+                <span className="sidebar-label">
+                  Notifications
+                </span>
+
+                <FaChevronRight className="sidebar-item-arrow" />
+
+              </NavLink>
+
+
+              {/* KEERTHANA AI */}
 
               <NavLink
                 to="/keerthana-ai"
                 className={navClass}
-                onClick={
-                  handleNavigation
-                }
+                onClick={handleNavigation}
               >
 
                 <span className="sidebar-icon">
@@ -477,13 +541,13 @@ function Sidebar({
                   Keerthana AI
                 </span>
 
-              </NavLink>
+                <FaChevronRight className="sidebar-item-arrow" />
 
+              </NavLink>
 
             </nav>
 
-          </div>
-
+          </section>
 
         </div>
 
@@ -502,15 +566,12 @@ function Sidebar({
           <NavLink
             to="/premium"
             className="sidebar-premium"
-            onClick={
-              handleNavigation
-            }
+            onClick={handleNavigation}
           >
 
             <div className="premium-icon">
               <FaCrown />
             </div>
-
 
             <div className="premium-text">
 
@@ -524,6 +585,8 @@ function Sidebar({
 
             </div>
 
+            <FaChevronRight className="premium-arrow" />
+
           </NavLink>
 
 
@@ -532,26 +595,14 @@ function Sidebar({
           ================================================= */}
 
           {user ? (
-
             <>
 
-
-              {/* =================================================
-                  PROFILE
-              ================================================= */}
+              {/* PROFILE */}
 
               <button
                 type="button"
                 className="sidebar-user-card"
-                onClick={() => {
-
-                  navigate(
-                    "/profile"
-                  );
-
-                  handleNavigation();
-
-                }}
+                onClick={handleProfile}
               >
 
                 <div className="sidebar-user-avatar">
@@ -564,12 +615,10 @@ function Sidebar({
 
                 </div>
 
-
                 <div className="sidebar-user-info">
 
                   <strong>
-                    {user?.name ||
-                      "User"}
+                    {user?.name || "User"}
                   </strong>
 
                   <span>
@@ -578,19 +627,17 @@ function Sidebar({
 
                 </div>
 
+                <FaChevronRight className="sidebar-user-arrow" />
+
               </button>
 
 
-              {/* =================================================
-                  LOGOUT
-              ================================================= */}
+              {/* LOGOUT */}
 
               <button
                 type="button"
                 className="sidebar-logout"
-                onClick={
-                  handleLogout
-                }
+                onClick={handleLogout}
               >
 
                 <FaSignOutAlt />
@@ -601,21 +648,15 @@ function Sidebar({
 
               </button>
 
-
             </>
-
           ) : (
 
-            /* =================================================
-                LOGIN
-            ================================================= */
+            /* LOGIN */
 
             <NavLink
               to="/login"
               className="sidebar-login"
-              onClick={
-                handleNavigation
-              }
+              onClick={handleNavigation}
             >
 
               <FaSignInAlt />
@@ -629,30 +670,21 @@ function Sidebar({
           )}
 
 
-          {/* =================================================
-              FOOTER
-          ================================================= */}
+          {/* FOOTER */}
 
           <div className="sidebar-footer">
 
             <span>
-              ©{" "}
-              {new Date().getFullYear()}{" "}
-              KEERTHANA
+              © {new Date().getFullYear()} KEERTHANA
             </span>
 
           </div>
 
-
         </div>
 
-
       </aside>
-
     </>
   );
-
 }
-
 
 export default Sidebar;

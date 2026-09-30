@@ -1,6 +1,7 @@
 import {
   FaPlay,
   FaPause,
+  FaPlus,
 } from "react-icons/fa";
 
 import {
@@ -9,7 +10,7 @@ import {
 
 import {
   usePlayer,
-} from "../context/PlayerContext";
+} from "../context/usePlayer";
 
 import {
   getSongCover,
@@ -42,6 +43,7 @@ function SongCard({
     isPlaying,
     playSong,
     togglePlay,
+    addToQueue,
   } = usePlayer();
 
 
@@ -64,11 +66,24 @@ function SongCard({
 
 
   /* =====================================================
+     CHECK IF ALREADY IN QUEUE
+  ===================================================== */
+
+  const isInQueue =
+    Array.isArray(queue) &&
+    queue.some(
+      (item) =>
+        Number(item?.id) ===
+        Number(song.id)
+    );
+
+
+  /* =====================================================
      COVER IMAGE
   ===================================================== */
 
-const cover =
-  getSongCover(song);
+  const cover =
+    getSongCover(song);
 
 
   /* =====================================================
@@ -103,6 +118,29 @@ const cover =
         queue,
         startTime
       );
+
+    };
+
+
+  /* =====================================================
+     ADD TO QUEUE
+  ===================================================== */
+
+  const handleAddToQueue =
+    (event) => {
+
+      event.stopPropagation();
+
+
+      if (
+        !addToQueue ||
+        isInQueue
+      ) {
+        return;
+      }
+
+
+      addToQueue(song);
 
     };
 
@@ -197,38 +235,42 @@ const cover =
     >
 
 
-      {/* COVER */}
+      {/* =================================================
+          COVER
+      ================================================= */}
 
       <div className="song-card-cover">
 
-       <img
-  src={cover}
+        <img
+          src={cover}
 
-  alt={
-    song.title ||
-    "Song cover"
-  }
+          alt={
+            song.title ||
+            "Song cover"
+          }
 
-  loading="lazy"
+          loading="lazy"
 
-  onError={(event) => {
+          onError={(event) => {
 
-    if (
-      !event.currentTarget.src.includes(
-        "default-cover.png"
-      )
-    ) {
+            if (
+              !event.currentTarget.src.includes(
+                "default-cover.png"
+              )
+            ) {
 
-      event.currentTarget.src =
-        DEFAULT_COVER;
+              event.currentTarget.src =
+                DEFAULT_COVER;
 
-    }
+            }
 
-  }}
-/>
+          }}
+        />
 
 
-        {/* OVERLAY */}
+        {/* =================================================
+            OVERLAY
+        ================================================= */}
 
         <div className="song-card-overlay">
 
@@ -260,10 +302,47 @@ const cover =
 
           </button>
 
+
+          {/* =================================================
+              ADD TO QUEUE
+          ================================================= */}
+
+          <button
+            type="button"
+
+            className={
+              isInQueue
+                ? "song-card-queue added"
+                : "song-card-queue"
+            }
+
+            onClick={handleAddToQueue}
+
+            disabled={isInQueue}
+
+            aria-label={
+              isInQueue
+                ? `${song.title} is already in queue`
+                : `Add ${song.title} to queue`
+            }
+
+            title={
+              isInQueue
+                ? "Already in queue"
+                : "Add to queue"
+            }
+          >
+
+            <FaPlus />
+
+          </button>
+
         </div>
 
 
-        {/* PLAYING INDICATOR */}
+        {/* =================================================
+            PLAYING INDICATOR
+        ================================================= */}
 
         {isCurrentSong &&
           isPlaying && (
@@ -282,7 +361,9 @@ const cover =
       </div>
 
 
-      {/* SONG CONTENT */}
+      {/* =================================================
+          SONG CONTENT
+      ================================================= */}
 
       <div className="song-card-content">
 
@@ -337,7 +418,9 @@ const cover =
         )}
 
 
-        {/* CONTINUE LISTENING */}
+        {/* =================================================
+            CONTINUE LISTENING
+        ================================================= */}
 
         {resume &&
           songDuration > 0 && (

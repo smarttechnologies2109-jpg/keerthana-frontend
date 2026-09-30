@@ -1,6 +1,5 @@
 /* =========================================================
    KEERTHANA — PREMIUM SONG CARD
-
    Deep Navy + Gold + Teal
 ========================================================= */
 
@@ -11,12 +10,9 @@
 
 .song-card-component {
   position: relative;
-
   width: 100%;
   min-width: 0;
-
   padding: 9px;
-
   overflow: hidden;
 
   border:
@@ -127,6 +123,7 @@
   box-shadow:
     0 12px 35px
     rgba(0, 0, 0, 0.25),
+
     inset
     0 1px 0
     rgba(215, 181, 109, 0.05);
@@ -230,7 +227,7 @@
 
 
 /* =========================================================
-   PLAY OVERLAY
+   BUTTON OVERLAY
 ========================================================= */
 
 .song-card-overlay {
@@ -241,8 +238,12 @@
   z-index: 3;
 
   display: flex;
+
   align-items: flex-end;
+
   justify-content: flex-end;
+
+  gap: 8px;
 
   padding: 11px;
 
@@ -251,15 +252,20 @@
 
 
 /* =========================================================
-   PLAY BUTTON
+   COMMON CARD BUTTON
 ========================================================= */
 
-.song-card-play {
+.song-card-play,
+.song-card-queue {
   width: 43px;
   height: 43px;
 
+  flex-shrink: 0;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   padding: 0;
@@ -272,6 +278,34 @@
 
   outline: none;
 
+  font-size: 13px;
+
+  box-shadow:
+    0 9px 28px
+    rgba(0, 0, 0, 0.4),
+
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.35);
+
+  pointer-events: auto;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+.song-card-play {
   background:
     linear-gradient(
       145deg,
@@ -282,36 +316,81 @@
 
   color: #081116;
 
-  font-size: 13px;
-
-  box-shadow:
-    0 9px 28px
-    rgba(0, 0, 0, 0.4),
-    0 5px 20px
-    rgba(215, 181, 109, 0.18),
-    inset
-    0 1px 0
-    rgba(255, 255, 255, 0.35);
-
   opacity: 0;
-
-  pointer-events: auto;
 
   transform:
     translateY(9px)
     scale(0.9);
-
-  cursor: pointer;
-
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
 
-/* FaPlay optical correction */
+/* =========================================================
+   QUEUE BUTTON
+========================================================= */
+
+.song-card-queue {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(34, 71, 75, 0.96),
+      rgba(22, 48, 53, 0.96)
+    );
+
+  color: #e9cc8a;
+
+  border-color:
+    rgba(85, 184, 174, 0.22);
+
+  opacity: 0;
+
+  transform:
+    translateY(9px)
+    scale(0.9);
+}
+
+
+/* =========================================================
+   QUEUE ICON
+========================================================= */
+
+.song-card-queue svg {
+  width: 11px;
+  height: 11px;
+}
+
+
+/* =========================================================
+   SHOW BUTTONS
+========================================================= */
+
+.song-card-component:hover
+.song-card-play,
+
+.song-card-component:focus-within
+.song-card-play,
+
+.song-card-component.playing
+.song-card-play,
+
+.song-card-component:hover
+.song-card-queue,
+
+.song-card-component:focus-within
+.song-card-queue,
+
+.song-card-component.playing
+.song-card-queue {
+  opacity: 1;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+/* =========================================================
+   PLAY ICON
+========================================================= */
 
 .song-card-play svg {
   width: 12px;
@@ -321,24 +400,6 @@
 
 .song-card-play svg:not(:only-child) {
   margin-left: 0;
-}
-
-
-/* =========================================================
-   SHOW PLAY
-========================================================= */
-
-.song-card-component:hover
-.song-card-play,
-.song-card-component:focus-within
-.song-card-play,
-.song-card-component.playing
-.song-card-play {
-  opacity: 1;
-
-  transform:
-    translateY(0)
-    scale(1);
 }
 
 
@@ -360,6 +421,7 @@
   box-shadow:
     0 12px 32px
     rgba(0, 0, 0, 0.45),
+
     0 7px 25px
     rgba(215, 181, 109, 0.28);
 }
@@ -368,6 +430,92 @@
 .song-card-play:active {
   transform:
     scale(0.95) !important;
+}
+
+
+/* =========================================================
+   QUEUE HOVER
+========================================================= */
+
+.song-card-queue:hover {
+  background:
+    linear-gradient(
+      145deg,
+      #319c91,
+      #236f68
+    );
+
+  color: #ffffff;
+
+  border-color:
+    rgba(255, 255, 255, 0.22);
+
+  transform:
+    scale(1.08) !important;
+
+  box-shadow:
+    0 12px 32px
+    rgba(0, 0, 0, 0.45),
+
+    0 7px 25px
+    rgba(49, 156, 145, 0.25);
+}
+
+
+.song-card-queue:active {
+  transform:
+    scale(0.95) !important;
+}
+
+
+/* =========================================================
+   QUEUE — ALREADY ADDED
+========================================================= */
+
+.song-card-queue.added {
+  background:
+    linear-gradient(
+      145deg,
+      #d7b56d,
+      #b58d45
+    );
+
+  color: #081116;
+
+  border-color:
+    rgba(255, 255, 255, 0.2);
+
+  opacity: 1;
+
+  cursor: default;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+.song-card-queue.added:hover {
+  background:
+    linear-gradient(
+      145deg,
+      #d7b56d,
+      #b58d45
+    );
+
+  color: #081116;
+
+  transform:
+    translateY(0)
+    scale(1) !important;
+
+  box-shadow:
+    0 9px 28px
+    rgba(0, 0, 0, 0.4),
+
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.35);
 }
 
 
@@ -386,6 +534,7 @@
   height: 24px;
 
   display: flex;
+
   align-items: flex-end;
 
   gap: 2px;
@@ -408,6 +557,7 @@
     rgba(0, 0, 0, 0.25);
 
   backdrop-filter: blur(10px);
+
   -webkit-backdrop-filter: blur(10px);
 }
 
@@ -441,7 +591,6 @@
 .song-playing-indicator
 span:nth-child(1) {
   height: 7px;
-
   animation-delay: 0s;
 }
 
@@ -449,7 +598,6 @@ span:nth-child(1) {
 .song-playing-indicator
 span:nth-child(2) {
   height: 13px;
-
   animation-delay: 0.15s;
 }
 
@@ -457,7 +605,6 @@ span:nth-child(2) {
 .song-playing-indicator
 span:nth-child(3) {
   height: 9px;
-
   animation-delay: 0.3s;
 }
 
@@ -465,7 +612,6 @@ span:nth-child(3) {
 .song-playing-indicator
 span:nth-child(4) {
   height: 15px;
-
   animation-delay: 0.45s;
 }
 
@@ -518,11 +664,13 @@ span:nth-child(4) {
     sans-serif;
 
   font-size: 12px;
+
   font-weight: 700;
 
   line-height: 1.45;
 
   white-space: nowrap;
+
   text-overflow: ellipsis;
 
   transition:
@@ -559,11 +707,13 @@ span:nth-child(4) {
   color: #6d8086;
 
   font-size: 8.5px;
+
   font-weight: 500;
 
   line-height: 1.4;
 
   white-space: nowrap;
+
   text-overflow: ellipsis;
 }
 
@@ -585,11 +735,13 @@ span:nth-child(4) {
   color: #87989d;
 
   font-size: 9px;
+
   font-weight: 500;
 
   line-height: 1.35;
 
   white-space: nowrap;
+
   text-overflow: ellipsis;
 
   transition:
@@ -609,6 +761,7 @@ span:nth-child(4) {
 
 .song-card-category {
   width: fit-content;
+
   max-width: 100%;
 
   display: block;
@@ -633,6 +786,7 @@ span:nth-child(4) {
   color: #55b8ae;
 
   font-size: 7px;
+
   font-weight: 700;
 
   line-height: 1;
@@ -640,6 +794,7 @@ span:nth-child(4) {
   letter-spacing: 0.35px;
 
   white-space: nowrap;
+
   text-overflow: ellipsis;
 }
 
@@ -677,6 +832,7 @@ span:nth-child(4) {
   position: relative;
 
   width: 100%;
+
   height: 3px;
 
   overflow: hidden;
@@ -726,6 +882,7 @@ span:nth-child(4) {
   color: #60757b;
 
   font-size: 7px;
+
   font-weight: 550;
 
   text-align: right;
@@ -748,7 +905,8 @@ span:nth-child(4) {
 }
 
 
-.song-card-play:focus-visible {
+.song-card-play:focus-visible,
+.song-card-queue:focus-visible {
   outline:
     2px solid
     #ffffff;
@@ -765,7 +923,6 @@ span:nth-child(4) {
 
   .song-card-component {
     padding: 10px;
-
     border-radius: 17px;
   }
 
@@ -790,7 +947,6 @@ span:nth-child(4) {
 
   .song-card-component {
     padding: 8px;
-
     border-radius: 14px;
   }
 
@@ -800,7 +956,8 @@ span:nth-child(4) {
   }
 
 
-  .song-card-play {
+  .song-card-play,
+  .song-card-queue {
     width: 40px;
     height: 40px;
   }
@@ -827,7 +984,8 @@ span:nth-child(4) {
 
 @media (max-width: 900px) {
 
-  .song-card-play {
+  .song-card-play,
+  .song-card-queue {
     width: 38px;
     height: 38px;
 
@@ -881,12 +1039,12 @@ span:nth-child(4) {
   .song-card-component:hover
   .song-card-cover img {
     transform: none;
-
     filter: none;
   }
 
 
-  .song-card-play {
+  .song-card-play,
+  .song-card-queue {
     width: 37px;
     height: 37px;
 
@@ -900,6 +1058,8 @@ span:nth-child(4) {
 
   .song-card-overlay {
     padding: 8px;
+
+    gap: 6px;
   }
 
 
@@ -929,7 +1089,6 @@ span:nth-child(4) {
 
   .song-card-artist {
     margin-top: 5px;
-
     font-size: 8px;
   }
 
@@ -963,11 +1122,24 @@ span:nth-child(4) {
   }
 
 
-  .song-card-play {
+  .song-card-play,
+  .song-card-queue {
     width: 34px;
     height: 34px;
 
     font-size: 11px;
+  }
+
+
+  .song-card-queue svg {
+    width: 9px;
+    height: 9px;
+  }
+
+
+  .song-card-overlay {
+    gap: 5px;
+    padding: 7px;
   }
 
 
@@ -985,13 +1157,13 @@ span:nth-child(4) {
 
 /* =========================================================
    TOUCH DEVICES
-
-   Always expose play button because there is no hover.
+   Always expose buttons because there is no hover.
 ========================================================= */
 
 @media (hover: none) {
 
-  .song-card-play {
+  .song-card-play,
+  .song-card-queue {
     opacity: 1;
 
     transform:
@@ -1010,7 +1182,8 @@ span:nth-child(4) {
 
   .song-card-component,
   .song-card-cover img,
-  .song-card-play {
+  .song-card-play,
+  .song-card-queue {
     transition: none;
   }
 

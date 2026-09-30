@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState,
@@ -6,6 +7,7 @@ import {
 import {
   FaArrowLeft,
   FaCompactDisc,
+  FaPause,
   FaPlay,
 } from "react-icons/fa";
 
@@ -19,7 +21,7 @@ import API
 
 import {
   usePlayer,
-} from "../context/PlayerContext";
+} from "../context/usePlayer";
 
 import {
   getAlbumCover,
@@ -39,6 +41,9 @@ function AlbumDetails() {
 
   const {
     playSong,
+    togglePlay,
+    currentSong,
+    isPlaying,
   } = usePlayer();
 
 
@@ -52,12 +57,19 @@ function AlbumDetails() {
     useState("");
 
 
+  /* =========================================================
+     LOAD ALBUM
+  ========================================================= */
+
   useEffect(() => {
 
     const loadAlbum =
       async () => {
 
         try {
+
+          setLoading(true);
+          setError("");
 
           const response =
             await API.get(
@@ -94,6 +106,10 @@ function AlbumDetails() {
   }, [id]);
 
 
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
   if (loading) {
 
     return (
@@ -105,6 +121,10 @@ function AlbumDetails() {
   }
 
 
+  /* =========================================================
+     ERROR
+  ========================================================= */
+
   if (
     error ||
     !album
@@ -112,29 +132,158 @@ function AlbumDetails() {
 
     return (
       <div className="album-page">
-        {error}
+
+        <button
+          type="button"
+          className="album-back"
+          onClick={() =>
+            navigate("/albums")
+          }
+        >
+          <FaArrowLeft />
+          Back
+        </button>
+
+        <p>
+          {error}
+        </p>
+
       </div>
     );
 
   }
 
 
- const cover =
-  getAlbumCover(album);
+  /* =========================================================
+     ALBUM COVER
+  ========================================================= */
+
+  const cover =
+    getAlbumCover(album);
 
 
-  const playAlbum = () => {
+  /* =========================================================
+     CHECK WHETHER CURRENT SONG
+     BELONGS TO THIS ALBUM
+  ========================================================= */
 
-    if (!album.songs?.length) {
-      return;
-    }
+  const isAlbumSong =
+    (song) =>
+      album.songs?.some(
+        (albumSong) =>
+          albumSong.id ===
+          song?.id
+      );
 
-    playSong(
-      album.songs[0],
-      album.songs
+
+  /* =========================================================
+     ALBUM PLAY / PAUSE
+  ========================================================= */
+
+  const handleAlbumPlayPause =
+    async () => {
+
+      if (
+        !album.songs?.length
+      ) {
+        return;
+      }
+
+
+      /*
+        Check whether the global
+        current song belongs to
+        this album.
+      */
+
+      const currentBelongsToAlbum =
+        currentSong &&
+        isAlbumSong(
+          currentSong
+        );
+
+
+      /*
+        Same album is currently
+        playing -> pause.
+      */
+
+      if (
+        currentBelongsToAlbum
+      ) {
+
+        await togglePlay();
+
+        return;
+      }
+
+
+      /*
+        Another song is playing,
+        or nothing is playing.
+
+        Start the first song
+        from this album.
+      */
+
+      await playSong(
+        album.songs[0],
+        album.songs
+      );
+
+    };
+
+
+  /* =========================================================
+     SONG PLAY / PAUSE
+  ========================================================= */
+
+  const handleSongPlayPause =
+    async (
+      song
+    ) => {
+
+      /*
+        If this exact song is
+        currently loaded, toggle
+        play/pause.
+      */
+
+      if (
+        currentSong?.id ===
+        song.id
+      ) {
+
+        await togglePlay();
+
+        return;
+      }
+
+
+      /*
+        Different song -> play it.
+      */
+
+      await playSong(
+        song,
+        album.songs
+      );
+
+    };
+
+
+  /* =========================================================
+     ALBUM BUTTON STATE
+  ========================================================= */
+
+  const albumIsPlaying =
+    Boolean(
+      currentSong &&
+      isPlaying &&
+      isAlbumSong(
+        currentSong
+      )
     );
-
-  };
 
 
   return (
@@ -142,11 +291,13 @@ function AlbumDetails() {
     <div className="album-page">
 
 
+      {/* =====================================================
+          BACK
+      ===================================================== */}
+
       <button
         type="button"
-
         className="album-back"
-
         onClick={() =>
           navigate(-1)
         }
@@ -159,35 +310,37 @@ function AlbumDetails() {
       </button>
 
 
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+
       <section className="album-hero">
 
         <div className="album-cover">
 
           {cover ? (
 
-           <img
-  src={cover}
+            <img
+              src={cover}
+              alt={
+                album.title ||
+                "Album cover"
+              }
+              onError={(event) => {
 
-  alt={
-    album.title ||
-    "Album cover"
-  }
+                if (
+                  !event.currentTarget.src.includes(
+                    "default-cover.png"
+                  )
+                ) {
 
-  onError={(event) => {
+                  event.currentTarget.src =
+                    DEFAULT_COVER;
 
-    if (
-      !event.currentTarget.src.includes(
-        "default-cover.png"
-      )
-    ) {
+                }
 
-      event.currentTarget.src =
-        DEFAULT_COVER;
-
-    }
-
-  }}
-/>
+              }}
+            />
 
           ) : (
 
@@ -204,6 +357,7 @@ function AlbumDetails() {
             ALBUM
           </span>
 
+
           <h1>
             {album.title}
           </h1>
@@ -211,12 +365,12 @@ function AlbumDetails() {
 
           <button
             type="button"
-
             className="album-artist-link"
-
             onClick={() => {
 
-              if (album.artist_id) {
+              if (
+                album.artist_id
+              ) {
 
                 navigate(
                   `/artists/${album.artist_id}`
@@ -234,13 +388,17 @@ function AlbumDetails() {
 
 
           <p>
+
             {album.song_count}
+
             {" "}
+
             {
               album.song_count === 1
                 ? "song"
                 : "songs"
             }
+
           </p>
 
         </div>
@@ -248,80 +406,137 @@ function AlbumDetails() {
       </section>
 
 
+      {/* =====================================================
+          ALBUM PLAY / PAUSE
+      ===================================================== */}
+
       <div className="album-actions">
 
         <button
           type="button"
-
-          onClick={playAlbum}
-
+          onClick={
+            handleAlbumPlayPause
+          }
           disabled={
             !album.songs?.length
           }
+          aria-label={
+            albumIsPlaying
+              ? "Pause album"
+              : "Play album"
+          }
         >
 
-          <FaPlay />
+          {albumIsPlaying ? (
+            <FaPause />
+          ) : (
+            <FaPlay />
+          )}
 
         </button>
 
       </div>
 
 
+      {/* =====================================================
+          SONG LIST
+      ===================================================== */}
+
       <div className="album-song-list">
 
         {album.songs?.map(
-          (song, index) => (
+          (
+            song,
+            index
+          ) => {
 
-            <div
-              className="album-song-row"
-              key={song.id}
-            >
-
-              <span>
-                {index + 1}
-              </span>
+            const songIsCurrent =
+              currentSong?.id ===
+              song.id;
 
 
-              <div>
+            const songIsPlaying =
+              songIsCurrent &&
+              isPlaying;
 
-                <strong>
-                  {song.title}
-                </strong>
+
+            return (
+
+              <div
+                className={
+                  `album-song-row ${
+                    songIsCurrent
+                      ? "is-current"
+                      : ""
+                  }`
+                }
+                key={song.id}
+              >
+
+                {/* NUMBER */}
 
                 <span>
-                  {song.artist_name ||
-                    album.artist_name}
+                  {index + 1}
                 </span>
+
+
+                {/* SONG INFORMATION */}
+
+                <div>
+
+                  <strong>
+                    {song.title}
+                  </strong>
+
+                  <span>
+                    {song.artist_name ||
+                      album.artist_name}
+                  </span>
+
+                </div>
+
+
+                {/* CATEGORY */}
+
+                <span
+                  className="album-category"
+                >
+
+                  {song.category_name ||
+                    "Christian Music"}
+
+                </span>
+
+
+                {/* PLAY / PAUSE */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleSongPlayPause(
+                      song
+                    )
+                  }
+                  aria-label={
+                    songIsPlaying
+                      ? "Pause song"
+                      : "Play song"
+                  }
+                >
+
+                  {songIsPlaying ? (
+                    <FaPause />
+                  ) : (
+                    <FaPlay />
+                  )}
+
+                </button>
 
               </div>
 
+            );
 
-              <span className="album-category">
-
-                {song.category_name ||
-                  "Christian Music"}
-
-              </span>
-
-
-              <button
-                type="button"
-
-                onClick={() =>
-                  playSong(
-                    song,
-                    album.songs
-                  )
-                }
-              >
-
-                <FaPlay />
-
-              </button>
-
-            </div>
-
-          )
+          }
         )}
 
       </div>
@@ -335,3 +550,4 @@ function AlbumDetails() {
 
 
 export default AlbumDetails;
+

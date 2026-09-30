@@ -7,6 +7,7 @@ import {
   FaClock,
   FaHistory,
   FaPlay,
+  FaPause,
   FaTrash,
 } from "react-icons/fa";
 
@@ -14,7 +15,7 @@ import API from "../services/api";
 
 import {
   usePlayer,
-} from "../context/PlayerContext";
+} from "../context/usePlayer";
 
 import {
   getMediaUrl,
@@ -27,21 +28,15 @@ import "../assets/css/history.css";
    FORMAT DATE
 ========================================================= */
 
-function formatPlayedDate(
-  dateValue
-) {
+function formatPlayedDate(dateValue) {
 
   if (!dateValue) {
-
     return "";
-
   }
 
 
   const date =
-    new Date(
-      dateValue
-    );
+    new Date(dateValue);
 
 
   if (
@@ -49,20 +44,15 @@ function formatPlayedDate(
       date.getTime()
     )
   ) {
-
     return "";
-
   }
 
 
   return date.toLocaleString(
     undefined,
     {
-      dateStyle:
-        "medium",
-
-      timeStyle:
-        "short",
+      dateStyle: "medium",
+      timeStyle: "short",
     }
   );
 
@@ -81,7 +71,10 @@ function History() {
   ======================================================= */
 
   const {
+    currentSong,
+    isPlaying,
     playSong,
+    togglePlay,
   } = usePlayer();
 
 
@@ -92,285 +85,297 @@ function History() {
   const [
     history,
     setHistory,
-  ] =
-    useState([]);
+  ] = useState([]);
 
 
   const [
     loading,
     setLoading,
-  ] =
-    useState(true);
+  ] = useState(true);
 
 
   const [
     error,
     setError,
-  ] =
-    useState("");
+  ] = useState("");
 
 
   const [
     clearingHistory,
     setClearingHistory,
-  ] =
-    useState(false);
+  ] = useState(false);
 
 
   /* =======================================================
      LOAD HISTORY
   ======================================================= */
 
-  useEffect(
-    () => {
+  useEffect(() => {
 
-      let active =
-        true;
+    let active = true;
 
 
-      const loadHistory =
-        async () => {
+    const loadHistory =
+      async () => {
 
-          try {
+        try {
 
-            setLoading(
-              true
+          setLoading(true);
+
+          setError("");
+
+
+          const response =
+            await API.get(
+              "/history"
             );
 
 
-            setError(
-              ""
-            );
+          /*
+            Supported response shapes:
+
+            {
+              history: [...]
+            }
+
+            OR
+
+            {
+              songs: [...]
+            }
+
+            OR
+
+            {
+              recently_played: [...]
+            }
+          */
+
+          const historyData =
+            response.data?.history ||
+            response.data?.songs ||
+            response.data?.recently_played ||
+            [];
 
 
-            const response =
-              await API.get(
-                "/history"
-              );
+          /* =================================================
+             NORMALIZE HISTORY
+          ================================================= */
 
+          const normalized =
+            historyData
+              .map((item) => {
 
-            /*
-              Supported response shapes:
+                /*
+                  Some APIs return:
 
-              {
-                history: [...]
-              }
-
-              OR
-
-              {
-                songs: [...]
-              }
-
-              OR
-
-              {
-                recently_played: [...]
-              }
-            */
-
-            const historyData =
-              response.data.history ||
-              response.data.songs ||
-              response.data.recently_played ||
-              [];
-
-
-            /* ===============================================
-               NORMALIZE HISTORY
-            =============================================== */
-
-            const normalized =
-              historyData
-
-                .map(
-                  (
-                    item
-                  ) => {
-
-                    /*
-                      Some APIs return:
-
-                      {
-                        played_at: "...",
-
-                        song: {
-                          id: 1,
-                          title: "..."
-                        }
-                      }
-                    */
-
-                    if (
-                      item?.song &&
-                      typeof item.song ===
-                        "object"
-                    ) {
-
-                      return {
-
-                        ...item.song,
-
-
-                        /*
-                          Preserve history information
-                          outside the song object.
-                        */
-
-                        history_id:
-                          item.history_id ||
-                          item.id ||
-                          item.song.history_id ||
-                          null,
-
-
-                        progress_seconds:
-                          item.progress_seconds ??
-                          item.song.progress_seconds ??
-                          0,
-
-
-                        completed:
-                          item.completed ??
-                          item.song.completed ??
-                          false,
-
-
-                        played_at:
-                          item.played_at ||
-                          item.updated_at ||
-                          item.song.played_at ||
-                          null,
-
-                      };
-
+                  {
+                    played_at: "...",
+                    song: {
+                      id: 1,
+                      title: "..."
                     }
-
-
-                    /*
-                      Backend can also return all song
-                      information directly.
-                    */
-
-                    return item;
-
                   }
+                */
+
+                if (
+                  item?.song &&
+                  typeof item.song ===
+                    "object"
+                ) {
+
+                  return {
+
+                    ...item.song,
+
+                    history_id:
+                      item.history_id ||
+                      item.id ||
+                      item.song.history_id ||
+                      null,
+
+                    progress_seconds:
+                      item.progress_seconds ??
+                      item.song.progress_seconds ??
+                      0,
+
+                    completed:
+                      item.completed ??
+                      item.song.completed ??
+                      false,
+
+                    played_at:
+                      item.played_at ||
+                      item.updated_at ||
+                      item.song.played_at ||
+                      null,
+
+                  };
+
+                }
+
+
+                /*
+                  Backend can also return
+                  song information directly.
+                */
+
+                return item;
+
+              })
+              .filter(
+                (song) =>
+                  song &&
+                  song.id
+              );
+
+
+          /*
+            Remove duplicate songs.
+
+            First/newest occurrence is preserved.
+          */
+
+          const uniqueHistory =
+            Array.from(
+              new Map(
+                normalized.map(
+                  (song) => [
+                    song.id,
+                    song,
+                  ]
                 )
-
-                .filter(
-                  (
-                    song
-                  ) =>
-                    song &&
-                    song.id
-                );
-
-
-            /*
-              Remove duplicate songs.
-
-              The first/newest occurrence
-              is preserved.
-            */
-
-            const uniqueHistory =
-              Array.from(
-                new Map(
-                  normalized.map(
-                    (
-                      song
-                    ) => [
-
-                      song.id,
-
-                      song,
-
-                    ]
-                  )
-                ).values()
-              );
-
-
-            if (
-              active
-            ) {
-
-              setHistory(
-                uniqueHistory
-              );
-
-            }
-
-
-          } catch (
-            error
-          ) {
-
-            console.error(
-              "History loading error:",
-              error
+              ).values()
             );
 
 
-            if (
-              active
-            ) {
+          if (active) {
 
-              setError(
-                error.response
-                  ?.data
-                  ?.message ||
-                "Unable to load listening history."
-              );
-
-            }
-
-
-          } finally {
-
-            if (
-              active
-            ) {
-
-              setLoading(
-                false
-              );
-
-            }
+            setHistory(
+              uniqueHistory
+            );
 
           }
 
-        };
+
+        } catch (error) {
+
+          console.error(
+            "History loading error:",
+            error
+          );
 
 
-      loadHistory();
+          if (active) {
+
+            setError(
+              error.response
+                ?.data
+                ?.message ||
+              "Unable to load listening history."
+            );
+
+          }
 
 
-      return () => {
+        } finally {
 
-        active =
-          false;
+          if (active) {
+
+            setLoading(false);
+
+          }
+
+        }
 
       };
 
-    },
 
-    []
-  );
+    loadHistory();
+
+
+    return () => {
+
+      active = false;
+
+    };
+
+  }, []);
 
 
   /* =======================================================
-     PLAY HISTORY SONG
+     CHECK CURRENT SONG
+  ======================================================= */
+
+  const isCurrentSong =
+    (song) => {
+
+      return (
+        String(
+          currentSong?.id
+        ) ===
+        String(
+          song?.id
+        )
+      );
+
+    };
+
+
+  /* =======================================================
+     CHECK PLAYING SONG
+  ======================================================= */
+
+  const isSongPlaying =
+    (song) => {
+
+      return (
+        isCurrentSong(song) &&
+        isPlaying
+      );
+
+    };
+
+
+  /* =======================================================
+     PLAY / PAUSE HISTORY SONG
   ======================================================= */
 
   const handlePlay =
-    (
-      song
-    ) => {
+    (song) => {
+
+      if (!song) {
+        return;
+      }
+
+
+      /*
+        If this is the currently loaded song,
+        toggle Play / Pause.
+      */
 
       if (
-        !song
+        isCurrentSong(song)
       ) {
+
+        togglePlay();
+
+        return;
+
+      }
+
+
+      /*
+        Different song:
+        start that song and use history
+        as the queue.
+      */
+
+      if (!song.audio_url) {
+
+        window.alert(
+          "Audio is not available for this song."
+        );
 
         return;
 
@@ -392,23 +397,13 @@ function History() {
   const handleClearHistory =
     async () => {
 
-      /*
-        Prevent multiple delete requests.
-      */
-
       if (
         clearingHistory ||
         history.length === 0
       ) {
-
         return;
-
       }
 
-
-      /*
-        Ask user before deleting everything.
-      */
 
       const confirmed =
         window.confirm(
@@ -416,12 +411,8 @@ function History() {
         );
 
 
-      if (
-        !confirmed
-      ) {
-
+      if (!confirmed) {
         return;
-
       }
 
 
@@ -431,37 +422,18 @@ function History() {
           true
         );
 
+        setError("");
 
-        setError(
-          ""
-        );
-
-
-        /*
-          Backend:
-
-          DELETE /api/history
-        */
 
         await API.delete(
           "/history"
         );
 
 
-        /*
-          Backend deletion succeeded.
-
-          Immediately clear frontend list.
-        */
-
-        setHistory(
-          []
-        );
+        setHistory([]);
 
 
-      } catch (
-        error
-      ) {
+      } catch (error) {
 
         console.error(
           "Clear history error:",
@@ -501,37 +473,23 @@ function History() {
      LOADING
   ======================================================= */
 
-  if (
-    loading
-  ) {
+  if (loading) {
 
     return (
 
-      <div
-        className=
-          "history-page"
-      >
+      <div className="history-page">
 
-        <div
-          className=
-            "history-loading"
-        >
+        <div className="history-loading">
 
           <FaHistory />
 
-
           <h2>
-
             Loading History...
-
           </h2>
 
-
           <p>
-
             Finding your recently
             played music.
-
           </p>
 
         </div>
@@ -549,48 +507,30 @@ function History() {
 
   return (
 
-    <div
-      className=
-        "history-page"
-    >
+    <div className="history-page">
 
 
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <header
-        className=
-          "history-header"
-      >
+      <header className="history-header">
 
 
         {/* LEFT */}
 
-        <div
-          className=
-            "history-header-main"
-        >
+        <div className="history-header-main">
 
-          <div
-            className=
-              "history-header-icon"
-          >
+          <div className="history-header-icon">
 
             <FaHistory />
 
           </div>
 
 
-          <div
-            className=
-              "history-header-content"
-          >
+          <div className="history-header-content">
 
-            <span
-              className=
-                "history-eyebrow"
-            >
+            <span className="history-eyebrow">
 
               YOUR MUSIC
 
@@ -618,42 +558,34 @@ function History() {
 
         {/* CLEAR HISTORY */}
 
-        {
-          history.length >
-            0 && (
+        {history.length > 0 && (
 
-            <button
-              type="button"
+          <button
+            type="button"
+            className="history-clear-button"
+            onClick={
+              handleClearHistory
+            }
+            disabled={
+              clearingHistory
+            }
+          >
 
-              className=
-                "history-clear-button"
+            <FaTrash />
 
-              onClick={
-                handleClearHistory
-              }
+            <span>
 
-              disabled={
+              {
                 clearingHistory
+                  ? "Clearing..."
+                  : "Clear History"
               }
-            >
 
-              <FaTrash />
+            </span>
 
+          </button>
 
-              <span>
-
-                {
-                  clearingHistory
-                    ? "Clearing..."
-                    : "Clear History"
-                }
-
-              </span>
-
-            </button>
-
-          )
-        }
+        )}
 
 
       </header>
@@ -663,35 +595,25 @@ function History() {
           ERROR
       ================================================= */}
 
-      {
-        error && (
+      {error && (
 
-          <div
-            className=
-              "history-error"
-          >
+        <div className="history-error">
 
-            {error}
+          {error}
 
-          </div>
+        </div>
 
-        )
-      }
+      )}
 
 
       {/* =================================================
           EMPTY
       ================================================= */}
 
-      {
-        !error &&
-        history.length ===
-          0 && (
+      {!error &&
+        history.length === 0 && (
 
-          <div
-            className=
-              "history-empty"
-          >
+          <div className="history-empty">
 
             <FaClock />
 
@@ -713,338 +635,331 @@ function History() {
 
           </div>
 
-        )
-      }
+        )}
 
 
       {/* =================================================
           HISTORY LIST
       ================================================= */}
 
-      {
-        history.length >
-          0 && (
+      {history.length > 0 && (
 
-          <div
-            className=
-              "history-list"
-          >
+        <div className="history-list">
 
 
-            {/* TABLE HEADER */}
+          {/* TABLE HEADER */}
 
-            <div
-              className=
-                "history-list-header"
-            >
+          <div className="history-list-header">
 
-              <span>
-
-                #
-
-              </span>
+            <span>
+              #
+            </span>
 
 
-              <span>
-
-                Song
-
-              </span>
+            <span>
+              Song
+            </span>
 
 
-              <span>
-
-                Album
-
-              </span>
+            <span>
+              Album
+            </span>
 
 
-              <span>
-
-                Last Played
-
-              </span>
+            <span>
+              Last Played
+            </span>
 
 
-              <span />
+            <span />
 
-            </div>
-
-
-            {/* SONGS */}
-
-            {
-              history.map(
-                (
-                  song,
-                  index
-                ) => {
+          </div>
 
 
-                  /* ===============================
-                     COVER
-                  =============================== */
+          {/* SONGS */}
 
-                  const cover =
-                    song.cover_url
+          {history.map(
+            (song, index) => {
 
-                      ? getMediaUrl(
-                          song.cover_url
-                        )
+              /* =========================================
+                 COVER
+              ========================================= */
 
-                      : "/images/default-cover.png";
+              const cover =
+                song.cover_url
+                  ? getMediaUrl(
+                      song.cover_url
+                    )
+                  : "/images/default-cover.png";
 
 
-                  return (
+              const current =
+                isCurrentSong(song);
+
+
+              const playing =
+                isSongPlaying(song);
+
+
+              return (
+
+                <div
+                  className={
+                    `history-row ${
+                      current
+                        ? "is-current"
+                        : ""
+                    } ${
+                      playing
+                        ? "is-playing"
+                        : ""
+                    }`
+                  }
+                  key={
+                    `${song.id}-${
+                      song.played_at ||
+                      index
+                    }`
+                  }
+                >
+
+
+                  {/* ===================================
+                     NUMBER
+                  =================================== */}
+
+                  <span className="history-number">
+
+                    {!current &&
+                      index + 1}
+
+                  </span>
+
+
+                  {/* ===================================
+                     SONG
+                  =================================== */}
+
+                  <div className="history-song">
+
+
+                    {/* COVER */}
 
                     <div
-                      className=
-                        "history-row"
-
-                      key={
-                        `${
-                          song.id
-                        }-${
-                          song.played_at ||
-                          index
+                      className={
+                        `history-cover ${
+                          current
+                            ? "is-current"
+                            : ""
                         }`
                       }
                     >
 
-
-                      {/* NUMBER */}
-
-                      <span
-                        className=
-                          "history-number"
-                      >
-
-                        {
-                          index +
-                          1
+                      <img
+                        src={cover}
+                        alt={
+                          song.title ||
+                          "Song cover"
                         }
+                        onError={(event) => {
 
-                      </span>
+                          if (
+                            !event
+                              .currentTarget
+                              .src
+                              .endsWith(
+                                "/images/default-cover.png"
+                              )
+                          ) {
 
+                            event
+                              .currentTarget
+                              .src =
+                              "/images/default-cover.png";
 
-                      {/* SONG */}
-
-                      <div
-                        className=
-                          "history-song"
-                      >
-
-
-                        {/* COVER */}
-
-                        <div
-                          className=
-                            "history-cover"
-                        >
-
-                          <img
-                            src={
-                              cover
-                            }
-
-                            alt={
-                              song.title ||
-                              "Song cover"
-                            }
-
-                            onError={(
-                              event
-                            ) => {
-
-                              if (
-                                !event
-                                  .currentTarget
-                                  .src
-                                  .endsWith(
-                                    "/images/default-cover.png"
-                                  )
-                              ) {
-
-                                event
-                                  .currentTarget
-                                  .src =
-                                  "/images/default-cover.png";
-
-                              }
-
-                            }}
-                          />
-
-
-                          {/* COVER PLAY */}
-
-                          <button
-                            type="button"
-
-                            onClick={
-                              () =>
-                                handlePlay(
-                                  song
-                                )
-                            }
-
-                            aria-label={
-                              `Play ${
-                                song.title ||
-                                "song"
-                              }`
-                            }
-                          >
-
-                            <FaPlay />
-
-                          </button>
-
-                        </div>
-
-
-                        {/* SONG INFO */}
-
-                        <div
-                          className=
-                            "history-song-info"
-                        >
-
-                          <strong>
-
-                            {
-                              song.title ||
-                              "Unknown Song"
-                            }
-
-                          </strong>
-
-
-                          {
-                            song
-                              .title_english && (
-
-                              <span>
-
-                                {
-                                  song
-                                    .title_english
-                                }
-
-                              </span>
-
-                            )
                           }
 
-
-                          <small>
-
-                            {
-                              song
-                                .artist_name ||
-                              "KEERTHANA"
-                            }
-
-                          </small>
-
-                        </div>
+                        }}
+                      />
 
 
-                      </div>
-
-
-                      {/* ALBUM */}
-
-                      <span
-                        className=
-                          "history-album"
-                      >
-
-                        {
-                          song
-                            .album_title ||
-                          song
-                            .category_name ||
-                          "Christian Music"
-                        }
-
-                      </span>
-
-
-                      {/* LAST PLAYED */}
-
-                      <span
-                        className=
-                          "history-date"
-                      >
-
-                        <FaClock />
-
-
-                        <span>
-
-                          {
-                            formatPlayedDate(
-
-                              song
-                                .played_at ||
-
-                              song
-                                .updated_at ||
-
-                              song
-                                .created_at
-
-                            ) ||
-                            "Recently"
-                          }
-
-                        </span>
-
-                      </span>
-
-
-                      {/* PLAY BUTTON */}
+                      {/* COVER PLAY / PAUSE */}
 
                       <button
                         type="button"
-
-                        className=
-                          "history-play-button"
-
-                        onClick={
-                          () =>
-                            handlePlay(
-                              song
-                            )
+                        className={
+                          playing
+                            ? "is-playing"
+                            : ""
                         }
-
+                        onClick={() =>
+                          handlePlay(song)
+                        }
+                        disabled={
+                          !song.audio_url
+                        }
                         aria-label={
-                          `Play ${
-                            song.title ||
-                            "song"
-                          }`
+                          playing
+                            ? `Pause ${
+                                song.title ||
+                                "song"
+                              }`
+                            : `Play ${
+                                song.title ||
+                                "song"
+                              }`
                         }
                       >
 
-                        <FaPlay />
+                        {playing ? (
+
+                          <FaPause />
+
+                        ) : (
+
+                          <FaPlay />
+
+                        )}
 
                       </button>
 
+                    </div>
+
+
+                    {/* SONG INFO */}
+
+                    <div className="history-song-info">
+
+                      <strong>
+
+                        {song.title ||
+                          "Unknown Song"}
+
+                      </strong>
+
+
+                      {song.title_english && (
+
+                        <span>
+
+                          {song.title_english}
+
+                        </span>
+
+                      )}
+
+
+                      <small>
+
+                        {song.artist_name ||
+                          "KEERTHANA"}
+
+                      </small>
 
                     </div>
 
-                  );
+                  </div>
 
-                }
-              )
+
+                  {/* ===================================
+                     ALBUM
+                  =================================== */}
+
+                  <span className="history-album">
+
+                    {song.album_title ||
+                      song.category_name ||
+                      "Christian Music"}
+
+                  </span>
+
+
+                  {/* ===================================
+                     LAST PLAYED
+                  =================================== */}
+
+                  <span className="history-date">
+
+                    <FaClock />
+
+
+                    <span>
+
+                      {
+                        formatPlayedDate(
+                          song.played_at ||
+                          song.updated_at ||
+                          song.created_at
+                        ) ||
+                        "Recently"
+                      }
+
+                    </span>
+
+                  </span>
+
+
+                  {/* ===================================
+                     PLAY / PAUSE BUTTON
+                  =================================== */}
+
+                  <button
+                    type="button"
+                    className={
+                      `history-play-button ${
+                        playing
+                          ? "is-playing"
+                          : ""
+                      }`
+                    }
+                    onClick={() =>
+                      handlePlay(song)
+                    }
+                    disabled={
+                      !song.audio_url
+                    }
+                    aria-label={
+                      playing
+                        ? `Pause ${
+                            song.title ||
+                            "song"
+                          }`
+                        : `Play ${
+                            song.title ||
+                            "song"
+                          }`
+                    }
+                    title={
+                      playing
+                        ? "Pause"
+                        : "Play"
+                    }
+                  >
+
+                    {playing ? (
+
+                      <FaPause />
+
+                    ) : (
+
+                      <FaPlay />
+
+                    )}
+
+                  </button>
+
+
+                </div>
+
+              );
+
             }
+          )}
 
 
-          </div>
+        </div>
 
-        )
-      }
+      )}
 
 
     </div>

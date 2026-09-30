@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState,
@@ -24,8 +25,7 @@ import "../../assets/css/admin/addSong.css";
 
 function AddSong() {
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
 
   /* =====================================================
@@ -157,10 +157,7 @@ Enter the second verse...`,
      FORM STATE
   ===================================================== */
 
-  const [
-    form,
-    setForm,
-  ] = useState({
+  const [form, setForm] = useState({
 
     title: "",
 
@@ -391,51 +388,102 @@ Enter the second verse...`,
            ARTISTS
         ================================================= */
 
-        setArtists(
+        const artistData =
+          artistsResponse.data;
+
+        if (
           Array.isArray(
-            artistsResponse.data?.artists
+            artistData?.artists
           )
-            ? artistsResponse.data.artists
-            : Array.isArray(
-                artistsResponse.data
-              )
-              ? artistsResponse.data
-              : []
-        );
+        ) {
+
+          setArtists(
+            artistData.artists
+          );
+
+        } else if (
+          Array.isArray(
+            artistData
+          )
+        ) {
+
+          setArtists(
+            artistData
+          );
+
+        } else {
+
+          setArtists([]);
+
+        }
 
 
         /* =================================================
            ALBUMS
         ================================================= */
 
-        setAlbums(
+        const albumData =
+          albumsResponse.data;
+
+        if (
           Array.isArray(
-            albumsResponse.data?.albums
+            albumData?.albums
           )
-            ? albumsResponse.data.albums
-            : Array.isArray(
-                albumsResponse.data
-              )
-              ? albumsResponse.data
-              : []
-        );
+        ) {
+
+          setAlbums(
+            albumData.albums
+          );
+
+        } else if (
+          Array.isArray(
+            albumData
+          )
+        ) {
+
+          setAlbums(
+            albumData
+          );
+
+        } else {
+
+          setAlbums([]);
+
+        }
 
 
         /* =================================================
            CATEGORIES
         ================================================= */
 
-        setCategories(
+        const categoryData =
+          categoriesResponse.data;
+
+        if (
           Array.isArray(
-            categoriesResponse.data?.categories
+            categoryData?.categories
           )
-            ? categoriesResponse.data.categories
-            : Array.isArray(
-                categoriesResponse.data
-              )
-              ? categoriesResponse.data
-              : []
-        );
+        ) {
+
+          setCategories(
+            categoryData.categories
+          );
+
+        } else if (
+          Array.isArray(
+            categoryData
+          )
+        ) {
+
+          setCategories(
+            categoryData
+          );
+
+        } else {
+
+          setCategories([]);
+
+        }
 
 
         /* =================================================
@@ -444,7 +492,6 @@ Enter the second verse...`,
 
         const ministryData =
           ministriesResponse.data;
-
 
         if (
           Array.isArray(
@@ -504,54 +551,109 @@ Enter the second verse...`,
 
 
   /* =====================================================
+     LANGUAGE NORMALIZER
+  ===================================================== */
+
+  const normalizeLanguage = (
+    language
+  ) => {
+
+    return String(
+      language || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  };
+
+
+  /* =====================================================
+     CHECK LANGUAGE
+     
+     IMPORTANT:
+     If an old database record does not have a language,
+     we still show it instead of hiding it.
+  ===================================================== */
+
+  const isAvailableForLanguage = (
+    item,
+    selectedLanguageValue
+  ) => {
+
+    if (!item) {
+      return false;
+    }
+
+    const itemLanguage =
+      normalizeLanguage(
+        item.language
+      );
+
+    const selected =
+      normalizeLanguage(
+        selectedLanguageValue
+      );
+
+    /*
+      If backend record has no language,
+      show it for compatibility with
+      existing records.
+    */
+
+    if (!itemLanguage) {
+      return true;
+    }
+
+    return (
+      itemLanguage === selected
+    );
+
+  };
+
+
+  /* =====================================================
      FILTER DATA BY SELECTED LANGUAGE
+     
+     Existing records without a language are also shown.
   ===================================================== */
 
   const filteredArtists =
     artists.filter(
       (artist) =>
-        String(
-          artist.language || ""
-        ).trim().toLowerCase() ===
-        String(
+        isAvailableForLanguage(
+          artist,
           form.language
-        ).trim().toLowerCase()
+        )
     );
 
 
   const filteredAlbums =
     albums.filter(
       (album) =>
-        String(
-          album.language || ""
-        ).trim().toLowerCase() ===
-        String(
+        isAvailableForLanguage(
+          album,
           form.language
-        ).trim().toLowerCase()
+        )
     );
 
 
   const filteredCategories =
     categories.filter(
       (category) =>
-        String(
-          category.language || ""
-        ).trim().toLowerCase() ===
-        String(
+        isAvailableForLanguage(
+          category,
           form.language
-        ).trim().toLowerCase()
+        )
     );
 
 
   const filteredMinistries =
     ministries.filter(
       (ministry) =>
-        String(
-          ministry.language || ""
-        ).trim().toLowerCase() ===
-        String(
+        isAvailableForLanguage(
+          ministry,
           form.language
-        ).trim().toLowerCase()
+        )
     );
 
 
@@ -685,6 +787,7 @@ Enter the second verse...`,
         ...previous,
 
         moods:
+
           checked
 
             ? [
@@ -1297,7 +1400,9 @@ Enter the second verse...`,
 
 
     if (input) {
+
       input.value = "";
+
     }
 
   };
@@ -1425,7 +1530,9 @@ Enter the second verse...`,
 
 
     if (input) {
+
       input.value = "";
+
     }
 
   };
@@ -1440,7 +1547,9 @@ Enter the second verse...`,
   ) => {
 
     if (!bytes) {
+
       return "0 MB";
+
     }
 
 
@@ -1614,13 +1723,27 @@ Enter the second verse...`,
         }
 
 
+        /*
+          Records with no language are allowed.
+          This keeps older database records usable.
+        */
+
+        const itemLanguage =
+          normalizeLanguage(
+            item.language
+          );
+
+
+        if (!itemLanguage) {
+          return true;
+        }
+
+
         return (
-          String(
-            item.language || ""
-          ).trim().toLowerCase() ===
-          String(
+          itemLanguage ===
+          normalizeLanguage(
             form.language
-          ).trim().toLowerCase()
+          )
         );
 
       };
@@ -2041,7 +2164,9 @@ Enter the second verse...`,
                       key={language.value}
                       value={language.value}
                     >
+
                       {language.nativeName}
+
                     </option>
 
                   )
@@ -2051,9 +2176,11 @@ Enter the second verse...`,
 
 
               <small>
+
                 Selected language:
                 {" "}
                 {selectedLanguage.nativeName}
+
               </small>
 
             </div>
@@ -2184,8 +2311,12 @@ Enter the second verse...`,
               {filteredArtists.length === 0 && (
 
                 <small>
+
                   No artists available for{" "}
                   {selectedLanguage.nativeName}.
+                  {" "}
+                  Please create a new artist.
+
                 </small>
 
               )}
@@ -2338,7 +2469,6 @@ Enter the second verse...`,
                         !previous
                     );
 
-
                     setShowArtistForm(false);
 
                     setShowCategoryForm(false);
@@ -2420,10 +2550,12 @@ Enter the second verse...`,
 
 
               <small>
+
                 Album is optional.
                 Leave this as
                 "No Album / Single"
                 for a single.
+
               </small>
 
 
@@ -2601,8 +2733,12 @@ Enter the second verse...`,
               {filteredCategories.length === 0 && (
 
                 <small>
+
                   No categories available for{" "}
                   {selectedLanguage.nativeName}.
+                  {" "}
+                  Please create a new category.
+
                 </small>
 
               )}
@@ -2727,8 +2863,7 @@ Enter the second verse...`,
 
               <small>
 
-                Only ministries matching the
-                selected song language are shown.
+                Ministry is optional.
 
               </small>
 
@@ -2745,6 +2880,7 @@ Enter the second verse...`,
 
                     No ministries available for{" "}
                     {selectedLanguage.nativeName}.
+                    {" "}
                     You can add ministries from
                     Admin → Ministries.
 
@@ -2771,12 +2907,15 @@ Enter the second verse...`,
 
 
               <small>
+
                 Select one or more moods for
                 this Christian song.
+
               </small>
 
 
               <div className="admin-mood-grid">
+
 
                 <label className="admin-mood-option">
 
@@ -2909,9 +3048,11 @@ Enter the second verse...`,
 
                 </label>
 
+
               </div>
 
             </div>
+
 
           </div>
 
@@ -3129,6 +3270,7 @@ Enter the second verse...`,
               )}
 
             </div>
+
 
           </div>
 

@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState,
@@ -6,6 +7,7 @@ import {
 import {
   FaArrowLeft,
   FaMicrophone,
+  FaPause,
   FaPlay,
 } from "react-icons/fa";
 
@@ -19,7 +21,7 @@ import API
 
 import {
   usePlayer,
-} from "../context/PlayerContext";
+} from "../context/usePlayer";
 
 import {
   getMediaUrl,
@@ -38,6 +40,9 @@ function ArtistDetails() {
 
   const {
     playSong,
+    togglePlay,
+    currentSong,
+    isPlaying,
   } = usePlayer();
 
 
@@ -51,6 +56,10 @@ function ArtistDetails() {
     useState("");
 
 
+  /* =========================================================
+     LOAD ARTIST
+  ========================================================= */
+
   useEffect(() => {
 
     const loadArtist =
@@ -59,6 +68,7 @@ function ArtistDetails() {
         try {
 
           setLoading(true);
+          setError("");
 
           const response =
             await API.get(
@@ -92,6 +102,10 @@ function ArtistDetails() {
   }, [id]);
 
 
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
   if (loading) {
 
     return (
@@ -103,6 +117,10 @@ function ArtistDetails() {
   }
 
 
+  /* =========================================================
+     ERROR
+  ========================================================= */
+
   if (
     error ||
     !artist
@@ -112,6 +130,7 @@ function ArtistDetails() {
       <div className="artist-details-page">
 
         <button
+          type="button"
           className="artist-back"
           onClick={() =>
             navigate("/artists")
@@ -131,6 +150,10 @@ function ArtistDetails() {
   }
 
 
+  /* =========================================================
+     ARTIST IMAGE
+  ========================================================= */
+
   const artistImage =
     artist.image_url
       ? getMediaUrl(
@@ -139,18 +162,120 @@ function ArtistDetails() {
       : null;
 
 
-  const playAll = () => {
+  /* =========================================================
+     CHECK CURRENT SONG
+  ========================================================= */
 
-    if (!artist.songs?.length) {
-      return;
-    }
+  const isCurrentArtistSong =
+    (song) =>
+      currentSong?.id === song?.id;
 
-    playSong(
-      artist.songs[0],
-      artist.songs
+
+  /* =========================================================
+     PLAY ALL / PAUSE
+  ========================================================= */
+
+  const handleArtistPlayPause =
+    async () => {
+
+      if (
+        !artist.songs?.length
+      ) {
+        return;
+      }
+
+
+      /*
+        If the currently playing
+        song belongs to this artist,
+        toggle play/pause.
+      */
+
+      const currentBelongsToArtist =
+        artist.songs.some(
+          (song) =>
+            song.id ===
+            currentSong?.id
+        );
+
+
+      if (
+        currentBelongsToArtist
+      ) {
+
+        await togglePlay();
+
+        return;
+      }
+
+
+      /*
+        Otherwise start the
+        artist's first song.
+      */
+
+      await playSong(
+        artist.songs[0],
+        artist.songs
+      );
+
+    };
+
+
+  /* =========================================================
+     SONG PLAY / PAUSE
+  ========================================================= */
+
+  const handleSongPlayPause =
+    async (
+      song
+    ) => {
+
+      /*
+        Same song:
+        toggle play/pause.
+      */
+
+      if (
+        currentSong?.id ===
+        song.id
+      ) {
+
+        await togglePlay();
+
+        return;
+      }
+
+
+      /*
+        Different song:
+        start that song.
+      */
+
+      await playSong(
+        song,
+        artist.songs
+      );
+
+    };
+
+
+  /*
+    Artist button should show Pause
+    when ANY song from this artist
+    is currently playing.
+  */
+
+  const artistIsPlaying =
+    Boolean(
+      currentSong &&
+      isPlaying &&
+      artist.songs?.some(
+        (song) =>
+          song.id ===
+          currentSong.id
+      )
     );
-
-  };
 
 
   return (
@@ -158,11 +283,13 @@ function ArtistDetails() {
     <div className="artist-details-page">
 
 
+      {/* =====================================================
+          BACK
+      ===================================================== */}
+
       <button
         type="button"
-
         className="artist-back"
-
         onClick={() =>
           navigate(-1)
         }
@@ -173,7 +300,9 @@ function ArtistDetails() {
       </button>
 
 
-      {/* HERO */}
+      {/* =====================================================
+          HERO
+      ===================================================== */}
 
       <section className="artist-hero">
 
@@ -220,24 +349,41 @@ function ArtistDetails() {
       </section>
 
 
-      {/* PLAY */}
+      {/* =====================================================
+          PLAY / PAUSE ARTIST
+      ===================================================== */}
 
       <div className="artist-actions">
 
         <button
           type="button"
-          onClick={playAll}
+          onClick={
+            handleArtistPlayPause
+          }
           disabled={
             !artist.songs?.length
           }
+          aria-label={
+            artistIsPlaying
+              ? "Pause artist"
+              : "Play artist"
+          }
         >
-          <FaPlay />
+
+          {artistIsPlaying ? (
+            <FaPause />
+          ) : (
+            <FaPlay />
+          )}
+
         </button>
 
       </div>
 
 
-      {/* SONGS */}
+      {/* =====================================================
+          SONGS
+      ===================================================== */}
 
       <section>
 
@@ -249,7 +395,10 @@ function ArtistDetails() {
         <div className="artist-song-list">
 
           {artist.songs?.map(
-            (song, index) => {
+            (
+              song,
+              index
+            ) => {
 
               const cover =
                 song.cover_url
@@ -259,23 +408,47 @@ function ArtistDetails() {
                   : "/images/default-cover.png";
 
 
+              const songIsCurrent =
+                isCurrentArtistSong(
+                  song
+                );
+
+
+              const songIsPlaying =
+                songIsCurrent &&
+                isPlaying;
+
+
               return (
 
                 <div
-                  className="artist-song-row"
+                  className={
+                    `artist-song-row ${
+                      songIsCurrent
+                        ? "is-current"
+                        : ""
+                    }`
+                  }
                   key={song.id}
                 >
+
+
+                  {/* NUMBER */}
 
                   <span>
                     {index + 1}
                   </span>
 
 
+                  {/* COVER */}
+
                   <img
                     src={cover}
                     alt={song.title}
                   />
 
+
+                  {/* SONG INFORMATION */}
 
                   <div>
 
@@ -291,17 +464,28 @@ function ArtistDetails() {
                   </div>
 
 
+                  {/* PLAY / PAUSE */}
+
                   <button
                     type="button"
-
                     onClick={() =>
-                      playSong(
-                        song,
-                        artist.songs
+                      handleSongPlayPause(
+                        song
                       )
                     }
+                    aria-label={
+                      songIsPlaying
+                        ? "Pause song"
+                        : "Play song"
+                    }
                   >
-                    <FaPlay />
+
+                    {songIsPlaying ? (
+                      <FaPause />
+                    ) : (
+                      <FaPlay />
+                    )}
+
                   </button>
 
                 </div>
@@ -316,18 +500,24 @@ function ArtistDetails() {
       </section>
 
 
-      {/* ALBUMS */}
+      {/* =====================================================
+          ALBUMS
+      ===================================================== */}
 
       {artist.albums?.length > 0 && (
 
-        <section className="artist-albums">
+        <section
+          className="artist-albums"
+        >
 
           <h2>
             Albums
           </h2>
 
 
-          <div className="artist-album-grid">
+          <div
+            className="artist-album-grid"
+          >
 
             {artist.albums.map(
               (album) => {
@@ -344,11 +534,8 @@ function ArtistDetails() {
 
                   <button
                     type="button"
-
                     className="artist-album-card"
-
                     key={album.id}
-
                     onClick={() =>
                       navigate(
                         `/albums/${album.id}`
@@ -398,7 +585,6 @@ function ArtistDetails() {
 
       )}
 
-
     </div>
 
   );
@@ -407,3 +593,4 @@ function ArtistDetails() {
 
 
 export default ArtistDetails;
+

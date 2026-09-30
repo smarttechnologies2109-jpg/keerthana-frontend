@@ -1,0 +1,668 @@
+/* =====================================================
+   SLEEP TIMER
+===================================================== */
+
+.sleep-timer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =====================================================
+   SLEEP TIMER BUTTON
+===================================================== */
+
+.sleep-timer-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-width: 42px;
+  height: 42px;
+
+  padding: 0 10px;
+
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  border-radius: 50px;
+
+  background: #12372a;
+  color: #faf8f2;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.sleep-timer-button:hover {
+  background: #0b281e;
+  color: #c9a45c;
+  border-color: #c9a45c;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.sleep-timer-button:active {
+  transform: scale(0.96);
+}
+
+.sleep-timer-button.active {
+  background: #c9a45c;
+  color: #0b281e;
+
+  border-color: #c9a45c;
+
+  box-shadow:
+    0 4px 14px rgba(201, 164, 92, 0.28);
+}
+
+.sleep-timer-button.active:hover {
+  background: #d5b66e;
+  color: #0b281e;
+}
+
+.sleep-timer-button svg {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.sleep-timer-button span {
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.4px;
+
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   POPUP
+===================================================== */
+
+.sleep-timer-popup {
+  position: absolute;
+
+  right: 0;
+  bottom: calc(100% + 12px);
+
+  width: 330px;
+  max-width: calc(100vw - 24px);
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(18, 55, 42, 0.12);
+  border-radius: 18px;
+
+  box-shadow:
+    0 15px 45px rgba(0, 0, 0, 0.18);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
+
+  animation:
+    sleepTimerPopupIn
+    0.2s
+    ease-out;
+}
+
+
+/* =====================================================
+   POPUP ARROW
+===================================================== */
+
+.sleep-timer-popup::after {
+  content: "";
+
+  position: absolute;
+
+  right: 17px;
+  bottom: -7px;
+
+  width: 13px;
+  height: 13px;
+
+  background: #ffffff;
+
+  border-right:
+    1px solid
+    rgba(18, 55, 42, 0.12);
+
+  border-bottom:
+    1px solid
+    rgba(18, 55, 42, 0.12);
+
+  transform: rotate(45deg);
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.sleep-timer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 18px;
+}
+
+.sleep-timer-header > div:first-child {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  min-width: 0;
+}
+
+
+/* Moon icon */
+
+.sleep-timer-header
+  > div:first-child
+  > svg {
+  width: 38px;
+  height: 38px;
+
+  padding: 10px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background:
+    rgba(201, 164, 92, 0.14);
+
+  color: #c9a45c;
+
+  box-sizing: border-box;
+}
+
+
+/* Header text */
+
+.sleep-timer-header strong {
+  display: block;
+
+  color: #12372a;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.sleep-timer-header span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #777777;
+
+  font-size: 12px;
+
+  line-height: 1.4;
+}
+
+
+/* =====================================================
+   CLOSE BUTTON
+===================================================== */
+
+.sleep-timer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f5f5f5;
+  color: #666666;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sleep-timer-close:hover {
+  background: #12372a;
+  color: #ffffff;
+}
+
+
+/* =====================================================
+   TIMER OPTIONS
+===================================================== */
+
+.sleep-timer-options {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 8px;
+
+  width: 100%;
+
+  margin-bottom: 15px;
+}
+
+.sleep-timer-options button {
+  width: 100%;
+  min-height: 46px;
+
+  padding: 7px 4px;
+
+  border:
+    1px solid
+    rgba(18, 55, 42, 0.15);
+
+  border-radius: 11px;
+
+  background: #faf8f2;
+  color: #12372a;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  box-sizing: border-box;
+}
+
+.sleep-timer-options button:hover {
+  background: #12372a;
+  color: #ffffff;
+
+  border-color: #12372a;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 10px
+    rgba(18, 55, 42, 0.16);
+}
+
+
+/* Selected */
+
+.sleep-timer-options
+  button.selected {
+  background: #c9a45c;
+  color: #0b281e;
+
+  border-color: #c9a45c;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 3px 10px
+    rgba(201, 164, 92, 0.22);
+}
+
+.sleep-timer-options
+  button.selected:hover {
+  background: #d5b66e;
+  color: #0b281e;
+}
+
+
+/* =====================================================
+   CURRENT TIMER
+===================================================== */
+
+.sleep-timer-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding-top: 15px;
+
+  border-top:
+    1px solid
+    rgba(18, 55, 42, 0.1);
+
+  text-align: center;
+}
+
+.sleep-timer-current > span {
+  color: #777777;
+
+  font-size: 12px;
+
+  line-height: 1.4;
+}
+
+.sleep-timer-current > strong {
+  margin-top: 3px;
+
+  color: #12372a;
+
+  font-size: 25px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+.sleep-timer-current button {
+  margin-top: 9px;
+
+  padding: 7px 16px;
+
+  border: none;
+  border-radius: 20px;
+
+  background: transparent;
+  color: #b44a4a;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sleep-timer-current button:hover {
+  background:
+    rgba(180, 74, 74, 0.08);
+
+  color: #922f2f;
+}
+
+
+/* =====================================================
+   POPUP ANIMATION
+===================================================== */
+
+@keyframes sleepTimerPopupIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* =====================================================
+   TABLET
+   769px - 1024px
+===================================================== */
+
+@media (max-width: 1024px) {
+
+  .sleep-timer-popup {
+    width: 320px;
+  }
+
+  .sleep-timer-options {
+    gap: 7px;
+  }
+
+  .sleep-timer-options button {
+    min-height: 45px;
+
+    font-size: 10.5px;
+  }
+}
+
+
+/* =====================================================
+   MOBILE
+   481px - 768px
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .sleep-timer-button {
+    min-width: 40px;
+    height: 40px;
+
+    padding: 0 9px;
+  }
+
+  .sleep-timer-button svg {
+    font-size: 15px;
+  }
+
+  .sleep-timer-button span {
+    font-size: 11px;
+  }
+
+  /*
+     Use fixed positioning on mobile so the
+     popup never gets cut off by the player.
+  */
+
+  .sleep-timer-popup {
+    position: fixed;
+
+    left: 50%;
+    right: auto;
+
+    bottom: 78px;
+
+    width: calc(100vw - 24px);
+
+    max-width: 360px;
+
+    transform:
+      translateX(-50%);
+
+    padding: 17px;
+
+    border-radius: 18px;
+  }
+
+  .sleep-timer-popup::after {
+    display: none;
+  }
+
+  .sleep-timer-header {
+    margin-bottom: 16px;
+  }
+
+  .sleep-timer-options {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+  .sleep-timer-options button {
+    min-height: 45px;
+
+    padding: 6px 3px;
+
+    font-size: 10px;
+  }
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+   351px - 480px
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .sleep-timer-popup {
+    bottom: 72px;
+
+    width: calc(100vw - 20px);
+
+    max-width: 350px;
+
+    padding: 15px;
+  }
+
+  .sleep-timer-header {
+    gap: 8px;
+  }
+
+  .sleep-timer-header
+    > div:first-child {
+    gap: 9px;
+  }
+
+  .sleep-timer-header
+    > div:first-child
+    > svg {
+    width: 35px;
+    height: 35px;
+
+    padding: 9px;
+  }
+
+  .sleep-timer-header strong {
+    font-size: 15px;
+  }
+
+  .sleep-timer-header span {
+    font-size: 11px;
+  }
+
+  .sleep-timer-options {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+
+    gap: 6px;
+  }
+
+  .sleep-timer-options button {
+    min-height: 43px;
+
+    font-size: 9.5px;
+
+    border-radius: 9px;
+  }
+
+  .sleep-timer-current > strong {
+    font-size: 23px;
+  }
+}
+
+
+/* =====================================================
+   VERY SMALL PHONES
+   350px AND BELOW
+===================================================== */
+
+@media (max-width: 350px) {
+
+  .sleep-timer-popup {
+    width: calc(100vw - 14px);
+
+    padding: 13px;
+
+    border-radius: 16px;
+  }
+
+  .sleep-timer-header
+    > div:first-child
+    > svg {
+    width: 32px;
+    height: 32px;
+
+    padding: 8px;
+  }
+
+  .sleep-timer-header strong {
+    font-size: 14px;
+  }
+
+  .sleep-timer-header span {
+    font-size: 10px;
+  }
+
+  .sleep-timer-options {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+  .sleep-timer-options button {
+    min-height: 42px;
+
+    font-size: 11px;
+  }
+
+  .sleep-timer-current > strong {
+    font-size: 22px;
+  }
+}
+
+
+/* =====================================================
+   TOUCH DEVICES
+===================================================== */
+
+@media (hover: none) {
+
+  .sleep-timer-button:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .sleep-timer-options button:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .sleep-timer-close:hover {
+    background: #f5f5f5;
+    color: #666666;
+  }
+}

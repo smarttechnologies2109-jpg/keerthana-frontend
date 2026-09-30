@@ -6,17 +6,22 @@ import {
 } from "react";
 
 import {
+  FaBroom,
+  FaChevronDown,
+  FaChevronUp,
   FaHeart,
   FaListUl,
   FaMicrophone,
   FaPause,
   FaPlay,
+  FaPlus,
   FaRandom,
   FaRedoAlt,
   FaRegHeart,
   FaStepBackward,
   FaStepForward,
   FaTimes,
+  FaTrash,
   FaVolumeDown,
   FaVolumeMute,
   FaVolumeUp,
@@ -24,8 +29,12 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-import { usePlayer } from "../context/PlayerContext";
+import { usePlayer } from "../context/usePlayer";
+
+import SleepTimer from "../components/SleepTimer";
+
 import { useLikedSongs } from "../context/LikedSongsContext";
+
 import { useAuth } from "../context/AuthContext";
 
 import {
@@ -44,15 +53,20 @@ import "../assets/css/player.css";
 function formatTime(seconds) {
   const value = Number(seconds);
 
-  if (!Number.isFinite(value) || value < 0) {
+  if (
+    !Number.isFinite(value) ||
+    value < 0
+  ) {
     return "0:00";
   }
 
-  const minutes = Math.floor(value / 60);
+  const minutes =
+    Math.floor(value / 60);
 
-  const secondsPart = Math.floor(value % 60)
-    .toString()
-    .padStart(2, "0");
+  const secondsPart =
+    Math.floor(value % 60)
+      .toString()
+      .padStart(2, "0");
 
   return `${minutes}:${secondsPart}`;
 }
@@ -60,16 +74,13 @@ function formatTime(seconds) {
 
 /* =========================================================
    PARSE LRC LYRICS
-
-   Example:
-
-   [00:05.00] First line
-   [00:10.50] Second line
-   [00:15.00] Third line
 ========================================================= */
 
 function parseLyrics(lyrics) {
-  if (!lyrics || typeof lyrics !== "string") {
+  if (
+    !lyrics ||
+    typeof lyrics !== "string"
+  ) {
     return [];
   }
 
@@ -79,36 +90,53 @@ function parseLyrics(lyrics) {
   return lyrics
     .split(/\r?\n/)
     .map((line, index) => {
-      const match = line.trim().match(timestampRegex);
+
+      const match =
+        line
+          .trim()
+          .match(timestampRegex);
 
       if (!match) {
         return null;
       }
 
-      const minutes = Number(match[1]);
-      const seconds = Number(match[2]);
+      const minutes =
+        Number(match[1]);
 
-      const decimal = match[3] || "0";
+      const seconds =
+        Number(match[2]);
 
-      let milliseconds = Number(decimal);
+      const decimal =
+        match[3] || "0";
+
+      let milliseconds =
+        Number(decimal);
 
       if (decimal.length === 1) {
         milliseconds *= 100;
-      } else if (decimal.length === 2) {
+      } else if (
+        decimal.length === 2
+      ) {
         milliseconds *= 10;
       }
 
       return {
         id: `${index}-${minutes}-${seconds}-${milliseconds}`,
+
         time:
           minutes * 60 +
           seconds +
           milliseconds / 1000,
-        text: match[4].trim(),
+
+        text:
+          match[4].trim(),
       };
     })
     .filter(Boolean)
-    .sort((a, b) => a.time - b.time);
+    .sort(
+      (a, b) =>
+        a.time - b.time
+    );
 }
 
 
@@ -117,33 +145,59 @@ function parseLyrics(lyrics) {
 ========================================================= */
 
 function MusicPlayer() {
-  const navigate = useNavigate();
 
-  const { user } = useAuth();
+  const navigate =
+    useNavigate();
+
+  const { user } =
+    useAuth();
 
   const {
     isLiked,
     toggleLike,
   } = useLikedSongs();
 
+
+  /* =======================================================
+     PLAYER
+  ======================================================= */
+
   const {
     currentSong,
     queue,
+
     isPlaying,
+
     currentTime,
     duration,
+
     volume,
+
     shuffle,
     repeatMode,
+
     playSong,
     togglePlay,
+
     nextSong,
     previousSong,
+
     seek,
     changeVolume,
+
     toggleShuffle,
     toggleRepeat,
+
     closePlayer,
+
+    /* QUEUE */
+    addToQueue,
+    removeFromQueue,
+    clearQueue,
+    moveQueueItemUp,
+    moveQueueItemDown,
+    playQueueSong,
+
   } = usePlayer();
 
 
@@ -151,15 +205,20 @@ function MusicPlayer() {
      LOCAL STATE
   ======================================================= */
 
-  const [seekValue, setSeekValue] = useState(null);
+  const [seekValue, setSeekValue] =
+    useState(null);
 
-  const [queueOpen, setQueueOpen] = useState(false);
+  const [queueOpen, setQueueOpen] =
+    useState(false);
 
-  const [lyricsOpen, setLyricsOpen] = useState(false);
+  const [lyricsOpen, setLyricsOpen] =
+    useState(false);
 
-  const previousVolumeRef = useRef(1);
+  const previousVolumeRef =
+    useRef(1);
 
-  const activeLyricRef = useRef(null);
+  const activeLyricRef =
+    useRef(null);
 
 
   /* =======================================================
@@ -167,16 +226,22 @@ function MusicPlayer() {
   ======================================================= */
 
   const lyrics =
-    typeof currentSong?.lyrics === "string"
+    typeof currentSong?.lyrics ===
+    "string"
       ? currentSong.lyrics.trim()
       : "";
 
-  const syncedLyrics = useMemo(
-    () => parseLyrics(currentSong?.lyrics),
-    [currentSong?.lyrics]
-  );
+  const syncedLyrics =
+    useMemo(
+      () =>
+        parseLyrics(
+          currentSong?.lyrics
+        ),
+      [currentSong?.lyrics]
+    );
 
-  const hasLyrics = Boolean(lyrics);
+  const hasLyrics =
+    Boolean(lyrics);
 
   const hasSyncedLyrics =
     syncedLyrics.length > 0;
@@ -196,33 +261,37 @@ function MusicPlayer() {
      ACTIVE LYRIC
   ======================================================= */
 
-  const activeLyricIndex = useMemo(() => {
-    if (!hasSyncedLyrics) {
-      return -1;
-    }
+  const activeLyricIndex =
+    useMemo(() => {
 
-    let index = -1;
-
-    for (
-      let i = 0;
-      i < syncedLyrics.length;
-      i += 1
-    ) {
-      if (
-        displayedTime >= syncedLyrics[i].time
-      ) {
-        index = i;
-      } else {
-        break;
+      if (!hasSyncedLyrics) {
+        return -1;
       }
-    }
 
-    return index;
-  }, [
-    displayedTime,
-    syncedLyrics,
-    hasSyncedLyrics,
-  ]);
+      let index = -1;
+
+      for (
+        let i = 0;
+        i < syncedLyrics.length;
+        i += 1
+      ) {
+        if (
+          displayedTime >=
+          syncedLyrics[i].time
+        ) {
+          index = i;
+        } else {
+          break;
+        }
+      }
+
+      return index;
+
+    }, [
+      displayedTime,
+      syncedLyrics,
+      hasSyncedLyrics,
+    ]);
 
 
   /* =======================================================
@@ -230,6 +299,7 @@ function MusicPlayer() {
   ======================================================= */
 
   useEffect(() => {
+
     if (!lyricsOpen) {
       return;
     }
@@ -242,6 +312,7 @@ function MusicPlayer() {
       behavior: "smooth",
       block: "center",
     });
+
   }, [
     activeLyricIndex,
     lyricsOpen,
@@ -259,9 +330,6 @@ function MusicPlayer() {
 
   /* =======================================================
      IMPORTANT
-
-     All hooks are above this condition.
-     This prevents React hook errors.
   ======================================================= */
 
   if (!currentSong) {
@@ -274,7 +342,9 @@ function MusicPlayer() {
   ======================================================= */
 
   const safeDuration =
-    Number.isFinite(Number(duration))
+    Number.isFinite(
+      Number(duration)
+    )
       ? Number(duration)
       : 0;
 
@@ -282,6 +352,20 @@ function MusicPlayer() {
     Array.isArray(queue)
       ? queue
       : [];
+
+
+  /*
+    Songs other than the currently
+    playing song.
+  */
+
+  const upNextSongs =
+    queueSongs.filter(
+      (song) =>
+        song.id !==
+        currentSong.id
+    );
+
 
   const hasQueue =
     queueSongs.length > 1;
@@ -293,7 +377,9 @@ function MusicPlayer() {
 
   const currentSongLiked =
     currentSong.id
-      ? isLiked(currentSong.id)
+      ? isLiked(
+          currentSong.id
+        )
       : false;
 
 
@@ -302,25 +388,34 @@ function MusicPlayer() {
   ======================================================= */
 
   const cover =
-    getSongCover(currentSong);
+    getSongCover(
+      currentSong
+    );
 
 
   /* =======================================================
      SEEK
   ======================================================= */
 
-  const handleSeekChange = (event) => {
-    setSeekValue(
-      Number(event.target.value)
-    );
-  };
+  const handleSeekChange =
+    (event) => {
+
+      setSeekValue(
+        Number(
+          event.target.value
+        )
+      );
+    };
+
 
   const commitSeek = () => {
+
     if (seekValue === null) {
       return;
     }
 
     seek(seekValue);
+
     setSeekValue(null);
   };
 
@@ -329,30 +424,43 @@ function MusicPlayer() {
      VOLUME
   ======================================================= */
 
-  const handleVolumeChange = (event) => {
-    const value =
-      Number(event.target.value);
+  const handleVolumeChange =
+    (event) => {
 
-    if (value > 0) {
-      previousVolumeRef.current = value;
-    }
+      const value =
+        Number(
+          event.target.value
+        );
 
-    changeVolume(value);
-  };
+      if (value > 0) {
+        previousVolumeRef.current =
+          value;
+      }
+
+      changeVolume(value);
+    };
+
 
   const toggleMute = () => {
-    if (Number(volume) > 0) {
+
+    if (
+      Number(volume) > 0
+    ) {
+
       previousVolumeRef.current =
         Number(volume);
 
       changeVolume(0);
+
       return;
     }
 
     changeVolume(
-      previousVolumeRef.current || 1
+      previousVolumeRef.current ||
+        1
     );
   };
+
 
   const VolumeIcon =
     Number(volume) <= 0
@@ -366,108 +474,190 @@ function MusicPlayer() {
      LIKE SONG
   ======================================================= */
 
-  const handleLike = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+  const handleLike =
+    async () => {
 
-    try {
-      await toggleLike(currentSong);
-    } catch (error) {
-      console.error(
-        "Like error:",
-        error
-      );
-    }
-  };
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+
+        await toggleLike(
+          currentSong
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Like error:",
+          error
+        );
+      }
+    };
 
 
   /* =======================================================
      SONG DETAILS
   ======================================================= */
 
-  const openSongDetails = () => {
-    if (!currentSong.id) {
-      return;
-    }
+  const openSongDetails =
+    () => {
 
-    navigate(
-      `/songs/${currentSong.id}`
-    );
-  };
+      if (!currentSong.id) {
+        return;
+      }
+
+      navigate(
+        `/songs/${currentSong.id}`
+      );
+    };
 
 
   /* =======================================================
      ARTIST DETAILS
   ======================================================= */
 
-  const openArtistDetails = () => {
-    if (!currentSong.artist_id) {
-      return;
-    }
+  const openArtistDetails =
+    () => {
 
-    navigate(
-      `/artists/${currentSong.artist_id}`
-    );
-  };
+      if (!currentSong.artist_id) {
+        return;
+      }
+
+      navigate(
+        `/artists/${currentSong.artist_id}`
+      );
+    };
 
 
   /* =======================================================
-     QUEUE SONG
+     PLAY QUEUE SONG
   ======================================================= */
 
-  const handleQueueSong = async (song) => {
-    if (!song) {
-      return;
-    }
+  const handleQueueSong =
+    async (song) => {
 
-    await playSong(
-      song,
-      queueSongs
-    );
+      if (!song) {
+        return;
+      }
 
-    setQueueOpen(false);
-  };
+      if (playQueueSong) {
+
+        await playQueueSong(
+          song
+        );
+
+      } else {
+
+        await playSong(
+          song,
+          queueSongs
+        );
+      }
+
+      setQueueOpen(false);
+    };
+
+
+  /* =======================================================
+     ADD SONG TO QUEUE
+  ======================================================= */
+
+  const handleAddToQueue =
+    (song) => {
+
+      if (!song) {
+        return;
+      }
+
+      if (addToQueue) {
+        addToQueue(song);
+      }
+    };
+
+
+  /* =======================================================
+     REMOVE FROM QUEUE
+  ======================================================= */
+
+  const handleRemoveFromQueue =
+    (songId) => {
+
+      if (!songId) {
+        return;
+      }
+
+      if (removeFromQueue) {
+        removeFromQueue(
+          songId
+        );
+      }
+    };
+
+
+  /* =======================================================
+     CLEAR UP NEXT
+  ======================================================= */
+
+  const handleClearQueue =
+    () => {
+
+      if (clearQueue) {
+        clearQueue();
+      }
+    };
 
 
   /* =======================================================
      CLOSE PLAYER
   ======================================================= */
 
-  const handleClosePlayer = async () => {
-    setQueueOpen(false);
-    setLyricsOpen(false);
+  const handleClosePlayer =
+    async () => {
 
-    await closePlayer();
-  };
+      setQueueOpen(false);
+
+      setLyricsOpen(false);
+
+      await closePlayer();
+    };
 
 
   /* =======================================================
      LYRICS
   ======================================================= */
 
-  const openLyrics = () => {
-    if (!hasLyrics) {
-      return;
-    }
+  const openLyrics =
+    () => {
 
-    setQueueOpen(false);
-    setLyricsOpen(true);
-  };
+      if (!hasLyrics) {
+        return;
+      }
 
-  const closeLyrics = () => {
-    setLyricsOpen(false);
-  };
+      setQueueOpen(false);
+
+      setLyricsOpen(true);
+    };
+
+
+  const closeLyrics =
+    () => {
+
+      setLyricsOpen(false);
+    };
 
 
   /* =======================================================
      LYRICS SEEK
   ======================================================= */
 
-  const handleLyricClick = (time) => {
-    seek(time);
-  };
+  const handleLyricClick =
+    (time) => {
+
+      seek(time);
+    };
 
 
   /* =======================================================
@@ -476,54 +666,76 @@ function MusicPlayer() {
 
   return (
     <>
+
       {/* ===================================================
           PLAYER
       =================================================== */}
 
       <div className="music-player">
 
-        {/* SONG INFO */}
+
+        {/* =================================================
+            SONG INFO
+        ================================================= */}
 
         <div className="player-song-info">
 
           <img
             src={cover}
-            alt={currentSong.title || "Song"}
+            alt={
+              currentSong.title ||
+              "Song"
+            }
             onError={(event) => {
-              event.currentTarget.onerror = null;
+
+              event.currentTarget.onerror =
+                null;
+
               event.currentTarget.src =
                 DEFAULT_COVER;
             }}
           />
+
 
           <div className="player-song-text">
 
             <button
               type="button"
               className="player-song-title-link"
-              onClick={openSongDetails}
+              onClick={
+                openSongDetails
+              }
             >
               {currentSong.title ||
                 "Unknown Song"}
             </button>
 
+
             {currentSong.artist_id ? (
+
               <button
                 type="button"
                 className="player-artist-link"
-                onClick={openArtistDetails}
+                onClick={
+                  openArtistDetails
+                }
               >
                 {currentSong.artist_name ||
                   "KEERTHANA"}
               </button>
+
             ) : (
+
               <span className="player-artist-name">
+
                 {currentSong.artist_name ||
                   "KEERTHANA"}
+
               </span>
             )}
 
           </div>
+
 
           <button
             type="button"
@@ -532,24 +744,30 @@ function MusicPlayer() {
                 ? "player-like-button liked"
                 : "player-like-button"
             }
-            onClick={handleLike}
+            onClick={
+              handleLike
+            }
             title={
               currentSongLiked
                 ? "Remove Like"
                 : "Like"
             }
           >
+
             {currentSongLiked ? (
               <FaHeart />
             ) : (
               <FaRegHeart />
             )}
+
           </button>
 
         </div>
 
 
-        {/* CENTER */}
+        {/* =================================================
+            CENTER
+        ================================================= */}
 
         <div className="player-main">
 
@@ -562,26 +780,34 @@ function MusicPlayer() {
                   ? "player-shuffle active"
                   : "player-shuffle"
               }
-              onClick={toggleShuffle}
+              onClick={
+                toggleShuffle
+              }
               disabled={!hasQueue}
               title="Shuffle"
             >
               <FaRandom />
             </button>
 
+
             <button
               type="button"
-              onClick={previousSong}
+              onClick={
+                previousSong
+              }
               disabled={!hasQueue}
               title="Previous"
             >
               <FaStepBackward />
             </button>
 
+
             <button
               type="button"
               className="player-play"
-              onClick={togglePlay}
+              onClick={
+                togglePlay
+              }
               title={
                 isPlaying
                   ? "Pause"
@@ -595,47 +821,64 @@ function MusicPlayer() {
               )}
             </button>
 
+
             <button
               type="button"
-              onClick={nextSong}
+              onClick={
+                nextSong
+              }
               disabled={!hasQueue}
               title="Next"
             >
               <FaStepForward />
             </button>
 
+
             <button
               type="button"
               className={
-                repeatMode !== "off"
+                repeatMode !==
+                "off"
                   ? "player-repeat active"
                   : "player-repeat"
               }
-              onClick={toggleRepeat}
+              onClick={
+                toggleRepeat
+              }
               title="Repeat"
             >
+
               <FaRedoAlt />
 
-              {repeatMode === "one" && (
+              {repeatMode ===
+                "one" && (
                 <span>1</span>
               )}
+
             </button>
 
           </div>
 
 
-          {/* PROGRESS */}
+          {/* =================================================
+              PROGRESS
+          ================================================= */}
 
           <div className="player-progress">
 
             <span>
-              {formatTime(displayedTime)}
+              {formatTime(
+                displayedTime
+              )}
             </span>
+
 
             <input
               type="range"
               min="0"
-              max={safeDuration || 0}
+              max={
+                safeDuration || 0
+              }
               step="0.1"
               value={Math.min(
                 displayedTime,
@@ -645,14 +888,25 @@ function MusicPlayer() {
               disabled={
                 safeDuration <= 0
               }
-              onChange={handleSeekChange}
-              onMouseUp={commitSeek}
-              onTouchEnd={commitSeek}
-              onKeyUp={commitSeek}
+              onChange={
+                handleSeekChange
+              }
+              onMouseUp={
+                commitSeek
+              }
+              onTouchEnd={
+                commitSeek
+              }
+              onKeyUp={
+                commitSeek
+              }
             />
 
+
             <span>
-              {formatTime(safeDuration)}
+              {formatTime(
+                safeDuration
+              )}
             </span>
 
           </div>
@@ -660,11 +914,16 @@ function MusicPlayer() {
         </div>
 
 
-        {/* RIGHT */}
+        {/* =================================================
+            RIGHT
+        ================================================= */}
 
         <div className="player-right-controls">
 
-          {/* LYRICS */}
+
+          {/* =================================================
+              LYRICS
+          ================================================= */}
 
           <button
             type="button"
@@ -678,19 +937,28 @@ function MusicPlayer() {
                 ? closeLyrics
                 : openLyrics
             }
-            disabled={!hasLyrics}
+            disabled={
+              !hasLyrics
+            }
             title={
               hasLyrics
                 ? "Lyrics"
                 : "Lyrics unavailable"
             }
           >
+
             <FaMicrophone />
-            <span>Lyrics</span>
+
+            <span>
+              Lyrics
+            </span>
+
           </button>
 
 
-          {/* QUEUE */}
+          {/* =================================================
+              QUEUE
+          ================================================= */}
 
           <button
             type="button"
@@ -701,22 +969,43 @@ function MusicPlayer() {
             }
             onClick={() =>
               setQueueOpen(
-                (value) => !value
+                (value) =>
+                  !value
               )
             }
-            title="Queue"
+            title="Queue / Up Next"
           >
+
             <FaListUl />
+
+            {upNextSongs.length >
+              0 && (
+              <span className="queue-count">
+                {upNextSongs.length}
+              </span>
+            )}
+
           </button>
 
 
-          {/* VOLUME */}
+          {/* =================================================
+              SLEEP TIMER
+          ================================================= */}
+
+          <SleepTimer />
+
+
+          {/* =================================================
+              VOLUME
+          ================================================= */}
 
           <div className="player-volume">
 
             <button
               type="button"
-              onClick={toggleMute}
+              onClick={
+                toggleMute
+              }
               className="player-volume-button"
               title={
                 Number(volume) > 0
@@ -727,12 +1016,15 @@ function MusicPlayer() {
               <VolumeIcon />
             </button>
 
+
             <input
               type="range"
               min="0"
               max="1"
               step="0.01"
-              value={Number(volume) || 0}
+              value={
+                Number(volume) || 0
+              }
               onChange={
                 handleVolumeChange
               }
@@ -741,12 +1033,16 @@ function MusicPlayer() {
           </div>
 
 
-          {/* CLOSE */}
+          {/* =================================================
+              CLOSE
+          ================================================= */}
 
           <button
             type="button"
             className="player-close-button"
-            onClick={handleClosePlayer}
+            onClick={
+              handleClosePlayer
+            }
             title="Close player"
           >
             <FaTimes />
@@ -758,53 +1054,125 @@ function MusicPlayer() {
 
 
       {/* ===================================================
-          QUEUE
+          QUEUE PANEL
       =================================================== */}
 
       {queueOpen && (
+
         <div className="player-queue-panel">
+
+
+          {/* =================================================
+              QUEUE HEADER
+          ================================================= */}
 
           <div className="player-queue-header">
 
             <div>
-              <small>KEERTHANA</small>
-              <h3>Queue</h3>
+
+              <small>
+                KEERTHANA
+              </small>
+
+              <h3>
+                Queue
+              </h3>
+
+              <span className="queue-total">
+                {upNextSongs.length ===
+                0
+                  ? "No songs waiting"
+                  : `${upNextSongs.length} song${
+                      upNextSongs.length ===
+                      1
+                        ? ""
+                        : "s"
+                    } up next`}
+              </span>
+
             </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                setQueueOpen(false)
-              }
-            >
-              <FaTimes />
-            </button>
+
+            <div className="queue-header-actions">
+
+              {upNextSongs.length >
+                0 && (
+
+                <button
+                  type="button"
+                  className="queue-clear-button"
+                  onClick={
+                    handleClearQueue
+                  }
+                  title="Clear Up Next"
+                >
+                  <FaBroom />
+
+                  <span>
+                    Clear
+                  </span>
+                </button>
+
+              )}
+
+
+              <button
+                type="button"
+                className="queue-panel-close"
+                onClick={() =>
+                  setQueueOpen(
+                    false
+                  )
+                }
+                title="Close Queue"
+              >
+                <FaTimes />
+              </button>
+
+            </div>
 
           </div>
 
+
+          {/* =================================================
+              NOW PLAYING
+          ================================================= */}
 
           <div className="queue-section-title">
-            Now Playing
+
+            <span>
+              Now Playing
+            </span>
+
           </div>
+
 
           <button
             type="button"
             className="queue-song-row current"
             onClick={() =>
-              handleQueueSong(currentSong)
+              handleQueueSong(
+                currentSong
+              )
             }
           >
+
             <img
               src={cover}
               alt=""
               onError={(event) => {
-                event.currentTarget.onerror = null;
+
+                event.currentTarget.onerror =
+                  null;
+
                 event.currentTarget.src =
                   DEFAULT_COVER;
               }}
             />
 
+
             <div className="queue-song-info">
+
               <strong>
                 {currentSong.title ||
                   "Unknown Song"}
@@ -814,81 +1182,223 @@ function MusicPlayer() {
                 {currentSong.artist_name ||
                   "KEERTHANA"}
               </span>
+
             </div>
 
-            <span>
+
+            <span className="queue-playing-status">
+
               {isPlaying
                 ? "Playing"
                 : "Paused"}
+
             </span>
+
           </button>
 
 
-          <div className="queue-section-title">
-            Up Next
+          {/* =================================================
+              UP NEXT
+          ================================================= */}
+
+          <div className="queue-section-title queue-up-next-title">
+
+            <span>
+              Up Next
+            </span>
+
+            {upNextSongs.length >
+              0 && (
+
+              <span className="queue-count-label">
+                {upNextSongs.length}
+              </span>
+
+            )}
+
           </div>
+
 
           <div className="queue-song-list">
 
-            {queueSongs
-              .filter(
-                (song) =>
-                  song.id !==
-                  currentSong.id
-              )
-              .map((song) => {
+            {upNextSongs.map(
+              (song, index) => {
 
                 const songCover =
                   song.cover_url
                     ? getMediaUrl(
                         song.cover_url
                       )
-                    : DEFAULT_COVER;
+                    : getSongCover(
+                        song
+                      ) ||
+                      DEFAULT_COVER;
+
 
                 return (
-                  <button
-                    type="button"
-                    className="queue-song-row"
+
+                  <div
+                    className="queue-song-row queue-song-item"
                     key={song.id}
-                    onClick={() =>
-                      handleQueueSong(song)
-                    }
                   >
-                    <img
-                      src={songCover}
-                      alt=""
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-                        event.currentTarget.src =
-                          DEFAULT_COVER;
-                      }}
-                    />
 
-                    <div className="queue-song-info">
-                      <strong>
-                        {song.title ||
-                          "Unknown Song"}
-                      </strong>
 
-                      <span>
-                        {song.artist_name ||
-                          "KEERTHANA"}
+                    {/* SONG CLICK */}
+
+                    <button
+                      type="button"
+                      className="queue-song-main"
+                      onClick={() =>
+                        handleQueueSong(
+                          song
+                        )
+                      }
+                    >
+
+                      <span className="queue-song-number">
+                        {index + 1}
                       </span>
+
+
+                      <img
+                        src={
+                          songCover
+                        }
+                        alt=""
+                        onError={(event) => {
+
+                          event.currentTarget.onerror =
+                            null;
+
+                          event.currentTarget.src =
+                            DEFAULT_COVER;
+                        }}
+                      />
+
+
+                      <div className="queue-song-info">
+
+                        <strong>
+                          {song.title ||
+                            "Unknown Song"}
+                        </strong>
+
+                        <span>
+                          {song.artist_name ||
+                            "KEERTHANA"}
+                        </span>
+
+                      </div>
+
+                    </button>
+
+
+                    {/* QUEUE ACTIONS */}
+
+                    <div className="queue-song-actions">
+
+
+                      {/* MOVE UP */}
+
+                      <button
+                        type="button"
+                        className="queue-action-button"
+                        disabled={
+                          index ===
+                          0
+                        }
+                        onClick={() =>
+                          moveQueueItemUp(
+                            song.id
+                          )
+                        }
+                        title="Move Up"
+                      >
+                        <FaChevronUp />
+                      </button>
+
+
+                      {/* MOVE DOWN */}
+
+                      <button
+                        type="button"
+                        className="queue-action-button"
+                        disabled={
+                          index ===
+                          upNextSongs.length -
+                            1
+                        }
+                        onClick={() =>
+                          moveQueueItemDown(
+                            song.id
+                          )
+                        }
+                        title="Move Down"
+                      >
+                        <FaChevronDown />
+                      </button>
+
+
+                      {/* PLAY */}
+
+                      <button
+                        type="button"
+                        className="queue-action-button queue-play-button"
+                        onClick={() =>
+                          handleQueueSong(
+                            song
+                          )
+                        }
+                        title="Play Now"
+                      >
+                        <FaPlay />
+                      </button>
+
+
+                      {/* REMOVE */}
+
+                      <button
+                        type="button"
+                        className="queue-action-button queue-remove-button"
+                        onClick={() =>
+                          handleRemoveFromQueue(
+                            song.id
+                          )
+                        }
+                        title="Remove from Queue"
+                      >
+                        <FaTrash />
+                      </button>
+
                     </div>
 
-                    <FaPlay />
-                  </button>
-                );
-              })}
+                  </div>
 
-            {queueSongs.filter(
-              (song) =>
-                song.id !==
-                currentSong.id
-            ).length === 0 && (
+                );
+              }
+            )}
+
+
+            {/* EMPTY */}
+
+            {upNextSongs.length ===
+              0 && (
+
               <div className="queue-empty">
-                No more songs
+
+                <FaListUl />
+
+                <strong>
+                  Your queue is empty
+                </strong>
+
+                <span>
+                  Add songs to listen
+                  continuously.
+                </span>
+
               </div>
+
             )}
 
           </div>
@@ -902,10 +1412,14 @@ function MusicPlayer() {
       =================================================== */}
 
       {lyricsOpen && (
+
         <div
           className="player-lyrics-overlay"
-          onClick={closeLyrics}
+          onClick={
+            closeLyrics
+          }
         >
+
           <div
             className="player-lyrics-modal"
             onClick={(event) =>
@@ -916,6 +1430,7 @@ function MusicPlayer() {
             <div className="player-lyrics-header">
 
               <div>
+
                 <small>
                   KEERTHANA • LYRICS
                 </small>
@@ -929,11 +1444,15 @@ function MusicPlayer() {
                   {currentSong.artist_name ||
                     "KEERTHANA"}
                 </p>
+
               </div>
+
 
               <button
                 type="button"
-                onClick={closeLyrics}
+                onClick={
+                  closeLyrics
+                }
               >
                 <FaTimes />
               </button>
@@ -944,19 +1463,26 @@ function MusicPlayer() {
             <div className="player-lyrics-content">
 
               {hasSyncedLyrics ? (
+
                 <div className="synced-lyrics-list">
 
                   {syncedLyrics.map(
-                    (lyric, index) => {
+                    (
+                      lyric,
+                      index
+                    ) => {
 
                       const active =
                         index ===
                         activeLyricIndex;
 
                       return (
+
                         <button
                           type="button"
-                          key={lyric.id}
+                          key={
+                            lyric.id
+                          }
                           ref={
                             active
                               ? activeLyricRef
@@ -973,35 +1499,54 @@ function MusicPlayer() {
                             )
                           }
                         >
-                          {lyric.text}
+                          {
+                            lyric.text
+                          }
                         </button>
+
                       );
+
                     }
                   )}
 
                 </div>
+
               ) : (
+
                 <div className="plain-lyrics">
 
                   {lyrics
-                    .split(/\r?\n/)
+                    .split(
+                      /\r?\n/
+                    )
                     .map(
-                      (line, index) => (
+                      (
+                        line,
+                        index
+                      ) => (
+
                         <p
                           key={`${index}-${line}`}
                         >
-                          {line || "\u00A0"}
+                          {
+                            line ||
+                            "\u00A0"
+                          }
                         </p>
+
                       )
                     )}
 
                 </div>
+
               )}
 
             </div>
 
           </div>
+
         </div>
+
       )}
 
     </>

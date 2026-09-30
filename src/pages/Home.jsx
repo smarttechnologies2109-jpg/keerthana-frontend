@@ -5,10 +5,11 @@ import {
 
 import {
   FaPlay,
-  FaMicrophone,
-  FaCompactDisc,
+  FaPause,
   FaChevronRight,
   FaMusic,
+  FaPlus,
+  FaHandPointer,
 } from "react-icons/fa";
 
 import {
@@ -19,7 +20,7 @@ import API from "../services/api";
 
 import {
   usePlayer,
-} from "../context/PlayerContext";
+} from "../context/usePlayer";
 
 import {
   getSongCover,
@@ -41,7 +42,8 @@ function Home() {
      NAVIGATION
   ===================================================== */
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
 
   /* =====================================================
@@ -49,7 +51,13 @@ function Home() {
   ===================================================== */
 
   const {
+    currentSong,
+    isPlaying,
     playSong,
+    togglePlay,
+    queue,
+    addToQueue,
+    removeFromQueue,
   } = usePlayer();
 
 
@@ -379,7 +387,7 @@ function Home() {
                     songDuration <= 0 ||
 
                     progress <
-                      songDuration
+                    songDuration
                   )
 
                 );
@@ -528,12 +536,10 @@ function Home() {
 
   const displayFeatured =
     featuredSongs.length > 0
-
       ? featuredSongs.slice(
           0,
           6
         )
-
       : songs.slice(
           0,
           6
@@ -556,17 +562,6 @@ function Home() {
 
   /* =====================================================
      CATEGORIES
-
-     IMPORTANT:
-     Backend should return:
-
-     category_id
-     category_name
-     category_image_url
-
-     or:
-
-     category_image
   ===================================================== */
 
   const categoryMap =
@@ -646,6 +641,24 @@ function Home() {
       }
 
 
+      const isCurrent =
+        Number(
+          currentSong?.id
+        ) ===
+        Number(
+          songs[0]?.id
+        );
+
+
+      if (isCurrent) {
+
+        togglePlay();
+
+        return;
+
+      }
+
+
       playSong(
         songs[0],
         songs
@@ -710,9 +723,7 @@ function Home() {
 
       <section className="keerthana-hero">
 
-
         <div className="hero-content">
-
 
           <span className="hero-small">
 
@@ -746,22 +757,41 @@ function Home() {
 
             <button
               type="button"
-
               className="hero-play"
-
               onClick={
                 handleHeroPlay
               }
             >
 
-              <FaPlay />
+              {Number(
+                currentSong?.id
+              ) ===
+              Number(
+                songs[0]?.id
+              ) &&
+              isPlaying ? (
 
-              Play Music
+                <FaPause />
+
+              ) : (
+
+                <FaPlay />
+
+              )}
+
+              {Number(
+                currentSong?.id
+              ) ===
+              Number(
+                songs[0]?.id
+              ) &&
+              isPlaying
+                ? "Pause Music"
+                : "Play Music"}
 
             </button>
 
           )}
-
 
         </div>
 
@@ -775,7 +805,6 @@ function Home() {
           </div>
 
         </div>
-
 
       </section>
 
@@ -821,11 +850,31 @@ function Home() {
                   song={song}
 
                   queue={
+                    queue
+                  }
+
+                  playerQueue={
                     displayFeatured
                   }
 
                   playSong={
                     playSong
+                  }
+
+                  togglePlay={
+                    togglePlay
+                  }
+
+                  currentSong={
+                    currentSong
+                  }
+
+                  isPlaying={
+                    isPlaying
+                  }
+
+                  addToQueue={
+                    addToQueue
                   }
 
                   navigate={
@@ -872,11 +921,31 @@ function Home() {
                   song={song}
 
                   queue={
+                    queue
+                  }
+
+                  playerQueue={
                     recentlyPlayed
                   }
 
                   playSong={
                     playSong
+                  }
+
+                  togglePlay={
+                    togglePlay
+                  }
+
+                  currentSong={
+                    currentSong
+                  }
+
+                  isPlaying={
+                    isPlaying
+                  }
+
+                  addToQueue={
+                    addToQueue
                   }
 
                   navigate={
@@ -923,11 +992,31 @@ function Home() {
                   song={song}
 
                   queue={
+                    queue
+                  }
+
+                  playQueue={
                     continueListening
                   }
 
                   playSong={
                     playSong
+                  }
+
+                  togglePlay={
+                    togglePlay
+                  }
+
+                  currentSong={
+                    currentSong
+                  }
+
+                  isPlaying={
+                    isPlaying
+                  }
+
+                  addToQueue={
+                    addToQueue
                   }
 
                   navigate={
@@ -979,12 +1068,32 @@ function Home() {
 
                   index={index}
 
-                  songs={
-                    latestSongs
+                  songs={latestSongs}
+
+                  queue={queue}
+
+                  currentSong={
+                    currentSong
+                  }
+
+                  isPlaying={
+                    isPlaying
                   }
 
                   playSong={
                     playSong
+                  }
+
+                  togglePlay={
+                    togglePlay
+                  }
+
+                  addToQueue={
+                    addToQueue
+                  }
+
+                  removeFromQueue={
+                    removeFromQueue
                   }
 
                   navigate={
@@ -1057,6 +1166,7 @@ function Home() {
                     <div className="home-artist-image">
 
                       <img
+
                         src={image}
 
                         alt={
@@ -1269,8 +1379,6 @@ function Home() {
 
                   >
 
-                    {/* CATEGORY IMAGE */}
-
                     <div className="category-image">
 
                       <img
@@ -1308,7 +1416,6 @@ function Home() {
                       Explore
 
                     </span>
-
 
                   </button>
 
@@ -1442,8 +1549,13 @@ function HomeSection({
 
 function SongCard({
   song,
-  queue,
+  queue = [],
+  playerQueue = [],
   playSong,
+  togglePlay,
+  currentSong,
+  isPlaying,
+  addToQueue,
   navigate,
 }) {
 
@@ -1452,6 +1564,41 @@ function SongCard({
       song
     );
 
+
+  /* ===================================================
+     CURRENT SONG
+  =================================================== */
+
+  const isCurrent =
+    Number(
+      currentSong?.id
+    ) ===
+    Number(
+      song?.id
+    );
+
+
+  const isCurrentPlaying =
+    isCurrent &&
+    isPlaying;
+
+
+  /* ===================================================
+     CURRENT QUEUE CHECK
+  =================================================== */
+
+  const isInQueue =
+    Array.isArray(queue) &&
+    queue.some(
+      (item) =>
+        Number(item?.id) ===
+        Number(song?.id)
+    );
+
+
+  /* ===================================================
+     OPEN DETAILS
+  =================================================== */
 
   const openSongDetails =
     () => {
@@ -1463,19 +1610,63 @@ function SongCard({
     };
 
 
+  /* ===================================================
+     PLAY / PAUSE
+  =================================================== */
+
   const handlePlay =
     (event) => {
 
       event.stopPropagation();
 
 
+      if (isCurrent) {
+
+        togglePlay();
+
+        return;
+
+      }
+
+
       playSong(
         song,
-        queue
+        playerQueue
       );
 
     };
 
+
+  /* ===================================================
+     ADD TO QUEUE
+  =================================================== */
+
+  const handleAddToQueue =
+    (event) => {
+
+      event.stopPropagation();
+
+
+      if (
+        !addToQueue ||
+        isInQueue
+      ) {
+
+        return;
+
+      }
+
+
+      addToQueue(
+        song
+      );
+
+    };
+
+
+  /* ===================================================
+     KEYBOARD
+  =================================================== */
 
   const handleKeyDown =
     (event) => {
@@ -1537,23 +1728,99 @@ function SongCard({
         />
 
 
+        {/* PLAY / PAUSE BUTTON */}
+
         <button
 
           type="button"
 
-          className="home-card-play"
+          className={
+            isCurrentPlaying
+              ? "home-card-play playing"
+              : "home-card-play"
+          }
 
           onClick={
             handlePlay
           }
 
           aria-label={
-            `Play ${song.title}`
+            isCurrentPlaying
+              ? `Pause ${song.title}`
+              : `Play ${song.title}`
+          }
+
+          title={
+            isCurrentPlaying
+              ? "Pause"
+              : "Play"
           }
 
         >
 
-          <FaPlay />
+          {isCurrentPlaying ? (
+
+            <FaPause />
+
+          ) : (
+
+            <FaPlay />
+
+          )}
+
+        </button>
+
+
+        {/* ADD TO QUEUE */}
+
+        <button
+          type="button"
+          className={
+            isInQueue
+              ? "latest-queue added"
+              : "latest-queue"
+          }
+          onClick={
+            handleAddToQueue
+          }
+          disabled={isInQueue}
+          aria-label={
+            isInQueue
+              ? `${song.title} is already in queue`
+              : `Add ${song.title} to queue`
+          }
+          title={
+            isInQueue
+              ? "Already in queue"
+              : "Add to queue"
+          }
+        >
+
+          {isInQueue ? (
+
+            <>
+
+              <FaHandPointer />
+
+              <span>
+                Queued
+              </span>
+
+            </>
+
+          ) : (
+
+            <>
+
+              <FaPlus />
+
+              <span>
+                Queue
+              </span>
+
+            </>
+
+          )}
 
         </button>
 
@@ -1598,6 +1865,19 @@ function SongCard({
 
         )}
 
+
+        {isCurrent && (
+
+          <small className="home-song-playing-status">
+
+            {isPlaying
+              ? "Now Playing"
+              : "Paused"}
+
+          </small>
+
+        )}
+
       </div>
 
     </div>
@@ -1613,8 +1893,13 @@ function SongCard({
 
 function ContinueListeningCard({
   song,
-  queue,
+  queue = [],
+  playQueue = [],
   playSong,
+  togglePlay,
+  currentSong,
+  isPlaying,
+  addToQueue,
   navigate,
 }) {
 
@@ -1693,6 +1978,28 @@ function ContinueListeningCard({
     };
 
 
+  /* ===================================================
+     CURRENT SONG
+  =================================================== */
+
+  const isCurrent =
+    Number(
+      currentSong?.id
+    ) ===
+    Number(
+      song?.id
+    );
+
+
+  const isCurrentPlaying =
+    isCurrent &&
+    isPlaying;
+
+
+  /* ===================================================
+     OPEN SONG
+  =================================================== */
+
   const openSong =
     () => {
 
@@ -1703,26 +2010,85 @@ function ContinueListeningCard({
     };
 
 
+  /* ===================================================
+     PLAY / PAUSE
+  =================================================== */
+
   const handleContinue =
     (event) => {
 
       event.stopPropagation();
 
 
+      if (isCurrent) {
+
+        togglePlay();
+
+        return;
+
+      }
+
+
       playSong(
         song,
-        queue,
+        playQueue,
         progress
       );
 
     };
 
 
+  /* ===================================================
+     QUEUE CHECK
+  =================================================== */
+
+  const isInQueue =
+    Array.isArray(queue) &&
+    queue.some(
+      (item) =>
+        Number(item?.id) ===
+        Number(song?.id)
+    );
+
+
+  /* ===================================================
+     ADD TO QUEUE
+  =================================================== */
+
+  const handleAddToQueue = (
+    event
+  ) => {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+
+    if (
+      !addToQueue ||
+      isInQueue
+    ) {
+
+      return;
+
+    }
+
+
+    addToQueue(
+      song
+    );
+
+  };
+
+
   return (
 
     <div
 
-      className="continue-card"
+      className={
+        isCurrent
+          ? "continue-card current"
+          : "continue-card"
+      }
 
       onClick={
         openSong
@@ -1773,28 +2139,99 @@ function ContinueListeningCard({
         />
 
 
+        {/* CONTINUE PLAY / PAUSE */}
+
         <button
 
           type="button"
 
-          className="continue-play"
+          className={
+            isCurrentPlaying
+              ? "continue-play playing"
+              : "continue-play"
+          }
 
           onClick={
             handleContinue
           }
 
           aria-label={
-            `Continue ${
-              song.title ||
-              "song"
-            }`
+            isCurrentPlaying
+              ? `Pause ${song.title || "song"}`
+              : `Play ${song.title || "song"}`
           }
 
-          title="Continue listening"
+          title={
+            isCurrentPlaying
+              ? "Pause"
+              : "Continue listening"
+          }
 
         >
 
-          <FaPlay />
+          {isCurrentPlaying ? (
+
+            <FaPause />
+
+          ) : (
+
+            <FaPlay />
+
+          )}
+
+        </button>
+
+
+        {/* ADD TO QUEUE */}
+
+        <button
+          type="button"
+          className={
+            isInQueue
+              ? "latest-queue added"
+              : "latest-queue"
+          }
+          onClick={
+            handleAddToQueue
+          }
+          disabled={isInQueue}
+          aria-label={
+            isInQueue
+              ? `${song.title} is already in queue`
+              : `Add ${song.title} to queue`
+          }
+          title={
+            isInQueue
+              ? "Already in queue"
+              : "Add to queue"
+          }
+        >
+
+          {isInQueue ? (
+
+            <>
+
+              <FaHandPointer />
+
+              <span>
+                Queued
+              </span>
+
+            </>
+
+          ) : (
+
+            <>
+
+              <FaPlus />
+
+              <span>
+                Queue
+              </span>
+
+            </>
+
+          )}
 
         </button>
 
@@ -1886,7 +2323,11 @@ function ContinueListeningCard({
 
           type="button"
 
-          className="continue-button"
+          className={
+            isCurrentPlaying
+              ? "continue-button playing"
+              : "continue-button"
+          }
 
           onClick={
             handleContinue
@@ -1894,11 +2335,22 @@ function ContinueListeningCard({
 
         >
 
-          <FaPlay />
+          {isCurrentPlaying ? (
+
+            <FaPause />
+
+          ) : (
+
+            <FaPlay />
+
+          )}
+
 
           <span>
 
-            Continue
+            {isCurrentPlaying
+              ? "Pause"
+              : "Continue"}
 
           </span>
 
@@ -1921,7 +2373,13 @@ function LatestSongRow({
   song,
   index,
   songs,
+  queue = [],
+  currentSong,
+  isPlaying,
   playSong,
+  togglePlay,
+  addToQueue,
+  removeFromQueue,
   navigate,
 }) {
 
@@ -1930,6 +2388,28 @@ function LatestSongRow({
       song
     );
 
+
+  /* ===================================================
+     CURRENT SONG
+  =================================================== */
+
+  const isCurrent =
+    Number(
+      currentSong?.id
+    ) ===
+    Number(
+      song?.id
+    );
+
+
+  const isCurrentPlaying =
+    isCurrent &&
+    isPlaying;
+
+
+  /* ===================================================
+     OPEN SONG
+  =================================================== */
 
   const openSong =
     () => {
@@ -1941,10 +2421,23 @@ function LatestSongRow({
     };
 
 
+  /* ===================================================
+     PLAY / PAUSE
+  =================================================== */
+
   const handlePlay =
     (event) => {
 
       event.stopPropagation();
+
+
+      if (isCurrent) {
+
+        togglePlay();
+
+        return;
+
+      }
 
 
       playSong(
@@ -1955,11 +2448,65 @@ function LatestSongRow({
     };
 
 
+  /* ===================================================
+     QUEUE CHECK
+  =================================================== */
+
+  const isInQueue =
+    Array.isArray(queue) &&
+    queue.some(
+      (item) =>
+        Number(item?.id) ===
+        Number(song?.id)
+    );
+
+
+  /* ===================================================
+     ADD / REMOVE QUEUE
+  =================================================== */
+
+  const handleQueueClick =
+    (event) => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+
+      if (isInQueue) {
+
+        if (removeFromQueue) {
+
+          removeFromQueue(
+            song.id
+          );
+
+        }
+
+        return;
+
+      }
+
+
+      if (addToQueue) {
+
+        addToQueue(
+          song
+        );
+
+      }
+
+    };
+
+
   return (
 
     <div
 
-      className="latest-song-row"
+      className={
+        isCurrent
+          ? "latest-song-row current"
+          : "latest-song-row"
+      }
 
       onClick={
         openSong
@@ -2020,21 +2567,39 @@ function LatestSongRow({
         />
 
 
+        {/* PLAY / PAUSE */}
+
         <button
 
           type="button"
+
+          className={
+            isCurrentPlaying
+              ? "playing"
+              : ""
+          }
 
           onClick={
             handlePlay
           }
 
           aria-label={
-            `Play ${song.title}`
+            isCurrentPlaying
+              ? `Pause ${song.title}`
+              : `Play ${song.title}`
           }
 
         >
 
-          <FaPlay />
+          {isCurrentPlaying ? (
+
+            <FaPause />
+
+          ) : (
+
+            <FaPlay />
+
+          )}
 
         </button>
 
@@ -2091,6 +2656,19 @@ function LatestSongRow({
 
         </button>
 
+
+        {isCurrent && (
+
+          <small className="latest-playing-status">
+
+            {isPlaying
+              ? "Now Playing"
+              : "Paused"}
+
+          </small>
+
+        )}
+
       </div>
 
 
@@ -2130,25 +2708,108 @@ function LatestSongRow({
       </button>
 
 
-      {/* PLAY */}
+      {/* ADD / REMOVE QUEUE */}
 
       <button
 
         type="button"
 
-        className="latest-play"
+        className={
+          isInQueue
+            ? "latest-queue added"
+            : "latest-queue"
+        }
+
+        onClick={
+          handleQueueClick
+        }
+
+        aria-label={
+          isInQueue
+            ? `Remove ${song.title} from queue`
+            : `Add ${song.title} to queue`
+        }
+
+        title={
+          isInQueue
+            ? "Remove from queue"
+            : "Add to queue"
+        }
+
+      >
+
+        {isInQueue ? (
+
+          <>
+
+            <FaHandPointer />
+
+            <span>
+
+              Queued
+
+            </span>
+
+          </>
+
+        ) : (
+
+          <>
+
+            <FaPlus />
+
+            <span>
+
+              Queue
+
+            </span>
+
+          </>
+
+        )}
+
+      </button>
+
+
+      {/* PLAY / PAUSE */}
+
+      <button
+
+        type="button"
+
+        className={
+          isCurrentPlaying
+            ? "latest-play playing"
+            : "latest-play"
+        }
 
         onClick={
           handlePlay
         }
 
         aria-label={
-          `Play ${song.title}`
+          isCurrentPlaying
+            ? `Pause ${song.title}`
+            : `Play ${song.title}`
+        }
+
+        title={
+          isCurrentPlaying
+            ? "Pause"
+            : "Play"
         }
 
       >
 
-        <FaPlay />
+        {isCurrentPlaying ? (
+
+          <FaPause />
+
+        ) : (
+
+          <FaPlay />
+
+        )}
 
       </button>
 

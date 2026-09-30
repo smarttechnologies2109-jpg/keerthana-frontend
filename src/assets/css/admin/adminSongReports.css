@@ -1,0 +1,1071 @@
+
+/* =========================================================
+   ADMIN SONG REPORTS PAGE
+========================================================= */
+
+.admin-song-reports-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+  color: #17352a;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.admin-song-reports-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.admin-song-reports-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #c9a45c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.admin-song-reports-header h1 {
+  margin: 0;
+  color: #12372a;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.admin-song-reports-header p {
+  margin: 8px 0 0;
+  color: #718078;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
+
+.admin-song-reports-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 44px;
+  padding: 0 18px;
+
+  border: 1px solid #d8e0db;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #12372a;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-song-reports-refresh:hover:not(:disabled) {
+  background: #f5f8f6;
+  border-color: #c9a45c;
+  box-shadow: 0 5px 16px rgba(18, 55, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.admin-song-reports-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin-song-reports-refresh svg {
+  font-size: 13px;
+}
+
+.admin-song-reports-refresh .is-spinning {
+  animation: adminReportSpin 0.8s linear infinite;
+}
+
+@keyframes adminReportSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.admin-song-reports-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-report-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  min-height: 94px;
+  padding: 18px;
+
+  background: #ffffff;
+  border: 1px solid #e3e9e5;
+  border-radius: 14px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 4px 18px rgba(18, 55, 42, 0.05);
+}
+
+.admin-report-summary-icon {
+  width: 48px;
+  height: 48px;
+
+  flex: 0 0 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  font-size: 18px;
+}
+
+.admin-report-summary-icon.total {
+  background: #edf4f0;
+  color: #12372a;
+}
+
+.admin-report-summary-icon.pending {
+  background: #fff7e7;
+  color: #b27b12;
+}
+
+.admin-report-summary-icon.resolved {
+  background: #edf8f1;
+  color: #2d8150;
+}
+
+.admin-report-summary-card span {
+  display: block;
+  margin-bottom: 5px;
+
+  color: #78857e;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-report-summary-card strong {
+  display: block;
+
+  color: #12372a;
+
+  font-size: 25px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.admin-song-reports-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin-bottom: 22px;
+}
+
+.admin-song-reports-search {
+  position: relative;
+  flex: 1;
+  max-width: 600px;
+}
+
+.admin-song-reports-search svg {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #8a9891;
+  font-size: 14px;
+
+  pointer-events: none;
+}
+
+.admin-song-reports-search input {
+  width: 100%;
+  height: 46px;
+
+  padding: 0 16px 0 42px;
+
+  border: 1px solid #dce4df;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #17352a;
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-song-reports-search input::placeholder {
+  color: #9aa59f;
+}
+
+.admin-song-reports-search input:focus {
+  border-color: #c9a45c;
+
+  box-shadow:
+    0 0 0 3px rgba(201, 164, 92, 0.12);
+}
+
+.admin-song-reports-filter {
+  min-width: 170px;
+  height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid #dce4df;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #17352a;
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-song-reports-filter:focus {
+  border-color: #c9a45c;
+
+  box-shadow:
+    0 0 0 3px rgba(201, 164, 92, 0.12);
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.admin-song-reports-error {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  margin-bottom: 22px;
+  padding: 15px 17px;
+
+  border: 1px solid #f0d5d5;
+  border-radius: 12px;
+
+  background: #fff7f7;
+  color: #9c3939;
+}
+
+.admin-song-reports-error > svg {
+  flex: 0 0 auto;
+  font-size: 18px;
+}
+
+.admin-song-reports-error > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  flex: 1;
+}
+
+.admin-song-reports-error strong {
+  font-size: 13px;
+}
+
+.admin-song-reports-error span {
+  font-size: 12px;
+  color: #a45b5b;
+}
+
+.admin-song-reports-error button {
+  min-height: 36px;
+  padding: 0 13px;
+
+  border: 1px solid #e0baba;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #9c3939;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.admin-song-reports-loading {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+
+  color: #74817b;
+  font-size: 13px;
+}
+
+.admin-report-spinner {
+  width: 34px;
+  height: 34px;
+
+  border: 3px solid #e2e9e5;
+  border-top-color: #c9a45c;
+  border-radius: 50%;
+
+  animation: adminReportSpin 0.8s linear infinite;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.admin-song-reports-empty {
+  min-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px;
+
+  background: #ffffff;
+
+  border: 1px dashed #d7e0db;
+  border-radius: 16px;
+
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.admin-report-empty-icon {
+  width: 62px;
+  height: 62px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 16px;
+
+  border-radius: 50%;
+
+  background: #edf4f0;
+  color: #12372a;
+
+  font-size: 23px;
+}
+
+.admin-song-reports-empty h2 {
+  margin: 0;
+
+  color: #12372a;
+
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.admin-song-reports-empty p {
+  max-width: 430px;
+
+  margin: 8px 0 0;
+
+  color: #7c8982;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   REPORT LIST
+========================================================= */
+
+.admin-song-reports-list {
+  display: grid;
+  gap: 18px;
+}
+
+
+/* =========================================================
+   REPORT CARD
+========================================================= */
+
+.admin-song-report-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8e4;
+  border-radius: 15px;
+
+  box-shadow:
+    0 5px 20px rgba(18, 55, 42, 0.045);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-song-report-card:hover {
+  border-color: #d2ddd7;
+
+  box-shadow:
+    0 8px 26px rgba(18, 55, 42, 0.07);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.admin-song-report-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 19px 20px;
+
+  border-bottom: 1px solid #edf1ef;
+}
+
+.admin-song-report-song {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.admin-song-report-song-icon {
+  width: 44px;
+  height: 44px;
+
+  flex: 0 0 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #edf4f0;
+  color: #12372a;
+
+  font-size: 16px;
+}
+
+.admin-song-report-song h2 {
+  margin: 0 0 4px;
+
+  color: #17352a;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-song-report-song span {
+  display: block;
+
+  color: #8a9690;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+.admin-song-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  flex: 0 0 auto;
+
+  min-height: 31px;
+  padding: 0 11px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.admin-song-report-status svg {
+  font-size: 11px;
+}
+
+.admin-song-report-status.pending {
+  background: #fff6df;
+  color: #a16c09;
+}
+
+.admin-song-report-status.resolved {
+  background: #eaf7ef;
+  color: #2e8050;
+}
+
+.admin-song-report-status.rejected {
+  background: #fff0f0;
+  color: #b04444;
+}
+
+
+/* =========================================================
+   REPORT TYPE
+========================================================= */
+
+.admin-song-report-type {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 15px 20px 0;
+}
+
+.admin-song-report-type span {
+  color: #8b9791;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-song-report-type strong {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 28px;
+  padding: 0 10px;
+
+  border-radius: 7px;
+
+  background: #f2f6f3;
+  color: #315344;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.admin-song-report-message {
+  padding: 15px 20px;
+}
+
+.admin-song-report-message > span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #8b9791;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-song-report-message p {
+  margin: 0;
+
+  padding: 13px 14px;
+
+  border-left: 3px solid #c9a45c;
+  border-radius: 0 8px 8px 0;
+
+  background: #faf9f5;
+
+  color: #3e4f47;
+
+  font-size: 13px;
+  line-height: 1.7;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.admin-song-report-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 15px 20px;
+
+  border-top: 1px solid #edf1ef;
+}
+
+.admin-song-report-user {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-song-report-user > svg {
+  flex: 0 0 auto;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 7px;
+
+  box-sizing: border-box;
+
+  border-radius: 50%;
+
+  background: #edf4f0;
+  color: #12372a;
+
+  font-size: 12px;
+}
+
+.admin-song-report-user > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-song-report-user strong {
+  color: #31483d;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-song-report-user span {
+  color: #8b9791;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-song-report-footer time {
+  flex: 0 0 auto;
+
+  color: #8a9690;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   ADMIN ACTIONS
+========================================================= */
+
+.admin-song-report-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 15px 20px 18px;
+
+  background: #fafcfb;
+
+  border-top: 1px solid #edf1ef;
+}
+
+
+/* =========================================================
+   STATUS CONTROL
+========================================================= */
+
+.admin-song-report-status-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-song-report-status-control label {
+  color: #62736a;
+
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-song-report-status-control select {
+  min-width: 145px;
+  height: 38px;
+
+  padding: 0 32px 0 11px;
+
+  border: 1px solid #d5dfd9;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #29473a;
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-song-report-status-control select:hover:not(:disabled) {
+  border-color: #c9a45c;
+}
+
+.admin-song-report-status-control select:focus {
+  border-color: #c9a45c;
+
+  box-shadow:
+    0 0 0 3px rgba(201, 164, 92, 0.12);
+}
+
+.admin-song-report-status-control select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.admin-song-report-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 38px;
+  padding: 0 14px;
+
+  border: 1px solid #efd0d0;
+  border-radius: 8px;
+
+  background: #fff7f7;
+  color: #ad4646;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-song-report-delete:hover:not(:disabled) {
+  background: #fff0f0;
+  border-color: #dfb0b0;
+  color: #963737;
+
+  transform: translateY(-1px);
+}
+
+.admin-song-report-delete:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-song-report-delete:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-song-report-delete svg {
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+========================================================= */
+
+.admin-song-reports-page button:focus-visible,
+.admin-song-reports-page select:focus-visible,
+.admin-song-reports-page input:focus-visible {
+  outline: 2px solid #c9a45c;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .admin-song-reports-page {
+    padding: 24px;
+  }
+
+  .admin-song-reports-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-song-reports-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-song-reports-search {
+    max-width: none;
+  }
+
+  .admin-song-reports-filter {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .admin-song-reports-page {
+    padding: 18px;
+  }
+
+  .admin-song-reports-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .admin-song-reports-header h1 {
+    font-size: 27px;
+  }
+
+  .admin-song-reports-refresh {
+    width: 100%;
+  }
+
+  .admin-song-report-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-song-report-status {
+    align-self: flex-start;
+  }
+
+  .admin-song-report-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .admin-song-report-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-song-report-status-control {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .admin-song-report-status-control select {
+    width: 100%;
+  }
+
+  .admin-song-report-delete {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .admin-song-reports-page {
+    padding: 14px;
+  }
+
+  .admin-song-reports-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.4px;
+  }
+
+  .admin-song-reports-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-song-reports-header p {
+    font-size: 12px;
+  }
+
+  .admin-report-summary-card {
+    min-height: 82px;
+    padding: 14px;
+  }
+
+  .admin-report-summary-icon {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .admin-report-summary-card strong {
+    font-size: 22px;
+  }
+
+  .admin-song-report-card-header {
+    padding: 16px;
+  }
+
+  .admin-song-report-type {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-song-report-message {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-song-report-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-song-report-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-song-report-song h2 {
+    max-width: 210px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .admin-song-reports-page *,
+  .admin-song-reports-page *::before,
+  .admin-song-reports-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+}
+
