@@ -57,6 +57,9 @@ import AdminLayout
 import AdminRoute
   from "./components/admin/AdminRoute";
 
+import OwnerRoute
+  from "./components/businessOwner/OwnerRoute";
+
 
 /* =========================================================
    AUTH PAGES
@@ -145,6 +148,9 @@ import AllSongs
 import Notifications
   from "./pages/Notifications";
 
+import Favorites
+  from "./pages/Favorites";
+
 
 /* =========================================================
    ADMIN PAGES
@@ -180,6 +186,9 @@ import ManageMinistries
 import AdminForgotPassword
   from "./pages/admin/AdminForgotPassword";
 
+import AdminSongReports
+  from "./pages/admin/AdminSongReports";
+
 
 /* =========================================================
    BUSINESS OWNER PAGES
@@ -200,28 +209,28 @@ import BusinessOwnerStatistics
 import BusinessOwnerMusic
   from "./pages/businessOwner/BusinessOwnerMusic";
 
+import BusinessOwnerSongs
+  from "./pages/businessOwner/BusinessOwnerSongs";
+
+import BusinessOwnerAlbums
+  from "./pages/businessOwner/BusinessOwnerAlbums";
+
+import BusinessOwnerArtists
+  from "./pages/businessOwner/BusinessOwnerArtists";
+
+import BusinessOwnerCategories
+  from "./pages/businessOwner/BusinessOwnerCategories";
+
+import BusinessOwnerMinistries
+  from "./pages/businessOwner/BusinessOwnerMinistries";
+
 import BusinessOwnerForgotPassword
   from "./pages/businessOwner/BusinessOwnerForgotPassword";
 
 
 /* =========================================================
-   ADMIN REPORTS
-========================================================= */
-
-import AdminSongReports
-  from "./pages/admin/AdminSongReports";
-
-
-/* =========================================================
-   FAVORITES
-========================================================= */
-
-import Favorites
-  from "./pages/Favorites";
-
-
-/* =========================================================
-   USER ROOT REDIRECT
+   USER HOME REDIRECT
+=========================================================
 
    "/" behavior:
 
@@ -232,6 +241,7 @@ import Favorites
    LOGGED IN
         ↓
      /home
+
 ========================================================= */
 
 function UserHomeRedirect() {
@@ -254,34 +264,30 @@ function UserHomeRedirect() {
 
 
   /* -------------------------------------------------------
-     USER IS LOGGED IN
+     LOGGED IN
   ------------------------------------------------------- */
 
   if (user) {
 
     return (
-
       <Navigate
         to="/home"
         replace
       />
-
     );
 
   }
 
 
   /* -------------------------------------------------------
-     USER IS NOT LOGGED IN
+     NOT LOGGED IN
   ------------------------------------------------------- */
 
   return (
-
     <Navigate
       to="/login"
       replace
     />
-
   );
 
 }
@@ -314,7 +320,6 @@ function App() {
                 <Login />
               }
             />
-
 
             <Route
               path="/register"
@@ -444,7 +449,6 @@ function App() {
                 }
               />
 
-
               <Route
                 path="/playlists/:id"
                 element={
@@ -476,7 +480,6 @@ function App() {
                 }
               />
 
-
               <Route
                 path="/artists/:id"
                 element={
@@ -495,7 +498,6 @@ function App() {
                   <Albums />
                 }
               />
-
 
               <Route
                 path="/albums/:id"
@@ -591,15 +593,6 @@ function App() {
 
               {/* =================================================
                   MOOD SONGS
-
-                  Examples:
-
-                  /moods/worship
-                  /moods/praise
-                  /moods/prayer
-                  /moods/hope
-                  /moods/peace
-                  /moods/thanksgiving
               ================================================= */}
 
               <Route
@@ -611,7 +604,7 @@ function App() {
 
 
               {/* =================================================
-                  STATISTICS
+                  USER STATISTICS
               ================================================= */}
 
               <Route
@@ -623,7 +616,7 @@ function App() {
 
 
               {/* =================================================
-                  MINISTRIES
+                  USER MINISTRIES
               ================================================= */}
 
               <Route
@@ -633,14 +626,12 @@ function App() {
                 }
               />
 
-
               <Route
                 path="/ministries/:id"
                 element={
                   <MinistryDetails />
                 }
               />
-
 
             </Route>
 
@@ -652,13 +643,9 @@ function App() {
             <Route
               path="/admin"
               element={
-
                 <AdminRoute>
-
                   <AdminLayout />
-
                 </AdminRoute>
-
               }
             >
 
@@ -687,6 +674,10 @@ function App() {
               />
 
 
+              {/* =================================================
+                  ADD SONG
+              ================================================= */}
+
               <Route
                 path="songs/add"
                 element={
@@ -695,10 +686,26 @@ function App() {
               />
 
 
+              {/* =================================================
+                  EDIT SONG
+              ================================================= */}
+
               <Route
                 path="songs/:id/edit"
                 element={
                   <EditSong />
+                }
+              />
+
+
+              {/* =================================================
+                  ADMIN SONG REPORTS
+              ================================================= */}
+
+              <Route
+                path="songs/reports"
+                element={
+                  <AdminSongReports />
                 }
               />
 
@@ -751,35 +758,24 @@ function App() {
               />
 
 
+              {/* =================================================
+                  ADMIN MINISTRIES
+              ================================================= */}
+
+              <Route
+                path="ministries"
+                element={
+                  <ManageMinistries />
+                }
+              />
+
             </Route>
 
 
             {/* =================================================
-                ADMIN MINISTRIES
-            ================================================= */}
-
-            <Route
-              path="/admin/ministries"
-              element={
-                <ManageMinistries />
-              }
-            />
-
-
-            {/* =================================================
-                ADMIN SONG REPORTS
-            ================================================= */}
-
-            <Route
-              path="/admin/songs/reports"
-              element={
-                <AdminSongReports />
-              }
-            />
-
-
-            {/* =================================================
                 ADMIN FORGOT PASSWORD
+
+                OUTSIDE AdminRoute
             ================================================= */}
 
             <Route
@@ -791,7 +787,9 @@ function App() {
 
 
             {/* =================================================
-                BUSINESS OWNER
+                BUSINESS OWNER LOGIN
+
+                OUTSIDE OwnerRoute
             ================================================= */}
 
             <Route
@@ -802,42 +800,142 @@ function App() {
             />
 
 
-            <Route
-              path="/owner/dashboard"
-              element={
-                <BusinessOwnerDashboard />
-              }
-            />
+            {/* =================================================
+                BUSINESS OWNER FORGOT PASSWORD
 
-
-            <Route
-              path="/owner/users"
-              element={
-                <BusinessOwnerUsers />
-              }
-            />
-
-
-            <Route
-              path="/owner/statistics"
-              element={
-                <BusinessOwnerStatistics />
-              }
-            />
-
-
-            <Route
-              path="/owner/music"
-              element={
-                <BusinessOwnerMusic />
-              }
-            />
-
+                OUTSIDE OwnerRoute
+            ================================================= */}
 
             <Route
               path="/owner/forgot-password"
               element={
                 <BusinessOwnerForgotPassword />
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER DASHBOARD
+            ================================================= */}
+
+            <Route
+              path="/owner/dashboard"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerDashboard />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER USERS
+            ================================================= */}
+
+            <Route
+              path="/owner/users"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerUsers />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER STATISTICS
+            ================================================= */}
+
+            <Route
+              path="/owner/statistics"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerStatistics />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER MUSIC HOME
+            ================================================= */}
+
+            <Route
+              path="/owner/music"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerMusic />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER SONGS
+            ================================================= */}
+
+            <Route
+              path="/owner/music/songs"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerSongs />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER ALBUMS
+            ================================================= */}
+
+            <Route
+              path="/owner/music/albums"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerAlbums />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER ARTISTS
+            ================================================= */}
+
+            <Route
+              path="/owner/music/artists"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerArtists />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER CATEGORIES
+            ================================================= */}
+
+            <Route
+              path="/owner/music/categories"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerCategories />
+                </OwnerRoute>
+              }
+            />
+
+
+            {/* =================================================
+                BUSINESS OWNER MINISTRIES
+            ================================================= */}
+
+            <Route
+              path="/owner/music/ministries"
+              element={
+                <OwnerRoute>
+                  <BusinessOwnerMinistries />
+                </OwnerRoute>
               }
             />
 
@@ -856,3 +954,4 @@ function App() {
 
 
 export default App;
+

@@ -1,0 +1,814 @@
+/* =========================================================
+   BUSINESS OWNER MINISTRIES
+========================================================= */
+
+.owner-ministries-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f5f6fa;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.owner-ministries-header {
+  margin-bottom: 24px;
+}
+
+.owner-ministries-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+
+.owner-ministries-back-btn {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  border: none;
+  background: transparent;
+
+  color: #5b3cc4;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  padding: 0;
+}
+
+
+.owner-ministries-back-btn:hover {
+  color: #4325a0;
+}
+
+
+.owner-ministries-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+
+.owner-ministries-title-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: #ede7ff;
+
+  color: #5b3cc4;
+
+  font-size: 25px;
+
+  flex-shrink: 0;
+}
+
+
+.owner-ministries-title h1 {
+  margin: 0;
+
+  color: #202124;
+
+  font-size: 28px;
+  font-weight: 800;
+}
+
+
+.owner-ministries-title p {
+  margin: 5px 0 0;
+
+  color: #777;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.owner-ministries-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 22px;
+}
+
+
+.owner-ministry-summary-card {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeeee;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 15px
+    rgba(0, 0, 0, 0.05);
+}
+
+
+.owner-ministry-summary-icon {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: #ede7ff;
+
+  color: #5b3cc4;
+
+  font-size: 19px;
+
+  flex-shrink: 0;
+}
+
+
+.owner-ministry-summary-card span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+
+.owner-ministry-summary-card strong {
+  display: block;
+
+  color: #202124;
+
+  font-size: 21px;
+}
+
+
+/* =========================================================
+   FILTER CARD
+========================================================= */
+
+.owner-ministries-filter-card {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  margin-bottom: 22px;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeeee;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 15px
+    rgba(0, 0, 0, 0.04);
+}
+
+
+.owner-ministries-search,
+.owner-ministries-language {
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  border: 1px solid #dddddd;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #777;
+
+  padding: 0 13px;
+}
+
+
+.owner-ministries-search {
+  flex: 1;
+}
+
+
+.owner-ministries-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #222;
+
+  font-size: 14px;
+}
+
+
+.owner-ministries-search input::placeholder {
+  color: #999;
+}
+
+
+.owner-ministries-language {
+  min-width: 190px;
+}
+
+
+.owner-ministries-language select {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #333;
+
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+
+.owner-ministries-clear-btn {
+  height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 0 15px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #f1efff;
+
+  color: #5b3cc4;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+
+.owner-ministries-clear-btn:hover {
+  background: #e5dfff;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.owner-ministries-content {
+  width: 100%;
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.owner-ministries-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.owner-ministry-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeeee;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 5px 18px
+    rgba(0, 0, 0, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.owner-ministry-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 10px 28px
+    rgba(0, 0, 0, 0.09);
+}
+
+
+/* =========================================================
+   IMAGE
+========================================================= */
+
+.owner-ministry-image-wrapper {
+  position: relative;
+
+  width: 100%;
+
+  height: 190px;
+
+  overflow: hidden;
+
+  background: #f0edff;
+}
+
+
+.owner-ministry-image {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.3s ease;
+}
+
+
+.owner-ministry-card:hover
+.owner-ministry-image {
+  transform: scale(1.04);
+}
+
+
+.owner-ministry-image-icon {
+  position: absolute;
+
+  left: 12px;
+  bottom: 12px;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: rgba(255, 255, 255, 0.94);
+
+  color: #5b3cc4;
+
+  box-shadow:
+    0 3px 10px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   CARD CONTENT
+========================================================= */
+
+.owner-ministry-card-content {
+  padding: 17px;
+}
+
+
+.owner-ministry-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+
+.owner-ministry-card-top h2 {
+  margin: 0;
+
+  color: #202124;
+
+  font-size: 17px;
+  font-weight: 800;
+
+  line-height: 1.35;
+}
+
+
+.owner-ministry-language-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  background: #ede7ff;
+
+  color: #5b3cc4;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.owner-ministry-description {
+  min-height: 42px;
+
+  margin: 11px 0 14px;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.55;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.owner-ministry-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding-top: 13px;
+
+  border-top: 1px solid #eeeeee;
+}
+
+
+.owner-ministry-song-count {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #5b3cc4;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+.owner-ministry-song-count svg {
+  font-size: 13px;
+}
+
+
+.owner-ministry-id {
+  color: #999;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.owner-ministries-loading {
+  min-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+}
+
+
+.owner-ministries-spinner {
+  width: 40px;
+  height: 40px;
+
+  border: 4px solid #e7e2ff;
+
+  border-top-color: #5b3cc4;
+
+  border-radius: 50%;
+
+  animation:
+    ownerMinistrySpin
+    0.8s linear infinite;
+}
+
+
+.owner-ministries-loading p {
+  margin: 0;
+
+  color: #777;
+
+  font-size: 14px;
+}
+
+
+@keyframes ownerMinistrySpin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.owner-ministries-error {
+  min-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 30px;
+}
+
+
+.owner-ministries-error > svg {
+  margin-bottom: 12px;
+
+  color: #d9534f;
+
+  font-size: 38px;
+}
+
+
+.owner-ministries-error h3 {
+  margin: 0 0 7px;
+
+  color: #333;
+
+  font-size: 18px;
+}
+
+
+.owner-ministries-error p {
+  margin: 0;
+
+  color: #777;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.owner-ministries-empty {
+  min-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 30px;
+}
+
+
+.owner-ministries-empty-icon {
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 15px;
+
+  border-radius: 20px;
+
+  background: #ede7ff;
+
+  color: #5b3cc4;
+
+  font-size: 28px;
+}
+
+
+.owner-ministries-empty h3 {
+  margin: 0 0 7px;
+
+  color: #333;
+
+  font-size: 19px;
+}
+
+
+.owner-ministries-empty p {
+  margin: 0;
+
+  max-width: 450px;
+
+  color: #777;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .owner-ministries-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .owner-ministries-page {
+    padding: 20px;
+  }
+
+
+  .owner-ministries-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .owner-ministries-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .owner-ministries-filter-card {
+    flex-wrap: wrap;
+  }
+
+
+  .owner-ministries-search {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+
+  .owner-ministries-language {
+    flex: 1;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .owner-ministries-page {
+    padding: 15px;
+  }
+
+
+  .owner-ministries-title h1 {
+    font-size: 23px;
+  }
+
+
+  .owner-ministries-title p {
+    font-size: 12px;
+  }
+
+
+  .owner-ministries-title-icon {
+    width: 48px;
+    height: 48px;
+
+    font-size: 21px;
+  }
+
+
+  .owner-ministries-summary {
+    grid-template-columns: 1fr;
+  }
+
+
+  .owner-ministries-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .owner-ministries-language {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+
+  .owner-ministries-clear-btn {
+    width: 100%;
+  }
+
+
+  .owner-ministry-image-wrapper {
+    height: 210px;
+  }
+
+}
+
+
+@media (max-width: 400px) {
+
+  .owner-ministries-title {
+    align-items: flex-start;
+  }
+
+
+  .owner-ministries-back-btn {
+    font-size: 13px;
+  }
+
+
+  .owner-ministry-card-top {
+    flex-direction: column;
+  }
+
+}

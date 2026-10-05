@@ -1,0 +1,869 @@
+/* =========================================================
+   BUSINESS OWNER ARTISTS PAGE
+========================================================= */
+
+.owner-artists-page {
+  min-height: 100vh;
+
+  padding: 24px;
+
+  background: #f5f7fb;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.owner-artists-header {
+  width: 100%;
+
+  max-width: 1500px;
+
+  margin: 0 auto 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 24px;
+
+  padding: 20px 24px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 4px 16px
+    rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.owner-artists-back-button {
+  border: none;
+
+  background: #f1f5f9;
+
+  color: #334155;
+
+  padding: 11px 16px;
+
+  border-radius: 10px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.owner-artists-back-button:hover {
+  background: #e2e8f0;
+
+  transform: translateX(-2px);
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.owner-artists-title-area {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.owner-artists-title-icon {
+  width: 54px;
+
+  height: 54px;
+
+  border-radius: 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+
+  font-size: 23px;
+}
+
+
+.owner-artists-title-area h1 {
+  margin: 0;
+
+  font-size: 25px;
+
+  color: #111827;
+
+  font-weight: 700;
+}
+
+
+.owner-artists-title-area p {
+  margin: 5px 0 0;
+
+  font-size: 14px;
+
+  color: #64748b;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.owner-artists-content {
+  width: 100%;
+
+  max-width: 1500px;
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.owner-artists-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 20px;
+}
+
+
+.owner-artists-summary-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 15px;
+
+  padding: 18px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  box-shadow:
+    0 3px 12px
+    rgba(0, 0, 0, 0.04);
+}
+
+
+.owner-artists-summary-card span {
+  color: #64748b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+.owner-artists-summary-card strong {
+  color: #111827;
+
+  font-size: 24px;
+
+  font-weight: 700;
+}
+
+
+.owner-artists-language-value {
+  font-size: 17px !important;
+
+  color: #4f46e5 !important;
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.owner-artists-filter-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 17px;
+
+  padding: 20px;
+
+  margin-bottom: 20px;
+
+  box-shadow:
+    0 3px 12px
+    rgba(0, 0, 0, 0.04);
+}
+
+
+.owner-artists-filter-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 15px;
+
+  color: #334155;
+
+  font-size: 15px;
+
+  font-weight: 700;
+}
+
+
+.owner-artists-filter-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.owner-artists-search {
+  position: relative;
+
+  flex: 1;
+
+  min-width: 250px;
+}
+
+
+.owner-artists-search > svg {
+  position: absolute;
+
+  left: 14px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #94a3b8;
+
+  font-size: 15px;
+}
+
+
+.owner-artists-search input {
+  width: 100%;
+
+  height: 44px;
+
+  padding:
+    0 42px
+    0 40px;
+
+  border: 1px solid #dbe1ea;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+
+.owner-artists-search input:focus {
+  border-color: #818cf8;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99, 102, 241, 0.10);
+}
+
+
+.owner-artists-clear-search {
+  position: absolute;
+
+  right: 10px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  border: none;
+
+  background: transparent;
+
+  color: #94a3b8;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   LANGUAGE SELECT
+========================================================= */
+
+.owner-artists-language-select {
+  height: 44px;
+
+  min-width: 180px;
+
+  padding: 0 14px;
+
+  border: 1px solid #dbe1ea;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #334155;
+
+  font-size: 14px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+
+.owner-artists-language-select:focus {
+  border-color: #818cf8;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99, 102, 241, 0.10);
+}
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+.owner-artists-clear-button {
+  height: 44px;
+
+  padding: 0 15px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+
+.owner-artists-clear-button:hover {
+  background: #fee2e2;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.owner-artists-error {
+  padding: 14px 16px;
+
+  margin-bottom: 20px;
+
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+
+  color: #b91c1c;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.owner-artists-loading {
+  min-height: 300px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 17px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+}
+
+
+.owner-artists-spinner {
+  width: 36px;
+
+  height: 36px;
+
+  border: 4px solid #e5e7eb;
+
+  border-top-color: #4f46e5;
+
+  border-radius: 50%;
+
+  animation:
+    ownerArtistsSpin
+    0.8s linear infinite;
+}
+
+
+@keyframes ownerArtistsSpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+.owner-artists-loading p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.owner-artists-empty {
+  min-height: 320px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 17px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 30px;
+}
+
+
+.owner-artists-empty-icon {
+  width: 65px;
+
+  height: 65px;
+
+  border-radius: 50%;
+
+  background: #eef2ff;
+
+  color: #4f46e5;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 27px;
+
+  margin-bottom: 15px;
+}
+
+
+.owner-artists-empty h2 {
+  margin: 0 0 7px;
+
+  color: #111827;
+
+  font-size: 20px;
+}
+
+
+.owner-artists-empty p {
+  margin: 0;
+
+  max-width: 500px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+.owner-artists-empty-button {
+  margin-top: 18px;
+
+  border: none;
+
+  background: #4f46e5;
+
+  color: #ffffff;
+
+  padding: 10px 18px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   LIST CARD
+========================================================= */
+
+.owner-artists-list-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 17px;
+
+  padding: 22px;
+
+  box-shadow:
+    0 3px 12px
+    rgba(0, 0, 0, 0.04);
+}
+
+
+.owner-artists-list-header {
+  margin-bottom: 20px;
+}
+
+
+.owner-artists-list-header h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 18px;
+}
+
+
+.owner-artists-list-header p {
+  margin: 5px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ARTIST GRID
+========================================================= */
+
+.owner-artists-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   ARTIST CARD
+========================================================= */
+
+.owner-artist-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.owner-artist-card:hover {
+  transform: translateY(-4px);
+
+  border-color: #c7d2fe;
+
+  box-shadow:
+    0 10px 25px
+    rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   ARTIST IMAGE
+========================================================= */
+
+.owner-artist-image-wrapper {
+  width: 100%;
+
+  aspect-ratio: 1 / 1;
+
+  background: #f1f5f9;
+
+  overflow: hidden;
+}
+
+
+.owner-artist-image {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition:
+    transform 0.3s ease;
+}
+
+
+.owner-artist-card:hover
+.owner-artist-image {
+  transform: scale(1.04);
+}
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+.owner-artist-details {
+  padding: 15px;
+}
+
+
+.owner-artist-details h3 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+.owner-artist-bio {
+  margin: 7px 0 12px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.owner-artist-meta {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+}
+
+
+.owner-artist-meta span {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 4px 7px;
+
+  border-radius: 6px;
+
+  background: #f1f5f9;
+
+  color: #475569;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .owner-artists-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .owner-artists-page {
+    padding: 15px;
+  }
+
+
+  .owner-artists-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+
+  .owner-artists-summary {
+    grid-template-columns: 1fr;
+  }
+
+
+  .owner-artists-filter-row {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  .owner-artists-search {
+    min-width: 0;
+  }
+
+
+  .owner-artists-language-select {
+    width: 100%;
+  }
+
+
+  .owner-artists-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 550px) {
+
+  .owner-artists-list-card {
+    padding: 15px;
+  }
+
+
+  .owner-artists-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .owner-artists-title-area h1 {
+    font-size: 21px;
+  }
+
+}

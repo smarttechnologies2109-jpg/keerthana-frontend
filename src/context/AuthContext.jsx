@@ -29,9 +29,9 @@ export function AuthProvider({
   children,
 }) {
 
-  /* =====================================================
+  /* =======================================================
      STATE
-  ===================================================== */
+  ======================================================= */
 
   const [
     user,
@@ -45,9 +45,9 @@ export function AuthProvider({
   ] = useState(true);
 
 
-  /* =====================================================
+  /* =======================================================
      CLEAR SESSION
-  ===================================================== */
+  ======================================================= */
 
   const clearSession = () => {
 
@@ -55,14 +55,18 @@ export function AuthProvider({
       TOKEN_KEY
     );
 
+    localStorage.removeItem(
+      "user"
+    );
+
     setUser(null);
 
   };
 
 
-  /* =====================================================
+  /* =======================================================
      SAVE SESSION
-  ===================================================== */
+  ======================================================= */
 
   const saveSession = (
     token,
@@ -93,6 +97,12 @@ export function AuthProvider({
     );
 
 
+    localStorage.setItem(
+      "user",
+      JSON.stringify(userData)
+    );
+
+
     setUser(
       userData
     );
@@ -100,9 +110,48 @@ export function AuthProvider({
   };
 
 
-  /* =====================================================
+  /* =======================================================
+     UPDATE CURRENT USER
+  ======================================================= */
+
+  const updateUser = (
+    updatedUser
+  ) => {
+
+    if (!updatedUser) {
+      return;
+    }
+
+
+    setUser(
+      (currentUser) => {
+
+        const nextUser =
+          currentUser
+            ? {
+                ...currentUser,
+                ...updatedUser,
+              }
+            : updatedUser;
+
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(nextUser)
+        );
+
+
+        return nextUser;
+
+      }
+    );
+
+  };
+
+
+  /* =======================================================
      RESTORE LOGIN
-  ===================================================== */
+  ======================================================= */
 
   useEffect(() => {
 
@@ -118,7 +167,9 @@ export function AuthProvider({
           );
 
 
-        /* NO SAVED LOGIN */
+        /* ---------------------------------------------------
+           NO SAVED TOKEN
+        --------------------------------------------------- */
 
         if (!token) {
 
@@ -135,6 +186,10 @@ export function AuthProvider({
         }
 
 
+        /* ---------------------------------------------------
+           RESTORE FROM BACKEND
+        --------------------------------------------------- */
+
         try {
 
           const response =
@@ -148,9 +203,11 @@ export function AuthProvider({
           }
 
 
-          if (
-            !response.data?.user
-          ) {
+          const restoredUser =
+            response.data?.user;
+
+
+          if (!restoredUser) {
 
             throw new Error(
               "User data was not returned"
@@ -160,7 +217,15 @@ export function AuthProvider({
 
 
           setUser(
-            response.data.user
+            restoredUser
+          );
+
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(
+              restoredUser
+            )
           );
 
 
@@ -177,6 +242,10 @@ export function AuthProvider({
 
             localStorage.removeItem(
               TOKEN_KEY
+            );
+
+            localStorage.removeItem(
+              "user"
             );
 
             setUser(null);
@@ -209,28 +278,9 @@ export function AuthProvider({
   }, []);
 
 
-  /* =====================================================
-     LOGIN USER
-
-     EMAIL OR PHONE
-
-     POST:
-     /auth/login
-
-     Body:
-     {
-       contact: "email@example.com"
-     }
-
-     OR
-
-     {
-       contact: "9876543210"
-     }
-
-     NO PASSWORD
-     NO OTP
-  ===================================================== */
+  /* =======================================================
+     NORMAL USER LOGIN
+  ======================================================= */
 
   const login =
     async (
@@ -296,141 +346,113 @@ export function AuthProvider({
     };
 
 
-  /* =====================================================
-   REGISTER USER
+  /* =======================================================
+     REGISTER USER
+  ======================================================= */
 
-   NAME + EMAIL OR PHONE + LANGUAGE
+  const register =
+    async (
+      name,
+      contact,
+      language
+    ) => {
 
-   POST:
-   /auth/register
-
-   Body:
-   {
-     name,
-     contact,
-     language
-   }
-
-   NO PASSWORD
-   NO OTP
-===================================================== */
-
-const register =
-  async (
-    name,
-    contact,
-    language
-  ) => {
-
-    const cleanName =
-      String(name || "")
-        .trim();
+      const cleanName =
+        String(name || "")
+          .trim();
 
 
-    const cleanContact =
-      String(contact || "")
-        .trim();
+      const cleanContact =
+        String(contact || "")
+          .trim();
 
 
-    const cleanLanguage =
-      String(language || "")
-        .trim();
+      const cleanLanguage =
+        String(language || "")
+          .trim();
 
 
-    if (!cleanName) {
+      if (!cleanName) {
 
-      throw new Error(
-        "Name is required."
+        throw new Error(
+          "Name is required."
+        );
+
+      }
+
+
+      if (!cleanContact) {
+
+        throw new Error(
+          "Email or phone number is required."
+        );
+
+      }
+
+
+      if (!cleanLanguage) {
+
+        throw new Error(
+          "Preferred language is required."
+        );
+
+      }
+
+
+      const response =
+        await API.post(
+          "/auth/register",
+          {
+            name:
+              cleanName,
+
+            contact:
+              cleanContact,
+
+            language:
+              cleanLanguage,
+          }
+        );
+
+
+      const {
+        token,
+        user: registeredUser,
+      } = response.data;
+
+
+      if (!token) {
+
+        throw new Error(
+          "Registration did not return an authentication token."
+        );
+
+      }
+
+
+      if (!registeredUser) {
+
+        throw new Error(
+          "Registration did not return user data."
+        );
+
+      }
+
+
+      saveSession(
+        token,
+        registeredUser
       );
 
-    }
+
+      return registeredUser;
+
+    };
 
 
-    if (!cleanContact) {
-
-      throw new Error(
-        "Email or phone number is required."
-      );
-
-    }
-
-
-    if (!cleanLanguage) {
-
-      throw new Error(
-        "Preferred language is required."
-      );
-
-    }
-
-
-    const response =
-      await API.post(
-        "/auth/register",
-        {
-          name:
-            cleanName,
-
-          contact:
-            cleanContact,
-
-          language:
-            cleanLanguage,
-        }
-      );
-
-
-    const {
-      token,
-      user: registeredUser,
-    } = response.data;
-
-
-    if (!token) {
-
-      throw new Error(
-        "Registration did not return an authentication token."
-      );
-
-    }
-
-
-    if (!registeredUser) {
-
-      throw new Error(
-        "Registration did not return user data."
-      );
-
-    }
-
-
-    saveSession(
-      token,
-      registeredUser
-    );
-
-
-    return registeredUser;
-
-  };
-
-
-  /* =====================================================
+  /* =======================================================
      ADMIN LOGIN
-
-     ADMIN ONLY
-
-     POST:
-     /admin/auth/login
-
-     Body:
-     {
-       email,
-       password
-     }
-
-     ADMIN STILL USES PASSWORD
-  ===================================================== */
+  ======================================================= */
 
   const adminLogin =
     async (
@@ -472,15 +494,15 @@ const register =
       }
 
 
-      /*
-       * Frontend safety check.
-       *
-       * Backend MUST also enforce
-       * the admin role.
-       */
+      /* ---------------------------------------------------
+         ADMIN ROLE CHECK
+      --------------------------------------------------- */
 
       if (
-        adminUser.role !== "ADMIN"
+        String(adminUser.role)
+          .trim()
+          .toUpperCase() !==
+        "ADMIN"
       ) {
 
         throw new Error(
@@ -501,9 +523,125 @@ const register =
     };
 
 
-  /* =====================================================
+  /* =======================================================
+     BUSINESS OWNER LOGIN
+  ======================================================= */
+
+  const ownerLogin =
+    async (
+      email,
+      password
+    ) => {
+
+      const cleanEmail =
+        String(email || "")
+          .trim();
+
+
+      if (!cleanEmail) {
+
+        throw new Error(
+          "Please enter your email address."
+        );
+
+      }
+
+
+      if (!password) {
+
+        throw new Error(
+          "Please enter your password."
+        );
+
+      }
+
+
+      const response =
+        await API.post(
+          "/auth/owner/login",
+          {
+            email:
+              cleanEmail,
+
+            password,
+          }
+        );
+
+
+      const {
+        token,
+        user: ownerUser,
+      } = response.data;
+
+
+      /* ---------------------------------------------------
+         TOKEN CHECK
+      --------------------------------------------------- */
+
+      if (!token) {
+
+        throw new Error(
+          "Owner login did not return an authentication token."
+        );
+
+      }
+
+
+      /* ---------------------------------------------------
+         USER CHECK
+      --------------------------------------------------- */
+
+      if (!ownerUser) {
+
+        throw new Error(
+          "Owner login did not return user data."
+        );
+
+      }
+
+
+      /* ---------------------------------------------------
+         OWNER ROLE CHECK
+      --------------------------------------------------- */
+
+      if (
+        String(ownerUser.role)
+          .trim()
+          .toUpperCase() !==
+        "BUSINESS_OWNER"
+      ) {
+
+        throw new Error(
+          "This account does not have business owner access."
+        );
+
+      }
+
+
+      /* ---------------------------------------------------
+         SAVE SESSION
+      --------------------------------------------------- */
+
+      saveSession(
+        token,
+        ownerUser
+      );
+
+
+      console.log(
+        "Business Owner Login Successful:",
+        ownerUser
+      );
+
+
+      return ownerUser;
+
+    };
+
+
+  /* =======================================================
      REFRESH CURRENT USER
-  ===================================================== */
+  ======================================================= */
 
   const refreshUser =
     async () => {
@@ -549,6 +687,14 @@ const register =
         );
 
 
+        localStorage.setItem(
+          "user",
+          JSON.stringify(
+            refreshedUser
+          )
+        );
+
+
         return refreshedUser;
 
 
@@ -577,9 +723,9 @@ const register =
     };
 
 
-  /* =====================================================
+  /* =======================================================
      LOGOUT
-  ===================================================== */
+  ======================================================= */
 
   const logout = () => {
 
@@ -588,9 +734,9 @@ const register =
   };
 
 
-  /* =====================================================
+  /* =======================================================
      AUTH FLAGS
-  ===================================================== */
+  ======================================================= */
 
   const isAuthenticated =
     Boolean(
@@ -599,13 +745,26 @@ const register =
 
 
   const isAdmin =
-    user?.role ===
-    "admin";
+    String(
+      user?.role || ""
+    )
+      .trim()
+      .toUpperCase() ===
+    "ADMIN";
 
 
-  /* =====================================================
+  const isBusinessOwner =
+    String(
+      user?.role || ""
+    )
+      .trim()
+      .toUpperCase() ===
+    "BUSINESS_OWNER";
+
+
+  /* =======================================================
      PROVIDER
-  ===================================================== */
+  ======================================================= */
 
   return (
 
@@ -622,13 +781,19 @@ const register =
 
         adminLogin,
 
+        ownerLogin,
+
         logout,
 
         refreshUser,
 
+        updateUser,
+
         isAuthenticated,
 
         isAdmin,
+
+        isBusinessOwner,
 
       }}
     >
@@ -666,4 +831,3 @@ export function useAuth() {
   return context;
 
 }
-

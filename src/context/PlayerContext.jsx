@@ -1,5 +1,7 @@
 import {
   createContext,
+  useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -9,33 +11,46 @@ import { getMediaUrl } from "../utils/media";
 import API from "../services/api";
 import { useAuth } from "./AuthContext";
 
+/* =========================================================
+   PLAYER CONTEXT
+========================================================= */
+
 export const PlayerContext = createContext(null);
 
-const PLAYER_STORAGE_KEY =
-  "keerthana_player_state";
+/* =========================================================
+   CONSTANTS
+========================================================= */
 
-const OFFLINE_DB_NAME =
-  "keerthana_offline_music";
+const PLAYER_STORAGE_KEY = "keerthana_player_state";
 
+const OFFLINE_DB_NAME = "keerthana_offline_music";
 const OFFLINE_DB_VERSION = 1;
-
-const OFFLINE_STORE_NAME =
-  "songs";
-
+const OFFLINE_STORE_NAME = "songs";
 
 /* =========================================================
-   OFFLINE DATABASE
+   usePlayer HOOK
+========================================================= */
+
+export const usePlayer = () => {
+  const context = useContext(PlayerContext);
+
+  if (!context) {
+    throw new Error(
+      "usePlayer must be used inside a PlayerProvider"
+    );
+  }
+
+  return context;
+};
+
+/* =========================================================
+   INDEXED DB
 ========================================================= */
 
 const openOfflineDB = () => {
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) {
-      reject(
-        new Error(
-          "IndexedDB is not supported on this device."
-        )
-      );
-
+      reject(new Error("IndexedDB is not supported"));
       return;
     }
 
@@ -44,20 +59,13 @@ const openOfflineDB = () => {
       OFFLINE_DB_VERSION
     );
 
-    request.onupgradeneeded = () => {
-      const db = request.result;
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
 
-      if (
-        !db.objectStoreNames.contains(
-          OFFLINE_STORE_NAME
-        )
-      ) {
-        db.createObjectStore(
-          OFFLINE_STORE_NAME,
-          {
-            keyPath: "id",
-          }
-        );
+      if (!db.objectStoreNames.contains(OFFLINE_STORE_NAME)) {
+        db.createObjectStore(OFFLINE_STORE_NAME, {
+          keyPath: "id",
+        });
       }
     };
 
@@ -71,373 +79,190 @@ const openOfflineDB = () => {
   });
 };
 
+/* =========================================================
+   GET OFFLINE SONG
+========================================================= */
+
+const getOfflineSong = async (id) => {
+  try {
+    const db = await openOfflineDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readonly"
+      );
+
+      const store = transaction.objectStore(
+        OFFLINE_STORE_NAME
+      );
+
+      const request = store.get(id);
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  } catch (error) {
+    console.error("Offline song error:", error);
+    return null;
+  }
+};
 
 /* =========================================================
    SAVE OFFLINE SONG
 ========================================================= */
 
-const saveOfflineSong = async (
-  song,
-  audioBlob
-) => {
-  const db =
-    await openOfflineDB();
+const saveOfflineSong = async (song) => {
+  try {
+    const db = await openOfflineDB();
 
-  return new Promise(
-    (resolve, reject) => {
-      const transaction =
-        db.transaction(
-          OFFLINE_STORE_NAME,
-          "readwrite"
-        );
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readwrite"
+      );
 
-      const store =
-        transaction.objectStore(
-          OFFLINE_STORE_NAME
-        );
+      const store = transaction.objectStore(
+        OFFLINE_STORE_NAME
+      );
 
-      const offlineSong = {
-        id: song.id,
-
-        number:
-          song.number || "",
-
-        title:
-          song.title || "",
-
-        titleEnglish:
-          song.titleEnglish || "",
-
-        language:
-          song.language || "",
-
-        category:
-          song.category || "",
-
-        lyrics:
-          song.lyrics || "",
-
-        audio_url:
-          song.audio_url || "",
-
-        audioBlob,
-
-        downloadedAt:
-          new Date().toISOString(),
-      };
-
-      store.put(offlineSong);
-
-      transaction.oncomplete = () => {
-        db.close();
-
-        resolve(
-          offlineSong
-        );
-      };
-
-      transaction.onerror = () => {
-        db.close();
-
-        reject(
-          transaction.error
-        );
-      };
-    }
-  );
-};
-
-
-/* =========================================================
-   GET OFFLINE SONG
-========================================================= */
-
-const getOfflineSong = async (
-  songId
-) => {
-  const db =
-    await openOfflineDB();
-
-  return new Promise(
-    (resolve, reject) => {
-      const transaction =
-        db.transaction(
-          OFFLINE_STORE_NAME,
-          "readonly"
-        );
-
-      const store =
-        transaction.objectStore(
-          OFFLINE_STORE_NAME
-        );
-
-      const request =
-        store.get(songId);
+      const request = store.put(song);
 
       request.onsuccess = () => {
-        db.close();
-
-        resolve(
-          request.result || null
-        );
+        resolve(true);
       };
 
       request.onerror = () => {
-        db.close();
-
-        reject(
-          request.error
-        );
+        reject(request.error);
       };
-    }
-  );
+    });
+  } catch (error) {
+    console.error("Save offline song error:", error);
+    return false;
+  }
 };
-
-
-/* =========================================================
-   GET ALL OFFLINE SONGS
-========================================================= */
-
-const getAllOfflineSongs =
-  async () => {
-    const db =
-      await openOfflineDB();
-
-    return new Promise(
-      (resolve, reject) => {
-        const transaction =
-          db.transaction(
-            OFFLINE_STORE_NAME,
-            "readonly"
-          );
-
-        const store =
-          transaction.objectStore(
-            OFFLINE_STORE_NAME
-          );
-
-        const request =
-          store.getAll();
-
-        request.onsuccess = () => {
-          db.close();
-
-          resolve(
-            request.result || []
-          );
-        };
-
-        request.onerror = () => {
-          db.close();
-
-          reject(
-            request.error
-          );
-        };
-      }
-    );
-  };
-
 
 /* =========================================================
    DELETE OFFLINE SONG
 ========================================================= */
 
-const deleteOfflineSong =
-  async (songId) => {
-    const db =
-      await openOfflineDB();
+const deleteOfflineSong = async (id) => {
+  try {
+    const db = await openOfflineDB();
 
-    return new Promise(
-      (resolve, reject) => {
-        const transaction =
-          db.transaction(
-            OFFLINE_STORE_NAME,
-            "readwrite"
-          );
-
-        const store =
-          transaction.objectStore(
-            OFFLINE_STORE_NAME
-          );
-
-        store.delete(songId);
-
-        transaction.oncomplete = () => {
-          db.close();
-
-          resolve(true);
-        };
-
-        transaction.onerror = () => {
-          db.close();
-
-          reject(
-            transaction.error
-          );
-        };
-      }
-    );
-  };
-
-
-/* =========================================================
-   CHECK OFFLINE SONG
-========================================================= */
-
-const checkOfflineSong =
-  async (songId) => {
-    try {
-      const song =
-        await getOfflineSong(
-          songId
-        );
-
-      return Boolean(song);
-    } catch (error) {
-      console.error(
-        "Offline check error:",
-        error
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readwrite"
       );
 
-      return false;
-    }
-  };
+      const store = transaction.objectStore(
+        OFFLINE_STORE_NAME
+      );
 
+      const request = store.delete(id);
+
+      request.onsuccess = () => {
+        resolve(true);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  } catch (error) {
+    console.error("Delete offline song error:", error);
+    return false;
+  }
+};
+
+/* =========================================================
+   GET ALL OFFLINE SONGS
+========================================================= */
+
+const getAllOfflineSongs = async () => {
+  try {
+    const db = await openOfflineDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readonly"
+      );
+
+      const store = transaction.objectStore(
+        OFFLINE_STORE_NAME
+      );
+
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        resolve(request.result || []);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  } catch (error) {
+    console.error("Get offline songs error:", error);
+    return [];
+  }
+};
 
 /* =========================================================
    PLAYER PROVIDER
 ========================================================= */
 
-export function PlayerProvider({
-  children,
-}) {
-  /* =======================================================
-     REFS
-  ======================================================= */
-
-  const audioRef =
-    useRef(null);
-
-  const historyIdRef =
-    useRef(null);
-
-  const lastSavedProgressRef =
-    useRef(0);
-
-  const songStartTimeRef =
-    useRef(0);
-
-  const progressSavingRef =
-    useRef(false);
-
-  const restoringPlayerRef =
-    useRef(true);
-
-  const storageReadyRef =
-    useRef(false);
-
-  const restoringPositionRef =
-    useRef(false);
-
-  const restoredTimeRef =
-    useRef(0);
-
-  const shouldAutoplayRef =
-    useRef(false);
-
-  /*
-    URL created from IndexedDB audio Blob.
-    We revoke it when it is no longer required.
-  */
-
-  const offlineAudioUrlRef =
-    useRef(null);
-
+export const PlayerProvider = ({ children }) => {
+  const { user } = useAuth();
 
   /* =======================================================
-     AUTH
+     AUDIO
   ======================================================= */
 
-  const { user } =
-    useAuth();
+  const audioRef = useRef(null);
 
+  if (!audioRef.current) {
+    audioRef.current = new Audio();
+  }
+
+  const audio = audioRef.current;
 
   /* =======================================================
-     STATE
+     PLAYER STATE
   ======================================================= */
 
-  const [queue, setQueue] =
-    useState([]);
+  const [currentSong, setCurrentSong] = useState(null);
 
-  const [currentSong, setCurrentSong] =
-    useState(null);
+  const [queue, setQueue] = useState([]);
 
-  const [isPlaying, setIsPlaying] =
-    useState(false);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
-  const [currentTime, setCurrentTime] =
-    useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const [duration, setDuration] =
-    useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
-  const [volume, setVolume] =
-    useState(1);
+  const [duration, setDuration] = useState(0);
 
-  const [shuffle, setShuffle] =
-    useState(false);
+  const [volume, setVolume] = useState(1);
 
-  const [repeatMode, setRepeatMode] =
-    useState("off");
+  const [isMuted, setIsMuted] = useState(false);
 
+  const [isShuffle, setIsShuffle] = useState(false);
 
-  /* =======================================================
-     OFFLINE STATE
-  ======================================================= */
+  const [repeatMode, setRepeatMode] = useState("off");
 
-  const [offlineSongs, setOfflineSongs] =
-    useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [offlineLoading, setOfflineLoading] =
-    useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
-  const [offlineDownloadingId, setOfflineDownloadingId] =
-    useState(null);
-
-
-  /* =======================================================
-     LOAD OFFLINE SONGS
-  ======================================================= */
-
-  const refreshOfflineSongs =
-    async () => {
-      try {
-        const songs =
-          await getAllOfflineSongs();
-
-        setOfflineSongs(
-          songs || []
-        );
-
-        return songs || [];
-      } catch (error) {
-        console.error(
-          "Unable to load offline songs:",
-          error
-        );
-
-        setOfflineSongs([]);
-
-        return [];
-      }
-    };
-
-
-  useEffect(() => {
-    refreshOfflineSongs();
-  }, []);
-
+  const [offlineSongs, setOfflineSongs] = useState([]);
 
   /* =======================================================
      RESTORE PLAYER STATE
@@ -445,2219 +270,982 @@ export function PlayerProvider({
 
   useEffect(() => {
     try {
-      const stored =
-        localStorage.getItem(
-          PLAYER_STORAGE_KEY
-        );
+      const saved = localStorage.getItem(
+        PLAYER_STORAGE_KEY
+      );
 
-      if (!stored) {
-        restoringPlayerRef.current =
-          false;
+      if (!saved) return;
 
-        storageReadyRef.current =
-          true;
+      const data = JSON.parse(saved);
 
-        return;
+      if (Array.isArray(data.queue)) {
+        setQueue(data.queue);
       }
 
-      const state =
-        JSON.parse(stored);
-
-
-      /* ---------------------------------------------------
-         CURRENT SONG
-      --------------------------------------------------- */
-
       if (
-        state.currentSong &&
-        state.currentSong.audio_url
+        typeof data.currentIndex === "number"
       ) {
-        setCurrentSong(
-          state.currentSong
-        );
+        setCurrentIndex(data.currentIndex);
       }
 
-
-      /* ---------------------------------------------------
-         QUEUE
-      --------------------------------------------------- */
-
-      if (
-        Array.isArray(
-          state.queue
-        )
-      ) {
-        setQueue(
-          state.queue
-        );
+      if (typeof data.volume === "number") {
+        setVolume(data.volume);
       }
 
-
-      /* ---------------------------------------------------
-         CURRENT TIME
-      --------------------------------------------------- */
-
-      const savedTime =
-        Number(
-          state.currentTime
-        ) || 0;
-
-      if (
-        Number.isFinite(
-          savedTime
-        ) &&
-        savedTime >= 0
-      ) {
-        restoredTimeRef.current =
-          savedTime;
-
-        songStartTimeRef.current =
-          savedTime;
-
-        restoringPositionRef.current =
-          savedTime > 0;
-
-        setCurrentTime(
-          savedTime
-        );
+      if (typeof data.isShuffle === "boolean") {
+        setIsShuffle(data.isShuffle);
       }
 
-
-      /* ---------------------------------------------------
-         VOLUME
-      --------------------------------------------------- */
-
-      const savedVolume =
-        Number(
-          state.volume
-        );
-
       if (
-        Number.isFinite(
-          savedVolume
-        )
+        data.repeatMode === "off" ||
+        data.repeatMode === "one" ||
+        data.repeatMode === "all"
       ) {
-        setVolume(
-          Math.min(
-            1,
-            Math.max(
-              0,
-              savedVolume
-            )
-          )
-        );
+        setRepeatMode(data.repeatMode);
       }
 
-
-      /* ---------------------------------------------------
-         SHUFFLE
-      --------------------------------------------------- */
-
-      if (
-        typeof state.shuffle ===
-        "boolean"
-      ) {
-        setShuffle(
-          state.shuffle
-        );
-      }
-
-
-      /* ---------------------------------------------------
-         REPEAT
-      --------------------------------------------------- */
-
-      if (
-        [
-          "off",
-          "all",
-          "one",
-        ].includes(
-          state.repeatMode
-        )
-      ) {
-        setRepeatMode(
-          state.repeatMode
-        );
+      if (data.currentSong) {
+        setCurrentSong(data.currentSong);
       }
     } catch (error) {
       console.error(
-        "Player restore error:",
+        "Failed to restore player state:",
         error
       );
-
-      localStorage.removeItem(
-        PLAYER_STORAGE_KEY
-      );
     }
-
-
-    /*
-      Restored songs must NOT
-      automatically play.
-    */
-
-    shouldAutoplayRef.current =
-      false;
-
-    restoringPlayerRef.current =
-      false;
-
-    storageReadyRef.current =
-      true;
   }, []);
-
 
   /* =======================================================
      SAVE PLAYER STATE
   ======================================================= */
 
   useEffect(() => {
-    if (
-      !storageReadyRef.current
-    ) {
-      return;
-    }
-
-    /*
-      Don't overwrite restored
-      position with 0.
-    */
-
-    if (
-      restoringPositionRef.current &&
-      restoredTimeRef.current > 0
-    ) {
-      return;
-    }
-
     try {
-      const audio =
-        audioRef.current;
-
-      const actualTime =
-        audio
-          ? Number(
-              audio.currentTime
-            ) || 0
-          : Number(
-              currentTime
-            ) || 0;
+      const state = {
+        currentSong,
+        queue,
+        currentIndex,
+        volume,
+        isShuffle,
+        repeatMode,
+      };
 
       localStorage.setItem(
         PLAYER_STORAGE_KEY,
-        JSON.stringify({
-          currentSong,
-          queue,
-          currentTime:
-            actualTime,
-          volume,
-          shuffle,
-          repeatMode,
-        })
+        JSON.stringify(state)
       );
     } catch (error) {
       console.error(
-        "Player save error:",
+        "Failed to save player state:",
         error
       );
     }
   }, [
     currentSong,
     queue,
-    currentTime,
+    currentIndex,
     volume,
-    shuffle,
+    isShuffle,
     repeatMode,
   ]);
 
-
   /* =======================================================
-     SAVE BEFORE REFRESH
+     LOAD OFFLINE SONGS
   ======================================================= */
 
   useEffect(() => {
-    const handleBeforeUnload =
-      () => {
-        try {
-          const audio =
-            audioRef.current;
-
-          let actualTime =
-            Number(
-              currentTime
-            ) || 0;
-
-          if (audio) {
-            actualTime =
-              Number(
-                audio.currentTime
-              ) || 0;
-          }
-
-          if (
-            restoringPositionRef.current &&
-            restoredTimeRef.current >
-              0 &&
-            actualTime === 0
-          ) {
-            actualTime =
-              restoredTimeRef.current;
-          }
-
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                actualTime,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-        } catch (error) {
-          console.error(
-            "Player unload save error:",
-            error
-          );
-        }
-      };
-
-    window.addEventListener(
-      "beforeunload",
-      handleBeforeUnload
-    );
-
-    return () => {
-      window.removeEventListener(
-        "beforeunload",
-        handleBeforeUnload
-      );
-    };
-  }, [
-    currentSong,
-    queue,
-    currentTime,
-    volume,
-    shuffle,
-    repeatMode,
-  ]);
-
-
-  /* =======================================================
-     RECORD HISTORY
-  ======================================================= */
-
-  const recordHistory =
-    async (
-      song,
-      startTime = 0
-    ) => {
-      if (
-        !user ||
-        !song?.id
-      ) {
-        return;
-      }
-
-      try {
-        const response =
-          await API.post(
-            "/history/play",
-            {
-              song_id: song.id,
-
-              progress_seconds:
-                Math.floor(
-                  Number(
-                    startTime
-                  ) || 0
-                ),
-
-              completed: false,
-            }
-          );
-
-        historyIdRef.current =
-          response.data?.history
-            ?.id || null;
-
-        lastSavedProgressRef.current =
-          Math.floor(
-            Number(
-              startTime
-            ) || 0
-          );
-      } catch (error) {
-        console.error(
-          "History error:",
-          error.response?.data ||
-            error.message
-        );
-      }
+    const loadOfflineSongs = async () => {
+      const songs = await getAllOfflineSongs();
+      setOfflineSongs(songs);
     };
 
+    loadOfflineSongs();
+  }, []);
 
   /* =======================================================
-     SAVE SERVER PROGRESS
-  ======================================================= */
-
-  const saveProgress =
-    async (
-      time,
-      completed = false
-    ) => {
-      if (
-        !user ||
-        !historyIdRef.current
-      ) {
-        return;
-      }
-
-      if (
-        progressSavingRef.current &&
-        !completed
-      ) {
-        return;
-      }
-
-      const progress =
-        Math.max(
-          0,
-          Math.floor(
-            Number(time) || 0
-          )
-        );
-
-      try {
-        progressSavingRef.current =
-          true;
-
-        await API.patch(
-          `/history/${historyIdRef.current}/progress`,
-          {
-            progress_seconds:
-              progress,
-
-            completed,
-          }
-        );
-
-        lastSavedProgressRef.current =
-          progress;
-      } catch (error) {
-        console.error(
-          "Progress error:",
-          error.response?.data ||
-            error.message
-        );
-      } finally {
-        progressSavingRef.current =
-          false;
-      }
-    };
-
-
-  /* =======================================================
-     DOWNLOAD SONG FOR OFFLINE USE
-     
-     This saves:
-     
-     - Audio
-     - Lyrics
-     - Title
-     - Category
-     - Language
-     - Other song information
-  ======================================================= */
-
-  const downloadSongOffline =
-    async (song) => {
-      if (!song?.id) {
-        return {
-          success: false,
-          error:
-            "Invalid song.",
-        };
-      }
-
-      if (
-        !song.audio_url
-      ) {
-        return {
-          success: false,
-          error:
-            "This song does not have an audio file.",
-        };
-      }
-
-      try {
-        setOfflineDownloadingId(
-          song.id
-        );
-
-        /*
-          Check if already downloaded.
-        */
-
-        const existing =
-          await getOfflineSong(
-            song.id
-          );
-
-        if (existing) {
-          await refreshOfflineSongs();
-
-          return {
-            success: true,
-            alreadyDownloaded:
-              true,
-          };
-        }
-
-
-        /*
-          Get the real media URL.
-        */
-
-        const mediaUrl =
-          getMediaUrl(
-            song.audio_url
-          );
-
-
-        /*
-          Download audio.
-        */
-
-        const response =
-          await fetch(
-            mediaUrl
-          );
-
-        if (
-          !response.ok
-        ) {
-          throw new Error(
-            `Audio download failed: ${response.status}`
-          );
-        }
-
-
-        /*
-          Convert audio into Blob.
-        */
-
-        const audioBlob =
-          await response.blob();
-
-
-        if (
-          !audioBlob ||
-          audioBlob.size === 0
-        ) {
-          throw new Error(
-            "Downloaded audio is empty."
-          );
-        }
-
-
-        /*
-          Save audio + lyrics
-          + song information.
-        */
-
-        await saveOfflineSong(
-          song,
-          audioBlob
-        );
-
-
-        /*
-          Refresh offline list.
-        */
-
-        await refreshOfflineSongs();
-
-
-        return {
-          success: true,
-          alreadyDownloaded:
-            false,
-        };
-      } catch (error) {
-        console.error(
-          "Offline download error:",
-          error
-        );
-
-        return {
-          success: false,
-          error:
-            error.message ||
-            "Unable to download song.",
-        };
-      } finally {
-        setOfflineDownloadingId(
-          null
-        );
-      }
-    };
-
-
-  /* =======================================================
-     REMOVE OFFLINE SONG
-  ======================================================= */
-
-  const removeOfflineSong =
-    async (songId) => {
-      try {
-        /*
-          If currently playing
-          this offline song,
-          switch back to network
-          source before deleting.
-        */
-
-        if (
-          currentSong?.id ===
-          songId
-        ) {
-          if (
-            offlineAudioUrlRef.current
-          ) {
-            URL.revokeObjectURL(
-              offlineAudioUrlRef.current
-            );
-
-            offlineAudioUrlRef.current =
-              null;
-          }
-        }
-
-        await deleteOfflineSong(
-          songId
-        );
-
-        await refreshOfflineSongs();
-
-        return {
-          success: true,
-        };
-      } catch (error) {
-        console.error(
-          "Remove offline song error:",
-          error
-        );
-
-        return {
-          success: false,
-          error:
-            error.message ||
-            "Unable to remove offline song.",
-        };
-      }
-    };
-
-
-  /* =======================================================
-     CHECK SONG OFFLINE
-  ======================================================= */
-
-  const isSongOffline =
-    async (songId) => {
-      return checkOfflineSong(
-        songId
-      );
-    };
-
-
-  /* =======================================================
-     GET OFFLINE SONGS
-  ======================================================= */
-
-  const getOfflineSongs =
-    async () => {
-      try {
-        return await getAllOfflineSongs();
-      } catch (error) {
-        console.error(
-          "Get offline songs error:",
-          error
-        );
-
-        return [];
-      }
-    };
-
-
-  /* =======================================================
-     GET AUDIO SOURCE
-     
-     OFFLINE FIRST:
-     
-     1. If downloaded -> IndexedDB Blob
-     2. Otherwise -> Server URL
-  ======================================================= */
-
-  const loadAudioSource =
-    async (song) => {
-      if (
-        !song?.audio_url
-      ) {
-        return null;
-      }
-
-
-      /*
-        Revoke previous
-        object URL.
-      */
-
-      if (
-        offlineAudioUrlRef.current
-      ) {
-        URL.revokeObjectURL(
-          offlineAudioUrlRef.current
-        );
-
-        offlineAudioUrlRef.current =
-          null;
-      }
-
-
-      /*
-        Check offline database.
-      */
-
-      try {
-        const offlineSong =
-          await getOfflineSong(
-            song.id
-          );
-
-        if (
-          offlineSong?.audioBlob
-        ) {
-          const objectUrl =
-            URL.createObjectURL(
-              offlineSong.audioBlob
-            );
-
-          offlineAudioUrlRef.current =
-            objectUrl;
-
-          return objectUrl;
-        }
-      } catch (error) {
-        console.warn(
-          "Offline audio lookup failed:",
-          error
-        );
-      }
-
-
-      /*
-        No offline copy.
-        Use server URL.
-      */
-
-      return getMediaUrl(
-        song.audio_url
-      );
-    };
-
-
-  /* =======================================================
-     PLAY SONG
-  ======================================================= */
-
-  const playSong =
-    async (
-      song,
-      songList = [],
-      startTime = 0
-    ) => {
-      if (
-        !song?.audio_url
-      ) {
-        console.error(
-          "Song has no audio URL:",
-          song
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         SET QUEUE
-      --------------------------------------------------- */
-
-      if (
-        Array.isArray(
-          songList
-        ) &&
-        songList.length
-      ) {
-        setQueue(
-          songList
-        );
-      }
-
-
-      /* ---------------------------------------------------
-         SAME SONG
-      --------------------------------------------------- */
-
-      if (
-        currentSong?.id ===
-        song.id
-      ) {
-        const audio =
-          audioRef.current;
-
-        if (!audio) {
-          return;
-        }
-
-        const start =
-          Math.max(
-            0,
-            Number(
-              startTime
-            ) || 0
-          );
-
-        if (
-          start > 0 &&
-          Math.abs(
-            audio.currentTime -
-              start
-          ) > 2
-        ) {
-          audio.currentTime =
-            start;
-
-          setCurrentTime(
-            start
-          );
-        }
-
-        try {
-          await audio.play();
-        } catch (error) {
-          console.error(
-            "Play error:",
-            error
-          );
-
-          setIsPlaying(false);
-        }
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         SAVE OLD SONG
-      --------------------------------------------------- */
-
-      if (
-        audioRef.current &&
-        historyIdRef.current
-      ) {
-        await saveProgress(
-          audioRef.current
-            .currentTime
-        );
-      }
-
-
-      /* ---------------------------------------------------
-         RESET HISTORY
-      --------------------------------------------------- */
-
-      historyIdRef.current =
-        null;
-
-      lastSavedProgressRef.current =
-        0;
-
-      progressSavingRef.current =
-        false;
-
-
-      /* ---------------------------------------------------
-         START POSITION
-      --------------------------------------------------- */
-
-      const safeStart =
-        Math.max(
-          0,
-          Number(
-            startTime
-          ) || 0
-        );
-
-      songStartTimeRef.current =
-        safeStart;
-
-      restoredTimeRef.current =
-        safeStart;
-
-      restoringPositionRef.current =
-        safeStart > 0;
-
-
-      /*
-        User selected this song.
-        Automatically play.
-      */
-
-      shouldAutoplayRef.current =
-        true;
-
-
-      setCurrentTime(
-        safeStart
-      );
-
-      setDuration(0);
-
-
-      /* ---------------------------------------------------
-         SET SONG
-      --------------------------------------------------- */
-
-      setCurrentSong(
-        song
-      );
-
-
-      /* ---------------------------------------------------
-         RECORD HISTORY
-      --------------------------------------------------- */
-
-      await recordHistory(
-        song,
-        safeStart
-      );
-    };
-
-
-  /* =======================================================
-     LOAD CURRENT SONG
+     AUDIO EVENTS
   ======================================================= */
 
   useEffect(() => {
-    let cancelled =
-      false;
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime || 0);
+    };
 
-    const loadSong =
-      async () => {
-        const audio =
-          audioRef.current;
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration || 0);
+      setIsLoading(false);
+    };
 
-        if (
-          !audio ||
-          !currentSong?.audio_url
-        ) {
-          return;
-        }
+    const handleDurationChange = () => {
+      if (Number.isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
 
+    const handlePlay = () => {
+      setIsPlaying(true);
+    };
 
-        /*
-          Get offline audio if
-          available.
-        */
+    const handlePause = () => {
+      setIsPlaying(false);
+    };
 
-        const source =
-          await loadAudioSource(
-            currentSong
-          );
+    const handleWaiting = () => {
+      setIsLoading(true);
+    };
 
-        if (
-          cancelled ||
-          !source
-        ) {
-          return;
-        }
+    const handleCanPlay = () => {
+      setIsLoading(false);
+    };
 
+    audio.addEventListener(
+      "timeupdate",
+      handleTimeUpdate
+    );
 
-        /*
-          Set source.
-        */
+    audio.addEventListener(
+      "loadedmetadata",
+      handleLoadedMetadata
+    );
 
-        audio.src =
-          source;
+    audio.addEventListener(
+      "durationchange",
+      handleDurationChange
+    );
 
-        audio.load();
+    audio.addEventListener(
+      "play",
+      handlePlay
+    );
 
+    audio.addEventListener(
+      "pause",
+      handlePause
+    );
 
-        /*
-          User selected song.
-        */
+    audio.addEventListener(
+      "waiting",
+      handleWaiting
+    );
 
-        if (
-          shouldAutoplayRef.current
-        ) {
-          const playWhenReady =
-            async () => {
-              try {
-                await audio.play();
-              } catch (error) {
-                console.error(
-                  "Automatic song play error:",
-                  error
-                );
-
-                setIsPlaying(
-                  false
-                );
-              }
-            };
-
-          audio.addEventListener(
-            "canplay",
-            playWhenReady,
-            {
-              once: true,
-            }
-          );
-
-          return () => {
-            audio.removeEventListener(
-              "canplay",
-              playWhenReady
-            );
-          };
-        }
-
-
-        /*
-          Restored player stays paused.
-        */
-
-        if (
-          restoringPlayerRef.current
-        ) {
-          setIsPlaying(
-            false
-          );
-        }
-      };
-
-
-    loadSong();
-
+    audio.addEventListener(
+      "canplay",
+      handleCanPlay
+    );
 
     return () => {
-      cancelled = true;
-    };
-  }, [
-    currentSong,
-  ]);
-
-
-  /* =======================================================
-     TOGGLE PLAY / PAUSE
-  ======================================================= */
-
-  const togglePlay =
-    async () => {
-      const audio =
-        audioRef.current;
-
-      if (
-        !audio ||
-        !currentSong
-      ) {
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         PAUSE
-      --------------------------------------------------- */
-
-      if (isPlaying) {
-        audio.pause();
-
-        await saveProgress(
-          audio.currentTime
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         PLAY
-      --------------------------------------------------- */
-
-      try {
-        await audio.play();
-      } catch (error) {
-        console.error(
-          "Play error:",
-          error
-        );
-      }
-    };
-
-
-  /* =======================================================
-     SHUFFLE
-  ======================================================= */
-
-  const toggleShuffle =
-    () => {
-      setShuffle(
-        (value) => !value
-      );
-    };
-
-  /* =======================================================
-     ADD SONG TO QUEUE
-  ======================================================= */
-
-  const addToQueue =
-    (song) => {
-      if (!song?.id) {
-        return false;
-      }
-
-      setQueue(
-        (currentQueue) => {
-
-          /*
-            Prevent duplicate songs.
-          */
-
-          const alreadyExists =
-            currentQueue.some(
-              (item) =>
-                item.id === song.id
-            );
-
-          if (alreadyExists) {
-            return currentQueue;
-          }
-
-          return [
-            ...currentQueue,
-            song,
-          ];
-        }
+      audio.removeEventListener(
+        "timeupdate",
+        handleTimeUpdate
       );
 
-      return true;
-    };
-
-
-  /* =======================================================
-     ADD MULTIPLE SONGS TO QUEUE
-  ======================================================= */
-
-  const addSongsToQueue =
-    (songs) => {
-      if (
-        !Array.isArray(songs) ||
-        !songs.length
-      ) {
-        return;
-      }
-
-      setQueue(
-        (currentQueue) => {
-
-          const existingIds =
-            new Set(
-              currentQueue.map(
-                (song) =>
-                  song.id
-              )
-            );
-
-          const newSongs =
-            songs.filter(
-              (song) => {
-
-                if (
-                  !song?.id ||
-                  existingIds.has(
-                    song.id
-                  )
-                ) {
-                  return false;
-                }
-
-                existingIds.add(
-                  song.id
-                );
-
-                return true;
-              }
-            );
-
-          return [
-            ...currentQueue,
-            ...newSongs,
-          ];
-        }
-      );
-    };
-
-
-  /* =======================================================
-     REMOVE SONG FROM QUEUE
-  ======================================================= */
-
-const removeFromQueue =
-  (songId) => {
-
-    if (
-      songId === undefined ||
-      songId === null
-    ) {
-      return;
-    }
-
-    setQueue(
-      (currentQueue) =>
-        currentQueue.filter(
-          (song) =>
-            Number(song?.id) !==
-            Number(songId)
-        )
-    );
-  };
-
-
-  /* =======================================================
-     CLEAR QUEUE
-  ======================================================= */
-
-  const clearQueue =
-    () => {
-
-      /*
-        Keep the currently playing
-        song in the queue.
-
-        Remove everything after it.
-      */
-
-      if (!currentSong) {
-        setQueue([]);
-        return;
-      }
-
-      setQueue(
-        (currentQueue) => {
-
-          const currentIndex =
-            currentQueue.findIndex(
-              (song) =>
-                song.id ===
-                currentSong.id
-            );
-
-          if (
-            currentIndex < 0
-          ) {
-            return [
-              currentSong,
-            ];
-          }
-
-          return currentQueue.slice(
-            0,
-            currentIndex + 1
-          );
-        }
-      );
-    };
-
-
-  /* =======================================================
-     MOVE QUEUE SONG UP
-  ======================================================= */
-
-  const moveQueueItemUp =
-    (songId) => {
-
-      setQueue(
-        (currentQueue) => {
-
-          const index =
-            currentQueue.findIndex(
-              (song) =>
-                song.id === songId
-            );
-
-          if (
-            index <= 0
-          ) {
-            return currentQueue;
-          }
-
-          const updatedQueue = [
-            ...currentQueue,
-          ];
-
-          [
-            updatedQueue[index - 1],
-            updatedQueue[index],
-          ] = [
-            updatedQueue[index],
-            updatedQueue[index - 1],
-          ];
-
-          return updatedQueue;
-        }
-      );
-    };
-
-
-  /* =======================================================
-     MOVE QUEUE SONG DOWN
-  ======================================================= */
-
-  const moveQueueItemDown =
-    (songId) => {
-
-      setQueue(
-        (currentQueue) => {
-
-          const index =
-            currentQueue.findIndex(
-              (song) =>
-                song.id === songId
-            );
-
-          if (
-            index < 0 ||
-            index >=
-              currentQueue.length - 1
-          ) {
-            return currentQueue;
-          }
-
-          const updatedQueue = [
-            ...currentQueue,
-          ];
-
-          [
-            updatedQueue[index],
-            updatedQueue[index + 1],
-          ] = [
-            updatedQueue[index + 1],
-            updatedQueue[index],
-          ];
-
-          return updatedQueue;
-        }
-      );
-    };
-
-
-  /* =======================================================
-     PLAY SONG FROM QUEUE
-  ======================================================= */
-
-  const playQueueSong =
-    async (song) => {
-
-      if (!song?.id) {
-        return;
-      }
-
-      await playSong(
-        song,
-        queue
-      );
-    };
-  /* =======================================================
-     REPEAT
-  ======================================================= */
-
-  const toggleRepeat =
-    () => {
-      setRepeatMode(
-        (mode) => {
-          if (
-            mode === "off"
-          ) {
-            return "all";
-          }
-
-          if (
-            mode === "all"
-          ) {
-            return "one";
-          }
-
-          return "off";
-        }
-      );
-    };
-
-
-  /* =======================================================
-     NEXT SONG
-  ======================================================= */
-
-  const nextSong =
-    async () => {
-      if (
-        !currentSong ||
-        !queue.length
-      ) {
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         SHUFFLE
-      --------------------------------------------------- */
-
-      if (
-        shuffle &&
-        queue.length > 1
-      ) {
-        const availableSongs =
-          queue.filter(
-            (song) =>
-              song.id !==
-              currentSong.id
-          );
-
-        const randomSong =
-          availableSongs[
-            Math.floor(
-              Math.random() *
-                availableSongs.length
-            )
-          ];
-
-        if (randomSong) {
-          await playSong(
-            randomSong,
-            queue
-          );
-        }
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         FIND CURRENT
-      --------------------------------------------------- */
-
-      const index =
-        queue.findIndex(
-          (song) =>
-            song.id ===
-            currentSong.id
-        );
-
-      if (index < 0) {
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         NEXT
-      --------------------------------------------------- */
-
-      if (
-        index <
-        queue.length - 1
-      ) {
-        await playSong(
-          queue[index + 1],
-          queue
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         REPEAT ALL
-      --------------------------------------------------- */
-
-      if (
-        repeatMode ===
-        "all"
-      ) {
-        await playSong(
-          queue[0],
-          queue
-        );
-      }
-    };
-
-
-  /* =======================================================
-     PREVIOUS SONG
-  ======================================================= */
-
-  const previousSong =
-    async () => {
-      if (
-        !currentSong ||
-        !queue.length
-      ) {
-        return;
-      }
-
-      const audio =
-        audioRef.current;
-
-
-      /* ---------------------------------------------------
-         RESTART CURRENT
-      --------------------------------------------------- */
-
-      if (
-        audio &&
-        audio.currentTime > 3
-      ) {
-        audio.currentTime = 0;
-
-        setCurrentTime(0);
-
-        await saveProgress(0);
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         FIND CURRENT
-      --------------------------------------------------- */
-
-      const index =
-        queue.findIndex(
-          (song) =>
-            song.id ===
-            currentSong.id
-        );
-
-      if (index < 0) {
-        return;
-      }
-
-
-      const previousIndex =
-        index <= 0
-          ? queue.length - 1
-          : index - 1;
-
-
-      await playSong(
-        queue[
-          previousIndex
-        ],
-        queue
-      );
-    };
-
-
-  /* =======================================================
-     SEEK
-  ======================================================= */
-
-  const seek =
-    (time) => {
-      const audio =
-        audioRef.current;
-
-      if (!audio) {
-        return;
-      }
-
-      let value =
-        Number(time);
-
-      if (
-        !Number.isFinite(
-          value
-        )
-      ) {
-        value = 0;
-      }
-
-      value = Math.max(
-        0,
-        value
+      audio.removeEventListener(
+        "loadedmetadata",
+        handleLoadedMetadata
       );
 
-      if (
-        duration > 0
-      ) {
-        value = Math.min(
-          value,
-          duration
-        );
-      }
-
-      audio.currentTime =
-        value;
-
-      setCurrentTime(
-        value
+      audio.removeEventListener(
+        "durationchange",
+        handleDurationChange
       );
 
+      audio.removeEventListener(
+        "play",
+        handlePlay
+      );
 
-      if (
-        storageReadyRef.current
-      ) {
-        try {
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                value,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-        } catch (error) {
-          console.error(
-            "Seek save error:",
-            error
-          );
-        }
-      }
+      audio.removeEventListener(
+        "pause",
+        handlePause
+      );
+
+      audio.removeEventListener(
+        "waiting",
+        handleWaiting
+      );
+
+      audio.removeEventListener(
+        "canplay",
+        handleCanPlay
+      );
     };
-
+  }, [audio]);
 
   /* =======================================================
      VOLUME
   ======================================================= */
 
-  const changeVolume =
-    (value) => {
-      const volumeValue =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            Number(value)
+  useEffect(() => {
+    audio.volume = isMuted ? 0 : volume;
+  }, [volume, isMuted, audio]);
+
+  /* =======================================================
+     CHECK LIKED SONG
+  ======================================================= */
+
+  const checkLikedSong = useCallback(
+    async (songId) => {
+      if (!songId || !user) {
+        setIsLiked(false);
+        return;
+      }
+
+      try {
+        const response = await API.get(
+          `/songs/${songId}/liked`
+        );
+
+        setIsLiked(
+          Boolean(
+            response?.data?.liked ??
+              response?.data?.isLiked
           )
         );
-
-      setVolume(
-        volumeValue
-      );
-
-      if (
-        audioRef.current
-      ) {
-        audioRef.current.volume =
-          volumeValue;
-      }
-    };
-
-
-  /* =======================================================
-     TIME UPDATE
-  ======================================================= */
-
-  const handleTimeUpdate =
-    (event) => {
-      const time =
-        event.currentTarget
-          .currentTime;
-
-      setCurrentTime(
-        time
-      );
-
-      if (
-        restoringPositionRef.current
-      ) {
-        return;
-      }
-
-      const seconds =
-        Math.floor(time);
-
-
-      /* ---------------------------------------------------
-         LOCAL STORAGE
-      --------------------------------------------------- */
-
-      if (
-        storageReadyRef.current
-      ) {
-        try {
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                time,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-        } catch (error) {
-          console.error(
-            "Realtime player save error:",
-            error
-          );
-        }
-      }
-
-
-      /* ---------------------------------------------------
-         SERVER HISTORY
-      --------------------------------------------------- */
-
-      if (
-        historyIdRef.current &&
-        seconds -
-          lastSavedProgressRef.current >=
-          10
-      ) {
-        saveProgress(
-          seconds
-        );
-      }
-    };
-
-
-  /* =======================================================
-     LOADED METADATA
-  ======================================================= */
-
-  const handleLoadedMetadata =
-    (event) => {
-      const audio =
-        event.currentTarget;
-
-      const newDuration =
-        Number.isFinite(
-          audio.duration
-        )
-          ? audio.duration
-          : 0;
-
-      setDuration(
-        newDuration
-      );
-
-      const savedPosition =
-        Number(
-          restoredTimeRef.current
-        ) || 0;
-
-
-      if (
-        savedPosition > 0 &&
-        newDuration > 0
-      ) {
-        const safePosition =
-          Math.min(
-            savedPosition,
-            Math.max(
-              0,
-              newDuration - 1
-            )
-          );
+      } catch (error) {
+        /*
+         * Some versions of the backend may not expose
+         * this endpoint. Keep the player working.
+         */
 
         try {
-          audio.currentTime =
-            safePosition;
-        } catch (error) {
+          const response = await API.get(
+            "/liked-songs"
+          );
+
+          const songs =
+            response?.data?.songs ||
+            response?.data ||
+            [];
+
+          const found = songs.some(
+            (item) =>
+              Number(
+                item.song_id || item.id
+              ) === Number(songId)
+          );
+
+          setIsLiked(found);
+        } catch {
+          setIsLiked(false);
+        }
+      }
+    },
+    [user]
+  );
+
+  /* =======================================================
+     PLAY SONG
+  ======================================================= */
+
+  const playSong = useCallback(
+    async (
+      song,
+      songs = [],
+      index = 0
+    ) => {
+      if (!song) return;
+
+      try {
+        setIsLoading(true);
+
+        /*
+         * Update queue
+         */
+
+        if (Array.isArray(songs) && songs.length > 0) {
+          setQueue(songs);
+
+          const foundIndex = songs.findIndex(
+            (item) =>
+              Number(item.id) === Number(song.id)
+          );
+
+          setCurrentIndex(
+            foundIndex >= 0
+              ? foundIndex
+              : index
+          );
+        } else {
+          setQueue([song]);
+          setCurrentIndex(0);
+        }
+
+        setCurrentSong(song);
+
+        /*
+         * Check liked state
+         */
+
+        await checkLikedSong(song.id);
+
+        /*
+         * First try offline copy
+         */
+
+        const offline = await getOfflineSong(
+          song.id
+        );
+
+        let audioUrl = null;
+
+        if (offline?.blob) {
+          audioUrl = URL.createObjectURL(
+            offline.blob
+          );
+        } else {
+          audioUrl = getMediaUrl(
+            song.audio_url ||
+              song.audioUrl ||
+              song.url
+          );
+        }
+
+        if (!audioUrl) {
           console.error(
-            "Unable to restore audio position:",
-            error
-          );
-        }
-
-        setCurrentTime(
-          safePosition
-        );
-      } else {
-        if (
-          !shouldAutoplayRef.current
-        ) {
-          setCurrentTime(0);
-        }
-      }
-
-
-      if (
-        restoringPositionRef.current
-      ) {
-        songStartTimeRef.current =
-          0;
-
-        restoredTimeRef.current =
-          0;
-
-        restoringPositionRef.current =
-          false;
-      }
-
-
-      /* ---------------------------------------------------
-         VOLUME
-      --------------------------------------------------- */
-
-      audio.volume =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            Number(volume) || 0
-          )
-        );
-    };
-
-
-  /* =======================================================
-     AUDIO PLAY EVENT
-  ======================================================= */
-
-  const handlePlay =
-    () => {
-      setIsPlaying(
-        true
-      );
-
-      shouldAutoplayRef.current =
-        false;
-    };
-
-
-  /* =======================================================
-     AUDIO PAUSE EVENT
-  ======================================================= */
-
-  const handlePause =
-    () => {
-      setIsPlaying(
-        false
-      );
-
-      const audio =
-        audioRef.current;
-
-      if (
-        audio &&
-        storageReadyRef.current
-      ) {
-        try {
-          let actualTime =
-            Number(
-              audio.currentTime
-            ) || 0;
-
-          if (
-            restoringPositionRef.current &&
-            restoredTimeRef.current >
-              0 &&
-            actualTime === 0
-          ) {
-            actualTime =
-              restoredTimeRef.current;
-          }
-
-          localStorage.setItem(
-            PLAYER_STORAGE_KEY,
-            JSON.stringify({
-              currentSong,
-              queue,
-              currentTime:
-                actualTime,
-              volume,
-              shuffle,
-              repeatMode,
-            })
-          );
-        } catch (error) {
-          console.error(
-            "Pause state save error:",
-            error
-          );
-        }
-      }
-    };
-
-
-  /* =======================================================
-     SONG ENDED
-  ======================================================= */
-
-  const handleEnded =
-    async () => {
-      const audio =
-        audioRef.current;
-
-      const finalTime =
-        audio?.duration ||
-        duration ||
-        currentTime;
-
-      await saveProgress(
-        finalTime,
-        true
-      );
-
-      historyIdRef.current =
-        null;
-
-      lastSavedProgressRef.current =
-        0;
-
-
-      /* ---------------------------------------------------
-         REPEAT ONE
-      --------------------------------------------------- */
-
-      if (
-        repeatMode ===
-          "one" &&
-        currentSong
-      ) {
-        await recordHistory(
-          currentSong,
-          0
-        );
-
-        if (audio) {
-          audio.currentTime =
-            0;
-
-          setCurrentTime(
-            0
+            "Audio URL not found:",
+            song
           );
 
-          try {
-            await audio.play();
-          } catch (error) {
-            console.error(
-              "Repeat play error:",
-              error
-            );
-
-            setIsPlaying(
-              false
-            );
-          }
+          setIsLoading(false);
+          return;
         }
 
-        return;
-      }
+        /*
+         * Stop previous song
+         */
 
-
-      /* ---------------------------------------------------
-         SHUFFLE
-      --------------------------------------------------- */
-
-      if (
-        shuffle &&
-        queue.length > 1
-      ) {
-        await nextSong();
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         FIND CURRENT
-      --------------------------------------------------- */
-
-      const index =
-        queue.findIndex(
-          (song) =>
-            song.id ===
-            currentSong?.id
-        );
-
-
-      /* ---------------------------------------------------
-         NEXT
-      --------------------------------------------------- */
-
-      if (
-        index >= 0 &&
-        index <
-          queue.length - 1
-      ) {
-        await playSong(
-          queue[index + 1],
-          queue
-        );
-
-        return;
-      }
-
-
-      /* ---------------------------------------------------
-         REPEAT ALL
-      --------------------------------------------------- */
-
-      if (
-        repeatMode ===
-          "all" &&
-        queue.length
-      ) {
-        await playSong(
-          queue[0],
-          queue
-        );
-
-        return;
-      }
-
-      setIsPlaying(
-        false
-      );
-    };
-
-
-  /* =======================================================
-     AUDIO ERROR
-  ======================================================= */
-
-  const handleAudioError =
-    (event) => {
-      console.error(
-        "Audio error:",
-        event.currentTarget.error
-      );
-
-      console.error(
-        "Audio URL:",
-        audioSrc
-      );
-
-      setIsPlaying(
-        false
-      );
-    };
-
-
-  /* =======================================================
-     CLOSE PLAYER
-  ======================================================= */
-
-  const closePlayer =
-    async () => {
-      const audio =
-        audioRef.current;
-
-      if (
-        audio &&
-        historyIdRef.current
-      ) {
-        await saveProgress(
-          audio.currentTime
-        );
-      }
-
-      if (audio) {
         audio.pause();
 
+        /*
+         * Reset audio
+         */
+
         audio.currentTime = 0;
-      }
 
-      shouldAutoplayRef.current =
-        false;
+        /*
+         * Set new source
+         */
 
-      setIsPlaying(
-        false
-      );
+        audio.src = audioUrl;
 
-      setCurrentSong(
-        null
-      );
+        audio.load();
 
-      setQueue([]);
+        /*
+         * Play
+         */
 
-      setCurrentTime(
-        0
-      );
+        await audio.play();
 
-      setDuration(
-        0
-      );
+        setIsPlaying(true);
 
-      setShuffle(
-        false
-      );
+        /*
+         * Listening history
+         */
 
-      setRepeatMode(
-        "off"
-      );
-
-      historyIdRef.current =
-        null;
-
-      lastSavedProgressRef.current =
-        0;
-
-      songStartTimeRef.current =
-        0;
-
-      restoredTimeRef.current =
-        0;
-
-      restoringPositionRef.current =
-        false;
-
-      /*
-        Revoke offline object URL.
-      */
-
-      if (
-        offlineAudioUrlRef.current
-      ) {
-        URL.revokeObjectURL(
-          offlineAudioUrlRef.current
+        if (user && song.id) {
+          try {
+            await API.post(
+              "/listening-history",
+              {
+                song_id: song.id,
+              }
+            );
+          } catch (historyError) {
+            console.warn(
+              "Listening history could not be saved:",
+              historyError
+            );
+          }
+        }
+      } catch (error) {
+        console.error(
+          "Play song error:",
+          error
         );
 
-        offlineAudioUrlRef.current =
-          null;
+        setIsPlaying(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [audio, checkLikedSong, user]
+  );
+
+  /* =======================================================
+     PAUSE
+  ======================================================= */
+
+  const pauseSong = useCallback(() => {
+    audio.pause();
+    setIsPlaying(false);
+  }, [audio]);
+
+  /* =======================================================
+     RESUME
+  ======================================================= */
+
+  const resumeSong = useCallback(async () => {
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch (error) {
+      console.error(
+        "Resume playback error:",
+        error
+      );
+    }
+  }, [audio]);
+
+  /* =======================================================
+     TOGGLE PLAY / PAUSE
+  ======================================================= */
+
+  const togglePlay = useCallback(async () => {
+    if (!currentSong) return;
+
+    if (audio.paused) {
+      await resumeSong();
+    } else {
+      pauseSong();
+    }
+  }, [
+    audio,
+    currentSong,
+    pauseSong,
+    resumeSong,
+  ]);
+
+  /* =======================================================
+     NEXT SONG
+  ======================================================= */
+
+  const nextSong = useCallback(async () => {
+    if (!queue.length) return;
+
+    let nextIndex;
+
+    if (isShuffle) {
+      if (queue.length === 1) {
+        nextIndex = 0;
+      } else {
+        do {
+          nextIndex = Math.floor(
+            Math.random() * queue.length
+          );
+        } while (
+          nextIndex === currentIndex
+        );
+      }
+    } else {
+      nextIndex = currentIndex + 1;
+    }
+
+    /*
+     * End of queue
+     */
+
+    if (nextIndex >= queue.length) {
+      if (repeatMode === "all") {
+        nextIndex = 0;
+      } else {
+        setIsPlaying(false);
+        return;
+      }
+    }
+
+    const next = queue[nextIndex];
+
+    setCurrentIndex(nextIndex);
+
+    await playSong(
+      next,
+      queue,
+      nextIndex
+    );
+  }, [
+    queue,
+    isShuffle,
+    currentIndex,
+    repeatMode,
+    playSong,
+  ]);
+
+  /* =======================================================
+     PREVIOUS SONG
+  ======================================================= */
+
+  const previousSong = useCallback(async () => {
+    if (!queue.length) return;
+
+    /*
+     * If song has already played for more than 3 seconds,
+     * restart it first.
+     */
+
+    if (audio.currentTime > 3) {
+      audio.currentTime = 0;
+      return;
+    }
+
+    let previousIndex = currentIndex - 1;
+
+    if (previousIndex < 0) {
+      if (repeatMode === "all") {
+        previousIndex = queue.length - 1;
+      } else {
+        previousIndex = 0;
+      }
+    }
+
+    const previous = queue[previousIndex];
+
+    setCurrentIndex(previousIndex);
+
+    await playSong(
+      previous,
+      queue,
+      previousIndex
+    );
+  }, [
+    audio,
+    queue,
+    currentIndex,
+    repeatMode,
+    playSong,
+  ]);
+
+  /* =======================================================
+     AUTO NEXT / REPEAT
+  ======================================================= */
+
+  useEffect(() => {
+    const handleEnded = async () => {
+      if (!currentSong) return;
+
+      /*
+       * Repeat current song
+       */
+
+      if (repeatMode === "one") {
+        audio.currentTime = 0;
+
+        try {
+          await audio.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error(
+            "Repeat playback error:",
+            error
+          );
+        }
+
+        return;
       }
 
-      localStorage.removeItem(
-        PLAYER_STORAGE_KEY
-      );
+      /*
+       * Next song
+       */
+
+      await nextSong();
     };
 
+    audio.addEventListener(
+      "ended",
+      handleEnded
+    );
+
+    return () => {
+      audio.removeEventListener(
+        "ended",
+        handleEnded
+      );
+    };
+  }, [
+    audio,
+    currentSong,
+    repeatMode,
+    nextSong,
+  ]);
 
   /* =======================================================
-     AUDIO SOURCE
+     SEEK
   ======================================================= */
 
-  const audioSrc =
-    currentSong?.audio_url
-      ? getMediaUrl(
-          currentSong.audio_url
-        )
-      : undefined;
+  const seek = useCallback(
+    (value) => {
+      const newTime = Number(value);
 
+      if (
+        !Number.isFinite(newTime) ||
+        !Number.isFinite(audio.duration)
+      ) {
+        return;
+      }
+
+      audio.currentTime = Math.min(
+        Math.max(newTime, 0),
+        audio.duration
+      );
+
+      setCurrentTime(audio.currentTime);
+    },
+    [audio]
+  );
 
   /* =======================================================
-     PROVIDER
+     SEEK FORWARD
   ======================================================= */
+
+  const seekForward = useCallback(
+    (seconds = 10) => {
+      if (!Number.isFinite(audio.duration)) {
+        return;
+      }
+
+      audio.currentTime = Math.min(
+        audio.currentTime + seconds,
+        audio.duration
+      );
+    },
+    [audio]
+  );
+
+  /* =======================================================
+     SEEK BACKWARD
+  ======================================================= */
+
+  const seekBackward = useCallback(
+    (seconds = 10) => {
+      audio.currentTime = Math.max(
+        audio.currentTime - seconds,
+        0
+      );
+    },
+    [audio]
+  );
+
+  /* =======================================================
+     SET PLAYER VOLUME
+  ======================================================= */
+
+  const changeVolume = useCallback(
+    (value) => {
+      const newVolume = Math.min(
+        Math.max(Number(value), 0),
+        1
+      );
+
+      setVolume(newVolume);
+
+      if (newVolume > 0) {
+        setIsMuted(false);
+      }
+    },
+    []
+  );
+
+  /* =======================================================
+     TOGGLE MUTE
+  ======================================================= */
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((previous) => !previous);
+  }, []);
+
+  /* =======================================================
+     TOGGLE SHUFFLE
+  ======================================================= */
+
+  const toggleShuffle = useCallback(() => {
+    setIsShuffle((previous) => !previous);
+  }, []);
+
+  /* =======================================================
+     TOGGLE REPEAT
+  ======================================================= */
+
+  const toggleRepeat = useCallback(() => {
+    setRepeatMode((previous) => {
+      if (previous === "off") {
+        return "all";
+      }
+
+      if (previous === "all") {
+        return "one";
+      }
+
+      return "off";
+    });
+  }, []);
+
+  /* =======================================================
+     LIKE / UNLIKE SONG
+  ======================================================= */
+
+  const toggleLike = useCallback(
+    async (song = currentSong) => {
+      if (!song?.id || !user) {
+        return;
+      }
+
+      try {
+        if (isLiked) {
+          await API.delete(
+            `/liked-songs/${song.id}`
+          );
+
+          setIsLiked(false);
+        } else {
+          await API.post(
+            "/liked-songs",
+            {
+              song_id: song.id,
+            }
+          );
+
+          setIsLiked(true);
+        }
+      } catch (error) {
+        console.error(
+          "Toggle like error:",
+          error
+        );
+      }
+    },
+    [currentSong, user, isLiked]
+  );
+
+  /* =======================================================
+     DOWNLOAD SONG FOR OFFLINE
+  ======================================================= */
+
+  const downloadSong = useCallback(
+    async (song) => {
+      if (!song?.id) return false;
+
+      try {
+        const existing =
+          await getOfflineSong(song.id);
+
+        if (existing) {
+          return true;
+        }
+
+        const audioUrl = getMediaUrl(
+          song.audio_url ||
+            song.audioUrl ||
+            song.url
+        );
+
+        if (!audioUrl) {
+          return false;
+        }
+
+        const response = await fetch(
+          audioUrl
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Download failed: ${response.status}`
+          );
+        }
+
+        const blob = await response.blob();
+
+        await saveOfflineSong({
+          id: song.id,
+          title: song.title,
+          title_english: song.title_english,
+          language: song.language,
+          artist_id: song.artist_id,
+          album_id: song.album_id,
+          category_id: song.category_id,
+          cover_url: song.cover_url,
+          audio_url:
+            song.audio_url ||
+            song.audioUrl ||
+            song.url,
+          blob,
+          downloadedAt: Date.now(),
+        });
+
+        const updated =
+          await getAllOfflineSongs();
+
+        setOfflineSongs(updated);
+
+        return true;
+      } catch (error) {
+        console.error(
+          "Download song error:",
+          error
+        );
+
+        return false;
+      }
+    },
+    []
+  );
+
+  /* =======================================================
+     REMOVE OFFLINE SONG
+  ======================================================= */
+
+  const removeOfflineSong = useCallback(
+    async (songId) => {
+      if (!songId) return;
+
+      await deleteOfflineSong(songId);
+
+      const updated =
+        await getAllOfflineSongs();
+
+      setOfflineSongs(updated);
+    },
+    []
+  );
+
+  /* =======================================================
+     CHECK OFFLINE SONG
+  ======================================================= */
+
+  const isSongOffline = useCallback(
+    (songId) => {
+      if (!songId) return false;
+
+      return offlineSongs.some(
+        (song) =>
+          Number(song.id) === Number(songId)
+      );
+    },
+    [offlineSongs]
+  );
+
+  /* =======================================================
+     CLEAR PLAYER
+  ======================================================= */
+
+  const clearPlayer = useCallback(() => {
+    audio.pause();
+
+    audio.src = "";
+
+    setCurrentSong(null);
+    setQueue([]);
+    setCurrentIndex(-1);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setIsLiked(false);
+
+    localStorage.removeItem(
+      PLAYER_STORAGE_KEY
+    );
+  }, [audio]);
+
+  /* =======================================================
+     FORMAT TIME
+  ======================================================= */
+
+  const formatTime = useCallback(
+    (seconds) => {
+      if (
+        !seconds ||
+        !Number.isFinite(seconds)
+      ) {
+        return "0:00";
+      }
+
+      const minutes = Math.floor(
+        seconds / 60
+      );
+
+      const remainingSeconds = Math.floor(
+        seconds % 60
+      );
+
+      return `${minutes}:${String(
+        remainingSeconds
+      ).padStart(2, "0")}`;
+    },
+    []
+  );
+
+  /* =======================================================
+     PLAYER VALUE
+  ======================================================= */
+
+  const value = {
+    /* Current song */
+    currentSong,
+    setCurrentSong,
+
+    /* Queue */
+    queue,
+    setQueue,
+
+    currentIndex,
+    setCurrentIndex,
+
+    /* Playback */
+    isPlaying,
+    isLoading,
+
+    playSong,
+    pauseSong,
+    resumeSong,
+    togglePlay,
+
+    nextSong,
+    previousSong,
+
+    /* Time */
+    currentTime,
+    duration,
+    seek,
+    seekForward,
+    seekBackward,
+
+    /* Volume */
+    volume,
+    setVolume: changeVolume,
+    changeVolume,
+    isMuted,
+    toggleMute,
+
+    /* Shuffle / repeat */
+    isShuffle,
+    toggleShuffle,
+
+    repeatMode,
+    toggleRepeat,
+
+    /* Like */
+    isLiked,
+    setIsLiked,
+    toggleLike,
+
+    /* Offline */
+    offlineSongs,
+    downloadSong,
+    removeOfflineSong,
+    isSongOffline,
+
+    /* Utility */
+    clearPlayer,
+    formatTime,
+
+    /* Audio */
+    audioRef,
+    audio,
+  };
 
   return (
-    <PlayerContext.Provider
-      value={{
-        /* ---------------------------
-           EXISTING PLAYER
-        --------------------------- */
-
-        currentSong,
-        queue,
-
-        isPlaying,
-
-        currentTime,
-        duration,
-
-        volume,
-
-        shuffle,
-        repeatMode,
-
-        playSong,
-        togglePlay,
-        
-         /* ---------------------------
-           QUEUE
-        --------------------------- */
-
-        addToQueue,
-        addSongsToQueue,
-        removeFromQueue,
-        clearQueue,
-        moveQueueItemUp,
-        moveQueueItemDown,
-        playQueueSong,
-        nextSong,
-        previousSong,
-
-        seek,
-        changeVolume,
-
-        toggleShuffle,
-        toggleRepeat,
-
-        closePlayer,
-
-
-        /* ---------------------------
-           OFFLINE FEATURES
-        --------------------------- */
-
-        offlineSongs,
-
-        offlineLoading,
-
-        offlineDownloadingId,
-
-        downloadSongOffline,
-
-        removeOfflineSong,
-
-        isSongOffline,
-
-        getOfflineSongs,
-
-        refreshOfflineSongs,
-      }}
-    >
+    <PlayerContext.Provider value={value}>
       {children}
-
-
-      {/* =================================================
-          GLOBAL AUDIO
-      ================================================= */}
-
-      <audio
-        ref={audioRef}
-        src={audioSrc}
-        preload="metadata"
-        onTimeUpdate={
-          handleTimeUpdate
-        }
-        onLoadedMetadata={
-          handleLoadedMetadata
-        }
-        onPlay={
-          handlePlay
-        }
-        onPause={
-          handlePause
-        }
-        onEnded={
-          handleEnded
-        }
-        onError={
-          handleAudioError
-        }
-      />
     </PlayerContext.Provider>
   );
-}
+};
 
+export default PlayerContext;

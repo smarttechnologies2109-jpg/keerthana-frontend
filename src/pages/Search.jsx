@@ -8,32 +8,49 @@ import {
   FaMusic,
   FaMicrophone,
   FaSearch,
+  FaPlay,
+  FaPause,
 } from "react-icons/fa";
 
 import API from "../services/api";
 
 import VoiceSearch from "../components/VoiceSearch";
 
+import { usePlayer } from "../context/PlayerContext";
+
 import "../assets/css/search.css";
 
+
 function Search() {
-  const [query, setQuery] =
-    useState("");
+  const [query, setQuery] = useState("");
 
-  const [songs, setSongs] =
-    useState([]);
+  const [songs, setSongs] = useState([]);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const [searched, setSearched] =
-    useState(false);
+  const [searched, setSearched] = useState(false);
 
   const [voiceLanguage, setVoiceLanguage] =
     useState("en-IN");
+
+
+  /* =========================================================
+     PLAYER CONTEXT
+  ========================================================= */
+
+  const {
+    currentSong,
+    isPlaying,
+    playSong,
+    togglePlay,
+  } = usePlayer();
+
+
+  /* =========================================================
+     SEARCH SONGS
+  ========================================================= */
 
   const handleSearch = useCallback(
     async (searchQuery) => {
@@ -46,7 +63,9 @@ function Search() {
 
       try {
         setLoading(true);
+
         setError("");
+
         setSearched(true);
 
         const response =
@@ -56,9 +75,11 @@ function Search() {
             )}`
           );
 
-        setSongs(
-          response.data?.songs || []
-        );
+        const result =
+          response.data?.songs || [];
+
+        setSongs(result);
+
       } catch (error) {
         console.error(
           "Search error:",
@@ -68,10 +89,10 @@ function Search() {
         setSongs([]);
 
         setError(
-          error.response?.data
-            ?.message ||
-            "Unable to search songs."
+          error.response?.data?.message ||
+          "Unable to search songs."
         );
+
       } finally {
         setLoading(false);
       }
@@ -79,23 +100,34 @@ function Search() {
     []
   );
 
-  const handleVoiceSearch = useCallback(
-    (voiceText) => {
-      const cleanText =
-        String(
-          voiceText || ""
-        ).trim();
 
-      if (!cleanText) {
-        return;
-      }
+  /* =========================================================
+     VOICE SEARCH
+  ========================================================= */
 
-      setQuery(cleanText);
+  const handleVoiceSearch =
+    useCallback(
+      (voiceText) => {
+        const cleanText =
+          String(
+            voiceText || ""
+          ).trim();
 
-      handleSearch(cleanText);
-    },
-    [handleSearch]
-  );
+        if (!cleanText) {
+          return;
+        }
+
+        setQuery(cleanText);
+
+        handleSearch(cleanText);
+      },
+      [handleSearch]
+    );
+
+
+  /* =========================================================
+     READ SEARCH QUERY FROM URL
+  ========================================================= */
 
   useEffect(() => {
     const params =
@@ -113,17 +145,113 @@ function Search() {
     }
   }, [handleSearch]);
 
-  const handlePlaySong = (song) => {
-    console.log(
-      "Play song:",
-      song
-    );
 
-    // Connect your existing MusicPlayer here.
+  /* =========================================================
+     PLAY / PAUSE SEARCH SONG
+  ========================================================= */
+
+  const handlePlaySong = async (
+    song
+  ) => {
+    try {
+      if (!song) {
+        return;
+      }
+
+
+      /* -----------------------------------------------------
+         CHECK AUDIO
+      ----------------------------------------------------- */
+
+      if (!song.audio_url) {
+        console.error(
+          "Song has no audio URL:",
+          song
+        );
+
+        setError(
+          "This song does not have an audio file."
+        );
+
+        return;
+      }
+
+
+      /* -----------------------------------------------------
+         SAME SONG
+         
+         If this song is already loaded in the
+         global player, simply toggle play/pause.
+      ----------------------------------------------------- */
+
+      if (
+        currentSong?.id === song.id
+      ) {
+        await togglePlay();
+
+        return;
+      }
+
+
+      /* -----------------------------------------------------
+         NEW SONG
+         
+         IMPORTANT:
+         
+         Do NOT pass the index as the third
+         argument.
+         
+         PlayerContext expects:
+         
+         playSong(
+           song,
+           songList,
+           startTime
+         )
+      ----------------------------------------------------- */
+
+      await playSong(
+        song,
+        songs
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to play song:",
+        error
+      );
+
+      setError(
+        "Unable to play this song."
+      );
+    }
   };
+
+
+  /* =========================================================
+     IS THIS SONG CURRENTLY PLAYING?
+  ========================================================= */
+
+  const isCurrentSong =
+    (song) => {
+      return (
+        currentSong?.id ===
+        song?.id
+      );
+    };
+
+
+  /* =========================================================
+     UI
+  ========================================================= */
 
   return (
     <div className="search-page">
+
+
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
 
       <div className="search-page-header">
 
@@ -142,6 +270,11 @@ function Search() {
 
       </div>
 
+
+      {/* =====================================================
+          SEARCH
+      ===================================================== */}
+
       <div className="search-main-area">
 
         <VoiceSearch
@@ -150,6 +283,7 @@ function Search() {
           onSearch={handleVoiceSearch}
           language={voiceLanguage}
         />
+
 
         <div className="voice-language-selector">
 
@@ -165,6 +299,7 @@ function Search() {
               )
             }
           >
+
             <option value="en-IN">
               English
             </option>
@@ -188,11 +323,17 @@ function Search() {
             <option value="ml-IN">
               മലയാളം
             </option>
+
           </select>
 
         </div>
 
       </div>
+
+
+      {/* =====================================================
+          LOADING
+      ===================================================== */}
 
       {loading && (
         <div className="search-loading">
@@ -200,11 +341,21 @@ function Search() {
         </div>
       )}
 
+
+      {/* =====================================================
+          ERROR
+      ===================================================== */}
+
       {!loading && error && (
         <div className="search-error">
           {error}
         </div>
       )}
+
+
+      {/* =====================================================
+          RESULTS
+      ===================================================== */}
 
       {!loading &&
         !error &&
@@ -213,9 +364,15 @@ function Search() {
 
           <section className="search-results">
 
+
+            {/* =================================================
+                RESULTS HEADER
+            ================================================= */}
+
             <div className="search-results-header">
 
               <div>
+
                 <span>
                   SEARCH RESULTS
                 </span>
@@ -227,7 +384,9 @@ function Search() {
                     : "Songs"}{" "}
                   Found
                 </h2>
+
               </div>
+
 
               <div className="search-results-query">
 
@@ -241,62 +400,168 @@ function Search() {
 
             </div>
 
+
+            {/* =================================================
+                SONG LIST
+            ================================================= */}
+
             <div className="search-song-list">
 
-              {songs.map((song) => (
+              {songs.map(
+                (song) => {
 
-                <div
-                  key={song.id}
-                  className="search-song-card"
-                  onClick={() =>
-                    handlePlaySong(song)
-                  }
-                >
+                  const current =
+                    isCurrentSong(song);
 
-                  <div className="search-song-cover">
+                  return (
 
-                    {song.cover_url ? (
-                      <img
-                        src={
-                          song.cover_url
-                        }
-                        alt={
-                          song.title
-                        }
-                      />
-                    ) : (
-                      <FaMusic />
-                    )}
+                    <div
+                      key={song.id}
+                      className={`search-song-card ${
+                        current
+                          ? "search-song-card-active"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        handlePlaySong(song)
+                      }
+                    >
 
-                  </div>
 
-                  <div className="search-song-info">
+                      {/* =======================================
+                          COVER
+                      ======================================= */}
 
-                    <h3>
-                      {song.title}
-                    </h3>
+                      <div className="search-song-cover">
 
-                    <p>
-                      {song.artist_name ||
-                        song.artist ||
-                        "Unknown Artist"}
-                    </p>
+                        {song.cover_url ? (
 
-                    <span>
-                      {song.language ||
-                        "Music"}
-                    </span>
+                          <img
+                            src={
+                              song.cover_url
+                            }
+                            alt={
+                              song.title
+                            }
+                          />
 
-                  </div>
+                        ) : (
 
-                </div>
+                          <FaMusic />
 
-              ))}
+                        )}
+
+
+                        {/* =====================================
+                            PLAY / PAUSE BUTTON
+                        ===================================== */}
+
+                        <button
+                          type="button"
+                          className="search-song-play"
+                          onClick={(event) => {
+                            event.stopPropagation();
+
+                            handlePlaySong(
+                              song
+                            );
+                          }}
+                          aria-label={
+                            current &&
+                            isPlaying
+                              ? "Pause song"
+                              : "Play song"
+                          }
+                        >
+
+                          {current &&
+                          isPlaying ? (
+                            <FaPause />
+                          ) : (
+                            <FaPlay />
+                          )}
+
+                        </button>
+
+                      </div>
+
+
+                      {/* =======================================
+                          SONG INFORMATION
+                      ======================================= */}
+
+                      <div className="search-song-info">
+
+                        <h3>
+                          {song.title}
+                        </h3>
+
+
+                        {/* English title */}
+
+                        {song.title_english &&
+                          song.title_english !==
+                            song.title && (
+
+                            <p className="search-song-english-title">
+
+                              {
+                                song.title_english
+                              }
+
+                            </p>
+
+                          )}
+
+
+                        {/* Artist */}
+
+                        <p>
+                          {song.artist_name ||
+                            song.artist ||
+                            "Unknown Artist"}
+                        </p>
+
+
+                        {/* Language */}
+
+                        <span>
+                          {song.language ||
+                            "Music"}
+                        </span>
+
+                      </div>
+
+
+                      {/* =======================================
+                          CURRENT PLAYING INDICATOR
+                      ======================================= */}
+
+                      {current && (
+                        <div className="search-playing-indicator">
+
+                          {isPlaying
+                            ? "Playing"
+                            : "Paused"}
+
+                        </div>
+                      )}
+
+                    </div>
+
+                  );
+                }
+              )}
 
             </div>
 
           </section>
         )}
+
+
+      {/* =====================================================
+          NO RESULTS
+      ===================================================== */}
 
       {!loading &&
         !error &&
@@ -319,31 +584,40 @@ function Search() {
             </p>
 
           </div>
+
         )}
 
-      {!searched && !loading && (
 
-        <div className="search-start">
+      {/* =====================================================
+          START SEARCH
+      ===================================================== */}
 
-          <div className="search-start-icon">
-            <FaMicrophone />
+      {!searched &&
+        !loading && (
+
+          <div className="search-start">
+
+            <div className="search-start-icon">
+              <FaMicrophone />
+            </div>
+
+            <h2>
+              Search with your voice
+            </h2>
+
+            <p>
+              Tap the microphone and say
+              the name of a Christian song,
+              artist, or lyric.
+            </p>
+
           </div>
 
-          <h2>
-            Search with your voice
-          </h2>
-
-          <p>
-            Tap the microphone and say
-            the name of a Christian song,
-            artist, or lyric.
-          </p>
-
-        </div>
-      )}
+        )}
 
     </div>
   );
 }
+
 
 export default Search;

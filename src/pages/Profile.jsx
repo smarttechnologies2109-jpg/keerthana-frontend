@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -16,6 +17,8 @@ import {
   FaTimes,
   FaSignOutAlt,
   FaShieldAlt,
+  FaCamera,
+  FaGlobe,
 } from "react-icons/fa";
 
 import {
@@ -26,60 +29,156 @@ import {
   useAuth,
 } from "../context/AuthContext";
 
-import API
-  from "../services/api";
+import API from "../services/api";
+
+import {
+  getMediaUrl,
+} from "../utils/media";
 
 import "../assets/css/profile.css";
 
 
+/* =========================================================
+   LANGUAGES
+========================================================= */
+
+const LANGUAGES = [
+  {
+    value: "Telugu",
+    label: "తెలుగు",
+  },
+  {
+    value: "Hindi",
+    label: "हिन्दी",
+  },
+  {
+    value: "English",
+    label: "English",
+  },
+  {
+    value: "Malayalam",
+    label: "മലയാളം",
+  },
+  {
+    value: "Kannada",
+    label: "ಕನ್ನಡ",
+  },
+  {
+    value: "Tamil",
+    label: "தமிழ்",
+  },
+];
+
+
+/* =========================================================
+   PROFILE PAGE
+========================================================= */
+
 function Profile() {
 
-  const navigate =
-    useNavigate();
-
+  const navigate = useNavigate();
 
   const {
     user,
     logout,
+    updateUser,
   } = useAuth();
 
 
-  /* =====================================================
+  /* =======================================================
+     FILE INPUT
+  ======================================================= */
+
+  const fileInputRef = useRef(null);
+
+
+  /* =======================================================
      STATE
-  ===================================================== */
+  ======================================================= */
 
-  const [profile, setProfile] =
-    useState(null);
-
-  const [stats, setStats] =
-    useState({
-      likedSongs: 0,
-      playlists: 0,
-      history: 0,
-    });
-
-  const [name, setName] =
-    useState("");
-
-  const [editing, setEditing] =
-    useState(false);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
-  const [message, setMessage] =
-    useState("");
+  const [
+    profile,
+    setProfile,
+  ] = useState(null);
 
 
-  /* =====================================================
+  const [
+    stats,
+    setStats,
+  ] = useState({
+    likedSongs: 0,
+    playlists: 0,
+    history: 0,
+  });
+
+
+  const [
+    name,
+    setName,
+  ] = useState("");
+
+
+  const [
+    language,
+    setLanguage,
+  ] = useState("Telugu");
+
+
+  const [
+    profileImage,
+    setProfileImage,
+  ] = useState("");
+
+
+  const [
+    selectedImage,
+    setSelectedImage,
+  ] = useState(null);
+
+
+  const [
+    imagePreview,
+    setImagePreview,
+  ] = useState("");
+
+
+  /* =======================================================
+     POPUP
+  ======================================================= */
+
+  const [
+    editing,
+    setEditing,
+  ] = useState(false);
+
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
+
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  const [
+    message,
+    setMessage,
+  ] = useState("");
+
+
+  /* =======================================================
      LOAD PROFILE
-  ===================================================== */
+  ======================================================= */
 
   useEffect(() => {
 
@@ -93,368 +192,653 @@ function Profile() {
       );
 
       return;
-
     }
 
 
-    const loadProfile =
-      async () => {
-
-        try {
-
-          setLoading(true);
-
-          setError("");
-
-
-          /*
-            First try profile API.
-
-            If your backend doesn't have
-            /users/profile yet, the page
-            will still use AuthContext user.
-          */
-
-          try {
-
-            const response =
-              await API.get(
-                "/users/profile"
-              );
-
-
-            const profileData =
-              response.data.user ||
-              response.data.profile ||
-              response.data;
-
-
-            setProfile(
-              profileData
-            );
-
-
-            setName(
-              profileData.name ||
-              user.name ||
-              ""
-            );
-
-          } catch (profileError) {
-
-            console.log(
-              "Using AuthContext profile:",
-              profileError
-            );
-
-
-            setProfile(user);
-
-            setName(
-              user.name || ""
-            );
-
-          }
-
-
-          /* =============================================
-             LOAD PROFILE STATS
-          ============================================= */
-
-          const results =
-            await Promise.allSettled([
-
-              API.get(
-                "/liked-songs"
-              ),
-
-              API.get(
-                "/playlists"
-              ),
-
-              API.get(
-                "/history"
-              ),
-
-            ]);
-
-
-          const likedResponse =
-            results[0];
-
-          const playlistResponse =
-            results[1];
-
-          const historyResponse =
-            results[2];
-
-
-          setStats({
-
-            likedSongs:
-              likedResponse.status ===
-              "fulfilled"
-                ? (
-                    likedResponse
-                      .value
-                      .data
-                      .songs
-                      ?.length || 0
-                  )
-                : 0,
-
-            playlists:
-              playlistResponse.status ===
-              "fulfilled"
-                ? (
-                    playlistResponse
-                      .value
-                      .data
-                      .playlists
-                      ?.length || 0
-                  )
-                : 0,
-
-            history:
-              historyResponse.status ===
-              "fulfilled"
-                ? (
-                    historyResponse
-                      .value
-                      .data
-                      .history
-                      ?.length ||
-                    historyResponse
-                      .value
-                      .data
-                      .songs
-                      ?.length ||
-                    0
-                  )
-                : 0,
-
-          });
-
-
-        } catch (error) {
-
-          console.error(
-            "Profile load error:",
-            error
-          );
-
-
-          setError(
-            "Unable to load profile"
-          );
-
-        } finally {
-
-          setLoading(false);
-
-        }
-
-      };
-
-
-    loadProfile();
-
-  }, [user, navigate]);
-
-
-  /* =====================================================
-     SAVE PROFILE
-  ===================================================== */
-
-  const handleSave =
-    async () => {
-
-      const cleanName =
-        name.trim();
-
-
-      if (!cleanName) {
-
-        setError(
-          "Name cannot be empty."
-        );
-
-        return;
-
-      }
-
+    const loadProfile = async () => {
 
       try {
 
-        setSaving(true);
-
+        setLoading(true);
         setError("");
 
-        setMessage("");
+
+        /* ===============================================
+           PROFILE
+        =============================================== */
+
+        try {
+
+          const response =
+            await API.get(
+              "/users/profile"
+            );
 
 
-        /*
-          Backend route expected:
+          const profileData =
+            response.data?.user ||
+            response.data?.profile ||
+            response.data;
 
-          PUT /users/profile
 
-          body:
-          {
-            name: "User Name"
-          }
-        */
-
-        const response =
-          await API.put(
-            "/users/profile",
-            {
-              name:
-                cleanName,
-            }
+          setProfile(
+            profileData
           );
 
 
-        const updatedUser =
-          response.data.user ||
-          {
-            ...profile,
-            name:
-              cleanName,
-          };
+          setName(
+            profileData?.name ||
+            user?.name ||
+            ""
+          );
 
 
-        setProfile(
-          updatedUser
-        );
+          setLanguage(
+            profileData?.language ||
+            user?.language ||
+            "Telugu"
+          );
 
 
-        setName(
-          updatedUser.name ||
-          cleanName
-        );
+          setProfileImage(
+            profileData?.profile_image ||
+            user?.profile_image ||
+            ""
+          );
+
+        } catch (profileError) {
+
+          console.log(
+            "Using AuthContext profile:",
+            profileError
+          );
 
 
-        setEditing(false);
+          setProfile(
+            user
+          );
 
 
-        setMessage(
-          "Profile updated successfully."
-        );
+          setName(
+            user?.name ||
+            ""
+          );
 
 
-      } catch (error) {
+          setLanguage(
+            user?.language ||
+            "Telugu"
+          );
+
+
+          setProfileImage(
+            user?.profile_image ||
+            ""
+          );
+        }
+
+
+        /* ===============================================
+           STATS
+        =============================================== */
+
+        const results =
+          await Promise.allSettled([
+
+            API.get(
+              "/liked-songs"
+            ),
+
+            API.get(
+              "/playlists"
+            ),
+
+            API.get(
+              "/history"
+            ),
+
+          ]);
+
+
+        const likedResponse =
+          results[0];
+
+        const playlistResponse =
+          results[1];
+
+        const historyResponse =
+          results[2];
+
+
+        setStats({
+
+          likedSongs:
+            likedResponse.status ===
+            "fulfilled"
+              ?
+                (
+                  likedResponse
+                    .value
+                    .data
+                    .songs
+                    ?.length || 0
+                )
+              : 0,
+
+
+          playlists:
+            playlistResponse.status ===
+            "fulfilled"
+              ?
+                (
+                  playlistResponse
+                    .value
+                    .data
+                    .playlists
+                    ?.length || 0
+                )
+              : 0,
+
+
+          history:
+            historyResponse.status ===
+            "fulfilled"
+              ?
+                (
+                  historyResponse
+                    .value
+                    .data
+                    .history
+                    ?.length ||
+                  historyResponse
+                    .value
+                    .data
+                    .songs
+                    ?.length ||
+                  0
+                )
+              : 0,
+
+        });
+
+      } catch (loadError) {
 
         console.error(
-          "Update profile error:",
-          error
+          "Profile load error:",
+          loadError
         );
 
 
         setError(
-          error.response
-            ?.data
-            ?.message ||
-          "Unable to update profile."
+          "Unable to load profile."
         );
 
       } finally {
 
-        setSaving(false);
+        setLoading(false);
 
       }
 
     };
 
 
-  /* =====================================================
-     CANCEL EDIT
-  ===================================================== */
+    loadProfile();
 
-  const handleCancel =
-    () => {
+  }, [
+    user,
+    navigate,
+  ]);
 
-      setName(
-        profile?.name ||
-        user?.name ||
-        ""
+
+  /* =======================================================
+     IMAGE URL
+  ======================================================= */
+
+  const getProfileImage = () => {
+
+    if (imagePreview) {
+
+      return imagePreview;
+
+    }
+
+
+    if (profileImage) {
+
+      return getMediaUrl(
+        profileImage
       );
 
-      setEditing(false);
+    }
+
+
+    return "";
+
+  };
+
+
+  /* =======================================================
+     IMAGE SELECT
+  ======================================================= */
+
+  const handleImageChange = (
+    event
+  ) => {
+
+    const file =
+      event.target.files?.[0];
+
+
+    if (!file) {
+
+      return;
+
+    }
+
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/jpg",
+    ];
+
+
+    if (
+      !allowedTypes.includes(
+        file.type
+      )
+    ) {
+
+      setError(
+        "Please select a JPG, PNG, or WebP image."
+      );
+
+      return;
+
+    }
+
+
+    const maxSize =
+      5 * 1024 * 1024;
+
+
+    if (
+      file.size > maxSize
+    ) {
+
+      setError(
+        "Profile image must be smaller than 5MB."
+      );
+
+      return;
+
+    }
+
+
+    setError("");
+
+    setSelectedImage(
+      file
+    );
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload = () => {
+
+      setImagePreview(
+        reader.result
+      );
+
+    };
+
+
+    reader.readAsDataURL(
+      file
+    );
+
+  };
+
+
+  /* =======================================================
+     OPEN EDIT PROFILE
+  ======================================================= */
+
+  const handleOpenEdit = () => {
+
+    setName(
+      profile?.name ||
+      user?.name ||
+      ""
+    );
+
+
+    setLanguage(
+      profile?.language ||
+      user?.language ||
+      "Telugu"
+    );
+
+
+    setProfileImage(
+      profile?.profile_image ||
+      user?.profile_image ||
+      ""
+    );
+
+
+    setSelectedImage(null);
+
+    setImagePreview("");
+
+    setError("");
+
+    setMessage("");
+
+    setEditing(true);
+
+  };
+
+
+  /* =======================================================
+     CLOSE EDIT PROFILE
+  ======================================================= */
+
+  const handleCloseEdit = () => {
+
+    if (saving) {
+
+      return;
+
+    }
+
+
+    setName(
+      profile?.name ||
+      user?.name ||
+      ""
+    );
+
+
+    setLanguage(
+      profile?.language ||
+      user?.language ||
+      "Telugu"
+    );
+
+
+    setProfileImage(
+      profile?.profile_image ||
+      user?.profile_image ||
+      ""
+    );
+
+
+    setSelectedImage(null);
+
+    setImagePreview("");
+
+    setError("");
+
+    setEditing(false);
+
+  };
+
+
+  /* =======================================================
+     SAVE PROFILE
+  ======================================================= */
+
+  const handleSave = async () => {
+
+    const cleanName =
+      name.trim();
+
+
+    if (!cleanName) {
+
+      setError(
+        "Name cannot be empty."
+      );
+
+      return;
+
+    }
+
+
+    if (!language) {
+
+      setError(
+        "Please select your language."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      setSaving(true);
 
       setError("");
 
-    };
+      setMessage("");
 
 
-  /* =====================================================
-     LOGOUT
-  ===================================================== */
+      /* ===============================================
+         FORM DATA
+      =============================================== */
 
-  const handleLogout =
-    () => {
+      const formData =
+        new FormData();
 
-      logout();
 
-      navigate(
-        "/login",
-        {
-          replace: true,
-        }
+      formData.append(
+        "name",
+        cleanName
       );
 
-    };
+
+      formData.append(
+        "language",
+        language
+      );
 
 
-  /* =====================================================
-     DATE
-  ===================================================== */
+      if (selectedImage) {
 
-  const formatDate =
-    (date) => {
-
-      if (!date) {
-
-        return "KEERTHANA Member";
-
-      }
-
-
-      const parsedDate =
-        new Date(date);
-
-
-      if (
-        Number.isNaN(
-          parsedDate.getTime()
-        )
-      ) {
-
-        return "KEERTHANA Member";
+        formData.append(
+          "profile_image",
+          selectedImage
+        );
 
       }
 
 
-      return parsedDate
-        .toLocaleDateString(
-          "en-IN",
+      /* ===============================================
+         API
+      =============================================== */
+
+      const response =
+        await API.put(
+          "/users/profile",
+          formData,
           {
-            day:
-              "numeric",
-
-            month:
-              "long",
-
-            year:
-              "numeric",
+            headers: {
+              "Content-Type":
+                "multipart/form-data",
+            },
           }
         );
 
-    };
+
+      const updatedUser =
+        response.data?.user ||
+        {
+          ...profile,
+          name: cleanName,
+          language,
+        };
 
 
-  /* =====================================================
+      /* ===============================================
+         UPDATE PROFILE STATE
+      =============================================== */
+
+      setProfile(
+        updatedUser
+      );
+
+
+      setName(
+        updatedUser.name ||
+        cleanName
+      );
+
+
+      setLanguage(
+        updatedUser.language ||
+        language
+      );
+
+
+      setProfileImage(
+        updatedUser.profile_image ||
+        profileImage
+      );
+
+
+      /* ===============================================
+         IMPORTANT
+         UPDATE AUTH CONTEXT
+      =============================================== */
+
+      if (
+        typeof updateUser ===
+        "function"
+      ) {
+
+        updateUser(
+          updatedUser
+        );
+
+      }
+
+
+      /* ===============================================
+         CLEAR IMAGE STATE
+      =============================================== */
+
+      setSelectedImage(null);
+
+      setImagePreview("");
+
+
+      /* ===============================================
+         CLOSE POPUP
+      =============================================== */
+
+      setEditing(false);
+
+
+      setMessage(
+        "Profile updated successfully."
+      );
+
+
+    } catch (saveError) {
+
+      console.error(
+        "Update profile error:",
+        saveError
+      );
+
+
+      setError(
+        saveError
+          .response
+          ?.data
+          ?.message ||
+        "Unable to update profile."
+      );
+
+    } finally {
+
+      setSaving(false);
+
+    }
+
+  };
+
+
+  /* =======================================================
+     LOGOUT
+  ======================================================= */
+
+  const handleLogout = () => {
+
+    logout();
+
+    navigate(
+      "/login",
+      {
+        replace: true,
+      }
+    );
+
+  };
+
+
+  /* =======================================================
+     DATE
+  ======================================================= */
+
+  const formatDate = (
+    date
+  ) => {
+
+    if (!date) {
+
+      return "KEERTHANA Member";
+
+    }
+
+
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return "KEERTHANA Member";
+
+    }
+
+
+    return parsedDate
+      .toLocaleDateString(
+        "en-IN",
+        {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }
+      );
+
+  };
+
+
+  /* =======================================================
      LOADING
-  ===================================================== */
+  ======================================================= */
 
   if (loading) {
 
@@ -470,9 +854,11 @@ function Profile() {
 
           </div>
 
+
           <h2>
             Loading Profile...
           </h2>
+
 
           <p>
             Preparing your KEERTHANA account
@@ -487,9 +873,9 @@ function Profile() {
   }
 
 
-  /* =====================================================
+  /* =======================================================
      NO USER
-  ===================================================== */
+  ======================================================= */
 
   if (!user) {
 
@@ -499,11 +885,13 @@ function Profile() {
 
 
   const displayUser =
-    profile || user;
+    profile ||
+    user;
 
 
   const firstLetter =
-    displayUser?.name
+    displayUser
+      ?.name
       ?.charAt(0)
       ?.toUpperCase() ||
     "U";
@@ -517,9 +905,27 @@ function Profile() {
       "active";
 
 
-  /* =====================================================
+  const currentImage =
+    getProfileImage();
+
+
+  const currentLanguage =
+    displayUser?.language ||
+    "Telugu";
+
+
+  const languageLabel =
+    LANGUAGES.find(
+      (item) =>
+        item.value ===
+        currentLanguage
+    )?.label ||
+    currentLanguage;
+
+
+  /* =======================================================
      UI
-  ===================================================== */
+  ======================================================= */
 
   return (
 
@@ -532,19 +938,43 @@ function Profile() {
 
       <section className="profile-hero">
 
-
         <div className="profile-hero-glow" />
 
 
+        {/* ===============================================
+            PROFILE PHOTO
+        =============================================== */}
+
         <div className="profile-avatar">
 
-          {firstLetter}
+          {currentImage ? (
+
+            <img
+              src={currentImage}
+              alt={
+                displayUser?.name ||
+                "Profile"
+              }
+              onError={(event) => {
+
+                event.currentTarget.style.display =
+                  "none";
+
+              }}
+            />
+
+          ) : (
+
+            <span>
+              {firstLetter}
+            </span>
+
+          )}
 
         </div>
 
 
         <div className="profile-hero-info">
-
 
           <span className="profile-eyebrow">
 
@@ -578,8 +1008,13 @@ function Profile() {
           <div className="profile-badges">
 
 
-            {displayUser?.role ===
-              "admin" && (
+            {(
+              String(
+                displayUser?.role ||
+                ""
+              ).toUpperCase() ===
+              "ADMIN"
+            ) && (
 
               <span className="profile-admin-badge">
 
@@ -611,17 +1046,18 @@ function Profile() {
 
           </div>
 
-
         </div>
 
 
+        {/* ===============================================
+            EDIT BUTTON
+        =============================================== */}
+
         <button
           type="button"
-
           className="profile-edit-button"
-
-          onClick={() =>
-            setEditing(true)
+          onClick={
+            handleOpenEdit
           }
         >
 
@@ -650,7 +1086,7 @@ function Profile() {
       )}
 
 
-      {error && (
+      {error && !editing && (
 
         <div className="profile-error">
 
@@ -670,9 +1106,7 @@ function Profile() {
 
         <button
           type="button"
-
           className="profile-stat-card"
-
           onClick={() =>
             navigate(
               "/liked-songs"
@@ -704,9 +1138,7 @@ function Profile() {
 
         <button
           type="button"
-
           className="profile-stat-card"
-
           onClick={() =>
             navigate(
               "/playlists"
@@ -738,9 +1170,7 @@ function Profile() {
 
         <button
           type="button"
-
           className="profile-stat-card"
-
           onClick={() =>
             navigate(
               "/history"
@@ -802,23 +1232,19 @@ function Profile() {
             </div>
 
 
-            {!editing && (
+            <button
+              type="button"
+              onClick={
+                handleOpenEdit
+              }
+            >
 
-              <button
-                type="button"
+              <FaEdit />
 
-                onClick={() =>
-                  setEditing(true)
-                }
-              >
+              Edit
 
-                <FaEdit />
+            </button>
 
-                Edit
-
-              </button>
-
-            )}
 
           </div>
 
@@ -826,7 +1252,9 @@ function Profile() {
           <div className="profile-details">
 
 
-            {/* NAME */}
+            {/* =========================================
+                NAME
+            ========================================= */}
 
             <div className="profile-detail-row">
 
@@ -843,40 +1271,21 @@ function Profile() {
                   Name
                 </span>
 
+                <strong>
 
-                {editing ? (
+                  {displayUser?.name ||
+                    "KEERTHANA User"}
 
-                  <input
-                    type="text"
-
-                    value={name}
-
-                    onChange={(event) =>
-                      setName(
-                        event.target.value
-                      )
-                    }
-
-                    placeholder="Enter your name"
-                  />
-
-                ) : (
-
-                  <strong>
-
-                    {displayUser?.name ||
-                      "KEERTHANA User"}
-
-                  </strong>
-
-                )}
+                </strong>
 
               </div>
 
             </div>
 
 
-            {/* EMAIL */}
+            {/* =========================================
+                EMAIL
+            ========================================= */}
 
             <div className="profile-detail-row">
 
@@ -900,12 +1309,48 @@ function Profile() {
 
                 </strong>
 
+                <small className="profile-readonly-text">
+
+                  Email cannot be changed here.
+
+                </small>
+
               </div>
 
             </div>
 
 
-            {/* ROLE */}
+            {/* =========================================
+                LANGUAGE
+            ========================================= */}
+
+            <div className="profile-detail-row">
+
+              <div className="profile-detail-icon">
+
+                <FaGlobe />
+
+              </div>
+
+
+              <div className="profile-detail-content">
+
+                <span>
+                  Preferred Language
+                </span>
+
+                <strong>
+                  {languageLabel}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            {/* =========================================
+                ROLE
+            ========================================= */}
 
             <div className="profile-detail-row">
 
@@ -924,8 +1369,11 @@ function Profile() {
 
                 <strong>
 
-                  {displayUser?.role ===
-                  "admin"
+                  {String(
+                    displayUser?.role ||
+                    ""
+                  ).toUpperCase() ===
+                  "ADMIN"
                     ? "Administrator"
                     : "Listener"}
 
@@ -936,7 +1384,9 @@ function Profile() {
             </div>
 
 
-            {/* MEMBER SINCE */}
+            {/* =========================================
+                MEMBER SINCE
+            ========================================= */}
 
             <div className="profile-detail-row">
 
@@ -967,64 +1417,6 @@ function Profile() {
 
 
           </div>
-
-
-          {/* =============================================
-              EDIT ACTIONS
-          ============================================= */}
-
-          {editing && (
-
-            <div className="profile-edit-actions">
-
-
-              <button
-                type="button"
-
-                className="profile-cancel-button"
-
-                onClick={
-                  handleCancel
-                }
-
-                disabled={
-                  saving
-                }
-              >
-
-                <FaTimes />
-
-                Cancel
-
-              </button>
-
-
-              <button
-                type="button"
-
-                className="profile-save-button"
-
-                onClick={
-                  handleSave
-                }
-
-                disabled={
-                  saving
-                }
-              >
-
-                <FaSave />
-
-                {saving
-                  ? "Saving..."
-                  : "Save Changes"}
-
-              </button>
-
-
-            </div>
-
-          )}
 
 
         </section>
@@ -1081,7 +1473,6 @@ function Profile() {
 
           <button
             type="button"
-
             onClick={() =>
               navigate(
                 "/premium"
@@ -1129,7 +1520,6 @@ function Profile() {
 
           <button
             type="button"
-
             onClick={() =>
               navigate(
                 "/liked-songs"
@@ -1156,7 +1546,6 @@ function Profile() {
 
           <button
             type="button"
-
             onClick={() =>
               navigate(
                 "/playlists"
@@ -1183,7 +1572,6 @@ function Profile() {
 
           <button
             type="button"
-
             onClick={() =>
               navigate(
                 "/history"
@@ -1236,7 +1624,6 @@ function Profile() {
 
         <button
           type="button"
-
           onClick={
             handleLogout
           }
@@ -1251,6 +1638,360 @@ function Profile() {
 
       </section>
 
+
+      {/* =================================================
+          EDIT PROFILE MODAL
+      ================================================= */}
+
+      {editing && (
+
+        <div
+          className="profile-modal-overlay"
+          onMouseDown={(event) => {
+
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+
+              handleCloseEdit();
+
+            }
+
+          }}
+        >
+
+          <div className="profile-modal">
+
+
+            {/* =========================================
+                MODAL HEADER
+            ========================================= */}
+
+            <div className="profile-modal-header">
+
+              <div>
+
+                <span>
+                  KEERTHANA ACCOUNT
+                </span>
+
+                <h2>
+                  Edit Profile
+                </h2>
+
+              </div>
+
+
+              <button
+                type="button"
+                className="profile-modal-close"
+                onClick={
+                  handleCloseEdit
+                }
+                disabled={saving}
+                aria-label="Close"
+              >
+
+                <FaTimes />
+
+              </button>
+
+            </div>
+
+
+            {/* =========================================
+                MODAL BODY
+            ========================================= */}
+
+            <div className="profile-modal-body">
+
+
+              {/* =======================================
+                  PROFILE PHOTO
+              ======================================= */}
+
+              <div className="profile-modal-photo-section">
+
+                <div
+                  className="profile-modal-avatar"
+                  onClick={() => {
+
+                    if (!saving) {
+
+                      fileInputRef.current?.click();
+
+                    }
+
+                  }}
+                >
+
+                  {imagePreview ? (
+
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                    />
+
+                  ) : profileImage ? (
+
+                    <img
+                      src={getMediaUrl(
+                        profileImage
+                      )}
+                      alt="Profile"
+                      onError={(event) => {
+
+                        event.currentTarget.style.display =
+                          "none";
+
+                      }}
+                    />
+
+                  ) : (
+
+                    <span>
+                      {(
+                        name ||
+                        "U"
+                      )
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+
+                  )}
+
+
+                  <div className="profile-modal-camera">
+
+                    <FaCamera />
+
+                  </div>
+
+                </div>
+
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="profile-image-input"
+                  onChange={
+                    handleImageChange
+                  }
+                />
+
+
+                <button
+                  type="button"
+                  className="profile-change-photo-button"
+                  onClick={() =>
+                    fileInputRef.current?.click()
+                  }
+                  disabled={saving}
+                >
+
+                  <FaCamera />
+
+                  Change Photo
+
+                </button>
+
+
+                <small>
+                  JPG, PNG or WebP • Maximum 5MB
+                </small>
+
+              </div>
+
+
+              {/* =======================================
+                  ERROR
+              ======================================= */}
+
+              {error && (
+
+                <div className="profile-modal-error">
+
+                  {error}
+
+                </div>
+
+              )}
+
+
+              {/* =======================================
+                  NAME
+              ======================================= */}
+
+              <div className="profile-modal-field">
+
+                <label>
+
+                  <FaUser />
+
+                  Name
+
+                </label>
+
+
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(event) =>
+                    setName(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Enter your name"
+                  maxLength={100}
+                  disabled={saving}
+                />
+
+              </div>
+
+
+              {/* =======================================
+                  EMAIL
+              ======================================= */}
+
+              <div className="profile-modal-field">
+
+                <label>
+
+                  <FaEnvelope />
+
+                  Email Address
+
+                </label>
+
+
+                <input
+                  type="email"
+                  value={
+                    displayUser?.email ||
+                    ""
+                  }
+                  disabled
+                  readOnly
+                />
+
+
+                <small>
+                  Email cannot be changed here.
+                </small>
+
+              </div>
+
+
+              {/* =======================================
+                  LANGUAGE
+              ======================================= */}
+
+              <div className="profile-modal-field">
+
+                <label>
+
+                  <FaGlobe />
+
+                  Preferred Language
+
+                </label>
+
+
+                <select
+                  value={language}
+                  onChange={(event) =>
+                    setLanguage(
+                      event.target.value
+                    )
+                  }
+                  disabled={saving}
+                >
+
+                  {LANGUAGES.map(
+                    (item) => (
+
+                      <option
+                        key={
+                          item.value
+                        }
+                        value={
+                          item.value
+                        }
+                      >
+
+                        {item.label}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+
+                <small>
+
+                  Your music will be filtered according to this language.
+
+                </small>
+
+              </div>
+
+
+            </div>
+
+
+            {/* =========================================
+                MODAL FOOTER
+            ========================================= */}
+
+            <div className="profile-modal-footer">
+
+
+              <button
+                type="button"
+                className="profile-modal-cancel"
+                onClick={
+                  handleCloseEdit
+                }
+                disabled={saving}
+              >
+
+                <FaTimes />
+
+                Cancel
+
+              </button>
+
+
+              <button
+                type="button"
+                className="profile-modal-save"
+                onClick={
+                  handleSave
+                }
+                disabled={saving}
+              >
+
+                <FaSave />
+
+                {saving
+                  ? "Saving..."
+                  : "Save Changes"}
+
+              </button>
+
+
+            </div>
+
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
 
