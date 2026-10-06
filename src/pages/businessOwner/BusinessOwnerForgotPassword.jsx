@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 
 import API from "../../services/api";
-import "../../assets/css/businessOwner/BusinessOwnerForgotPassword.css";
+import "../../assets/css/businessowner/BusinessOwnerForgotPassword.css";
 
 const BusinessOwnerForgotPassword = () => {
   const navigate = useNavigate();
