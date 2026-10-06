@@ -20,7 +20,7 @@ import {
 
 import API from "../../services/api";
 
-import "../../assets/css/businessOwner/BusinessOwnerArtists.css";
+import "../../assets/css/businessowner/BusinessOwnerArtists.css";
 
 
 /* =========================================================
