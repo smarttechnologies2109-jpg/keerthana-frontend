@@ -10,7 +10,7 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 
-import "../../assets/css/businessOwner/BusinessOwnerDashboard.css";
+import "../../assets/css/businessowner/BusinessOwnerDashboard.css";
 
 const BusinessOwnerDashboard = () => {
   const navigate = useNavigate();
