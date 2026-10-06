@@ -31,7 +31,7 @@ import {
 
 import API from "../../services/api";
 
-import "../../assets/css/businessOwner/BusinessOwnerStatistics.css";
+import "../../assets/css/businessowner/BusinessOwnerStatistics.css";
 
 
 /* =========================================================

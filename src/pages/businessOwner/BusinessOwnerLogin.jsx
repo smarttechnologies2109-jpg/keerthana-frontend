@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 
 import API from "../../services/api";
-import "../../assets/css/businessOwner/BusinessOwnerLogin.css";
+import "../../assets/css/businessowner/BusinessOwnerLogin.css";
 
 const BusinessOwnerLogin = () => {
   const navigate = useNavigate();

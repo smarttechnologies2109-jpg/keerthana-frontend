@@ -19,7 +19,7 @@ import {
 
 import API from "../../services/api";
 
-import "../../assets/css/businessOwner/BusinessOwnerSongs.css";
+import "../../assets/css/businessowner/BusinessOwnerSongs.css";
 
 
 /* =========================================================

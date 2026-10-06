@@ -13,7 +13,7 @@ import {
   FaChurch,
 } from "react-icons/fa";
 
-import "../../assets/css/businessOwner/BusinessOwnerMusic.css";
+import "../../assets/css/businessowner/BusinessOwnerMusic.css";
 
 
 /* =========================================================
