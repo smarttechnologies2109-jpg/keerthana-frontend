@@ -477,7 +477,7 @@ function AdminSongReports() {
 
       <div className="admin-song-reports-header">
 
-         <AdminHeader />
+         {/* <AdminHeader /> */}
 
         <div>
 
