@@ -602,7 +602,7 @@ function ManageMinistries() {
 
       <div className="admin-ministries-main">
 
-        <AdminHeader />
+        {/* <AdminHeader /> */}
 
 
         {/* =====================================================
