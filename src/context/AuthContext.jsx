@@ -161,7 +161,13 @@ export function AuthProvider({
     const loadUser =
       async () => {
 
-        const token =
+        /*
+         * Capture the token used for this request.
+         *
+         * This is important because the user may log in
+         * while /auth/me is still running.
+         */
+        const requestToken =
           localStorage.getItem(
             TOKEN_KEY
           );
@@ -171,7 +177,7 @@ export function AuthProvider({
            NO SAVED TOKEN
         --------------------------------------------------- */
 
-        if (!token) {
+        if (!requestToken) {
 
           if (active) {
 
@@ -203,6 +209,38 @@ export function AuthProvider({
           }
 
 
+          /*
+           * IMPORTANT:
+           *
+           * Check the current token again.
+           *
+           * If it changed while /auth/me was running,
+           * a new login has happened.
+           *
+           * Do NOT overwrite that new session.
+           */
+          const currentToken =
+            localStorage.getItem(
+              TOKEN_KEY
+            );
+
+
+          if (
+            currentToken !==
+            requestToken
+          ) {
+
+            console.log(
+              "Auth restore skipped because a new session was created."
+            );
+
+            setLoading(false);
+
+            return;
+
+          }
+
+
           const restoredUser =
             response.data?.user;
 
@@ -216,6 +254,10 @@ export function AuthProvider({
           }
 
 
+          /*
+           * Only restore the user if the token is still
+           * the same token that started this request.
+           */
           setUser(
             restoredUser
           );
@@ -238,7 +280,20 @@ export function AuthProvider({
           );
 
 
-          if (active) {
+          /*
+           * Do not clear a newer login session.
+           */
+          const currentToken =
+            localStorage.getItem(
+              TOKEN_KEY
+            );
+
+
+          if (
+            active &&
+            currentToken ===
+              requestToken
+          ) {
 
             localStorage.removeItem(
               TOKEN_KEY
@@ -831,3 +886,4 @@ export function useAuth() {
   return context;
 
 }
+

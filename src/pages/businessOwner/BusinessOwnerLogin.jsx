@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+
 import {
   Link,
   useNavigate,
@@ -11,191 +13,268 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-import API from "../../services/api";
+import {
+  useAuth,
+} from "../../context/AuthContext";
+
 import "../../assets/css/businessowner/BusinessOwnerLogin.css";
 
-const BusinessOwnerLogin = () => {
-  const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+const BusinessOwnerLogin = () => {
+
+  const navigate =
+    useNavigate();
+
+
+  /* =========================================================
+     AUTH CONTEXT
+  ========================================================= */
+
+  const {
+    ownerLogin,
+  } = useAuth();
+
+
+  /* =========================================================
+     FORM STATE
+  ========================================================= */
+
+  const [
+    formData,
+    setFormData,
+  ] = useState({
     email: "",
     password: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // =========================================================
-  // HANDLE INPUT CHANGE
-  // =========================================================
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
+
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  /* =========================================================
+     HANDLE INPUT CHANGE
+  ========================================================= */
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const {
+      name,
+      value,
+    } = e.target;
+
+
+    setFormData(
+      (prev) => ({
+        ...prev,
+
+        [name]:
+          value,
+      })
+    );
+
 
     setError("");
+
   };
 
-  // =========================================================
-  // HANDLE LOGIN
-  // =========================================================
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  /* =========================================================
+     HANDLE LOGIN
+  ========================================================= */
 
-    const email = formData.email.trim();
-    const password = formData.password;
+  const handleSubmit =
+    async (e) => {
 
-    // =======================================================
-    // VALIDATION
-    // =======================================================
+      e.preventDefault();
 
-    if (!email || !password) {
-      setError("Please enter email and password.");
-      return;
-    }
 
-    try {
-      setLoading(true);
-      setError("");
+      const email =
+        formData.email.trim();
 
-      // =====================================================
-      // OWNER LOGIN API
-      // =====================================================
 
-      const response = await API.post(
-        "/auth/owner/login",
-        {
-          email,
-          password,
-        }
-      );
+      const password =
+        formData.password;
 
-      console.log(
-        "Owner login response:",
-        response.data
-      );
 
-      const {
-        token,
-        user,
-      } = response.data;
-
-      // =====================================================
-      // CHECK TOKEN
-      // =====================================================
-
-      if (!token) {
-        setError(
-          "Login successful, but no authentication token was received."
-        );
-
-        return;
-      }
-
-      // =====================================================
-      // CHECK OWNER ROLE
-      // =====================================================
+      /* =====================================================
+         VALIDATION
+      ===================================================== */
 
       if (
-        user &&
-        user.role &&
-        user.role !== "BUSINESS_OWNER"
+        !email ||
+        !password
       ) {
+
         setError(
-          "This account is not authorized as a business owner."
+          "Please enter email and password."
         );
 
         return;
+
       }
 
-      // =====================================================
-      // CLEAR OLD AUTH DATA
-      // =====================================================
 
-      localStorage.removeItem("token");
+      try {
 
-      // =====================================================
-      // SAVE OWNER TOKEN
-      // =====================================================
+        setLoading(true);
 
-      localStorage.setItem(
-        "keerthana_token",
-        token
-      );
+        setError("");
 
-      // =====================================================
-      // SAVE OWNER USER
-      // =====================================================
 
-      if (user) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify(user)
+        /* ===================================================
+           BUSINESS OWNER LOGIN
+
+           AuthContext handles:
+
+           - API request
+           - token validation
+           - BUSINESS_OWNER role validation
+           - localStorage
+           - React user state
+        =================================================== */
+
+        const loggedInUser =
+          await ownerLogin(
+            email,
+            password
+          );
+
+
+        console.log(
+          "Business owner logged in:",
+          {
+            id:
+              loggedInUser?.id,
+
+            role:
+              loggedInUser?.role,
+
+            email:
+              loggedInUser?.email,
+          }
         );
-      }
 
-      // =====================================================
-      // GO TO OWNER DASHBOARD
-      // =====================================================
 
-      navigate("/owner/dashboard");
+        /* ===================================================
+           FINAL ROLE CHECK
+        =================================================== */
 
-    } catch (error) {
-      console.error(
-        "Owner login error:",
-        error
-      );
+        if (
+          String(
+            loggedInUser?.role ||
+            ""
+          )
+            .trim()
+            .toUpperCase() !==
+          "BUSINESS_OWNER"
+        ) {
 
-      // =====================================================
-      // SERVER RESPONSE ERROR
-      // =====================================================
+          setError(
+            "This account is not authorized as a business owner."
+          );
 
-      if (error.response) {
-        setError(
-          error.response.data?.message ||
-          "Business owner login failed."
+          return;
+
+        }
+
+
+        /* ===================================================
+           GO TO OWNER DASHBOARD
+        =================================================== */
+
+        navigate(
+          "/owner/dashboard",
+          {
+            replace: true,
+          }
         );
-      }
 
-      // =====================================================
-      // SERVER NOT REACHABLE
-      // =====================================================
+      } catch (error) {
 
-      else if (error.request) {
-        setError(
-          "Unable to connect to the server. Please make sure the backend is running."
+        console.error(
+          "Owner login error:",
+          error
         );
+
+
+        /* ===================================================
+           SERVER RESPONSE ERROR
+        =================================================== */
+
+        if (
+          error.response
+        ) {
+
+          setError(
+            error.response.data?.message ||
+            "Business owner login failed."
+          );
+
+        }
+
+
+        /* ===================================================
+           SERVER NOT REACHABLE
+        =================================================== */
+
+        else if (
+          error.request
+        ) {
+
+          setError(
+            "Unable to connect to the server. Please make sure the backend is running."
+          );
+
+        }
+
+
+        /* ===================================================
+           AUTH / VALIDATION ERROR
+        =================================================== */
+
+        else {
+
+          setError(
+            error.message ||
+            "Something went wrong. Please try again."
+          );
+
+        }
+
+      } finally {
+
+        setLoading(false);
+
       }
 
-      // =====================================================
-      // OTHER ERROR
-      // =====================================================
+    };
 
-      else {
-        setError(
-          "Something went wrong. Please try again."
-        );
-      }
 
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // =========================================================
-  // RENDER
-  // =========================================================
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
+
     <div className="owner-login-page">
 
       <div className="owner-login-card">
+
 
         {/* =================================================
             HEADER
@@ -204,12 +283,16 @@ const BusinessOwnerLogin = () => {
         <div className="owner-login-header">
 
           <div className="owner-logo">
+
             <FaLock />
+
           </div>
+
 
           <h1>
             Business Owner
           </h1>
+
 
           <p>
             Sign in to manage your business
@@ -217,43 +300,70 @@ const BusinessOwnerLogin = () => {
 
         </div>
 
+
         {/* =================================================
             FORM
         ================================================= */}
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={
+            handleSubmit
+          }
+        >
 
-          {/* ERROR */}
+
+          {/* =================================================
+              ERROR
+          ================================================= */}
 
           {error && (
-            <div className="owner-login-error">
+
+            <div
+              className="owner-login-error"
+            >
               {error}
             </div>
+
           )}
+
 
           {/* =================================================
               EMAIL
           ================================================= */}
 
-          <div className="owner-input-group">
+          <div
+            className="owner-input-group"
+          >
 
-            <label htmlFor="owner-email">
+            <label
+              htmlFor="owner-email"
+            >
               Email Address
             </label>
 
-            <div className="owner-input-wrapper">
+
+            <div
+              className="owner-input-wrapper"
+            >
 
               <FaEnvelope />
+
 
               <input
                 id="owner-email"
                 type="email"
                 name="email"
                 placeholder="Enter owner email"
-                value={formData.email}
-                onChange={handleChange}
+                value={
+                  formData.email
+                }
+                onChange={
+                  handleChange
+                }
                 autoComplete="email"
-                disabled={loading}
+                disabled={
+                  loading
+                }
                 required
               />
 
@@ -261,66 +371,102 @@ const BusinessOwnerLogin = () => {
 
           </div>
 
+
           {/* =================================================
-    PASSWORD
-================================================= */}
+              PASSWORD
+          ================================================= */}
 
-<div className="owner-input-group">
+          <div
+            className="owner-input-group"
+          >
 
-  <label htmlFor="owner-password">
-    Password
-  </label>
+            <label
+              htmlFor="owner-password"
+            >
+              Password
+            </label>
 
-  <div className="owner-input-wrapper">
 
-    <FaLock className="owner-password-lock-icon" />
+            <div
+              className="owner-input-wrapper"
+            >
 
-    <input
-      id="owner-password"
-      type={showPassword ? "text" : "password"}
-      name="password"
-      placeholder="Enter password"
-      value={formData.password}
-      onChange={handleChange}
-      autoComplete="current-password"
-      disabled={loading}
-      required
-    />
+              <FaLock
+                className="owner-password-lock-icon"
+              />
 
-    <button
-      type="button"
-      className="owner-password-toggle"
-      onClick={() =>
-        setShowPassword((prev) => !prev)
-      }
-      aria-label={
-        showPassword
-          ? "Hide password"
-          : "Show password"
-      }
-      disabled={loading}
-    >
-      {showPassword ? (
-        <FaEyeSlash />
-      ) : (
-        <FaEye />
-      )}
-    </button>
 
-  </div>
+              <input
+                id="owner-password"
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                name="password"
+                placeholder="Enter password"
+                value={
+                  formData.password
+                }
+                onChange={
+                  handleChange
+                }
+                autoComplete="current-password"
+                disabled={
+                  loading
+                }
+                required
+              />
 
-</div>
+
+              <button
+                type="button"
+                className="owner-password-toggle"
+                onClick={() =>
+                  setShowPassword(
+                    (prev) =>
+                      !prev
+                  )
+                }
+                aria-label={
+                  showPassword
+                    ? "Hide password"
+                    : "Show password"
+                }
+                disabled={
+                  loading
+                }
+              >
+
+                {showPassword ? (
+                  <FaEyeSlash />
+                ) : (
+                  <FaEye />
+                )}
+
+              </button>
+
+            </div>
+
+          </div>
+
+
           {/* =================================================
               FORGOT PASSWORD
           ================================================= */}
 
-          <div className="owner-forgot-password">
+          <div
+            className="owner-forgot-password"
+          >
 
-            <Link to="/owner/forgot-password">
+            <Link
+              to="/owner/forgot-password"
+            >
               Forgot Password?
             </Link>
 
           </div>
+
 
           {/* =================================================
               LOGIN BUTTON
@@ -329,24 +475,33 @@ const BusinessOwnerLogin = () => {
           <button
             type="submit"
             className="owner-login-button"
-            disabled={loading}
+            disabled={
+              loading
+            }
           >
+
             {loading
               ? "Signing in..."
               : "Sign In"}
+
           </button>
 
+
         </form>
+
 
         {/* =================================================
             FOOTER
         ================================================= */}
 
-        <div className="owner-login-footer">
+        <div
+          className="owner-login-footer"
+        >
 
           <span>
             Keerthana
           </span>
+
 
           <small>
             Business Management
@@ -354,10 +509,15 @@ const BusinessOwnerLogin = () => {
 
         </div>
 
+
       </div>
 
     </div>
+
   );
+
 };
 
+
 export default BusinessOwnerLogin;
+
