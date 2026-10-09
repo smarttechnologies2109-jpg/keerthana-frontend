@@ -1,9 +1,13 @@
 /* =====================================================
    KEERTHANA MEDIA UTILITIES
+   CloudFront Optimized
 ===================================================== */
 
-const BACKEND_URL = 
-                  "https://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws";
+const BACKEND_URL =
+  "https://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws";
+
+const CLOUDFRONT_URL =
+  "https://d1aj7yf1pvtrkq.cloudfront.net";
 
 
 /* =====================================================
@@ -27,7 +31,7 @@ export const DEFAULT_CATEGORY =
 
 
 /* =====================================================
-   GET BACKEND MEDIA URL
+   GET MEDIA URL
 ===================================================== */
 
 export function getMediaUrl(path) {
@@ -36,7 +40,11 @@ export function getMediaUrl(path) {
     return null;
   }
 
-  // Already a complete URL
+
+  /* ---------------------------------------------------
+     Already a complete URL
+  --------------------------------------------------- */
+
   if (
     path.startsWith("http://") ||
     path.startsWith("https://")
@@ -44,11 +52,60 @@ export function getMediaUrl(path) {
     return path;
   }
 
-  // Ensure path starts with /
+
+  /* ---------------------------------------------------
+     Ensure path starts with /
+  --------------------------------------------------- */
+
   const cleanPath =
     path.startsWith("/")
       ? path
       : `/${path}`;
+
+
+  /* ---------------------------------------------------
+     CLOUDFRONT AUDIO
+
+     Backend:
+     /media/audio/song.mp3
+
+     CloudFront:
+     https://d1aj7yf1pvtrkq.cloudfront.net/audio/song.mp3
+  --------------------------------------------------- */
+
+  if (cleanPath.startsWith("/media/audio/")) {
+
+    const filename =
+      cleanPath.replace("/media/audio/", "");
+
+    return `${CLOUDFRONT_URL}/audio/${filename}`;
+  }
+
+
+  /* ---------------------------------------------------
+     CLOUDFRONT IMAGES
+
+     Backend:
+     /media/images/image.jpg
+
+     CloudFront:
+     https://d1aj7yf1pvtrkq.cloudfront.net/covers/image.jpg
+  --------------------------------------------------- */
+
+  if (cleanPath.startsWith("/media/images/")) {
+
+    const filename =
+      cleanPath.replace("/media/images/", "");
+
+    return `${CLOUDFRONT_URL}/covers/${filename}`;
+  }
+
+
+  /* ---------------------------------------------------
+     OTHER MEDIA
+
+     Keep using ECS backend.
+  --------------------------------------------------- */
 
   return `${BACKEND_URL}${cleanPath}`;
 }
