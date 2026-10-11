@@ -148,16 +148,19 @@ function SongCard({
   /* =====================================================
      OPEN DETAILS
   ===================================================== */
+const openSongDetails = (event) => {
+  // Ignore clicks originating from buttons
+  if (event?.target?.closest("button")) {
+    return;
+  }
 
-  const openSongDetails =
-    () => {
+  if (song?.id == null) {
+    console.error("Song ID is missing:", song);
+    return;
+  }
 
-      navigate(
-        `/songs/${song.id}`
-      );
-
-    };
-
+  navigate(`/songs/${encodeURIComponent(song.id)}`);
+};
 
   /* =====================================================
      KEYBOARD
@@ -218,21 +221,18 @@ function SongCard({
 
   return (
 
-    <div
-      className={
-        isCurrentSong
-          ? "song-card-component playing"
-          : "song-card-component"
-      }
-
-      onClick={openSongDetails}
-
-      onKeyDown={handleKeyDown}
-
-      role="button"
-
-      tabIndex={0}
-    >
+  <div
+  className={
+    isCurrentSong
+      ? "song-card-component playing"
+      : "song-card-component"
+  }
+  onClick={openSongDetails}
+  onKeyDown={handleKeyDown}
+  role="button"
+  tabIndex={0}
+  style={{ cursor: "pointer" }}
+>
 
 
       {/* =================================================

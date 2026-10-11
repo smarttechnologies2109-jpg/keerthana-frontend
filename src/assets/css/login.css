@@ -620,3 +620,51 @@
   }
 
 }
+
+/* Android WebView input and keyboard fix */
+
+.auth-page,
+.auth-card,
+.auth-card form {
+  pointer-events: auto;
+}
+
+.auth-card input {
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-appearance: none;
+  appearance: none;
+  caret-color: #7c3aed;
+}
+
+.auth-card input:focus {
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Prevent mobile viewport issues when keyboard opens */
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .auth-page {
+    align-items: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .auth-card {
+    margin: auto 0;
+  }
+
+  .auth-card input {
+    font-size: 16px;
+  }
+}
+

@@ -4640,3 +4640,37 @@ body.prayer-mode-active {
     transform: none;
   }
 }
+.song-like {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.song-like.active {
+  color: #e5395b;
+}
+
+.song-like.active svg {
+  fill: currentColor;
+}
+
+.song-like:active {
+  transform: scale(0.9);
+}
+
+.song-like:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.song-like-error {
+  margin-top: 8px;
+  color: #c62828;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}

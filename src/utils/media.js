@@ -1,191 +1,170 @@
-/* =====================================================
-   KEERTHANA MEDIA UTILITIES
-   CloudFront Optimized
-===================================================== */
+  /* =====================================================
+    KEERTHANA MEDIA UTILITIES
+    CloudFront Optimized
+  ===================================================== */
 
-const BACKEND_URL =
-  "https://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws";
+  const BACKEND_URL =
+    "https://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws";
 
-const CLOUDFRONT_URL =
-  "https://d1aj7yf1pvtrkq.cloudfront.net";
-
-
-/* =====================================================
-   DEFAULT IMAGES
-===================================================== */
-
-export const DEFAULT_COVER =
-  "/images/default-cover.png";
-
-export const DEFAULT_ALBUM =
-  "/images/default-album.png";
-
-export const DEFAULT_ARTIST =
-  "/images/default-artist.png";
-
-export const DEFAULT_MINISTRY =
-  "/images/default-ministry.png";
-
-export const DEFAULT_CATEGORY =
-  "/images/default-category.png";
+  const CLOUDFRONT_URL =
+    "https://d1aj7yf1pvtrkq.cloudfront.net";
 
 
-/* =====================================================
-   GET MEDIA URL
-===================================================== */
+  /* =====================================================
+    DEFAULT IMAGES
+  ===================================================== */
+
+  export const DEFAULT_COVER =
+    "/images/default-cover.png";
+
+  export const DEFAULT_ALBUM =
+    "/images/default-album.png";
+
+  export const DEFAULT_ARTIST =
+    "/images/default-artist.png";
+
+  export const DEFAULT_MINISTRY =
+    "/images/default-ministry.png";
+
+  export const DEFAULT_CATEGORY =
+    "/images/default-category.png";
+
+
+  /* =====================================================
+    GET MEDIA URL
+  ===================================================== */
+
 
 export function getMediaUrl(path) {
-
-  if (!path) {
+  if (typeof path !== "string" || !path.trim()) {
     return null;
   }
 
+  const value = path.trim();
 
-  /* ---------------------------------------------------
-     Already a complete URL
-  --------------------------------------------------- */
-
+  // Reject invalid values before constructing a URL.
   if (
-    path.startsWith("http://") ||
-    path.startsWith("https://")
+    value.toLowerCase() === "undefined" ||
+    value.toLowerCase() === "null" ||
+    value.includes("/undefined") ||
+    value.endsWith("/null")
   ) {
-    return path;
+    console.error("Invalid media path:", path);
+    return null;
   }
 
+  // Preserve valid absolute URLs.
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
 
-  /* ---------------------------------------------------
-     Ensure path starts with /
-  --------------------------------------------------- */
+  const cleanPath = value.startsWith("/")
+    ? value
+    : `/${value}`;
 
-  const cleanPath =
-    path.startsWith("/")
-      ? path
-      : `/${path}`;
-
-
-  /* ---------------------------------------------------
-     CLOUDFRONT AUDIO
-
-     Backend:
-     /media/audio/song.mp3
-
-     CloudFront:
-     https://d1aj7yf1pvtrkq.cloudfront.net/audio/song.mp3
-  --------------------------------------------------- */
-
+  // Audio: /media/audio/song.mp3 -> CloudFront /audio/song.mp3
   if (cleanPath.startsWith("/media/audio/")) {
+    const filename = cleanPath.slice("/media/audio/".length);
 
-    const filename =
-      cleanPath.replace("/media/audio/", "");
+    if (!filename || filename.includes("undefined")) {
+      return null;
+    }
 
     return `${CLOUDFRONT_URL}/audio/${filename}`;
   }
 
-
-  /* ---------------------------------------------------
-     CLOUDFRONT IMAGES
-
-     Backend:
-     /media/images/image.jpg
-
-     CloudFront:
-     https://d1aj7yf1pvtrkq.cloudfront.net/covers/image.jpg
-  --------------------------------------------------- */
-
+  // Images: /media/images/image.jpg -> CloudFront /covers/image.jpg
   if (cleanPath.startsWith("/media/images/")) {
+    const filename = cleanPath.slice("/media/images/".length);
 
-    const filename =
-      cleanPath.replace("/media/images/", "");
+    if (!filename || filename.includes("undefined")) {
+      return null;
+    }
 
     return `${CLOUDFRONT_URL}/covers/${filename}`;
   }
 
-
-  /* ---------------------------------------------------
-     OTHER MEDIA
-
-     Keep using ECS backend.
-  --------------------------------------------------- */
-
+  // Other media remains on the backend.
   return `${BACKEND_URL}${cleanPath}`;
 }
 
 
-/* =====================================================
-   SONG COVER
-===================================================== */
 
-export function getSongCover(song) {
+  /* =====================================================
+    SONG COVER
+  ===================================================== */
 
-  if (!song?.cover_url) {
-    return DEFAULT_COVER;
+  export function getSongCover(song) {
+
+    if (!song?.cover_url) {
+      return DEFAULT_COVER;
+    }
+
+    return getMediaUrl(
+      song.cover_url
+    );
   }
 
-  return getMediaUrl(
-    song.cover_url
-  );
-}
 
+  /* =====================================================
+    ALBUM COVER
+  ===================================================== */
 
-/* =====================================================
-   ALBUM COVER
-===================================================== */
+  export function getAlbumCover(album) {
 
-export function getAlbumCover(album) {
+    if (!album?.cover_url) {
+      return DEFAULT_ALBUM;
+    }
 
-  if (!album?.cover_url) {
-    return DEFAULT_ALBUM;
+    return getMediaUrl(
+      album.cover_url
+    );
   }
 
-  return getMediaUrl(
-    album.cover_url
-  );
-}
 
+  /* =====================================================
+    ARTIST IMAGE
+  ===================================================== */
 
-/* =====================================================
-   ARTIST IMAGE
-===================================================== */
+  export function getArtistImage(artist) {
 
-export function getArtistImage(artist) {
+    if (!artist?.image_url) {
+      return DEFAULT_ARTIST;
+    }
 
-  if (!artist?.image_url) {
-    return DEFAULT_ARTIST;
+    return getMediaUrl(
+      artist.image_url
+    );
   }
 
-  return getMediaUrl(
-    artist.image_url
-  );
-}
 
+  /* =====================================================
+    MINISTRY IMAGE
+  ===================================================== */
 
-/* =====================================================
-   MINISTRY IMAGE
-===================================================== */
+  export function getMinistryImage(ministry) {
 
-export function getMinistryImage(ministry) {
+    if (!ministry?.image_url) {
+      return DEFAULT_MINISTRY;
+    }
 
-  if (!ministry?.image_url) {
-    return DEFAULT_MINISTRY;
+    return getMediaUrl(
+      ministry.image_url
+    );
   }
 
-  return getMediaUrl(
-    ministry.image_url
-  );
-}
 
+  /* =====================================================
+    CATEGORY IMAGE
+  ===================================================== */
 
-/* =====================================================
-   CATEGORY IMAGE
-===================================================== */
+  export function getCategoryImage(category) {
 
-export function getCategoryImage(category) {
+    if (!category?.image_url) {
+      return DEFAULT_CATEGORY;
+    }
 
-  if (!category?.image_url) {
-    return DEFAULT_CATEGORY;
+    return getMediaUrl(
+      category.image_url
+    );
   }
-
-  return getMediaUrl(
-    category.image_url
-  );
-}

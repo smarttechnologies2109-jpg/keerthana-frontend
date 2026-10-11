@@ -163,23 +163,22 @@ function Login() {
           </label>
 
 
-          <input
-            type="text"
+        
+<input
+  type="text"
+  inputMode="text"
+  value={contact}
+  onChange={(event) => {
+    setContact(event.target.value);
+  }}
+  placeholder="Enter your email or phone number"
+  autoComplete="username"
+  autoCapitalize="none"
+  spellCheck={false}
+  required
+/>
 
-            value={contact}
 
-            onChange={(event) =>
-              setContact(
-                event.target.value
-              )
-            }
-
-            placeholder="Enter your email or phone number"
-
-            autoComplete="username"
-
-            required
-          />
 
 
           <button

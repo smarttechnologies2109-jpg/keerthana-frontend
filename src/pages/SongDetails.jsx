@@ -98,7 +98,8 @@ function SongDetails() {
   const isPlayingRef = useRef(isPlaying);
   const currentSongIdRef = useRef(currentSong?.id);
   const togglePlayRef = useRef(togglePlay);
-
+const [likeLoading, setLikeLoading] = useState(false);
+const [likeError, setLikeError] = useState("");
   useEffect(() => {
     isPlayingRef.current = isPlaying;
     currentSongIdRef.current = currentSong?.id;
@@ -597,38 +598,58 @@ function SongDetails() {
   // LIKE / UNLIKE
   // =====================================================
 
-  const handleLike = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
+  
+const handleLike = async () => {
+  if (!user) {
+    navigate("/login");
+    return;
+  }
+
+  if (!song?.id || likeLoading) return;
+
+  const previousLiked = liked;
+  const nextLiked = !previousLiked;
+
+  // Update the heart immediately.
+  setLiked(nextLiked);
+  setLikeLoading(true);
+  setLikeError("");
+
+  try {
+    if (nextLiked) {
+      await API.post("/liked-songs", {
+        song_id: Number(song.id),
+      });
+    } else {
+      await API.delete(`/liked-songs/${song.id}`);
     }
+  } catch (err) {
+    // Restore the original heart state if the server fails.
+    setLiked(previousLiked);
 
-    if (!song) return;
+    const status = err.response?.status;
+    const message =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      err.message ||
+      "Please try again.";
 
-    try {
-      if (liked) {
-        await API.delete(
-          `/liked-songs/${song.id}`
-        );
+    console.error("Like song request failed:", {
+      status,
+      message,
+      songId: song.id,
+    });
 
-        setLiked(false);
-      } else {
-        await API.post(
-          "/liked-songs",
-          {
-            song_id: song.id,
-          }
-        );
+    setLikeError(
+      status === 404
+        ? "Like service not found. Please check the backend API route."
+        : `Unable to update liked songs: ${message}`
+    );
+  } finally {
+    setLikeLoading(false);
+  }
+};
 
-        setLiked(true);
-      }
-    } catch (err) {
-      console.error(
-        "Like song error:",
-        err.response?.data || err.message
-      );
-    }
-  };
 
   // =====================================================
   // PLAYLIST
@@ -1765,10 +1786,13 @@ function SongDetails() {
               <span>Prayer Mode</span>
             </button>
 {/* LIKE */}
+
 <button
   type="button"
   className={liked ? "song-like active" : "song-like"}
   onClick={handleLike}
+  disabled={likeLoading}
+  aria-pressed={liked}
   title={
     liked
       ? "Remove from Liked Songs"
@@ -1782,6 +1806,13 @@ function SongDetails() {
 >
   {liked ? <FaHeart /> : <FaRegHeart />}
 </button>
+
+{likeError && (
+  <p className="song-like-error" role="alert">
+    {likeError}
+  </p>
+)}
+
 
 {/* FAVORITE */}
 <button
@@ -1902,7 +1933,7 @@ function SongDetails() {
         </div>
       </section>
 
-      {/* FULL PLAYER */}
+      {/* FULL PLAYER
 
       <section className="song-full-player">
         <div className="song-player-controls">
@@ -2001,7 +2032,7 @@ function SongDetails() {
             aria-label="Volume"
           />
         </div>
-      </section>
+      </section> */}
 
       {/* LYRICS */}
 

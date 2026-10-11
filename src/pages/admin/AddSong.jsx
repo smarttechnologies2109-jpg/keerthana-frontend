@@ -1882,16 +1882,26 @@ Enter the second verse...`,
 
         /* MINISTRY */
 
-        if (
-          form.ministry_id
-        ) {
+       /* MINISTRY */
 
-          formData.append(
-            "ministry_id",
-            form.ministry_id
-          );
+const selectedMinistryId =
+  String(form.ministry_id || "").trim();
 
-        }
+if (selectedMinistryId !== "") {
+  formData.append(
+    "ministry_id",
+    selectedMinistryId
+  );
+}
+
+console.log("Song ministry selected:", {
+  ministry_id: selectedMinistryId || null,
+  ministry_name:
+    ministries.find(
+      (ministry) =>
+        String(ministry.id) === selectedMinistryId
+    )?.name || null,
+});
 
 
         /* MOODS */

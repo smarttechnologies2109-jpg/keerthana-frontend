@@ -1,10 +1,11 @@
+
 import {
-createContext,
-useContext,
-useCallback,
-useEffect,
-useRef,
-useState,
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
 
 import { getMediaUrl } from "../utils/media";
@@ -14,1649 +15,1373 @@ import { useAuth } from "./AuthContext";
 export const PlayerContext = createContext(null);
 
 const PLAYER_STORAGE_KEY = "keerthana_player_state";
-
 const OFFLINE_DB_NAME = "keerthana_offline_music";
 const OFFLINE_DB_VERSION = 1;
 const OFFLINE_STORE_NAME = "songs";
 
-/* =========================================================
-usePlayer HOOK
-========================================================= */
-
 export const usePlayer = () => {
-const context = useContext(PlayerContext);
+  const context = useContext(PlayerContext);
 
-if (!context) {
-throw new Error(
-"usePlayer must be used inside PlayerProvider"
-);
-}
-
-return context;
-};
-
-/* =========================================================
-INDEXED DB
-========================================================= */
-
-const openOfflineDB = () => {
-return new Promise((resolve, reject) => {
-if (!window.indexedDB) {
-reject(
-new Error("IndexedDB is not supported")
-);
-return;
-}
-
-const request = window.indexedDB.open(
-  OFFLINE_DB_NAME,
-  OFFLINE_DB_VERSION
-);
-
-request.onupgradeneeded = (event) => {
-  const db = event.target.result;
-
-  if (
-    !db.objectStoreNames.contains(
-      OFFLINE_STORE_NAME
-    )
-  ) {
-    db.createObjectStore(
-      OFFLINE_STORE_NAME,
-      {
-        keyPath: "id",
-      }
-    );
+  if (!context) {
+    throw new Error("usePlayer must be used inside PlayerProvider");
   }
+
+  return context;
 };
 
-request.onsuccess = () => {
-  resolve(request.result);
-};
-
-request.onerror = () => {
-  reject(request.error);
-};
-
-});
-};
-
-/* =========================================================
-GET OFFLINE SONG
-========================================================= */
-
-const getOfflineSong = async (id) => {
-try {
-const db = await openOfflineDB();
-
-return new Promise((resolve, reject) => {
-  const transaction = db.transaction(
-    OFFLINE_STORE_NAME,
-    "readonly"
-  );
-
-  const store = transaction.objectStore(
-    OFFLINE_STORE_NAME
-  );
-
-  const request = store.get(id);
-
-  request.onsuccess = () => {
-    resolve(request.result || null);
-  };
-
-  request.onerror = () => {
-    reject(request.error);
-  };
-});
-
-} catch (error) {
-console.error(
-"Offline song error:",
-error
-);
-
-return null;
-
-}
-};
-
-/* =========================================================
-SAVE OFFLINE SONG
-========================================================= */
-
-const saveOfflineSong = async (song) => {
-try {
-const db = await openOfflineDB();
-
-return new Promise((resolve, reject) => {
-  const transaction = db.transaction(
-    OFFLINE_STORE_NAME,
-    "readwrite"
-  );
-
-  const store = transaction.objectStore(
-    OFFLINE_STORE_NAME
-  );
-
-  const request = store.put(song);
-
-  request.onsuccess = () => {
-    resolve(true);
-  };
-
-  request.onerror = () => {
-    reject(request.error);
-  };
-});
-
-} catch (error) {
-console.error(
-"Save offline song error:",
-error
-);
-
-return false;
-
-}
-};
-
-/* =========================================================
-DELETE OFFLINE SONG
-========================================================= */
-
-const deleteOfflineSong = async (id) => {
-try {
-const db = await openOfflineDB();
-
-return new Promise((resolve, reject) => {
-  const transaction = db.transaction(
-    OFFLINE_STORE_NAME,
-    "readwrite"
-  );
-
-  const store = transaction.objectStore(
-    OFFLINE_STORE_NAME
-  );
-
-  const request = store.delete(id);
-
-  request.onsuccess = () => {
-    resolve(true);
-  };
-
-  request.onerror = () => {
-    reject(request.error);
-  };
-});
-
-} catch (error) {
-console.error(
-"Delete offline song error:",
-error
-);
-
-return false;
-
-}
-};
-
-/* =========================================================
-GET ALL OFFLINE SONGS
-========================================================= */
-
-const getAllOfflineSongs = async () => {
-try {
-const db = await openOfflineDB();
-
-return new Promise((resolve, reject) => {
-  const transaction = db.transaction(
-    OFFLINE_STORE_NAME,
-    "readonly"
-  );
-
-  const store = transaction.objectStore(
-    OFFLINE_STORE_NAME
-  );
-
-  const request = store.getAll();
-
-  request.onsuccess = () => {
-    resolve(request.result || []);
-  };
-
-  request.onerror = () => {
-    reject(request.error);
-  };
-});
-
-} catch (error) {
-console.error(
-"Get offline songs error:",
-error
-);
-
-return [];
-
-}
-};
-
-/* =========================================================
-GET SONG AUDIO URL
-========================================================= */
+/* --------------------------------------------------
+   AUDIO URL HELPERS
+-------------------------------------------------- */
 
 const getSongAudioUrl = (song) => {
-if (!song) {
-return null;
-}
+  if (!song) return null;
 
-const source =
-song.audio_url ||
-song.audioUrl ||
-song.url;
+  const possibleFields = [
+    "audio_url",
+    "audioUrl",
+    "audio_path",
+    "audioPath",
+    "audio_file",
+    "audioFile",
+    "file_url",
+    "fileUrl",
+    "media_url",
+    "mediaUrl",
+    "audio",
+    "url",
+  ];
 
-if (!source) {
-return null;
-}
+  const source = possibleFields
+    .map((field) => song[field])
+    .find(
+      (value) =>
+        typeof value === "string" &&
+        value.trim() !== "" &&
+        value.trim().toLowerCase() !== "undefined" &&
+        value.trim().toLowerCase() !== "null"
+    );
 
-return getMediaUrl(source);
+  if (!source) {
+    console.error("Song has no valid audio field:", {
+      id: song.id,
+      title: song.title,
+      availableFields: Object.keys(song),
+      song,
+    });
+
+    return null;
+  }
+
+  const audioUrl = getMediaUrl(source.trim());
+
+  if (
+    typeof audioUrl !== "string" ||
+    !audioUrl.trim() ||
+    audioUrl.includes("/undefined") ||
+    audioUrl.endsWith("/null")
+  ) {
+    console.error("Invalid resolved audio URL:", {
+      id: song.id,
+      title: song.title,
+      source,
+      audioUrl,
+    });
+
+    return null;
+  }
+
+  return audioUrl;
 };
 
-/* =========================================================
-PLAYER PROVIDER
-========================================================= */
+
+const getSongId = (song) => song?.id ?? song?.song_id ?? null;
+
+const sameSong = (a, b) =>
+  Number(getSongId(a)) === Number(getSongId(b));
+
+/* --------------------------------------------------
+   OFFLINE DATABASE
+-------------------------------------------------- */
+
+const openOfflineDB = () =>
+  new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error("IndexedDB is not supported"));
+      return;
+    }
+
+    const request = window.indexedDB.open(
+      OFFLINE_DB_NAME,
+      OFFLINE_DB_VERSION
+    );
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(OFFLINE_STORE_NAME)) {
+        db.createObjectStore(OFFLINE_STORE_NAME, {
+          keyPath: "id",
+        });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+
+const getOfflineSong = async (id) => {
+  if (id == null) return null;
+
+  let db;
+
+  try {
+    db = await openOfflineDB();
+
+    return await new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readonly"
+      );
+
+      const request = transaction
+        .objectStore(OFFLINE_STORE_NAME)
+        .get(id);
+
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+
+      transaction.oncomplete = () => db.close();
+
+      transaction.onerror = () => {
+        db.close();
+        reject(transaction.error);
+      };
+
+      transaction.onabort = () => {
+        db.close();
+        reject(transaction.error);
+      };
+    });
+  } catch (error) {
+    if (db) {
+      try {
+        db.close();
+      } catch {}
+    }
+
+    console.warn("Could not read offline song:", error);
+    return null;
+  }
+};
+
+const saveOfflineSong = async (song) => {
+  let db;
+
+  try {
+    db = await openOfflineDB();
+
+    return await new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readwrite"
+      );
+
+      transaction.objectStore(OFFLINE_STORE_NAME).put(song);
+
+      transaction.oncomplete = () => {
+        db.close();
+        resolve(true);
+      };
+
+      transaction.onerror = () => {
+        db.close();
+        reject(transaction.error);
+      };
+
+      transaction.onabort = () => {
+        db.close();
+        reject(transaction.error);
+      };
+    });
+  } catch (error) {
+    if (db) {
+      try {
+        db.close();
+      } catch {}
+    }
+
+    console.error("Save offline song error:", error);
+    return false;
+  }
+};
+
+const deleteOfflineSong = async (id) => {
+  let db;
+
+  try {
+    db = await openOfflineDB();
+
+    return await new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readwrite"
+      );
+
+      transaction.objectStore(OFFLINE_STORE_NAME).delete(id);
+
+      transaction.oncomplete = () => {
+        db.close();
+        resolve(true);
+      };
+
+      transaction.onerror = () => {
+        db.close();
+        reject(transaction.error);
+      };
+
+      transaction.onabort = () => {
+        db.close();
+        reject(transaction.error);
+      };
+    });
+  } catch (error) {
+    if (db) {
+      try {
+        db.close();
+      } catch {}
+    }
+
+    console.error("Delete offline song error:", error);
+    return false;
+  }
+};
+
+const getAllOfflineSongs = async () => {
+  let db;
+
+  try {
+    db = await openOfflineDB();
+
+    return await new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        OFFLINE_STORE_NAME,
+        "readonly"
+      );
+
+      const request = transaction
+        .objectStore(OFFLINE_STORE_NAME)
+        .getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+
+      transaction.oncomplete = () => db.close();
+
+      transaction.onerror = () => {
+        db.close();
+        reject(transaction.error);
+      };
+
+      transaction.onabort = () => {
+        db.close();
+        reject(transaction.error);
+      };
+    });
+  } catch (error) {
+    if (db) {
+      try {
+        db.close();
+      } catch {}
+    }
+
+    console.warn("Get offline songs error:", error);
+    return [];
+  }
+};
+
+/* --------------------------------------------------
+   PLAYER PROVIDER
+-------------------------------------------------- */
 
 export const PlayerProvider = ({ children }) => {
-const { user } = useAuth();
+  const { user } = useAuth();
 
-/* =======================================================
-AUDIO
-======================================================= */
+  const audioRef = useRef(null);
+  const objectUrlRef = useRef(null);
+  const playRequestIdRef = useRef(0);
 
-const audioRef = useRef(null);
+  // Only one audio element is used for playback.
+  if (!audioRef.current) {
+    const element = new Audio();
 
-if (!audioRef.current) {
-const audioElement = new Audio();
+    element.preload = "auto";
+    element.autoplay = false;
+    element.setAttribute("playsinline", "true");
 
-audioElement.preload = "auto";
-audioElement.autoplay = false;
-
-audioElement.setAttribute(
-  "playsinline",
-  "true"
-);
-
-audioRef.current = audioElement;
-
-}
-
-const audio = audioRef.current;
-
-/* =======================================================
-OBJECT URL
-======================================================= */
-
-const objectUrlRef = useRef(null);
-
-/* =======================================================
-PLAYER STATE
-======================================================= */
-
-const [currentSong, setCurrentSong] =
-useState(null);
-
-const [queue, setQueue] =
-useState([]);
-
-const [currentIndex, setCurrentIndex] =
-useState(-1);
-
-const [isPlaying, setIsPlaying] =
-useState(false);
-
-const [currentTime, setCurrentTime] =
-useState(0);
-
-const [duration, setDuration] =
-useState(0);
-
-const [volume, setVolume] =
-useState(1);
-
-const [isMuted, setIsMuted] =
-useState(false);
-
-const [isShuffle, setIsShuffle] =
-useState(false);
-
-const [repeatMode, setRepeatMode] =
-useState("off");
-
-const [isLoading, setIsLoading] =
-useState(false);
-
-const [isLiked, setIsLiked] =
-useState(false);
-
-const [offlineSongs, setOfflineSongs] =
-useState([]);
-
-/* =======================================================
-RESTORE PLAYER STATE
-======================================================= */
-
-useEffect(() => {
-try {
-const saved =
-localStorage.getItem(
-PLAYER_STORAGE_KEY
-);
-
-  if (!saved) {
-    return;
+    audioRef.current = element;
   }
 
-  const data = JSON.parse(saved);
+  const audio = audioRef.current;
 
-  if (Array.isArray(data.queue)) {
-    setQueue(data.queue);
-  }
+  const [playerRestored, setPlayerRestored] = useState(false);
+  const [currentSong, setCurrentSong] = useState(null);
+  const [queue, setQueue] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [repeatMode, setRepeatMode] = useState("off");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [offlineSongs, setOfflineSongs] = useState([]);
 
-  if (
-    typeof data.currentIndex ===
-    "number"
-  ) {
-    setCurrentIndex(
-      data.currentIndex
-    );
-  }
+  /* RELEASE OLD BLOB URL */
 
-  if (
-    typeof data.volume ===
-    "number"
-  ) {
-    setVolume(
-      Math.min(
-        Math.max(
-          data.volume,
-          0
-        ),
-        1
-      )
-    );
-  }
+  const releaseObjectUrl = useCallback(() => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }, []);
 
-  if (
-    typeof data.isShuffle ===
-    "boolean"
-  ) {
-    setIsShuffle(
-      data.isShuffle
-    );
-  }
+  /* LOAD SOURCE FOR A SONG */
 
-  if (
-    data.repeatMode === "off" ||
-    data.repeatMode === "one" ||
-    data.repeatMode === "all"
-  ) {
-    setRepeatMode(
-      data.repeatMode
-    );
-  }
+  const resolveSongSource = useCallback(
+    async (song) => {
+      const offline = await getOfflineSong(getSongId(song));
 
-  if (data.currentSong) {
-    setCurrentSong(
-      data.currentSong
-    );
-  }
-} catch (error) {
-  console.error(
-    "Failed to restore player state:",
-    error
-  );
-}
+      if (offline?.blob instanceof Blob) {
+        releaseObjectUrl();
 
-}, []);
+        const url = URL.createObjectURL(offline.blob);
+        objectUrlRef.current = url;
 
-/* =======================================================
-SAVE PLAYER STATE
-======================================================= */
+        return url;
+      }
 
-useEffect(() => {
-try {
-const state = {
-currentSong,
-queue,
-currentIndex,
-volume,
-isShuffle,
-repeatMode,
-};
-
-  localStorage.setItem(
-    PLAYER_STORAGE_KEY,
-    JSON.stringify(state)
-  );
-} catch (error) {
-  console.error(
-    "Failed to save player state:",
-    error
-  );
-}
-
-}, [
-currentSong,
-queue,
-currentIndex,
-volume,
-isShuffle,
-repeatMode,
-]);
-
-/* =======================================================
-LOAD OFFLINE SONGS
-======================================================= */
-
-useEffect(() => {
-const loadOfflineSongs = async () => {
-const songs =
-await getAllOfflineSongs();
-
-  setOfflineSongs(songs);
-};
-
-loadOfflineSongs();
-
-}, []);
-
-/* =======================================================
-AUDIO EVENTS
-======================================================= */
-
-useEffect(() => {
-const handleTimeUpdate = () => {
-setCurrentTime(
-audio.currentTime || 0
-);
-};
-
-const handleLoadedMetadata = () => {
-  setDuration(
-    Number.isFinite(
-      audio.duration
-    )
-      ? audio.duration
-      : 0
+      return getSongAudioUrl(song);
+    },
+    [releaseObjectUrl]
   );
 
-  setIsLoading(false);
-};
+  /* RESTORE PLAYER WITHOUT AUTOMATICALLY PLAYING */
 
-const handleDurationChange = () => {
-  if (
-    Number.isFinite(
-      audio.duration
-    )
-  ) {
-    setDuration(
-      audio.duration
-    );
-  }
-};
+  useEffect(() => {
+    let cancelled = false;
 
-const handlePlay = () => {
-  setIsPlaying(true);
-};
+    const restorePlayer = async () => {
+      const requestId = ++playRequestIdRef.current;
 
-const handlePause = () => {
-  setIsPlaying(false);
-};
+      try {
+        const saved = localStorage.getItem(PLAYER_STORAGE_KEY);
 
-const handleWaiting = () => {
-  setIsLoading(true);
-};
+        if (!saved) return;
 
-const handleCanPlay = () => {
-  setIsLoading(false);
-};
+        const data = JSON.parse(saved);
+        const restoredSong = data.currentSong || null;
+        const restoredQueue = Array.isArray(data.queue)
+          ? data.queue
+          : [];
 
-const handlePlaying = () => {
-  setIsLoading(false);
-  setIsPlaying(true);
-};
-
-const handleError = () => {
-  console.error(
-    "Audio playback error:",
-    audio.error
-  );
-
-  setIsLoading(false);
-  setIsPlaying(false);
-};
-
-audio.addEventListener(
-  "timeupdate",
-  handleTimeUpdate
-);
-
-audio.addEventListener(
-  "loadedmetadata",
-  handleLoadedMetadata
-);
-
-audio.addEventListener(
-  "durationchange",
-  handleDurationChange
-);
-
-audio.addEventListener(
-  "play",
-  handlePlay
-);
-
-audio.addEventListener(
-  "pause",
-  handlePause
-);
-
-audio.addEventListener(
-  "waiting",
-  handleWaiting
-);
-
-audio.addEventListener(
-  "canplay",
-  handleCanPlay
-);
-
-audio.addEventListener(
-  "playing",
-  handlePlaying
-);
-
-audio.addEventListener(
-  "error",
-  handleError
-);
-
-return () => {
-  audio.removeEventListener(
-    "timeupdate",
-    handleTimeUpdate
-  );
-
-  audio.removeEventListener(
-    "loadedmetadata",
-    handleLoadedMetadata
-  );
-
-  audio.removeEventListener(
-    "durationchange",
-    handleDurationChange
-  );
-
-  audio.removeEventListener(
-    "play",
-    handlePlay
-  );
-
-  audio.removeEventListener(
-    "pause",
-    handlePause
-  );
-
-  audio.removeEventListener(
-    "waiting",
-    handleWaiting
-  );
-
-  audio.removeEventListener(
-    "canplay",
-    handleCanPlay
-  );
-
-  audio.removeEventListener(
-    "playing",
-    handlePlaying
-  );
-
-  audio.removeEventListener(
-    "error",
-    handleError
-  );
-};
-
-}, [audio]);
-
-/* =======================================================
-VOLUME
-======================================================= */
-
-useEffect(() => {
-audio.volume =
-isMuted
-? 0
-: volume;
-}, [
-volume,
-isMuted,
-audio,
-]);
-
-/* =======================================================
-CHECK LIKED SONG
-======================================================= */
-
-const checkLikedSong =
-useCallback(
-async (songId) => {
-if (
-!songId ||
-!user
-) {
-setIsLiked(false);
-return;
-}
-
-    try {
-      const response =
-        await API.get(
-          `/songs/${songId}/liked`
+        const restoredTime = Math.max(
+          0,
+          Number(data.currentTime) || 0
         );
 
-      setIsLiked(
-        Boolean(
-          response?.data?.liked ??
-          response?.data?.isLiked
-        )
-      );
-    } catch {
-      try {
-        const response =
-          await API.get(
-            "/liked-songs"
+        setQueue(restoredQueue);
+        setCurrentSong(restoredSong);
+
+        let index =
+          typeof data.currentIndex === "number"
+            ? data.currentIndex
+            : -1;
+
+        if (restoredSong) {
+          const matchingIndex = restoredQueue.findIndex(
+            (song) => sameSong(song, restoredSong)
           );
 
-        const songs =
-          response?.data?.songs ||
-          response?.data ||
-          [];
+          if (matchingIndex >= 0) index = matchingIndex;
+        }
 
-        const found =
+        setCurrentIndex(index);
+
+        if (typeof data.volume === "number") {
+          setVolume(Math.min(Math.max(data.volume, 0), 1));
+        }
+
+        if (typeof data.isShuffle === "boolean") {
+          setIsShuffle(data.isShuffle);
+        }
+
+        if (["off", "one", "all"].includes(data.repeatMode)) {
+          setRepeatMode(data.repeatMode);
+        }
+
+        if (!restoredSong) return;
+
+        const source = await resolveSongSource(restoredSong);
+
+        if (
+          cancelled ||
+          requestId !== playRequestIdRef.current
+        ) {
+          return;
+        }
+
+        if (!source) {
+          console.warn(
+            "Restored song has no valid audio source:",
+            restoredSong
+          );
+          return;
+        }
+
+        const onMetadata = () => {
+          if (
+            cancelled ||
+            requestId !== playRequestIdRef.current
+          ) {
+            return;
+          }
+
+          if (Number.isFinite(audio.duration)) {
+            audio.currentTime = Math.min(
+              restoredTime,
+              audio.duration
+            );
+          }
+
+          setCurrentTime(audio.currentTime || 0);
+          setIsPlaying(false);
+          setIsLoading(false);
+        };
+
+        audio.addEventListener("loadedmetadata", onMetadata, {
+          once: true,
+        });
+
+        audio.src = source;
+        audio.load();
+
+        // Intentionally do not autoplay on app startup.
+      } catch (error) {
+        console.error("Failed to restore player state:", error);
+      } finally {
+        if (!cancelled) {
+          setPlayerRestored(true);
+        }
+      }
+    };
+
+    restorePlayer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [audio, resolveSongSource]);
+
+  /* SAVE PLAYER STATE */
+
+  useEffect(() => {
+    if (!playerRestored) return;
+
+    try {
+      localStorage.setItem(
+        PLAYER_STORAGE_KEY,
+        JSON.stringify({
+          currentSong,
+          queue,
+          currentIndex,
+          currentTime,
+          wasPlaying: isPlaying,
+          volume,
+          isShuffle,
+          repeatMode,
+        })
+      );
+    } catch (error) {
+      console.warn("Could not save player state:", error);
+    }
+  }, [
+    playerRestored,
+    currentSong,
+    queue,
+    currentIndex,
+    currentTime,
+    isPlaying,
+    volume,
+    isShuffle,
+    repeatMode,
+  ]);
+
+  /* LOAD OFFLINE SONG LIST */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getAllOfflineSongs().then((songs) => {
+      if (!cancelled) setOfflineSongs(songs);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* AUDIO EVENTS */
+
+  useEffect(() => {
+    const onTimeUpdate = () => {
+      setCurrentTime(audio.currentTime || 0);
+    };
+
+    const onMetadata = () => {
+      setDuration(
+        Number.isFinite(audio.duration) ? audio.duration : 0
+      );
+      setIsLoading(false);
+    };
+
+    const onPlay = () => {
+      setIsPlaying(true);
+      setIsLoading(false);
+    };
+
+    const onPause = () => setIsPlaying(false);
+
+    const onWaiting = () => setIsLoading(true);
+
+    const onCanPlay = () => setIsLoading(false);
+
+ 
+const onError = () => {
+  const mediaError = audio.error;
+
+  console.error("AUDIO DEBUG DETAILS", {
+    srcAttribute: audio.getAttribute("src"),
+    currentSrc: audio.currentSrc,
+    errorCode: mediaError?.code,
+    errorMessage: mediaError?.message,
+    networkState: audio.networkState,
+    readyState: audio.readyState,
+    songId: currentSong?.id,
+    songTitle: currentSong?.title,
+  });
+
+  setIsPlaying(false);
+  setIsLoading(false);
+};
+
+
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("loadedmetadata", onMetadata);
+    audio.addEventListener("durationchange", onMetadata);
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("waiting", onWaiting);
+    audio.addEventListener("canplay", onCanPlay);
+    audio.addEventListener("error", onError);
+
+    return () => {
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("loadedmetadata", onMetadata);
+      audio.removeEventListener("durationchange", onMetadata);
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("waiting", onWaiting);
+      audio.removeEventListener("canplay", onCanPlay);
+      audio.removeEventListener("error", onError);
+    };
+  }, [audio]);
+
+  /* APPLY VOLUME */
+
+  useEffect(() => {
+    audio.volume = Math.min(Math.max(Number(volume) || 0, 0), 1);
+    audio.muted = isMuted;
+  }, [audio, volume, isMuted]);
+
+  /* CHECK LIKED SONG */
+
+  const checkLikedSong = useCallback(
+    async (songId) => {
+      if (!songId || !user) {
+        setIsLiked(false);
+        return;
+      }
+
+      try {
+        const response = await API.get(`/songs/${songId}/liked`);
+
+        setIsLiked(
+          Boolean(response?.data?.liked ?? response?.data?.isLiked)
+        );
+
+        return;
+      } catch {
+        // Fall back to the liked-songs endpoint.
+      }
+
+      try {
+        const response = await API.get("/liked-songs");
+        const data = response?.data;
+
+        const songs = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.songs)
+            ? data.songs
+            : [];
+
+        setIsLiked(
           songs.some(
             (item) =>
-              Number(
-                item.song_id ||
-                item.id
-              ) ===
+              Number(item.song_id ?? item.songId ?? item.id) ===
               Number(songId)
-          );
-
-        setIsLiked(found);
-      } catch {
+          )
+        );
+      } catch (error) {
+        console.warn("Could not check liked song:", error);
         setIsLiked(false);
       }
-    }
-  },
-  [user]
-);
+    },
+    [user]
+  );
 
-/* =======================================================
-PRELOAD NEXT SONG
-======================================================= */
+  /* PLAY A SONG */
 
-const preloadNextSong =
-useCallback(
-(songs, index) => {
-if (
-!Array.isArray(songs) ||
-songs.length === 0
-) {
-return;
+  const playSong = useCallback(
+    async (song, songs = [], index = 0) => {
+      if (!song) return;
+
+      const requestId = ++playRequestIdRef.current;
+
+      try {
+        setIsLoading(true);
+        setIsPlaying(false);
+
+        let activeQueue = [song];
+        let activeIndex = 0;
+
+        if (Array.isArray(songs) && songs.length > 0) {
+          activeQueue = [...songs];
+
+          const foundIndex = activeQueue.findIndex(
+            (item) => sameSong(item, song)
+          );
+
+          activeIndex =
+            foundIndex >= 0
+              ? foundIndex
+              : Math.max(
+                  0,
+                  Math.min(index, activeQueue.length - 1)
+                );
+
+          // Make the selected song the queue's selected item.
+          if (foundIndex < 0) {
+            activeQueue[activeIndex] = song;
+          }
+        }
+
+        setQueue(activeQueue);
+        setCurrentIndex(activeIndex);
+        setCurrentSong(song);
+        setCurrentTime(0);
+        setDuration(0);
+
+        checkLikedSong(getSongId(song)).catch(() => {});
+       console.log("SELECTED SONG AUDIO DATA", {
+  id: song?.id,
+  title: song?.title,
+  audio_url: song?.audio_url,
+  audioUrl: song?.audioUrl,
+  audio_path: song?.audio_path,
+  audioPath: song?.audioPath,
+  audio: song?.audio,
+  url: song?.url,
+});
+        const audioUrl = await resolveSongSource(song);
+
+        if (requestId !== playRequestIdRef.current) return;
+
+        if (!audioUrl) {
+          throw new Error(
+            `No valid audio URL found for song ${getSongId(song)}`
+          );
+        }
+
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = audioUrl;
+        audio.load();
+
+        if (requestId !== playRequestIdRef.current) return;
+
+        await audio.play();
+
+        if (requestId !== playRequestIdRef.current) {
+          audio.pause();
+          return;
+        }
+
+        setIsPlaying(true);
+        setIsLoading(false);
+
+       
+if (user && getSongId(song) != null) {
+  API.post("/history/play", {
+    song_id: getSongId(song),
+    progress_seconds: 0,
+    completed: false,
+  }).catch((error) => {
+    console.warn(
+      "Listening history was not saved:",
+      error?.response?.status,
+      error?.response?.data
+    );
+  });
 }
 
-    const nextIndex =
-      index + 1;
+      } catch (error) {
+        if (requestId === playRequestIdRef.current) {
+          console.error("Play song failed:", {
+            songId: getSongId(song),
+            songTitle: song?.title,
+            audioSource: audio.currentSrc || audio.src,
+            mediaError: audio.error?.message,
+            error,
+          });
 
-    if (
-      nextIndex >=
-      songs.length
-    ) {
-      return;
-    }
-
-    const nextSong =
-      songs[nextIndex];
-
-    const nextUrl =
-      getSongAudioUrl(
-        nextSong
-      );
-
-    if (!nextUrl) {
-      return;
-    }
-
-    const preloadAudio =
-      new Audio();
-
-    preloadAudio.preload =
-      "metadata";
-
-    preloadAudio.src =
-      nextUrl;
-
-    preloadAudio.addEventListener(
-      "loadedmetadata",
-      () => {
-        preloadAudio.src = "";
-      },
-      {
-        once: true,
+          setIsPlaying(false);
+          setIsLoading(false);
+        }
       }
-    );
+    },
+    [audio, checkLikedSong, resolveSongSource, user]
+  );
 
-    preloadAudio.addEventListener(
-      "error",
-      () => {
-        preloadAudio.src = "";
-      },
-      {
-        once: true,
-      }
-    );
-  },
-  []
-);
+  /* PAUSE */
 
-/* =======================================================
-PLAY SONG
-======================================================= */
+  const pauseSong = useCallback(() => {
+    playRequestIdRef.current += 1;
 
-const playSong =
-useCallback(
-async (
-song,
-songs = [],
-index = 0
-) => {
-if (!song) {
-return;
-}
+    audio.pause();
+
+    setIsPlaying(false);
+    setIsLoading(false);
+  }, [audio]);
+
+  /* RESUME */
+
+  const resumeSong = useCallback(async () => {
+    if (!currentSong) return;
+
+    const requestId = ++playRequestIdRef.current;
 
     try {
       setIsLoading(true);
 
-      let activeQueue = [song];
-      let activeIndex = 0;
+      // Recover if there is no source or the current source failed.
+      if (!audio.getAttribute("src") || audio.error) {
+        const audioUrl = await resolveSongSource(currentSong);
 
-      if (
-        Array.isArray(songs) &&
-        songs.length > 0
-      ) {
-        activeQueue = songs;
+        if (requestId !== playRequestIdRef.current) return;
 
-        const foundIndex =
-          songs.findIndex(
-            (item) =>
-              Number(item.id) ===
-              Number(song.id)
+        if (!audioUrl) {
+          throw new Error(
+            `No playable audio source for song ${getSongId(currentSong)}`
           );
-
-        activeIndex =
-          foundIndex >= 0
-            ? foundIndex
-            : index;
-      }
-
-      setQueue(activeQueue);
-
-      setCurrentIndex(
-        activeIndex
-      );
-
-      setCurrentSong(song);
-
-      checkLikedSong(
-        song.id
-      ).catch(() => {});
-
-      const offline =
-        await getOfflineSong(
-          song.id
-        );
-
-      let audioUrl = null;
-
-      if (offline?.blob) {
-        if (
-          objectUrlRef.current
-        ) {
-          URL.revokeObjectURL(
-            objectUrlRef.current
-          );
-
-          objectUrlRef.current =
-            null;
         }
 
-        audioUrl =
-          URL.createObjectURL(
-            offline.blob
-          );
-
-        objectUrlRef.current =
-          audioUrl;
-      } else {
-        audioUrl =
-          getSongAudioUrl(song);
+        audio.pause();
+        audio.src = audioUrl;
+        audio.load();
       }
 
-      if (!audioUrl) {
-        console.error(
-          "Audio URL not found:",
-          song
-        );
-
-        setIsLoading(false);
-        return;
-      }
-
-      audio.pause();
-
-      try {
-        audio.currentTime = 0;
-      } catch {
-        // Ignore
-      }
-
-      audio.preload = "auto";
-      audio.src = audioUrl;
-      audio.load();
+      if (requestId !== playRequestIdRef.current) return;
 
       await audio.play();
 
+      if (requestId !== playRequestIdRef.current) {
+        audio.pause();
+        return;
+      }
+
       setIsPlaying(true);
       setIsLoading(false);
-
-      preloadNextSong(
-        activeQueue,
-        activeIndex
-      );
-
-      if (
-        user &&
-        song.id
-      ) {
-        API.post(
-          "/listening-history",
-          {
-            song_id:
-              song.id,
-          }
-        ).catch(
-          (historyError) => {
-            console.warn(
-              "Listening history could not be saved:",
-              historyError
-            );
-          }
-        );
-      }
     } catch (error) {
-      console.error(
-        "Play song error:",
-        error
-      );
+      if (requestId === playRequestIdRef.current) {
+        console.error("Resume playback failed:", {
+          songId: getSongId(currentSong),
+          songTitle: currentSong?.title,
+          audioSource: audio.currentSrc || audio.src,
+          mediaError: audio.error?.message,
+          error,
+        });
 
-      setIsPlaying(false);
-      setIsLoading(false);
+        setIsPlaying(false);
+        setIsLoading(false);
+      }
     }
-  },
-  [
-    audio,
-    checkLikedSong,
-    preloadNextSong,
-    user,
-  ]
-);
+  }, [audio, currentSong, resolveSongSource]);
 
-/* =======================================================
-PAUSE
-======================================================= */
+  /* TOGGLE PLAY / PAUSE */
 
-const pauseSong =
-useCallback(() => {
-audio.pause();
-setIsPlaying(false);
-}, [audio]);
-
-/* =======================================================
-RESUME
-======================================================= */
-
-const resumeSong =
-useCallback(
-async () => {
-try {
-await audio.play();
-setIsPlaying(true);
-} catch (error) {
-console.error(
-"Resume playback error:",
-error
-);
-}
-},
-[audio]
-);
-
-/* =======================================================
-TOGGLE PLAY / PAUSE
-======================================================= */
-
-const togglePlay =
-useCallback(
-async () => {
-if (!currentSong) {
-return;
-}
+  const togglePlay = useCallback(async () => {
+    if (!currentSong) return;
 
     if (audio.paused) {
       await resumeSong();
     } else {
       pauseSong();
     }
-  },
-  [
-    audio,
-    currentSong,
-    pauseSong,
-    resumeSong,
-  ]
-);
+  }, [audio, currentSong, pauseSong, resumeSong]);
 
-/* =======================================================
-NEXT SONG
-======================================================= */
+  /* NEXT SONG */
 
-const nextSong =
-useCallback(
-async () => {
-if (!queue.length) {
-return;
-}
+  const nextSong = useCallback(async () => {
+    if (!queue.length) return;
 
     let nextIndex;
 
-    if (isShuffle) {
-      if (queue.length === 1) {
-        nextIndex = 0;
-      } else {
-        do {
-          nextIndex =
-            Math.floor(
-              Math.random() *
-                queue.length
-            );
-        } while (
-          nextIndex ===
-          currentIndex
-        );
-      }
+    if (isShuffle && queue.length > 1) {
+      do {
+        nextIndex = Math.floor(Math.random() * queue.length);
+      } while (nextIndex === currentIndex);
     } else {
-      nextIndex =
-        currentIndex + 1;
+      nextIndex = currentIndex + 1;
     }
 
-    if (
-      nextIndex >=
-      queue.length
-    ) {
-      if (
-        repeatMode ===
-        "all"
-      ) {
+    if (nextIndex >= queue.length) {
+      if (repeatMode === "all") {
         nextIndex = 0;
       } else {
-        setIsPlaying(false);
+        pauseSong();
         return;
       }
     }
 
-    const next =
-      queue[nextIndex];
-
-    setCurrentIndex(
-      nextIndex
-    );
-
-    await playSong(
-      next,
-      queue,
-      nextIndex
-    );
-  },
-  [
+    await playSong(queue[nextIndex], queue, nextIndex);
+  }, [
     queue,
     isShuffle,
     currentIndex,
     repeatMode,
     playSong,
-  ]
-);
+    pauseSong,
+  ]);
 
-/* =======================================================
-PREVIOUS SONG
-======================================================= */
+  /* PREVIOUS SONG */
 
-const previousSong =
-useCallback(
-async () => {
-if (!queue.length) {
-return;
-}
+  const previousSong = useCallback(async () => {
+    if (!queue.length) return;
 
-    if (
-      audio.currentTime >
-      3
-    ) {
+    if (audio.currentTime > 3) {
       audio.currentTime = 0;
+      setCurrentTime(0);
       return;
     }
 
-    let previousIndex =
-      currentIndex - 1;
+    let previousIndex = currentIndex - 1;
 
-    if (
-      previousIndex < 0
-    ) {
-      if (
-        repeatMode ===
-        "all"
-      ) {
-        previousIndex =
-          queue.length - 1;
-      } else {
-        previousIndex = 0;
-      }
+    if (previousIndex < 0) {
+      previousIndex =
+        repeatMode === "all" ? queue.length - 1 : 0;
     }
 
-    const previous =
-      queue[previousIndex];
+    await playSong(queue[previousIndex], queue, previousIndex);
+  }, [audio, queue, currentIndex, repeatMode, playSong]);
 
-    setCurrentIndex(
-      previousIndex
-    );
+  /* AUTO NEXT AND REPEAT */
 
-    await playSong(
-      previous,
-      queue,
-      previousIndex
-    );
-  },
-  [
-    audio,
-    queue,
-    currentIndex,
-    repeatMode,
-    playSong,
-  ]
-);
+  useEffect(() => {
+    const handleEnded = async () => {
+      if (!currentSong) return;
 
-/* =======================================================
-AUTO NEXT / REPEAT
-======================================================= */
+      if (repeatMode === "one") {
+        try {
+          audio.currentTime = 0;
+          await audio.play();
+        } catch (error) {
+          console.error("Repeat playback failed:", error);
+          setIsPlaying(false);
+        }
 
-useEffect(() => {
-const handleEnded =
-async () => {
-if (!currentSong) {
-return;
-}
+        return;
+      }
 
-    if (
-      repeatMode ===
-      "one"
-    ) {
-      audio.currentTime = 0;
+      await nextSong();
+    };
+
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [audio, currentSong, repeatMode, nextSong]);
+
+  /* SEEK */
+
+  const seek = useCallback(
+    (value) => {
+      const newTime = Number(value);
+
+      if (
+        !Number.isFinite(newTime) ||
+        !Number.isFinite(audio.duration)
+      ) {
+        return;
+      }
+
+      audio.currentTime = Math.min(
+        Math.max(newTime, 0),
+        audio.duration
+      );
+
+      setCurrentTime(audio.currentTime);
+    },
+    [audio]
+  );
+
+  const seekForward = useCallback(
+    (seconds = 10) => {
+      if (Number.isFinite(audio.duration)) {
+        audio.currentTime = Math.min(
+          audio.currentTime + seconds,
+          audio.duration
+        );
+      }
+    },
+    [audio]
+  );
+
+  const seekBackward = useCallback(
+    (seconds = 10) => {
+      audio.currentTime = Math.max(
+        audio.currentTime - seconds,
+        0
+      );
+    },
+    [audio]
+  );
+
+  /* VOLUME */
+
+  const changeVolume = useCallback(
+    (value) => {
+      const newVolume = Math.min(
+        Math.max(Number(value) || 0, 0),
+        1
+      );
+
+      setVolume(newVolume);
+      setIsMuted(newVolume === 0);
+
+      audio.volume = newVolume;
+      audio.muted = newVolume === 0;
+    },
+    [audio]
+  );
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((previous) => !previous);
+  }, []);
+
+  /* SHUFFLE AND REPEAT */
+
+  const toggleShuffle = useCallback(() => {
+    setIsShuffle((previous) => !previous);
+  }, []);
+
+  const toggleRepeat = useCallback(() => {
+    setRepeatMode((previous) => {
+      if (previous === "off") return "all";
+      if (previous === "all") return "one";
+      return "off";
+    });
+  }, []);
+
+  /* LIKE / UNLIKE */
+
+  const toggleLike = useCallback(
+    async (song = currentSong) => {
+      const songId = getSongId(song);
+
+      if (songId == null || !user) return;
 
       try {
-        await audio.play();
-        setIsPlaying(true);
-      } catch (error) {
-        console.error(
-          "Repeat playback error:",
-          error
-        );
-      }
+        if (isLiked && sameSong(song, currentSong)) {
+          await API.delete(`/liked-songs/${songId}`);
+          setIsLiked(false);
+        } else {
+          await API.post("/liked-songs", {
+            song_id: songId,
+          });
 
-      return;
-    }
-
-    await nextSong();
-  };
-
-audio.addEventListener(
-  "ended",
-  handleEnded
-);
-
-return () => {
-  audio.removeEventListener(
-    "ended",
-    handleEnded
-  );
-};
-
-}, [
-audio,
-currentSong,
-repeatMode,
-nextSong,
-]);
-
-/* =======================================================
-SEEK
-======================================================= */
-
-const seek =
-useCallback(
-(value) => {
-const newTime =
-Number(value);
-
-    if (
-      !Number.isFinite(
-        newTime
-      ) ||
-      !Number.isFinite(
-        audio.duration
-      )
-    ) {
-      return;
-    }
-
-    audio.currentTime =
-      Math.min(
-        Math.max(
-          newTime,
-          0
-        ),
-        audio.duration
-      );
-
-    setCurrentTime(
-      audio.currentTime
-    );
-  },
-  [audio]
-);
-
-/* =======================================================
-SEEK FORWARD
-======================================================= */
-
-const seekForward =
-useCallback(
-(seconds = 10) => {
-if (
-!Number.isFinite(
-audio.duration
-)
-) {
-return;
-}
-
-    audio.currentTime =
-      Math.min(
-        audio.currentTime +
-          seconds,
-        audio.duration
-      );
-  },
-  [audio]
-);
-
-/* =======================================================
-SEEK BACKWARD
-======================================================= */
-
-const seekBackward =
-useCallback(
-(seconds = 10) => {
-audio.currentTime =
-Math.max(
-audio.currentTime -
-seconds,
-0
-);
-},
-[audio]
-);
-
-/* =======================================================
-SET PLAYER VOLUME
-======================================================= */
-
-const changeVolume =
-useCallback(
-(value) => {
-const newVolume =
-Math.min(
-Math.max(
-Number(value),
-0
-),
-1
-);
-
-    setVolume(newVolume);
-
-    if (
-      newVolume > 0
-    ) {
-      setIsMuted(false);
-    }
-  },
-  []
-);
-
-/* =======================================================
-TOGGLE MUTE
-======================================================= */
-
-const toggleMute =
-useCallback(() => {
-setIsMuted(
-(previous) =>
-!previous
-);
-}, []);
-
-/* =======================================================
-TOGGLE SHUFFLE
-======================================================= */
-
-const toggleShuffle =
-useCallback(() => {
-setIsShuffle(
-(previous) =>
-!previous
-);
-}, []);
-
-/* =======================================================
-TOGGLE REPEAT
-======================================================= */
-
-const toggleRepeat =
-useCallback(() => {
-setRepeatMode(
-(previous) => {
-if (
-previous ===
-"off"
-) {
-return "all";
-}
-
-      if (
-        previous ===
-        "all"
-      ) {
-        return "one";
-      }
-
-      return "off";
-    }
-  );
-}, []);
-
-/* =======================================================
-LIKE / UNLIKE SONG
-======================================================= */
-
-const toggleLike =
-useCallback(
-async (
-song = currentSong
-) => {
-if (
-!song?.id ||
-!user
-) {
-return;
-}
-
-    try {
-      if (isLiked) {
-        await API.delete(
-          `/liked-songs/${song.id}`
-        );
-
-        setIsLiked(false);
-      } else {
-        await API.post(
-          "/liked-songs",
-          {
-            song_id:
-              song.id,
+          if (sameSong(song, currentSong)) {
+            setIsLiked(true);
           }
-        );
-
-        setIsLiked(true);
+        }
+      } catch (error) {
+        console.error("Toggle like failed:", error);
       }
-    } catch (error) {
-      console.error(
-        "Toggle like error:",
-        error
-      );
-    }
-  },
-  [
-    currentSong,
-    user,
-    isLiked,
-  ]
-);
+    },
+    [currentSong, user, isLiked]
+  );
 
-/* =======================================================
-DOWNLOAD SONG FOR OFFLINE
-======================================================= */
+  /* DOWNLOAD SONG FOR OFFLINE PLAYBACK */
 
-const downloadSong =
-useCallback(
-async (song) => {
-if (!song?.id) {
-return false;
-}
+  const downloadSong = useCallback(async (song) => {
+    const songId = getSongId(song);
+
+    if (songId == null) return false;
 
     try {
-      const existing =
-        await getOfflineSong(
-          song.id
-        );
+      const existing = await getOfflineSong(songId);
 
-      if (existing) {
-        return true;
-      }
+      if (existing?.blob) return true;
 
-      const audioUrl =
-        getSongAudioUrl(
-          song
-        );
+      const audioUrl = getSongAudioUrl(song);
 
       if (!audioUrl) {
-        return false;
+        throw new Error("Song has no valid audio URL");
       }
 
-      const response =
-        await fetch(
-          audioUrl
-        );
+      const response = await fetch(audioUrl);
 
       if (!response.ok) {
         throw new Error(
-          `Download failed: ${response.status}`
+          `Audio download failed with status ${response.status}`
         );
       }
 
-      const blob =
-        await response.blob();
+      const blob = await response.blob();
 
-      await saveOfflineSong({
-        id: song.id,
-        title: song.title,
-        title_english:
-          song.title_english,
-        language:
-          song.language,
-        artist_id:
-          song.artist_id,
-        album_id:
-          song.album_id,
-        category_id:
-          song.category_id,
-        cover_url:
-          song.cover_url,
-        audio_url:
-          song.audio_url ||
-          song.audioUrl ||
-          song.url,
+      if (!blob.size) {
+        throw new Error("Downloaded audio file is empty");
+      }
+
+      const saved = await saveOfflineSong({
+        ...song,
+        id: songId,
         blob,
-        downloadedAt:
-          Date.now(),
+        downloadedAt: Date.now(),
       });
 
-      const updated =
-        await getAllOfflineSongs();
+      if (saved) {
+        setOfflineSongs(await getAllOfflineSongs());
+      }
 
-      setOfflineSongs(
-        updated
-      );
-
-      return true;
+      return saved;
     } catch (error) {
-      console.error(
-        "Download song error:",
-        error
-      );
-
+      console.error("Offline download failed:", error);
       return false;
     }
-  },
-  []
-);
+  }, []);
 
-/* =======================================================
-REMOVE OFFLINE SONG
-======================================================= */
 
-const removeOfflineSong =
-useCallback(
-async (songId) => {
-if (!songId) {
-return;
-}
+  
+  // Alias used by SongDetails.jsx
+  const downloadSongOffline = downloadSong;
 
-    await deleteOfflineSong(
-      songId
-    );
+  // Track which song is currently downloading
+  const [offlineDownloadingId, setOfflineDownloadingId] = useState(null);
 
-    const updated =
-      await getAllOfflineSongs();
 
-    setOfflineSongs(
-      updated
-    );
-  },
-  []
-);
+  /* REMOVE OFFLINE SONG */
 
-/* =======================================================
-CHECK OFFLINE SONG
-======================================================= */
+  const removeOfflineSong = useCallback(async (songId) => {
+    if (songId == null) return;
 
-const isSongOffline =
-useCallback(
-(songId) => {
-if (!songId) {
-return false;
-}
+    await deleteOfflineSong(songId);
+    setOfflineSongs(await getAllOfflineSongs());
+  }, []);
 
-    return offlineSongs.some(
-      (song) =>
-        Number(song.id) ===
-        Number(songId)
-    );
-  },
-  [offlineSongs]
-);
-
-/* =======================================================
-CLEAR PLAYER
-======================================================= */
-
-const clearPlayer =
-useCallback(() => {
-audio.pause();
-audio.src = "";
-
-  if (
-    objectUrlRef.current
-  ) {
-    URL.revokeObjectURL(
-      objectUrlRef.current
-    );
-
-    objectUrlRef.current =
-      null;
-  }
-
-  setCurrentSong(null);
-  setQueue([]);
-  setCurrentIndex(-1);
-  setCurrentTime(0);
-  setDuration(0);
-  setIsPlaying(false);
-  setIsLiked(false);
-
-  localStorage.removeItem(
-    PLAYER_STORAGE_KEY
+  const isSongOffline = useCallback(
+    (songId) =>
+      offlineSongs.some(
+        (song) => Number(getSongId(song)) === Number(songId)
+      ),
+    [offlineSongs]
   );
-}, [audio]);
 
-/* =======================================================
-CLEANUP OBJECT URL
-======================================================= */
+  /* QUEUE: ADD WITHOUT PLAYING */
 
-useEffect(() => {
-return () => {
-if (
-objectUrlRef.current
-) {
-URL.revokeObjectURL(
-objectUrlRef.current
-);
+  const addToQueue = useCallback(
+    (song) => {
+      if (getSongId(song) == null) return;
 
-    objectUrlRef.current =
-      null;
-  }
+      setQueue((previous) => {
+        if (previous.some((item) => sameSong(item, song))) {
+          return previous;
+        }
 
-  audio.pause();
-  audio.src = "";
-};
+        // If no queue exists, preserve the currently playing song.
+        if (
+          currentSong &&
+          !previous.some((item) => sameSong(item, currentSong))
+        ) {
+          return [...previous, currentSong, song];
+        }
 
-}, [audio]);
+        return [...previous, song];
+      });
 
-/* =======================================================
-FORMAT TIME
-======================================================= */
+      setCurrentIndex((previousIndex) => {
+        if (previousIndex >= 0) return previousIndex;
 
-const formatTime =
-useCallback(
-(seconds) => {
-if (
-!seconds ||
-!Number.isFinite(
-seconds
-)
-) {
-return "0:00";
-}
+        return currentSong ? 0 : -1;
+      });
+    },
+    [currentSong]
+  );
 
-    const minutes =
-      Math.floor(
-        seconds / 60
-      );
+  /* QUEUE: REMOVE */
 
-    const remainingSeconds =
-      Math.floor(
-        seconds % 60
-      );
+  const removeFromQueue = useCallback(
+    (songId) => {
+      setQueue((previous) => {
+        const removedIndex = previous.findIndex(
+          (song) => Number(getSongId(song)) === Number(songId)
+        );
 
-    return `${minutes}:${String(
-      remainingSeconds
-    ).padStart(
-      2,
-      "0"
-    )}`;
-  },
-  []
-);
+        if (removedIndex < 0) return previous;
 
-/* =======================================================
-PLAYER VALUE
-======================================================= */
+        const updated = previous.filter(
+          (song) => Number(getSongId(song)) !== Number(songId)
+        );
 
-const value = {
-currentSong,
-setCurrentSong,
+        if (removedIndex < currentIndex) {
+          setCurrentIndex((index) => Math.max(0, index - 1));
+        } else if (removedIndex === currentIndex) {
+          const newIndex = updated.findIndex(
+            (song) => sameSong(song, currentSong)
+          );
 
-queue,
-setQueue,
+          setCurrentIndex(newIndex);
+        }
 
-currentIndex,
-setCurrentIndex,
+        return updated;
+      });
+    },
+    [currentIndex, currentSong]
+  );
 
-isPlaying,
-isLoading,
+  /* QUEUE: CLEAR UPCOMING SONGS */
 
-playSong,
-pauseSong,
-resumeSong,
-togglePlay,
+  const clearQueue = useCallback(() => {
+    setQueue(currentSong ? [currentSong] : []);
+    setCurrentIndex(currentSong ? 0 : -1);
+  }, [currentSong]);
 
-nextSong,
-previousSong,
+  /* QUEUE: MOVE UP */
 
-currentTime,
-duration,
-seek,
-seekForward,
-seekBackward,
+  const moveQueueItemUp = useCallback(
+    (songId) => {
+      setQueue((previous) => {
+        const index = previous.findIndex(
+          (song) => Number(getSongId(song)) === Number(songId)
+        );
 
-volume,
-setVolume: changeVolume,
-changeVolume,
+        if (index <= 0) return previous;
 
-isMuted,
-toggleMute,
+        const updated = [...previous];
 
-isShuffle,
-toggleShuffle,
+        [updated[index - 1], updated[index]] = [
+          updated[index],
+          updated[index - 1],
+        ];
 
-repeatMode,
-toggleRepeat,
+        setCurrentIndex((current) => {
+          if (current === index) return index - 1;
+          if (current === index - 1) return index;
+          return current;
+        });
 
-isLiked,
-setIsLiked,
-toggleLike,
+        return updated;
+      });
+    },
+    []
+  );
 
-offlineSongs,
-downloadSong,
-removeOfflineSong,
-isSongOffline,
+  /* QUEUE: MOVE DOWN */
 
-clearPlayer,
-formatTime,
+  const moveQueueItemDown = useCallback(
+    (songId) => {
+      setQueue((previous) => {
+        const index = previous.findIndex(
+          (song) => Number(getSongId(song)) === Number(songId)
+        );
 
-audioRef,
-audio,
+        if (index < 0 || index >= previous.length - 1) {
+          return previous;
+        }
 
+        const updated = [...previous];
 
-}
+        [updated[index], updated[index + 1]] = [
+          updated[index + 1],
+          updated[index],
+        ];
 
-return (
-<PlayerContext.Provider
-value={value}
->
-{children}
-</PlayerContext.Provider>
-);
+        setCurrentIndex((current) => {
+          if (current === index) return index + 1;
+          if (current === index + 1) return index;
+          return current;
+        });
+
+        return updated;
+      });
+    },
+    []
+  );
+
+  /* PLAY A SONG SELECTED FROM THE QUEUE */
+
+  const playQueueSong = useCallback(
+    async (song) => {
+      if (!song) return;
+
+      const index = queue.findIndex((item) => sameSong(item, song));
+
+      if (index >= 0) {
+        await playSong(queue[index], queue, index);
+      } else {
+        await playSong(song, queue, 0);
+      }
+    },
+    [queue, playSong]
+  );
+
+  /* CLOSE / CLEAR PLAYER */
+
+  const clearPlayer = useCallback(() => {
+    playRequestIdRef.current += 1;
+
+    audio.pause();
+
+    try {
+      audio.currentTime = 0;
+    } catch {}
+
+    audio.removeAttribute("src");
+    audio.load();
+
+    releaseObjectUrl();
+
+    setCurrentSong(null);
+    setQueue([]);
+    setCurrentIndex(-1);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setIsLiked(false);
+    setIsLoading(false);
+
+    localStorage.removeItem(PLAYER_STORAGE_KEY);
+  }, [audio, releaseObjectUrl]);
+
+  const closePlayer = clearPlayer;
+
+  /* CLEANUP */
+
+  useEffect(() => {
+    return () => {
+      playRequestIdRef.current += 1;
+
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+
+      releaseObjectUrl();
+    };
+  }, [audio, releaseObjectUrl]);
+
+  /* FORMAT TIME */
+
+  const formatTime = useCallback((seconds) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return "0:00";
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+  }, []);
+
+  /* CONTEXT VALUE */
+
+  const value = {
+    currentSong,
+    setCurrentSong,
+    queue,
+    setQueue,
+    currentIndex,
+    setCurrentIndex,
+
+    isPlaying,
+    isLoading,
+
+    playSong,
+    pauseSong,
+    resumeSong,
+    togglePlay,
+    nextSong,
+    previousSong,
+
+    currentTime,
+    duration,
+    seek,
+    seekForward,
+    seekBackward,
+
+    volume,
+    setVolume: changeVolume,
+    changeVolume,
+    isMuted,
+    toggleMute,
+
+    isShuffle,
+    toggleShuffle,
+    repeatMode,
+    toggleRepeat,
+
+    isLiked,
+    setIsLiked,
+    toggleLike,
+
+    offlineSongs,
+    downloadSong,
+       downloadSongOffline,
+    offlineDownloadingId,
+    removeOfflineSong,
+    isSongOffline,
+
+    addToQueue,
+    removeFromQueue,
+    clearQueue,
+    moveQueueItemUp,
+    moveQueueItemDown,
+    playQueueSong,
+
+    audioRef,
+    audio,
+
+    clearPlayer,
+    closePlayer,
+    formatTime,
+  };
+
+  return (
+    <PlayerContext.Provider value={value}>
+      {children}
+    </PlayerContext.Provider>
+  );
 };
 
 export default PlayerContext;

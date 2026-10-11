@@ -1193,3 +1193,20 @@ span:nth-child(4) {
   }
 
 }
+.song-card-component {
+  position: relative;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.song-card-component button {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.song-card-cover,
+.song-card-content {
+  pointer-events: auto;
+}
