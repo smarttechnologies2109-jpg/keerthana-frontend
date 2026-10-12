@@ -1297,91 +1297,61 @@ Enter the second verse...`,
      AUDIO FILE
   ===================================================== */
 
-  const handleAudioChange = (
-    event
-  ) => {
+const handleAudioChange = (event) => {
+  const file = event.target.files?.[0];
 
-    const file =
-      event
-        .target
-        .files?.[0];
+  if (!file) {
+    setAudioFile(null);
+    return;
+  }
 
+  const fileName = file.name.toLowerCase();
 
-    if (!file) {
-      return;
-    }
+  const validExtension =
+    fileName.endsWith(".mp3") ||
+    fileName.endsWith(".m4a");
 
+  const allowedTypes = [
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/mp4",
+    "audio/x-m4a",
+    "application/octet-stream",
+  ];
 
-    const allowedTypes = [
+  if (!validExtension && !allowedTypes.includes(file.type)) {
+    setError("Please select an MP3 or M4A audio file.");
+    setAudioFile(null);
+    event.target.value = "";
+    return;
+  }
 
-      "audio/mpeg",
+  const maxSize = 30 * 1024 * 1024;
 
-      "audio/mp3",
+  if (file.size === 0) {
+    setError("The selected audio file is empty. Please choose another file.");
+    setAudioFile(null);
+    event.target.value = "";
+    return;
+  }
 
-      "audio/mp4",
+  if (file.size > maxSize) {
+    setError("Audio file must be smaller than 30 MB.");
+    setAudioFile(null);
+    event.target.value = "";
+    return;
+  }
 
-      "audio/x-m4a",
+  setAudioFile(file);
+  setError("");
 
-    ];
+  console.log("Audio selected:", {
+    name: file.name,
+    type: file.type,
+    size: file.size,
+  });
+};
 
-
-    const fileName =
-      file.name
-        .toLowerCase();
-
-
-    const validExtension =
-      fileName.endsWith(".mp3") ||
-      fileName.endsWith(".m4a");
-
-
-    if (
-      !allowedTypes.includes(
-        file.type
-      ) &&
-      !validExtension
-    ) {
-
-      setError(
-        "Please select an MP3 or M4A audio file."
-      );
-
-
-      event.target.value = "";
-
-      return;
-
-    }
-
-
-    const maxSize =
-      30 *
-      1024 *
-      1024;
-
-
-    if (
-      file.size >
-      maxSize
-    ) {
-
-      setError(
-        "Audio file must be smaller than 30 MB."
-      );
-
-
-      event.target.value = "";
-
-      return;
-
-    }
-
-
-    setError("");
-
-    setAudioFile(file);
-
-  };
 
 
   /* =====================================================
@@ -1926,10 +1896,20 @@ console.log("Song ministry selected:", {
 
         /* AUDIO */
 
-        formData.append(
-          "audio",
-          audioFile
-        );
+     if (!(audioFile instanceof File)) {
+  setError("Please select an audio file.");
+  setSaving(false);
+  return;
+}
+
+formData.set("audio", audioFile);
+
+console.log("Audio being uploaded:", {
+  name: audioFile.name,
+  type: audioFile.type,
+  size: audioFile.size,
+  formDataHasAudio: formData.has("audio"),
+});
 
 
         /* COVER */
