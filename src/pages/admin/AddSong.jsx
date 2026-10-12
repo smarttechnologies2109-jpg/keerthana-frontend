@@ -1929,12 +1929,15 @@ console.log("Audio being uploaded:", {
         /* =================================================
            SEND SONG
         ================================================= */
-
-        const response =
-          await API.post(
-            "/admin/songs",
-            formData
-          );
+const response = await API.post(
+  "/admin/songs",
+  formData,
+  {
+    headers: {
+      "Content-Type": undefined,
+    },
+  }
+);
 
 
         console.log(
