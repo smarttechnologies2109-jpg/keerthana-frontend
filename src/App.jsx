@@ -227,6 +227,8 @@ import BusinessOwnerMinistries
 import BusinessOwnerForgotPassword
   from "./pages/businessOwner/BusinessOwnerForgotPassword";
 
+  import PrivacyPolicy from "./pages/PrivacyPolicy";
+
 
 /* =========================================================
    USER HOME REDIRECT
@@ -424,7 +426,9 @@ function App() {
                   <Library />
                 }
               />
+        
 
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
               {/* =================================================
                   LIKED SONGS
