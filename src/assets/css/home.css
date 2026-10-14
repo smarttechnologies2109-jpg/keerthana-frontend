@@ -2117,3 +2117,86 @@
   }
 
 }
+/* =========================================
+   WORSHIP MOOD EMPTY STATE
+========================================= */
+
+.home-mood-empty {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.035));
+  color: var(--text-color, #ffffff);
+}
+
+.home-mood-empty-icon {
+  flex-shrink: 0;
+  font-size: 30px;
+  color: var(--primary-color, #c9a45c);
+}
+
+.home-mood-empty-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-mood-empty h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.home-mood-empty p {
+  margin: 0;
+  color: var(--text-secondary, #a9a9a9);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.home-mood-empty button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 24px;
+  background: var(--primary-color, #c9a45c);
+  color: #111111;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.home-mood-empty button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.home-mood-empty button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+  .home-mood-empty {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 18px;
+  }
+
+  .home-mood-empty-icon {
+    font-size: 24px;
+  }
+
+  .home-mood-empty button {
+    width: 100%;
+  }
+}

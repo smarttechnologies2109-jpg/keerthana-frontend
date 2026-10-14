@@ -1,227 +1,156 @@
-/* =========================================================
-   KEERTHANA — YOUR LIBRARY
-   Premium Dark Navy + Teal + Gold
-========================================================= */
-
 
 /* =========================================================
-   PAGE
+   KEERTHANA — PROFESSIONAL MUSIC LIBRARY
 ========================================================= */
 
 .library-page {
+  --library-green: #12372a;
+  --library-green-dark: #0b241b;
+  --library-green-light: #1d4a38;
+  --library-gold: #c9a45c;
+  --library-text: #19231e;
+  --library-muted: #758078;
+  --library-border: #e7ebe7;
+  --library-surface: #ffffff;
+  --library-background: #f7f9f7;
+
   width: 100%;
-  min-height: 100vh;
-
+  min-height: 100%;
+  padding: 34px clamp(18px, 4vw, 54px) 48px;
+  color: var(--library-text);
+  background: var(--library-background);
   box-sizing: border-box;
-
-  padding:
-    34px
-    clamp(22px, 3vw, 44px)
-    140px;
-
-  color: #f4f1e8;
-
-  background:
-    radial-gradient(
-      circle at 90% 5%,
-      rgba(49, 156, 145, 0.07),
-      transparent 27%
-    ),
-    radial-gradient(
-      circle at 5% 90%,
-      rgba(215, 181, 109, 0.025),
-      transparent 30%
-    );
 }
 
+.library-page *,
+.library-page *::before,
+.library-page *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
-   HEADER
+   HERO
 ========================================================= */
 
-.library-header {
+.library-hero {
   position: relative;
-
-  min-height: 190px;
-
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-
-  box-sizing: border-box;
-
-  margin-bottom: 25px;
-
-  padding:
-    32px
-    34px;
-
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  min-height: 250px;
+  padding: clamp(28px, 5vw, 56px);
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.06);
-
-  border-radius: 22px;
-
+  border-radius: 25px;
   background:
+    radial-gradient(
+      circle at 84% 18%,
+      rgba(201, 164, 92, 0.2),
+      transparent 29%
+    ),
     linear-gradient(
-      125deg,
-      rgba(18, 52, 61, 0.98) 0%,
-      rgba(11, 36, 44, 0.98) 52%,
-      rgba(7, 24, 30, 0.99) 100%
+      115deg,
+      var(--library-green-dark) 0%,
+      var(--library-green) 64%,
+      #20533d 100%
     );
-
-  box-shadow:
-    0 20px 50px
-    rgba(0, 0, 0, 0.2),
-    inset
-    0 1px 0
-    rgba(255, 255, 255, 0.035);
+  box-shadow: 0 16px 40px rgba(18, 55, 42, 0.12);
 }
 
-
-/* =========================================================
-   HEADER GOLD DECORATION
-========================================================= */
-
-.library-header::before {
-  content: "";
-
-  position: absolute;
-
-  width: 310px;
-  height: 310px;
-
-  top: -210px;
-  right: 90px;
-
-  border:
-    1px solid
-    rgba(215, 181, 109, 0.09);
-
-  border-radius: 50%;
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   HEADER TEAL GLOW
-========================================================= */
-
-.library-header::after {
-  content: "";
-
-  position: absolute;
-
-  width: 230px;
-  height: 230px;
-
-  right: -70px;
-  bottom: -150px;
-
-  border-radius: 50%;
-
-  background:
-    rgba(74, 176, 165, 0.06);
-
-  filter:
-    blur(35px);
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   EYEBROW
-========================================================= */
-
-.library-eyebrow {
+.library-hero-copy {
   position: relative;
-
   z-index: 2;
+  max-width: 620px;
+}
 
-  margin:
-    0
-    0
-    8px;
-
-  color: #5fc0b6;
-
-  font-size: 8px;
+.library-eyebrow,
+.library-section-eyebrow {
+  display: inline-block;
+  color: var(--library-gold);
+  font-size: 11px;
   font-weight: 800;
-
-  letter-spacing: 2.4px;
-
-  text-transform: uppercase;
+  letter-spacing: 2.2px;
+  line-height: 1.6;
 }
 
+.library-hero h1 {
+  margin: 13px 0 12px;
+  color: #ffffff;
+  font-size: clamp(32px, 4.2vw, 48px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1.12;
+}
 
-/* =========================================================
-   TITLE
-========================================================= */
-
-.library-header h1 {
-  position: relative;
-
-  z-index: 2;
-
+.library-hero-copy > p {
+  max-width: 490px;
   margin: 0;
-
-  color: #f8f4ea;
-
-  font-family:
-    "Cormorant Garamond",
-    "Noto Serif Telugu",
-    Georgia,
-    serif;
-
-  font-size:
-    clamp(43px, 5vw, 62px);
-
-  font-weight: 700;
-
-  line-height: 0.95;
-
-  letter-spacing: -0.5px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 15px;
+  line-height: 1.8;
 }
 
+/* Decorative music illustration */
 
-/* =========================================================
-   SUBTITLE
-========================================================= */
-
-.library-header > span {
+.library-hero-art {
   position: relative;
-
-  z-index: 2;
-
-  display: block;
-
-  margin-top: 14px;
-
-  color: #849ba0;
-
-  font-size: 10px;
-  font-weight: 500;
-
-  line-height: 1.5;
-
-  letter-spacing: 0.3px;
+  display: grid;
+  flex: 0 0 190px;
+  width: 190px;
+  height: 190px;
+  place-items: center;
 }
 
-
-/* =========================================================
-   ADVERTISEMENT
-========================================================= */
-
-.library-ad-section {
-  width: 100%;
-
-  margin-bottom: 34px;
+.library-art-circle {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
 }
 
+.library-art-circle-one {
+  width: 174px;
+  height: 174px;
+}
+
+.library-art-circle-two {
+  width: 132px;
+  height: 132px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.library-art-icon {
+  position: relative;
+  display: grid;
+  width: 90px;
+  height: 90px;
+  place-items: center;
+  color: var(--library-gold);
+  font-size: 37px;
+  border: 1px solid rgba(201, 164, 92, 0.42);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  transform: rotate(-7deg);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.14);
+}
+
+.library-art-note {
+  position: absolute;
+  top: 13px;
+  right: 23px;
+  color: #f0d69e;
+  font-size: 33px;
+  font-weight: 800;
+  transform: rotate(12deg);
+}
+
+.library-art-note-two {
+  top: auto;
+  right: auto;
+  bottom: 12px;
+  left: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 28px;
+}
 
 /* =========================================================
    CONTENT
@@ -229,765 +158,408 @@
 
 .library-content {
   width: 100%;
+  max-width: 1400px;
+  margin: 42px auto 0;
 }
-
-
-/* =========================================================
-   SECTION HEADING
-========================================================= */
 
 .library-section-heading {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 23px;
 }
 
+.library-section-heading > div {
+  min-width: 0;
+}
 
-.library-section-heading > div > span {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color: #55b8ae;
-
-  font-size: 7px;
-  font-weight: 800;
-
+.library-section-eyebrow {
+  color: #8b7548;
+  font-size: 10px;
   letter-spacing: 1.8px;
 }
 
-
 .library-section-heading h2 {
-  margin: 0;
-
-  color: #f1eee6;
-
-  font-family:
-    "Cormorant Garamond",
-    "Noto Serif Telugu",
-    Georgia,
-    serif;
-
-  font-size: 29px;
-  font-weight: 700;
-
-  line-height: 1.1;
+  margin: 8px 0 8px;
+  color: var(--library-text);
+  font-size: clamp(23px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.25;
 }
-
 
 .library-section-heading p {
-  margin:
-    7px
-    0
-    0;
-
-  color: #687e84;
-
-  font-size: 9px;
-
-  line-height: 1.6;
+  max-width: 620px;
+  margin: 0;
+  color: var(--library-muted);
+  font-size: 14px;
+  line-height: 1.7;
 }
 
+/* =========================================================
+   PRIMARY BUTTON
+========================================================= */
+
+.library-primary-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 19px;
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--library-green);
+  border-radius: 12px;
+  background: var(--library-green);
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.library-primary-button:hover {
+  background: var(--library-green-light);
+  box-shadow: 0 8px 18px rgba(18, 55, 42, 0.17);
+  transform: translateY(-2px);
+}
+
+.library-primary-button:focus-visible,
+.library-card:focus-visible {
+  outline: 3px solid rgba(201, 164, 92, 0.85);
+  outline-offset: 4px;
+}
 
 /* =========================================================
-   GRID
+   LIBRARY CARDS
 ========================================================= */
 
 .library-grid {
-  width: 100%;
-
   display: grid;
-
-  grid-template-columns:
-    repeat(
-      3,
-      minmax(0, 1fr)
-    );
-
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
 }
-
-
-/* =========================================================
-   LIBRARY CARD
-========================================================= */
 
 .library-card {
   position: relative;
-
-  min-width: 0;
-  min-height: 235px;
-
   display: flex;
+  min-width: 0;
+  min-height: 260px;
   flex-direction: column;
-
-  box-sizing: border-box;
-
-  padding: 22px;
-
+  align-items: stretch;
+  padding: 25px;
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.055);
-
-  border-radius: 18px;
-
-  outline: none;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(16, 33, 39, 0.92),
-      rgba(7, 19, 24, 0.96)
-    );
-
+  color: var(--library-text);
+  text-align: left;
+  font: inherit;
+  border: 1px solid var(--library-border);
+  border-radius: 20px;
+  background: var(--library-surface);
+  box-shadow: 0 4px 18px rgba(24, 40, 30, 0.025);
   cursor: pointer;
-
-  box-shadow:
-    0 10px 30px
-    rgba(0, 0, 0, 0.15);
-
   transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
 }
-
-
-/* =========================================================
-   DECORATIVE GLOW
-========================================================= */
 
 .library-card::before {
-  content: "";
-
   position: absolute;
-
-  width: 150px;
-  height: 150px;
-
-  top: -95px;
-  right: -85px;
-
-  border-radius: 50%;
-
-  background:
-    rgba(85, 184, 174, 0.055);
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   DECORATIVE LINE
-========================================================= */
-
-.library-card::after {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: transparent;
   content: "";
-
-  position: absolute;
-
-  left: 22px;
-  bottom: 0;
-
-  width: 38px;
-  height: 2px;
-
-  border-radius:
-    2px
-    2px
-    0
-    0;
-
-  background:
-    #55b8ae;
-
-  opacity: 0;
-
-  transition:
-    width 0.3s ease,
-    opacity 0.3s ease;
+  transition: background 200ms ease;
 }
-
-
-/* =========================================================
-   CARD HOVER
-========================================================= */
 
 .library-card:hover {
-  transform:
-    translateY(-6px);
-
-  border-color:
-    rgba(85, 184, 174, 0.17);
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(20, 42, 48, 0.97),
-      rgba(8, 22, 27, 0.98)
-    );
-
-  box-shadow:
-    0 20px 42px
-    rgba(0, 0, 0, 0.25);
+  border-color: rgba(18, 55, 42, 0.2);
+  box-shadow: 0 16px 35px rgba(24, 40, 30, 0.085);
+  transform: translateY(-5px);
 }
 
-
-.library-card:hover::after {
-  width: 72px;
-
-  opacity: 1;
+.library-card:hover::before {
+  background: var(--library-gold);
 }
-
-
-/* =========================================================
-   CARD TOP
-========================================================= */
 
 .library-card-top {
-  position: relative;
-
-  z-index: 2;
-
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  margin-bottom: 32px;
-}
-
-
-/* =========================================================
-   ICON
-========================================================= */
-
-.library-card-icon {
-  width: 48px;
-  height: 48px;
-
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 15px;
+}
 
-  border:
-    1px solid
-    rgba(85, 184, 174, 0.12);
-
-  border-radius: 13px;
-
-  background:
-    rgba(49, 156, 145, 0.075);
-
-  color: #5bbab0;
-
-  font-size: 16px;
-
-  box-shadow:
-    inset
-    0 1px 0
-    rgba(255, 255, 255, 0.025);
-
+.library-card-icon {
+  display: grid;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  color: var(--library-green);
+  font-size: 19px;
+  border: 1px solid rgba(18, 55, 42, 0.07);
+  border-radius: 16px;
+  background: #edf3ee;
   transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease,
-    color 0.25s ease;
+    color 180ms ease,
+    background 180ms ease;
 }
 
-
-.library-card:hover
-.library-card-icon {
-  transform:
-    translateY(-2px)
-    scale(1.04);
-
-  border-color:
-    rgba(85, 184, 174, 0.22);
-
-  background:
-    rgba(49, 156, 145, 0.13);
-
-  color: #75d0c7;
+.library-card:hover .library-card-icon {
+  color: #ffffff;
+  background: var(--library-green);
 }
-
-
-/* =========================================================
-   LIKED SONGS ICON
-========================================================= */
-
-.library-liked-card
-.library-card-icon {
-  border-color:
-    rgba(215, 181, 109, 0.12);
-
-  background:
-    rgba(215, 181, 109, 0.065);
-
-  color: #d7b56d;
-}
-
-
-.library-liked-card:hover
-.library-card-icon {
-  border-color:
-    rgba(215, 181, 109, 0.22);
-
-  background:
-    rgba(215, 181, 109, 0.11);
-
-  color: #e9cb84;
-}
-
-
-/* =========================================================
-   CREATE PLAYLIST ICON
-========================================================= */
-
-.library-create-card
-.library-card-icon {
-  border-color:
-    rgba(215, 181, 109, 0.1);
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(215, 181, 109, 0.08),
-      rgba(49, 156, 145, 0.06)
-    );
-
-  color: #d7b56d;
-}
-
-
-/* =========================================================
-   CARD NUMBER
-========================================================= */
 
 .library-card-number {
-  color:
-    rgba(255, 255, 255, 0.14);
-
-  font-family:
-    "Cormorant Garamond",
-    Georgia,
-    serif;
-
-  font-size: 25px;
-  font-weight: 700;
-
-  line-height: 1;
+  color: #a0aaa2;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
 }
-
-
-/* =========================================================
-   CARD CONTENT
-========================================================= */
 
 .library-card-content {
-  position: relative;
-
-  z-index: 2;
-
+  display: block;
   flex: 1;
+  margin-top: 25px;
 }
 
-
-/* =========================================================
-   CARD TITLE
-========================================================= */
-
-.library-card-content h3 {
-  margin: 0;
-
-  color: #eef1ed;
-
-  font-family:
-    "Cormorant Garamond",
-    "Noto Serif Telugu",
-    Georgia,
-    serif;
-
-  font-size: 23px;
-  font-weight: 700;
-
-  line-height: 1.15;
-
-  transition:
-    color 0.2s ease;
+.library-card-title {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--library-text);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.35px;
+  line-height: 1.35;
 }
 
-
-.library-card:hover
-.library-card-content h3 {
-  color: #ffffff;
+.library-card-description {
+  display: block;
+  max-width: 300px;
+  color: var(--library-muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
 }
-
-
-/* =========================================================
-   CARD DESCRIPTION
-========================================================= */
-
-.library-card-content p {
-  max-width: 220px;
-
-  margin:
-    8px
-    0
-    0;
-
-  color: #70858a;
-
-  font-size: 9px;
-  font-weight: 500;
-
-  line-height: 1.6;
-}
-
-
-/* =========================================================
-   CARD ACTION
-========================================================= */
 
 .library-card-action {
-  position: relative;
-
-  z-index: 2;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 12px;
-
   margin-top: 25px;
-  padding-top: 15px;
-
-  border-top:
-    1px solid
-    rgba(255, 255, 255, 0.045);
-
-  color: #82979b;
-
-  font-size: 8px;
-  font-weight: 700;
-
-  transition:
-    color 0.2s ease;
+  padding-top: 17px;
+  color: var(--library-green);
+  font-size: 12px;
+  font-weight: 800;
+  border-top: 1px solid #edf0ed;
 }
 
-
-.library-card:hover
-.library-card-action {
-  color: #b5c5c7;
+.library-card-arrow {
+  flex: 0 0 auto;
+  font-size: 12px;
+  transition: transform 180ms ease;
 }
 
+.library-card:hover .library-card-arrow {
+  transform: translateX(4px);
+}
+
+/* Individual card accents */
+
+.library-card-create .library-card-icon {
+  color: #86672f;
+  background: #f8f1e3;
+}
+
+.library-card-create:hover .library-card-icon {
+  color: #ffffff;
+  background: #86672f;
+}
+
+.library-card-history .library-card-icon {
+  color: #4a6478;
+  background: #edf2f7;
+}
+
+.library-card-history:hover .library-card-icon {
+  color: #ffffff;
+  background: #4a6478;
+}
 
 /* =========================================================
-   ARROW
+   FOOTER MESSAGE
 ========================================================= */
 
-.library-arrow {
+.library-footer-note {
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  width: 28px;
-  height: 28px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.055);
-
-  border-radius: 50%;
-
-  background:
-    rgba(255, 255, 255, 0.025);
-
-  color: #55b8ae;
-
-  font-size: 12px;
-
-  transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease;
+  gap: 13px;
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid #e7ece7;
+  border-radius: 15px;
+  background: #ffffff;
 }
 
-
-.library-card:hover
-.library-arrow {
-  transform:
-    translateX(3px);
-
-  border-color:
-    rgba(85, 184, 174, 0.18);
-
-  background:
-    rgba(85, 184, 174, 0.08);
+.library-footer-icon {
+  display: grid;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: #92743b;
+  border-radius: 12px;
+  background: #f8f1e3;
 }
 
+.library-footer-note p {
+  margin: 0;
+  color: #66736a;
+  font-size: 13px;
+  line-height: 1.7;
+}
 
 /* =========================================================
-   CREATE CARD ARROW
+   RESPONSIVE TABLET
 ========================================================= */
 
-.library-create-card
-.library-arrow {
-  color: #d7b56d;
-}
-
-
-.library-create-card:hover
-.library-arrow {
-  border-color:
-    rgba(215, 181, 109, 0.18);
-
-  background:
-    rgba(215, 181, 109, 0.07);
-}
-
-
-/* =========================================================
-   FOCUS ACCESSIBILITY
-========================================================= */
-
-.library-card:focus-visible {
-  border-color:
-    rgba(85, 184, 174, 0.45);
-
-  outline:
-    2px solid
-    rgba(85, 184, 174, 0.55);
-
-  outline-offset: 3px;
-}
-
-
-/* =========================================================
-   LARGE DESKTOP
-========================================================= */
-
-@media (min-width: 1450px) {
-
+@media (max-width: 1050px) {
   .library-grid {
-    gap: 22px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-
-  .library-card {
-    min-height: 250px;
-
-    padding: 25px;
+  .library-card-history {
+    grid-column: 1 / -1;
+    min-height: 230px;
   }
-
 }
 
-
 /* =========================================================
-   TABLET
+   RESPONSIVE MOBILE
 ========================================================= */
 
-@media (max-width: 900px) {
-
+@media (max-width: 640px) {
   .library-page {
-    padding:
-      26px
-      20px
-      125px;
+    padding: 20px 15px 32px;
   }
 
-
-  .library-header {
-    min-height: 175px;
-
-    padding:
-      28px
-      26px;
+  .library-hero {
+    min-height: 220px;
+    padding: 29px 23px;
+    border-radius: 20px;
   }
 
-
-  .library-header h1 {
-    font-size: 45px;
+  .library-hero h1 {
+    font-size: 34px;
+    letter-spacing: -1px;
   }
 
-
-  .library-grid {
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
-
-    gap: 15px;
+  .library-hero-copy > p {
+    max-width: 330px;
+    font-size: 13px;
   }
 
-
-  .library-create-card {
-    grid-column:
-      1 / -1;
+  .library-hero-art {
+    position: absolute;
+    right: -58px;
+    bottom: -45px;
+    width: 160px;
+    height: 160px;
+    opacity: 0.36;
   }
 
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 650px) {
-
-  .library-page {
-    padding:
-      16px
-      12px
-      155px;
+  .library-art-circle-one {
+    width: 150px;
+    height: 150px;
   }
 
-
-  .library-header {
-    min-height: 155px;
-
-    margin-bottom: 20px;
-
-    padding:
-      23px
-      20px;
-
-    border-radius: 17px;
+  .library-art-circle-two {
+    width: 112px;
+    height: 112px;
   }
 
-
-  .library-header h1 {
-    font-size: 38px;
+  .library-art-icon {
+    width: 72px;
+    height: 72px;
+    font-size: 29px;
   }
 
-
-  .library-header > span {
-    margin-top: 10px;
-
-    font-size: 9px;
+  .library-content {
+    margin-top: 30px;
   }
-
-
-  .library-ad-section {
-    margin-bottom: 27px;
-  }
-
 
   .library-section-heading {
-    margin-bottom: 15px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 17px;
   }
-
 
   .library-section-heading h2 {
     font-size: 25px;
   }
 
+  .library-section-heading p {
+    font-size: 13px;
+  }
+
+  .library-primary-button {
+    width: 100%;
+  }
 
   .library-grid {
-    grid-template-columns: 1fr;
-
-    gap: 11px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
   }
 
-
-  .library-create-card {
+  .library-card,
+  .library-card-history {
     grid-column: auto;
+    min-height: 225px;
+    padding: 22px;
+    border-radius: 17px;
   }
 
-
-  .library-card {
-    min-height: 190px;
-
-    padding: 18px;
-
-    border-radius: 15px;
+  .library-card-content {
+    margin-top: 21px;
   }
 
-
-  .library-card-top {
-    margin-bottom: 22px;
+  .library-card-title {
+    font-size: 18px;
   }
 
-
-  .library-card-icon {
-    width: 43px;
-    height: 43px;
-
-    border-radius: 11px;
-
-    font-size: 14px;
+  .library-card-description {
+    font-size: 13px;
   }
-
-
-  .library-card-number {
-    font-size: 21px;
-  }
-
-
-  .library-card-content h3 {
-    font-size: 21px;
-  }
-
-
-  .library-card-content p {
-    margin-top: 6px;
-
-    font-size: 8.5px;
-  }
-
 
   .library-card-action {
-    margin-top: 18px;
-
-    padding-top: 12px;
+    margin-top: 20px;
   }
 
+  .library-footer-note {
+    align-items: flex-start;
+    padding: 15px;
+  }
 }
 
-
 /* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 360px) {
-
-  .library-page {
-    padding-left: 9px;
-    padding-right: 9px;
-  }
-
-
-  .library-header {
-    padding:
-      20px
-      17px;
-  }
-
-
-  .library-header h1 {
-    font-size: 34px;
-  }
-
-}
-
-
-/* =========================================================
-   REDUCED MOTION
+   REDUCED MOTION ACCESSIBILITY
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
-  .library-card,
-  .library-card-icon,
-  .library-arrow,
-  .library-card::after {
-    transition: none;
+  .library-page *,
+  .library-page *::before,
+  .library-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-
 }

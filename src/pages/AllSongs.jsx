@@ -1,15 +1,14 @@
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   FaMusic,
   FaPlay,
   FaPause,
   FaSearch,
+  FaMicrophone,
+  FaMicrophoneSlash,
+  FaTimes,
 } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
@@ -24,10 +23,61 @@ import {
 
 import "../assets/css/allSongs.css";
 
+const VOICE_LANGUAGES = [
+  { label: "తెలుగు", value: "te-IN" },
+  { label: "English", value: "en-IN" },
+  { label: "हिन्दी", value: "hi-IN" },
+  { label: "മലയാളം", value: "ml-IN" },
+  { label: "ಕನ್ನಡ", value: "kn-IN" },
+  { label: "தமிழ்", value: "ta-IN" },
+];
+
+// Read titles from common API/database field names.
+const getSongTitles = (song) => {
+  const possibleTitles = [
+    song?.title,
+    song?.titleEnglish,
+    song?.title_english,
+    song?.englishTitle,
+    song?.english_title,
+    song?.titleTelugu,
+    song?.title_telugu,
+    song?.teluguTitle,
+    song?.titleHindi,
+    song?.title_hindi,
+    song?.titleMalayalam,
+    song?.title_malayalam,
+    song?.titleKannada,
+    song?.title_kannada,
+    song?.titleTamil,
+    song?.title_tamil,
+    song?.name,
+  ];
+
+  return [
+    ...new Set(
+      possibleTitles
+        .filter(
+          (title) =>
+            typeof title === "string" ||
+            typeof title === "number"
+        )
+        .map((title) => String(title).trim())
+        .filter(Boolean)
+    ),
+  ];
+};
+
+// Normalize text without removing non-English characters.
+const normalizeText = (value) =>
+  String(value ?? "")
+    .normalize("NFC")
+    .toLocaleLowerCase()
+    .trim();
+
 function AllSongs() {
   const navigate = useNavigate();
 
-  // PLAYER
   const {
     currentSong,
     isPlaying,
@@ -35,14 +85,20 @@ function AllSongs() {
     togglePlay,
   } = usePlayer();
 
-  // STATE
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
 
-  // LOAD ALL SONGS
+  const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState("");
+  const [voiceSupported, setVoiceSupported] = useState(true);
+
+  // LOAD SONGS
   useEffect(() => {
+    let active = true;
+
     const loadSongs = async () => {
       try {
         setLoading(true);
@@ -59,66 +115,165 @@ function AllSongs() {
               ? data.data
               : [];
 
-        setSongs(songList);
+        if (active) {
+          setSongs(songList);
+        }
       } catch (err) {
         console.error("Load all songs error:", err);
-        setSongs([]);
-        setError("Unable to load songs. Please try again.");
+
+        if (active) {
+          setSongs([]);
+          setError("Unable to load songs. Please try again.");
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
     loadSongs();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  // SORT SONGS ALPHABETICALLY
+  // SORT ALPHABETICALLY
   const sortedSongs = useMemo(() => {
     return [...songs].sort((a, b) => {
-      // Prefer the English title when available.
-      // If either song has no English title, use its Telugu title.
-      const titleA = String(
-        a?.titleEnglish || a?.title || ""
-      ).trim();
+      const titleA =
+        a?.titleEnglish ||
+        a?.title_english ||
+        a?.englishTitle ||
+        a?.english_title ||
+        a?.title ||
+        "";
 
-      const titleB = String(
-        b?.titleEnglish || b?.title || ""
-      ).trim();
+      const titleB =
+        b?.titleEnglish ||
+        b?.title_english ||
+        b?.englishTitle ||
+        b?.english_title ||
+        b?.title ||
+        "";
 
-      return titleA.localeCompare(titleB, undefined, {
-        sensitivity: "base",
-        numeric: true,
-      });
+      return String(titleA).localeCompare(
+        String(titleB),
+        undefined,
+        {
+          sensitivity: "base",
+          numeric: true,
+        }
+      );
     });
   }, [songs]);
 
-  // SEARCH SONGS
+  // SEARCH ALL AVAILABLE TITLE FIELDS AND SONG METADATA
   const filteredSongs = useMemo(() => {
-    const value = search.trim().toLocaleLowerCase();
+    const query = normalizeText(search);
 
-    if (!value) {
+    if (!query) {
       return sortedSongs;
     }
 
     return sortedSongs.filter((song) => {
-      const title = String(song?.title || "").toLocaleLowerCase();
-      const englishTitle = String(
-        song?.titleEnglish || ""
-      ).toLocaleLowerCase();
+      const searchableFields = [
+        ...getSongTitles(song),
 
-      const artist = String(
-        song?.artist_name || song?.artist || ""
-      ).toLocaleLowerCase();
+        song?.artist_name,
+        song?.artist,
+        song?.artistName,
+        song?.album_name,
+        song?.album,
+        song?.albumName,
+        song?.category_name,
+        song?.category,
+        song?.language,
+        ...(Array.isArray(song?.moods) ? song.moods : []),
+      ];
 
-      return (
-        title.includes(value) ||
-        englishTitle.includes(value) ||
-        artist.includes(value)
+      return searchableFields.some((field) =>
+        normalizeText(field).includes(query)
       );
     });
   }, [sortedSongs, search]);
 
-  // PLAY / PAUSE SONG
+  // VOICE SEARCH
+  const handleVoiceSearch = () => {
+    setVoiceError("");
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setVoiceSupported(false);
+      setVoiceError(
+        "Voice search is not supported in this browser. Try Chrome."
+      );
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+
+      recognition.lang = voiceLanguage;
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setVoiceError("");
+      };
+
+      recognition.onresult = (event) => {
+        const transcript =
+          event.results?.[0]?.[0]?.transcript || "";
+
+        if (transcript.trim()) {
+          setSearch(transcript.trim());
+        } else {
+          setVoiceError("No song name was detected. Try again.");
+        }
+      };
+
+      recognition.onerror = (event) => {
+        if (event.error === "not-allowed") {
+          setVoiceError(
+            "Microphone access denied. Allow microphone access in your browser."
+          );
+        } else if (event.error === "no-speech") {
+          setVoiceError(
+            "No speech detected. Please speak the song name again."
+          );
+        } else if (event.error !== "aborted") {
+          setVoiceError(
+            "Voice search failed. Please try again."
+          );
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      setIsListening(true);
+      recognition.start();
+    } catch (err) {
+      console.error("Voice search error:", err);
+      setIsListening(false);
+      setVoiceError("Unable to start voice search. Please try again.");
+    }
+  };
+
+  // PLAY / PAUSE
   const handlePlay = async (song) => {
     if (!song) return;
 
@@ -128,194 +283,337 @@ function AllSongs() {
     try {
       if (isCurrent) {
         await togglePlay();
-        return;
+      } else {
+        // Preserve the complete alphabetical playback queue.
+        await playSong(song, sortedSongs);
       }
-
-      // Pass the sorted list so Next plays the next
-      // song in the same alphabetical order.
-      await playSong(song, sortedSongs);
     } catch (err) {
       console.error("Play song error:", err);
     }
   };
 
-  // LOADING
   if (loading) {
     return (
       <div className="all-songs-page">
         <div className="all-songs-loading">
-          <FaMusic />
+          <FaMusic className="all-songs-loading-icon" />
           <h2>Loading Songs...</h2>
-          <p>Loading your complete music library.</p>
+          <p>Preparing your KEERTHANA music library.</p>
         </div>
       </div>
     );
   }
 
-  // PAGE
   return (
-    <div className="all-songs-page">
-      {/* HEADER */}
-      <div className="all-songs-header">
+    <main className="all-songs-page">
+      {/* PAGE HEADER */}
+      <header className="all-songs-header">
         <div className="all-songs-title-area">
           <div className="all-songs-icon">
             <FaMusic />
           </div>
 
-          <div>
+          <div className="all-songs-heading">
             <span className="all-songs-overline">
-              YOUR MUSIC
+              KEERTHANA MUSIC LIBRARY
             </span>
 
             <h1>All Songs</h1>
 
             <p>
-              Browse songs alphabetically by title.
+              Discover worship songs in your language.
             </p>
           </div>
         </div>
-      </div>
+
+        <div className="all-songs-total">
+          <strong>{songs.length}</strong>
+          <span>{songs.length === 1 ? "Song" : "Songs"}</span>
+        </div>
+      </header>
 
       {/* SEARCH */}
-      <div className="all-songs-search">
-        <FaSearch />
+      <section
+        className="all-songs-search-section"
+        aria-label="Search music"
+      >
+        <div
+          className={`all-songs-search ${
+            isListening ? "is-listening" : ""
+          }`}
+        >
+          <FaSearch className="all-songs-search-icon" />
 
-        <input
-          type="text"
-          value={search}
-          onChange={(event) =>
-            setSearch(event.target.value)
-          }
-          placeholder="Search Telugu or English song titles..."
-          aria-label="Search songs"
-        />
-      </div>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search any song in any language..."
+            aria-label="Search song titles and artists"
+            autoComplete="off"
+          />
 
-      {/* ERROR */}
+          {search && (
+            <button
+              type="button"
+              className="all-songs-clear"
+              onClick={() => {
+                setSearch("");
+                setVoiceError("");
+              }}
+              aria-label="Clear search"
+              title="Clear search"
+            >
+              <FaTimes />
+            </button>
+          )}
+
+          <button
+            type="button"
+            className={`all-songs-mic ${
+              isListening ? "active" : ""
+            }`}
+            onClick={handleVoiceSearch}
+            aria-label={
+              isListening
+                ? "Stop voice search"
+                : "Start voice search"
+            }
+            title={
+              isListening
+                ? "Stop voice search"
+                : "Search using your voice"
+            }
+            disabled={!voiceSupported && !voiceError}
+          >
+            {isListening ? (
+              <FaMicrophoneSlash />
+            ) : (
+              <FaMicrophone />
+            )}
+          </button>
+        </div>
+
+        <div className="all-songs-search-footer">
+          <span>
+            {search
+              ? `${filteredSongs.length} matching ${
+                  filteredSongs.length === 1 ? "song" : "songs"
+                }`
+              : "Search by song title, artist, album, or language"}
+          </span>
+
+          <label className="all-songs-voice-language">
+            <span>Voice:</span>
+
+            <select
+              value={voiceLanguage}
+              onChange={(event) =>
+                setVoiceLanguage(event.target.value)
+              }
+              aria-label="Voice search language"
+            >
+              {VOICE_LANGUAGES.map((language) => (
+                <option
+                  key={language.value}
+                  value={language.value}
+                >
+                  {language.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {isListening && (
+          <p className="all-songs-voice-status" role="status">
+            <span className="all-songs-pulse" />
+            Listening... Speak the song name.
+          </p>
+        )}
+
+        {voiceError && (
+          <p className="all-songs-voice-error" role="alert">
+            {voiceError}
+          </p>
+        )}
+      </section>
+
+      {/* API ERROR */}
       {error && (
-        <div className="all-songs-error">
-          {error}
+        <div className="all-songs-error" role="alert">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
         </div>
       )}
 
-      {/* EMPTY */}
+      {/* EMPTY RESULTS */}
       {!error && filteredSongs.length === 0 && (
         <div className="all-songs-empty">
           <div className="all-songs-empty-icon">
-            <FaMusic />
+            <FaSearch />
           </div>
 
-          <h2>No Songs Found</h2>
+          <h2>
+            {search ? "No Matching Songs" : "No Songs Available"}
+          </h2>
 
           <p>
             {search
-              ? "Try a different search."
-              : "There are no songs available right now."}
+              ? `No songs match "${search}". Try another spelling or language.`
+              : "Songs will appear here when they are available."}
           </p>
+
+          {search && (
+            <button
+              type="button"
+              className="all-songs-reset-search"
+              onClick={() => setSearch("")}
+            >
+              Show All Songs
+            </button>
+          )}
         </div>
       )}
 
-      {/* SONG LIST */}
-      {filteredSongs.length > 0 && (
-        <div className="all-songs-list">
-          {filteredSongs.map((song) => {
-            const cover = getSongCover(song);
+      {/* LIVE SEARCH RESULTS */}
+      {!error && filteredSongs.length > 0 && (
+        <section
+          className="all-songs-results"
+          aria-label="Song search results"
+        >
+          {search && (
+            <div className="all-songs-results-heading">
+              <h2>Search Results</h2>
+              <span>{filteredSongs.length} found</span>
+            </div>
+          )}
 
-            const isCurrent =
-              String(currentSong?.id) === String(song?.id);
+          <div className="all-songs-list">
+            {filteredSongs.map((song) => {
+              const cover = getSongCover(song);
 
-            const isCurrentPlaying =
-              isCurrent && isPlaying;
+              const isCurrent =
+                String(currentSong?.id) === String(song?.id);
 
-            return (
-              <article
-                key={song?.id}
-                className={
-                  isCurrent
-                    ? "all-song-card current"
-                    : "all-song-card"
-                }
-              >
-                {/* COVER */}
-                <button
-                  type="button"
-                  className="all-song-cover"
-                  onClick={() =>
-                    navigate(`/songs/${song.id}`)
-                  }
-                  aria-label={`Open ${song?.titleEnglish || song?.title || "song"} details`}
+              const isCurrentPlaying =
+                isCurrent && isPlaying;
+
+              const titles = getSongTitles(song);
+
+              const primaryTitle =
+                song?.titleEnglish ||
+                song?.title_english ||
+                song?.englishTitle ||
+                song?.english_title ||
+                song?.title ||
+                "Unknown Song";
+
+              const secondaryTitle =
+                titles.find(
+                  (title) =>
+                    normalizeText(title) !==
+                    normalizeText(primaryTitle)
+                );
+
+              const artistName =
+                song?.artist_name ||
+                song?.artistName ||
+                (typeof song?.artist === "string"
+                  ? song.artist
+                  : song?.artist?.name) ||
+                "KEERTHANA";
+
+              return (
+                <article
+                  key={song?.id}
+                  className={`all-song-card ${
+                    isCurrent ? "current" : ""
+                  }`}
                 >
-                  <img
-                    src={cover || DEFAULT_COVER}
-                    alt={song?.title || "Song"}
-                    onError={(event) => {
-                      event.currentTarget.onerror = null;
-                      event.currentTarget.src = DEFAULT_COVER;
-                    }}
-                  />
-                </button>
+                  <button
+                    type="button"
+                    className="all-song-cover"
+                    onClick={() =>
+                      navigate(`/songs/${song.id}`)
+                    }
+                    aria-label={`Open ${primaryTitle} details`}
+                  >
+                    <img
+                      src={cover || DEFAULT_COVER}
+                      alt={primaryTitle}
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = DEFAULT_COVER;
+                      }}
+                    />
+                  </button>
 
-                {/* SONG INFO */}
-                <button
-                  type="button"
-                  className="all-song-info"
-                  onClick={() =>
-                    navigate(`/songs/${song.id}`)
-                  }
-                >
-                  <strong>
-                    {song?.titleEnglish ||
-                      song?.title ||
-                      "Unknown Song"}
-                  </strong>
+                  <button
+                    type="button"
+                    className="all-song-info"
+                    onClick={() =>
+                      navigate(`/songs/${song.id}`)
+                    }
+                    aria-label={`View details for ${primaryTitle}`}
+                  >
+                    <strong className="all-song-primary-title">
+                      {primaryTitle}
+                    </strong>
 
-                  {song?.title &&
-                    song?.titleEnglish &&
-                    song.title !== song.titleEnglish && (
+                    {secondaryTitle && (
                       <span className="all-song-english-title">
-                        {song.title}
+                        {secondaryTitle}
                       </span>
                     )}
 
-                  <span className="all-song-artist">
-                    {song?.artist_name ||
-                      song?.artist ||
-                      "KEERTHANA"}
-                  </span>
+                    <span className="all-song-artist">
+                      {artistName}
+                    </span>
 
-                  {isCurrent && (
-                    <small>
-                      {isPlaying ? "Now Playing" : "Paused"}
-                    </small>
-                  )}
-                </button>
+                    {isCurrent && (
+                      <small className="all-song-playing-label">
+                        {isPlaying
+                          ? "Now Playing"
+                          : "Paused"}
+                      </small>
+                    )}
+                  </button>
 
-                {/* PLAY / PAUSE */}
-                <button
-                  type="button"
-                  className={
-                    isCurrentPlaying
-                      ? "all-song-play-button playing"
-                      : "all-song-play-button"
-                  }
-                  onClick={() => handlePlay(song)}
-                  title={isCurrentPlaying ? "Pause" : "Play"}
-                  aria-label={
-                    isCurrentPlaying ? "Pause song" : "Play song"
-                  }
-                >
-                  {isCurrentPlaying ? (
-                    <FaPause />
-                  ) : (
-                    <FaPlay />
-                  )}
-                </button>
-              </article>
-            );
-          })}
-        </div>
+                  <button
+                    type="button"
+                    className={`all-song-play-button ${
+                      isCurrentPlaying ? "playing" : ""
+                    }`}
+                    onClick={() => handlePlay(song)}
+                    title={
+                      isCurrentPlaying ? "Pause" : "Play"
+                    }
+                    aria-label={
+                      isCurrentPlaying
+                        ? `Pause ${primaryTitle}`
+                        : `Play ${primaryTitle}`
+                    }
+                  >
+                    {isCurrentPlaying ? (
+                      <FaPause />
+                    ) : (
+                      <FaPlay />
+                    )}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 }
 
