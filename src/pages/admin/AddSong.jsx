@@ -1929,6 +1929,11 @@ console.log("Audio being uploaded:", {
         /* =================================================
            SEND SONG
         ================================================= */
+
+/* =================================================
+   SEND SONG
+================================================= */
+
 console.log("MOODS IN FORM STATE:", form.moods);
 
 console.log(
@@ -1944,16 +1949,21 @@ console.log(
   ])
 );
 
+// Actually send the song to the backend.
+const response = await API.post(
+  "/admin/songs",
+  formData,
+  {
+    headers: {
+      "Content-Type": undefined,
+    },
+  }
+);
 
-        console.log(
-          "Song uploaded:",
-          response.data
-        );
+console.log("Song upload response:", response.data);
 
+setSuccess("Song uploaded successfully!");
 
-        setSuccess(
-          "Song uploaded successfully!"
-        );
 
 
         setTimeout(
