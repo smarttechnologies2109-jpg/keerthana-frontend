@@ -1929,14 +1929,19 @@ console.log("Audio being uploaded:", {
         /* =================================================
            SEND SONG
         ================================================= */
-const response = await API.post(
-  "/admin/songs",
-  formData,
-  {
-    headers: {
-      "Content-Type": undefined,
-    },
-  }
+console.log("MOODS IN FORM STATE:", form.moods);
+
+console.log(
+  "MOODS IN FORMDATA:",
+  formData.get("moods")
+);
+
+console.log(
+  "ALL FORMDATA ENTRIES:",
+  [...formData.entries()].map(([key, value]) => [
+    key,
+    value instanceof File ? value.name : value,
+  ])
 );
 
 
