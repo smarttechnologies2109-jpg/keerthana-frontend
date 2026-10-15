@@ -40,6 +40,8 @@ import {
   toggleFavorite,
 } from "../utils/favorites";
 
+import { useLikedSongs } from "../context/LikedSongsContext";
+
 function SongDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -48,7 +50,14 @@ function SongDetails() {
   // AUTH
   // =====================================================
 
-  const { user } = useAuth();
+
+
+const { user } = useAuth();
+
+const { isLiked, toggleLike } = useLikedSongs();
+
+
+  
 
   // =====================================================
   // PLAYER
@@ -75,12 +84,16 @@ function SongDetails() {
   // =====================================================
   // SONG STATE
   // =====================================================
-
+ 
   const [song, setSong] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [liked, setLiked] = useState(false);
+ 
 
+  // Derived liked status — after song state is declared
+const liked = Boolean(
+  song?.id != null && isLiked(song.id)
+);
   // =====================================================
   // PRAYER MODE
   // =====================================================
@@ -141,6 +154,8 @@ const [likeError, setLikeError] = useState("");
 
 
   const [favorite, setFavorite] = useState(false);
+
+    
 
   // =====================================================
   // LOAD LYRICS SETTINGS
@@ -232,30 +247,7 @@ const [likeError, setLikeError] = useState("");
   // CHECK LIKED STATUS
   // =====================================================
 
-  useEffect(() => {
-    if (!user || !song) {
-      setLiked(false);
-      return;
-    }
-
-    const checkLiked = async () => {
-      try {
-        const response = await API.get("/liked-songs");
-
-        const likedSongs = response.data.songs || [];
-
-        const exists = likedSongs.some(
-          (item) => Number(item.id) === Number(song.id)
-        );
-
-        setLiked(exists);
-      } catch (err) {
-        console.error("Liked songs check error:", err);
-      }
-    };
-
-    checkLiked();
-  }, [user, song]);
+  
 
   // =====================================================
   // CHECK OFFLINE STATUS
@@ -599,6 +591,7 @@ const [likeError, setLikeError] = useState("");
   // =====================================================
 
   
+
 const handleLike = async () => {
   if (!user) {
     navigate("/login");
@@ -607,31 +600,18 @@ const handleLike = async () => {
 
   if (!song?.id || likeLoading) return;
 
-  const previousLiked = liked;
-  const nextLiked = !previousLiked;
-
-  // Update the heart immediately.
-  setLiked(nextLiked);
   setLikeLoading(true);
   setLikeError("");
 
   try {
-    if (nextLiked) {
-      await API.post("/liked-songs", {
-        song_id: Number(song.id),
-      });
-    } else {
-      await API.delete(`/liked-songs/${song.id}`);
-    }
+    // Shared context updates the heart and Liked Songs list.
+    await toggleLike(song);
   } catch (err) {
-    // Restore the original heart state if the server fails.
-    setLiked(previousLiked);
-
-    const status = err.response?.status;
+    const status = err?.response?.status;
     const message =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      err.message ||
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.message ||
       "Please try again.";
 
     console.error("Like song request failed:", {
@@ -649,6 +629,7 @@ const handleLike = async () => {
     setLikeLoading(false);
   }
 };
+
 
 
   // =====================================================

@@ -182,25 +182,26 @@ export function LikedSongsProvider({ children }) {
         }
 
         return [...previous, song];
-      });
+      });try {
+  await API.post("/liked-songs", {
+    song_id: Number(song.id),
+  });
 
-      try {
-        await API.post(`/liked-songs/${song.id}`);
-        await fetchLikedSongs();
-      } catch (error) {
-        // Revert the optimistic update if saving fails.
-        setLikedSongs((previous) =>
-          previous.filter(
-            (item) => String(item.id) !== String(song.id)
-          )
-        );
+  await fetchLikedSongs();
+} catch (error) {
+  setLikedSongs((previous) =>
+    previous.filter(
+      (item) => String(item.id) !== String(song.id)
+    )
+  );
 
-        console.error(
-          "Failed to like song:",
-          error?.response?.data || error.message
-        );
+  console.error(
+    "Failed to like song:",
+    error?.response?.data || error.message
+  );
 
-        throw error;
+  throw error;
+
       }
     },
     [user, isLiked, fetchLikedSongs]
