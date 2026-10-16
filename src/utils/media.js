@@ -54,9 +54,9 @@ export function getMediaUrl(path) {
   }
 
   // Preserve valid absolute URLs.
-  if (/^https?:\/\//i.test(value)) {
-    return value;
-  }
+ if (/^https?:\/\//i.test(value)) {
+  return value;
+}
 
   const cleanPath = value.startsWith("/")
     ? value

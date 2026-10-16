@@ -358,8 +358,21 @@ export const PlayerProvider = ({ children }) => {
   /* LOAD SOURCE FOR A SONG */
 
   const resolveSongSource = useCallback(
-    async (song) => {
-      const offline = await getOfflineSong(getSongId(song));
+  async (song) => {
+    const onlineUrl = getSongAudioUrl(song);
+
+    if (!onlineUrl) {
+      return null;
+    }
+
+    // Try the offline cache without blocking playback for long.
+    try {
+      const offline = await Promise.race([
+        getOfflineSong(getSongId(song)),
+        new Promise((resolve) =>
+          setTimeout(() => resolve(null), 200)
+        ),
+      ]);
 
       if (offline?.blob instanceof Blob) {
         releaseObjectUrl();
@@ -369,11 +382,15 @@ export const PlayerProvider = ({ children }) => {
 
         return url;
       }
+    } catch (error) {
+      console.warn("Offline lookup failed:", error);
+    }
 
-      return getSongAudioUrl(song);
-    },
-    [releaseObjectUrl]
-  );
+    // Fall back to CloudFront immediately after the cache check.
+    return onlineUrl;
+  },
+  [releaseObjectUrl]
+);
 
   /* RESTORE PLAYER WITHOUT AUTOMATICALLY PLAYING */
 
