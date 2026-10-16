@@ -198,16 +198,12 @@ const MoodSongs = () => {
         setError("");
 
 
-        const response =
-          await API.get(
-            `/songs/mood/${encodeURIComponent(
-              mood
-            )}`
-          );
+       const response = await API.get(
+  `/moods/${encodeURIComponent(mood)}/songs`
+);
 
-
-        const data =
-          response?.data;
+const data = response?.data;
+setSongs(Array.isArray(data?.songs) ? data.songs : []);
 
 
         if (
@@ -259,17 +255,12 @@ const MoodSongs = () => {
 
         setBrowseError("");
 
+const response = await API.get(
+  `/moods/${encodeURIComponent(mood)}/browse`
+);
 
-        const response =
-          await API.get(
-            `/songs/mood/${encodeURIComponent(
-              mood
-            )}/browse`
-          );
-
-
-        const data =
-          response?.data;
+const data = response?.data;
+setBrowseSongs(Array.isArray(data?.songs) ? data.songs : []);
 
 
         if (
@@ -381,13 +372,13 @@ const MoodSongs = () => {
           song.id
         );
 
+await API.post(
+  `/moods/songs/${song.id}`,
+  { mood }
+);
 
-        await API.post(
-          `/songs/${song.id}/mood`,
-          {
-            mood,
-          }
-        );
+await loadMoodSongs();
+await loadBrowseSongs();
 
 
         setBrowseSongs(
@@ -458,11 +449,12 @@ const MoodSongs = () => {
         );
 
 
-        await API.delete(
-          `/songs/${song.id}/mood/${encodeURIComponent(
-            mood
-          )}`
-        );
+     await API.delete(
+  `/moods/songs/${song.id}/${encodeURIComponent(mood)}`
+);
+
+await loadMoodSongs();
+await loadBrowseSongs();
 
 
         setBrowseSongs(
