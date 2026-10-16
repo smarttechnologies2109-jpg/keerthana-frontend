@@ -269,54 +269,46 @@ export function AuthProvider({
               restoredUser
             )
           );
-
-
+      
         } catch (error) {
-
           console.error(
             "Restore login failed:",
-            error.response?.data ||
-            error.message
+            error.response?.data || error.message
           );
 
-
-          /*
-           * Do not clear a newer login session.
-           */
           const currentToken =
-            localStorage.getItem(
-              TOKEN_KEY
-            );
-
+            localStorage.getItem(TOKEN_KEY);
 
           if (
             active &&
-            currentToken ===
-              requestToken
+            currentToken === requestToken
           ) {
+            const status = error.response?.status;
 
-            localStorage.removeItem(
-              TOKEN_KEY
-            );
+            if (status === 401 || status === 403) {
+              // The server rejected the saved session.
+              clearSession();
+            } else {
+              // A network/server error is not proof
+              // that the saved session is invalid.
+              try {
+                const cachedUser =
+                  localStorage.getItem("user");
 
-            localStorage.removeItem(
-              "user"
-            );
-
-            setUser(null);
-
+                if (cachedUser) {
+                  setUser(JSON.parse(cachedUser));
+                }
+              } catch {
+                setUser(null);
+              }
+            }
           }
-
-
         } finally {
-
           if (active) {
-
             setLoading(false);
-
           }
-
         }
+
 
       };
 
