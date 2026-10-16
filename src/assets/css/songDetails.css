@@ -4674,3 +4674,391 @@ body.prayer-mode-active {
   font-size: 13px;
   overflow-wrap: anywhere;
 }
+
+/* =====================================================
+   KEERTHANA — ANDROID MOBILE SONG DETAILS FIX
+   Add at the END of songDetails.css
+===================================================== */
+
+.song-details-page,
+.song-details-page * {
+  box-sizing: border-box;
+}
+
+.song-details-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+/* Top navigation */
+.song-details-topbar {
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
+}
+
+.song-details-topbar > div:last-child {
+  min-width: 0;
+}
+
+/* Prevent long Telugu song titles from overflowing */
+.song-details-info,
+.song-details-info h1,
+.song-details-info h2,
+.song-meta {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.song-details-info h1 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+/* Keep player and lyrics inside the viewport */
+.song-full-player,
+.lyrics-section,
+.lyrics-heading,
+.lyrics-tools {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.song-progress-area {
+  min-width: 0;
+  width: 100%;
+}
+
+.song-progress-area input,
+.song-volume input {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Android phones and narrow screens */
+@media screen and (max-width: 600px) {
+  .song-details-page {
+    padding:
+      max(12px, env(safe-area-inset-top))
+      12px
+      calc(125px + env(safe-area-inset-bottom));
+  }
+
+  .song-details-topbar {
+    margin-bottom: 16px;
+  }
+
+  .song-back-button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 12px;
+  }
+
+  .song-details-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    width: 100%;
+    min-height: 0;
+    padding: 20px 15px 24px;
+    border-radius: 20px;
+  }
+
+  .song-details-cover {
+    width: min(100%, 260px);
+    flex: 0 1 auto;
+    margin: 0 auto;
+    border-radius: 18px;
+  }
+
+  .song-details-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .song-type {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .song-details-info h1 {
+    width: 100%;
+    font-size: clamp(25px, 7vw, 34px);
+    line-height: 1.45;
+    margin: 0 auto;
+  }
+
+  .song-details-info h2 {
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .song-meta {
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .song-meta button {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  /* Two-column action layout */
+  .song-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 22px;
+  }
+
+  .song-main-play {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+  }
+
+  .song-lyrics-button,
+  .song-add-playlist,
+  .song-prayer-mode-button,
+  .song-sleep-button {
+    min-height: 44px;
+    max-width: 100%;
+    font-size: 13px;
+  }
+
+  .song-like,
+  .song-favorite {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+  }
+
+  /* Audio player: controls, timeline, volume */
+  .song-full-player {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    width: 100%;
+    margin-top: 14px;
+    padding: 18px 14px;
+    border-radius: 16px;
+  }
+
+  .song-player-controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .song-player-controls button {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+  }
+
+  .song-player-controls .song-player-main {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+  }
+
+  .song-progress-area {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .song-progress-area span {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .song-progress-area input {
+    min-height: 24px;
+    touch-action: pan-y;
+  }
+
+  .song-volume {
+    width: 100%;
+    max-width: 260px;
+    align-self: center;
+    grid-column: auto;
+    gap: 12px;
+  }
+
+  .song-volume input {
+    min-height: 24px;
+  }
+
+  /* Lyrics card */
+  .lyrics-section {
+    width: 100%;
+    margin-top: 22px;
+    padding: 20px 15px;
+    border-radius: 18px;
+    scroll-margin-top: 20px;
+  }
+
+  .lyrics-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+  }
+
+  .lyrics-heading > div:first-child {
+    min-width: 0;
+  }
+
+  .lyrics-heading h2 {
+    font-size: 25px;
+    line-height: 1.35;
+  }
+
+  .lyrics-tools {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 8px;
+  }
+
+  .lyrics-share-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    justify-content: center;
+    padding: 0 12px;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  .lyrics-control-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    min-width: 0;
+    padding: 5px;
+  }
+
+  .lyrics-control-label {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .lyrics-control-group button {
+    min-width: 34px;
+    min-height: 38px;
+    flex: 0 0 auto;
+    padding: 0 8px;
+  }
+
+  .lyrics-font-value {
+    min-width: 42px;
+    flex-shrink: 0;
+  }
+
+  .lyrics-reset-button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .song-lyrics {
+    width: 100%;
+    max-width: 100%;
+    font-size: min(22px, 5.5vw);
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .song-offline-button {
+    white-space: normal;
+    justify-content: center;
+  }
+}
+
+/* Extra-small Android phones */
+@media screen and (max-width: 380px) {
+  .song-details-page {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .song-details-hero {
+    padding: 17px 11px 21px;
+    gap: 19px;
+  }
+
+  .song-details-cover {
+    width: min(100%, 230px);
+  }
+
+  .song-details-info h1 {
+    font-size: 26px;
+  }
+
+  .song-actions {
+    gap: 8px;
+  }
+
+  .song-lyrics-button,
+  .song-add-playlist,
+  .song-prayer-mode-button,
+  .song-sleep-button {
+    padding-left: 9px;
+    padding-right: 9px;
+    font-size: 12px;
+  }
+
+  .song-full-player {
+    padding: 15px 10px;
+  }
+
+  .lyrics-section {
+    padding: 17px 11px;
+  }
+
+  .lyrics-control-label {
+    padding: 0 3px;
+  }
+}
+
+/* Improve touch interaction on Android */
+@media (hover: none) and (pointer: coarse) {
+  .song-details-page button,
+  .song-details-page input {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .song-details-page button {
+    touch-action: manipulation;
+  }
+}

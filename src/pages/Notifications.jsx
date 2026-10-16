@@ -1,5 +1,5 @@
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   FaBell,
   FaMusic,
@@ -8,6 +8,7 @@ import {
   FaCheck,
   FaSyncAlt,
   FaArrowRight,
+  FaTrashAlt,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -25,32 +26,44 @@ function Notifications() {
     markAsRead,
     markAllAsRead,
     refreshNotifications,
+    clearNotifications,
   } = useNotifications();
 
-  // Notification icon
-  const getNotificationIcon = useCallback((notification) => {
-    const type = String(
-      notification?.type ||
-      notification?.notification_type ||
+  const [clearing, setClearing] = useState(false);
+
+  // Get the notification type from supported fields.
+  const getNotificationType = useCallback((notification) => {
+    return String(
       notification?.entity_type ||
-      ""
+        notification?.target_type ||
+        notification?.type ||
+        notification?.notification_type ||
+        ""
     ).toLowerCase();
-
-    if (type.includes("album")) {
-      return <FaCompactDisc />;
-    }
-
-    if (
-      type.includes("ministry") ||
-      type.includes("church")
-    ) {
-      return <FaChurch />;
-    }
-
-    return <FaMusic />;
   }, []);
 
-  // Format timestamp
+  // Notification icon.
+  const getNotificationIcon = useCallback(
+    (notification) => {
+      const type = getNotificationType(notification);
+
+      if (type.includes("album")) {
+        return <FaCompactDisc />;
+      }
+
+      if (
+        type.includes("ministry") ||
+        type.includes("church")
+      ) {
+        return <FaChurch />;
+      }
+
+      return <FaMusic />;
+    },
+    [getNotificationType]
+  );
+
+  // Format notification date.
   const formatDate = (dateValue) => {
     if (!dateValue) return "";
 
@@ -69,30 +82,44 @@ function Notifications() {
     }).format(date);
   };
 
-  // Navigate to related content
-  const handleNotificationClick = async (notification) => {
-    try {
-      if (notification?.id != null) {
-        await markAsRead(notification.id);
-      }
-    } catch (error) {
-      console.error("Unable to mark notification as read:", error);
-    }
+  // Check whether the notification has been read.
+  const isNotificationRead = (notification) => {
+    return (
+      notification?.is_read === true ||
+      notification?.read === true
+    );
+  };
 
-    const type = String(
-      notification?.entity_type ||
-      notification?.target_type ||
-      notification?.type ||
-      notification?.notification_type ||
-      ""
-    ).toLowerCase();
-
-    const entityId =
+  // Get the destination entity ID.
+  const getEntityId = (notification) => {
+    return (
       notification?.entity_id ??
       notification?.target_id ??
       notification?.song_id ??
       notification?.album_id ??
-      notification?.ministry_id;
+      notification?.ministry_id
+    );
+  };
+
+  // Navigate to related content and mark it as read.
+  const handleNotificationClick = async (notification) => {
+    try {
+      if (
+        notification?.id != null &&
+        !isNotificationRead(notification) &&
+        typeof markAsRead === "function"
+      ) {
+        await markAsRead(notification.id);
+      }
+    } catch (error) {
+      console.error(
+        "Unable to mark notification as read:",
+        error
+      );
+    }
+
+    const type = getNotificationType(notification);
+    const entityId = getEntityId(notification);
 
     if (entityId == null) return;
 
@@ -114,30 +141,83 @@ function Notifications() {
     }
   };
 
+  // Refresh notifications.
   const handleRefresh = async () => {
     try {
-      await refreshNotifications();
+      if (typeof refreshNotifications === "function") {
+        await refreshNotifications();
+      }
     } catch (error) {
-      console.error("Unable to refresh notifications:", error);
+      console.error(
+        "Unable to refresh notifications:",
+        error
+      );
     }
   };
 
+  // Mark every notification as read.
   const handleMarkAllRead = async () => {
     try {
-      await markAllAsRead();
+      if (typeof markAllAsRead === "function") {
+        await markAllAsRead();
+      }
     } catch (error) {
-      console.error("Unable to mark all as read:", error);
+      console.error(
+        "Unable to mark all notifications as read:",
+        error
+      );
     }
   };
 
-  // Initial loading state
+  // Clear all notifications after confirmation.
+  const handleClearNotifications = async () => {
+    if (notifications.length === 0 || clearing) return;
+
+    if (typeof clearNotifications !== "function") {
+      window.alert(
+        "The clear notifications function is not configured yet. Please update NotificationsContext and the backend."
+      );
+      console.error(
+        "clearNotifications is missing from NotificationsContext."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to clear all notifications? This action may not be reversible."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setClearing(true);
+      await clearNotifications();
+    } catch (error) {
+      console.error(
+        "Unable to clear notifications:",
+        error
+      );
+
+      window.alert(
+        "Unable to clear notifications. Please try again."
+      );
+    } finally {
+      setClearing(false);
+    }
+  };
+
+  // Loading screen.
   if (loading && notifications.length === 0) {
     return (
       <main className="notifications-page">
         <div className="notifications-loading">
           <FaBell className="notifications-loading-icon" />
+
           <h2>Loading notifications...</h2>
-          <p>Checking for the latest KEERTHANA updates.</p>
+
+          <p>
+            Checking for the latest KEERTHANA updates.
+          </p>
         </div>
       </main>
     );
@@ -150,6 +230,7 @@ function Notifications() {
         <div className="notifications-header-title">
           <div className="notifications-header-icon">
             <FaBell />
+
             {unreadCount > 0 && (
               <span className="notifications-header-badge">
                 {unreadCount > 99 ? "99+" : unreadCount}
@@ -157,7 +238,7 @@ function Notifications() {
             )}
           </div>
 
-          <div>
+          <div className="notifications-heading-text">
             <span className="notifications-eyebrow">
               YOUR UPDATES
             </span>
@@ -174,25 +255,49 @@ function Notifications() {
           <button
             type="button"
             onClick={handleRefresh}
-            disabled={syncing}
+            disabled={syncing || clearing}
             title="Refresh notifications"
             aria-label="Refresh notifications"
           >
             <FaSyncAlt
-              className={syncing ? "notifications-spin" : ""}
+              className={
+                syncing ? "notifications-spin" : ""
+              }
             />
-            <span>{syncing ? "Refreshing..." : "Refresh"}</span>
+
+            <span>
+              {syncing ? "Refreshing..." : "Refresh"}
+            </span>
           </button>
 
           {unreadCount > 0 && (
             <button
               type="button"
               onClick={handleMarkAllRead}
+              disabled={clearing}
+              title="Mark all notifications as read"
             >
               <FaCheck />
               <span>Mark all read</span>
             </button>
           )}
+
+          {/* {notifications.length > 0 && (
+            <button
+              type="button"
+              className="notifications-clear-button"
+              onClick={handleClearNotifications}
+              disabled={clearing || syncing}
+              title="Clear all notifications"
+              aria-label="Clear all notifications"
+             >
+              <FaTrashAlt />
+
+              <span>
+                {clearing ? "Clearing..." : "Clear all"}
+              </span>
+             </button>
+            )} */}
         </div>
       </header>
 
@@ -230,26 +335,34 @@ function Notifications() {
             type="button"
             className="notifications-empty-refresh"
             onClick={handleRefresh}
-            disabled={syncing}
+            disabled={syncing || clearing}
           >
             <FaSyncAlt
-              className={syncing ? "notifications-spin" : ""}
+              className={
+                syncing ? "notifications-spin" : ""
+              }
             />
-            Check for updates
+
+            {syncing ? "Checking..." : "Check for updates"}
           </button>
         </section>
       ) : (
         <section className="notifications-section">
           <div className="notifications-list-heading">
             <h2>Recent activity</h2>
-            <span>{notifications.length} updates</span>
+
+            <span>
+              {notifications.length}{" "}
+              {notifications.length === 1
+                ? "update"
+                : "updates"}
+            </span>
           </div>
 
           <div className="notifications-list">
             {notifications.map((notification, index) => {
               const isRead =
-                notification?.is_read === true ||
-                notification?.read === true;
+                isNotificationRead(notification);
 
               const title =
                 notification?.title ||
@@ -265,43 +378,43 @@ function Notifications() {
                 notification?.created_at ||
                 notification?.createdAt;
 
-              const notificationType = String(
-                notification?.type ||
-                notification?.notification_type ||
-                ""
-              ).toLowerCase();
+              const type =
+                getNotificationType(notification);
 
-              const hasDestination =
-                notification?.entity_id != null ||
-                notification?.target_id != null ||
-                notification?.song_id != null ||
-                notification?.album_id != null ||
-                notification?.ministry_id != null;
+              const entityId =
+                getEntityId(notification);
+
+              const isSupportedType =
+                type.includes("song") ||
+                type.includes("album") ||
+                type.includes("ministry") ||
+                type.includes("church");
 
               const isClickable =
-                hasDestination &&
-                (
-                  notificationType.includes("song") ||
-                  notificationType.includes("album") ||
-                  notificationType.includes("ministry") ||
-                  notificationType.includes("church")
-                );
+                entityId != null && isSupportedType;
 
               return (
                 <button
                   type="button"
-                  key={notification?.id ?? `notification-${index}`}
+                  key={
+                    notification?.id ??
+                    `notification-${index}`
+                  }
                   className={[
                     "notification-item",
                     !isRead ? "unread" : "",
-                    isClickable ? "notification-clickable" : "",
+                    isClickable
+                      ? "notification-clickable"
+                      : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                   onClick={() =>
                     handleNotificationClick(notification)
                   }
-                  aria-label={`${title}${!isRead ? ", unread" : ""}`}
+                  aria-label={`${title}${
+                    !isRead ? ", unread" : ""
+                  }`}
                 >
                   <div className="notification-icon">
                     {getNotificationIcon(notification)}

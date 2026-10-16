@@ -864,17 +864,17 @@ function MusicPlayer() {
 
   ======================================================= */
 
-  const handleClearQueue =
+  // const handleClearQueue =
 
-    () => {
+  //   () => {
 
-      if (clearQueue) {
+  //     if (clearQueue) {
 
-        clearQueue();
+  //       clearQueue();
 
-      }
+  //     }
 
-    };
+  //   };
 
   /* =======================================================
 
@@ -1410,51 +1410,23 @@ function MusicPlayer() {
 
           ================================================= */}
 
-          <button
+<button
+  type="button"
+  className={
+    queueOpen
+      ? "player-queue-button active"
+      : "player-queue-button"
+  }
+  onClick={() =>
+    setQueueOpen((value) => !value)
+  }
+  title="Queue / Up Next"
+  aria-label="Open music queue"
+>
+  <FaListUl />
+</button>
 
-            type="button"
 
-            className={
-
-              queueOpen
-
-                ? "player-queue-button active"
-
-                : "player-queue-button"
-
-            }
-
-            onClick={() =>
-
-              setQueueOpen(
-
-                (value) =>
-
-                  !value
-
-              )
-
-            }
-
-            title="Queue / Up Next"
-
-          >
-
-            <FaListUl />
-
-            {upNextSongs.length >
-
-              0 && (
-
-              <span className="queue-count">
-
-                {upNextSongs.length}
-
-              </span>
-
-            )}
-
-          </button>
 
           {/* =================================================
 
@@ -1614,7 +1586,7 @@ function MusicPlayer() {
 
             <div className="queue-header-actions">
 
-              {upNextSongs.length >
+              {/* {upNextSongs.length >
 
                 0 && (
 
@@ -1632,7 +1604,7 @@ function MusicPlayer() {
 
                   title="Clear Up Next"
 
-                >
+                 >
 
                   <FaBroom />
 
@@ -1644,7 +1616,7 @@ function MusicPlayer() {
 
                 </button>
 
-              )}
+                  )} */}
 
               <button
 
@@ -1842,11 +1814,11 @@ function MusicPlayer() {
 
                     >
 
-                      <span className="queue-song-number">
+                      {/* <span className="queue-song-number">
 
                         {index + 1}
 
-                      </span>
+                      </span> */}
 
                       <img
 

@@ -488,3 +488,142 @@
   }
 
 }
+
+/* Header actions */
+.notifications-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.notifications-header-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid #d7ded9;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #12372a;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.notifications-header-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Clear button */
+.notifications-header-actions .notifications-clear-button {
+  border-color: #dc2626;
+  background: #ffffff;
+  color: #dc2626;
+}
+
+.notifications-header-actions
+.notifications-clear-button:hover:not(:disabled) {
+  border-color: #b91c1c;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Prevent header text from overflowing */
+.notifications-heading-text {
+  min-width: 0;
+}
+
+.notifications-heading-text h1,
+.notifications-heading-text p {
+  overflow-wrap: anywhere;
+}
+
+/* Refresh icon animation */
+.notifications-spin {
+  animation: notifications-spin-animation 1s linear infinite;
+}
+
+@keyframes notifications-spin-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Android and mobile layout */
+@media screen and (max-width: 600px) {
+  .notifications-header {
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .notifications-header-title {
+    min-width: 0;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .notifications-header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .notifications-header-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 10px 8px;
+    font-size: 13px;
+    white-space: normal;
+  }
+
+  .notifications-header-actions
+  .notifications-clear-button {
+    grid-column: 1 / -1;
+  }
+
+  .notification-item {
+    min-width: 0;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .notification-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .notification-title-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .notification-arrow {
+    flex-shrink: 0;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .notifications-header-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .notifications-header-actions
+  .notifications-clear-button {
+    grid-column: auto;
+  }
+}

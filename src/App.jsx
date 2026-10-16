@@ -227,7 +227,21 @@ import BusinessOwnerMinistries
 import BusinessOwnerForgotPassword
   from "./pages/businessOwner/BusinessOwnerForgotPassword";
 
-  import PrivacyPolicy from "./pages/PrivacyPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+
+import useAndroidBackButton from "./hooks/useAndroidBackButton";
+
+
+
+
+/* =========================================================
+   ANDROID BACK BUTTON HANDLER
+========================================================= */
+
+function AndroidBackButtonHandler() {
+  useAndroidBackButton();
+  return null;
+}
 
 
 /* =========================================================
@@ -308,6 +322,8 @@ function App() {
       <LikedSongsProvider>
 
         <NotificationsProvider>
+
+           <AndroidBackButtonHandler />
 
           <Routes>
 

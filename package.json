@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
     "@capacitor/cli": "^8.5.2",
     "@capacitor/core": "^8.5.2",
     "axios": "^1.20.0",
+    "capacitor-plugin-playlist": "^8.0.0",
     "lucide-react": "^1.47.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

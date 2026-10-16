@@ -8,6 +8,14 @@ import {
   useState,
 } from "react";
 
+import {
+  isNativeAndroid,
+  initializeNativeMusicPlayer,
+  setNativePlaylist,
+  Playlist,
+  RmxAudioStatusMessage,
+} from "../utils/nativeMusicPlayer";
+
 import { getMediaUrl } from "../utils/media";
 import API from "../services/api";
 import { useAuth } from "./AuthContext";
@@ -531,7 +539,69 @@ export const PlayerProvider = ({ children }) => {
       cancelled = true;
     };
   }, []);
+useEffect(() => {
+  if (!isNativeAndroid) return;
 
+  let cancelled = false;
+  let listenerHandle;
+
+  const setupNativePlayer = async () => {
+    try {
+      await initializeNativeMusicPlayer();
+
+      if (cancelled) return;
+
+      listenerHandle = await Playlist.addListener(
+        "status",
+        ({ status }) => {
+          if (!status) return;
+
+          if (
+            status.msgType ===
+            RmxAudioStatusMessage.RMXSTATUS_PLAYING
+          ) {
+            setIsPlaying(true);
+          }
+
+          if (
+            status.msgType ===
+            RmxAudioStatusMessage.RMXSTATUS_PAUSE
+          ) {
+            setIsPlaying(false);
+          }
+
+          if (
+            status.msgType ===
+            RmxAudioStatusMessage.RMXSTATUS_PLAYBACK_POSITION
+          ) {
+            const position = status.value?.position;
+
+            if (Number.isFinite(position)) {
+              setCurrentTime(position);
+            }
+          }
+
+          if (
+            status.msgType ===
+            RmxAudioStatusMessage.RMXSTATUS_ERROR
+          ) {
+            console.error("Native playback error:", status.value);
+            setIsPlaying(false);
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Native player setup failed:", error);
+    }
+  };
+
+  setupNativePlayer();
+
+  return () => {
+    cancelled = true;
+    listenerHandle?.remove();
+  };
+}, []);
   /* AUDIO EVENTS */
 
   useEffect(() => {
@@ -653,64 +723,81 @@ const onError = () => {
 
   /* PLAY A SONG */
 
-  const playSong = useCallback(
-    async (song, songs = [], index = 0) => {
-      if (!song) return;
+  
+const playSong = useCallback(
+  async (song, songs = [], index = 0) => {
+    if (!song) return;
 
-      const requestId = ++playRequestIdRef.current;
+    const requestId = ++playRequestIdRef.current;
 
-      try {
-        setIsLoading(true);
-        setIsPlaying(false);
+    try {
+      setIsLoading(true);
+      setIsPlaying(false);
 
-        let activeQueue = [song];
-        let activeIndex = 0;
+      let activeQueue = [song];
 
-        if (Array.isArray(songs) && songs.length > 0) {
-          activeQueue = [...songs];
+      if (Array.isArray(songs) && songs.length > 0) {
+        activeQueue = [...songs];
+      }
 
-          const foundIndex = activeQueue.findIndex(
-            (item) => sameSong(item, song)
+      let activeIndex = activeQueue.findIndex(
+        (item) => sameSong(item, song)
+      );
+
+      if (activeIndex < 0) {
+        activeIndex = Math.max(
+          0,
+          Math.min(index, activeQueue.length - 1)
+        );
+        activeQueue[activeIndex] = song;
+      }
+
+      setQueue(activeQueue);
+      setCurrentIndex(activeIndex);
+      setCurrentSong(song);
+      setCurrentTime(0);
+      setDuration(0);
+
+      checkLikedSong(getSongId(song)).catch(() => {});
+
+      if (isNativeAndroid) {
+        await initializeNativeMusicPlayer();
+
+        // Use real remote/media URLs for native playback.
+        // Browser Blob URLs from IndexedDB cannot be passed directly
+        // to the Android media service.
+        const nativeItems = await setNativePlaylist(
+          activeQueue,
+          async (item) => getSongAudioUrl(item)
+        );
+
+        if (requestId !== playRequestIdRef.current) return;
+
+        const selectedId = String(getSongId(song));
+        const nativeIndex = nativeItems.findIndex(
+          (item) => item.trackId === selectedId
+        );
+
+        if (nativeIndex < 0) {
+          throw new Error(
+            "Selected song is not available in the native playlist."
           );
-
-          activeIndex =
-            foundIndex >= 0
-              ? foundIndex
-              : Math.max(
-                  0,
-                  Math.min(index, activeQueue.length - 1)
-                );
-
-          // Make the selected song the queue's selected item.
-          if (foundIndex < 0) {
-            activeQueue[activeIndex] = song;
-          }
         }
 
-        setQueue(activeQueue);
-        setCurrentIndex(activeIndex);
-        setCurrentSong(song);
-        setCurrentTime(0);
-        setDuration(0);
+        await Playlist.playTrackByIndex({ index: nativeIndex });
 
-        checkLikedSong(getSongId(song)).catch(() => {});
-       console.log("SELECTED SONG AUDIO DATA", {
-  id: song?.id,
-  title: song?.title,
-  audio_url: song?.audio_url,
-  audioUrl: song?.audioUrl,
-  audio_path: song?.audio_path,
-  audioPath: song?.audioPath,
-  audio: song?.audio,
-  url: song?.url,
-});
+        if (requestId !== playRequestIdRef.current) return;
+
+        setIsPlaying(true);
+        setIsLoading(false);
+      } else {
         const audioUrl = await resolveSongSource(song);
 
         if (requestId !== playRequestIdRef.current) return;
 
         if (!audioUrl) {
           throw new Error(
-            `No valid audio URL found for song ${getSongId(song)}`
+            `No valid audio URL for song ${getSongId(song)}`
           );
         }
 
@@ -718,8 +805,6 @@ const onError = () => {
         audio.currentTime = 0;
         audio.src = audioUrl;
         audio.load();
-
-        if (requestId !== playRequestIdRef.current) return;
 
         await audio.play();
 
@@ -730,171 +815,189 @@ const onError = () => {
 
         setIsPlaying(true);
         setIsLoading(false);
-
-       
-if (user && getSongId(song) != null) {
-  API.post("/history/play", {
-    song_id: getSongId(song),
-    progress_seconds: 0,
-    completed: false,
-  }).catch((error) => {
-    console.warn(
-      "Listening history was not saved:",
-      error?.response?.status,
-      error?.response?.data
-    );
-  });
-}
-  
-      } catch (error) {
-        if (requestId === playRequestIdRef.current) {
-          console.error("Play song failed:", {
-            songId: getSongId(song),
-            songTitle: song?.title,
-            audioSource: audio.currentSrc || audio.src,
-            mediaError: audio.error?.message,
-            error,
-          });
-
-          setIsPlaying(false);
-          setIsLoading(false);
-        }
       }
-    },
-    [audio, checkLikedSong, resolveSongSource, user]
-  );
 
-  /* PAUSE */
-
-  const pauseSong = useCallback(() => {
-    playRequestIdRef.current += 1;
-
-    audio.pause();
-
-    setIsPlaying(false);
-    setIsLoading(false);
-  }, [audio]);
-
-  /* RESUME */
-
-  const resumeSong = useCallback(async () => {
-    if (!currentSong) return;
-
-    const requestId = ++playRequestIdRef.current;
-
-    try {
-      setIsLoading(true);
-
-      // Recover if there is no source or the current source failed.
-      if (!audio.getAttribute("src") || audio.error) {
-        const audioUrl = await resolveSongSource(currentSong);
-
-        if (requestId !== playRequestIdRef.current) return;
-
-        if (!audioUrl) {
-          throw new Error(
-            `No playable audio source for song ${getSongId(currentSong)}`
+      if (user && getSongId(song) != null) {
+        API.post("/history/play", {
+          song_id: getSongId(song),
+          progress_seconds: 0,
+          completed: false,
+        }).catch((error) => {
+          console.warn(
+            "Could not save listening history:",
+            error?.response?.status,
+            error?.response?.data
           );
-        }
-
-        audio.pause();
-        audio.src = audioUrl;
-        audio.load();
+        });
       }
-
-      if (requestId !== playRequestIdRef.current) return;
-
-      await audio.play();
-
-      if (requestId !== playRequestIdRef.current) {
-        audio.pause();
-        return;
-      }
-
-      setIsPlaying(true);
-      setIsLoading(false);
     } catch (error) {
       if (requestId === playRequestIdRef.current) {
-        console.error("Resume playback failed:", {
-          songId: getSongId(currentSong),
-          songTitle: currentSong?.title,
-          audioSource: audio.currentSrc || audio.src,
-          mediaError: audio.error?.message,
-          error,
-        });
-
+        console.error("KEERTHANA playback failed:", error);
         setIsPlaying(false);
         setIsLoading(false);
       }
     }
-  }, [audio, currentSong, resolveSongSource]);
+  },
+  [
+    audio,
+    checkLikedSong,
+    resolveSongSource,
+    user,
+  ]
+);
 
-  /* TOGGLE PLAY / PAUSE */
 
-  const togglePlay = useCallback(async () => {
-    if (!currentSong) return;
+  /* PAUSE */
 
-    if (audio.paused) {
-      await resumeSong();
+const pauseSong = useCallback(async () => {
+  playRequestIdRef.current += 1;
+
+  try {
+    if (isNativeAndroid) {
+      await Playlist.pause();
     } else {
-      pauseSong();
+      audio.pause();
     }
-  }, [audio, currentSong, pauseSong, resumeSong]);
+
+    setIsPlaying(false);
+    setIsLoading(false);
+  } catch (error) {
+    console.error("Pause failed:", error);
+  }
+}, [audio]);
+
+const resumeSong = useCallback(async () => {
+  if (!currentSong) return;
+
+  try {
+    setIsLoading(true);
+
+    if (isNativeAndroid) {
+      await initializeNativeMusicPlayer();
+      await Playlist.play();
+    } else {
+      if (!audio.getAttribute("src") || audio.error) {
+        const audioUrl = await resolveSongSource(currentSong);
+
+        if (!audioUrl) {
+          throw new Error("No playable audio URL.");
+        }
+
+        audio.src = audioUrl;
+        audio.load();
+      }
+
+      await audio.play();
+    }
+
+    setIsPlaying(true);
+  } catch (error) {
+    console.error("Resume failed:", error);
+    setIsPlaying(false);
+  } finally {
+    setIsLoading(false);
+  }
+}, [audio, currentSong, resolveSongSource]);
+
+const togglePlay = useCallback(async () => {
+  if (!currentSong) return;
+
+  if (isPlaying) {
+    await pauseSong();
+  } else {
+    await resumeSong();
+  }
+}, [currentSong, isPlaying, pauseSong, resumeSong]);
+
 
   /* NEXT SONG */
+  
+const nextSong = useCallback(async () => {
+  if (!queue.length) return;
 
-  const nextSong = useCallback(async () => {
-    if (!queue.length) return;
+  let nextIndex;
 
-    let nextIndex;
+  if (isShuffle && queue.length > 1) {
+    do {
+      nextIndex = Math.floor(Math.random() * queue.length);
+    } while (nextIndex === currentIndex);
+  } else {
+    nextIndex = currentIndex + 1;
+  }
 
-    if (isShuffle && queue.length > 1) {
-      do {
-        nextIndex = Math.floor(Math.random() * queue.length);
-      } while (nextIndex === currentIndex);
+  if (nextIndex >= queue.length) {
+    if (repeatMode === "all") {
+      nextIndex = 0;
     } else {
-      nextIndex = currentIndex + 1;
+      await pauseSong();
+      return;
     }
+  }
 
-    if (nextIndex >= queue.length) {
-      if (repeatMode === "all") {
-        nextIndex = 0;
-      } else {
-        pauseSong();
-        return;
-      }
-    }
+  await playSong(queue[nextIndex], queue, nextIndex);
+}, [
+  queue,
+  isShuffle,
+  currentIndex,
+  repeatMode,
+  playSong,
+  pauseSong,
+]);
 
-    await playSong(queue[nextIndex], queue, nextIndex);
-  }, [
-    queue,
-    isShuffle,
-    currentIndex,
-    repeatMode,
-    playSong,
-    pauseSong,
-  ]);
+const previousSong = useCallback(async () => {
+  if (!queue.length) return;
 
-  /* PREVIOUS SONG */
-
-  const previousSong = useCallback(async () => {
-    if (!queue.length) return;
-
-    if (audio.currentTime > 3) {
+  if (currentTime > 3) {
+    if (isNativeAndroid) {
+      await Playlist.seekTo({ position: 0 });
+    } else {
       audio.currentTime = 0;
-      setCurrentTime(0);
+    }
+
+    setCurrentTime(0);
+    return;
+  }
+
+  let previousIndex = currentIndex - 1;
+
+  if (previousIndex < 0) {
+    previousIndex =
+      repeatMode === "all" ? queue.length - 1 : 0;
+  }
+
+  await playSong(queue[previousIndex], queue, previousIndex);
+}, [
+  audio,
+  queue,
+  currentIndex,
+  currentTime,
+  repeatMode,
+  playSong,
+]);
+
+const seek = useCallback(
+  async (value) => {
+    const newTime = Number(value);
+
+    if (!Number.isFinite(newTime) || newTime < 0) return;
+
+    if (isNativeAndroid) {
+      await Playlist.seekTo({ position: newTime });
+      setCurrentTime(newTime);
       return;
     }
 
-    let previousIndex = currentIndex - 1;
+    if (!Number.isFinite(audio.duration)) return;
 
-    if (previousIndex < 0) {
-      previousIndex =
-        repeatMode === "all" ? queue.length - 1 : 0;
-    }
+    audio.currentTime = Math.min(newTime, audio.duration);
+    setCurrentTime(audio.currentTime);
+  },
+  [audio]
+);
 
-    await playSong(queue[previousIndex], queue, previousIndex);
-  }, [audio, queue, currentIndex, repeatMode, playSong]);
+
+  
+
 
   /* AUTO NEXT AND REPEAT */
 
@@ -926,26 +1029,6 @@ if (user && getSongId(song) != null) {
 
   /* SEEK */
 
-  const seek = useCallback(
-    (value) => {
-      const newTime = Number(value);
-
-      if (
-        !Number.isFinite(newTime) ||
-        !Number.isFinite(audio.duration)
-      ) {
-        return;
-      }
-
-      audio.currentTime = Math.min(
-        Math.max(newTime, 0),
-        audio.duration
-      );
-
-      setCurrentTime(audio.currentTime);
-    },
-    [audio]
-  );
 
   const seekForward = useCallback(
     (seconds = 10) => {

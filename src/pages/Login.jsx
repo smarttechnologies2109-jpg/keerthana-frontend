@@ -6,224 +6,137 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import {
-  useAuth,
-} from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 import "../assets/css/login.css";
 
-
 function Login() {
-
   const navigate = useNavigate();
 
-  const {
-    login,
-  } = useAuth();
+  const { login } = useAuth();
 
-
-  const [contact, setContact] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
+  const [contact, setContact] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   /* =====================================================
      LOGIN
   ===================================================== */
 
-  const handleSubmit =
-    async (event) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-      event.preventDefault();
+    setError("");
 
-      setError("");
+    const cleanContact = contact.trim();
 
-      const cleanContact =
-        contact.trim();
+    if (!cleanContact) {
+      setError("Please enter your email or 10-digit mobile number.");
+      return;
+    }
 
+    // Check whether the input is an email address.
+    const isEmail =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanContact);
 
-      if (!cleanContact) {
+    // If it is not an email, validate it as a mobile number.
+    if (!isEmail) {
+      const digitsOnly = cleanContact.replace(/\D/g, "");
 
-        setError(
-          "Please enter your email or phone number."
-        );
-
+      if (!/^\d+$/.test(cleanContact) || digitsOnly.length !== 10) {
+        setError("Please enter a valid 10-digit mobile number.");
         return;
       }
+    }
 
+    setLoading(true);
 
-      setLoading(true);
+    try {
+      await login(cleanContact);
 
+      navigate("/", {
+        replace: true,
+      });
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
 
-      try {
-
-        await login(
-          cleanContact
-        );
-
-
-        navigate(
-          "/",
-          {
-            replace: true,
-          }
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "LOGIN ERROR:",
-          error
-        );
-
-
-        setError(
-          error.response?.data?.message ||
+      setError(
+        error.response?.data?.message ||
           error.response?.data?.error ||
           error.message ||
-          "Unable to login. Please check your email or phone number."
-        );
-
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    };
-
+          "Unable to login. Please check your email or mobile number."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* =====================================================
      RENDER
   ===================================================== */
 
   return (
-
     <div className="auth-page">
-
       <div className="auth-card">
+        {/* LOGO */}
+        <div className="auth-logo">♪</div>
 
-
-        {/* =================================================
-           LOGO
-        ================================================= */}
-
-        <div className="auth-logo">
-          ♪
-        </div>
-
-
-        <h1>
-          KEERTHANA
-        </h1>
-
+        <h1>KEERTHANA</h1>
 
         <p className="auth-subtitle">
           Christian Music
         </p>
 
+        <h2>Welcome Back</h2>
 
-        <h2>
-          Welcome Back
-        </h2>
-
-
-        {/* =================================================
-           ERROR
-        ================================================= */}
-
+        {/* ERROR */}
         {error && (
-
-          <div className="auth-error">
+          <div className="auth-error" role="alert">
             {error}
           </div>
-
         )}
 
-
-        {/* =================================================
-           LOGIN FORM
-        ================================================= */}
-
-        <form
-          onSubmit={
-            handleSubmit
-          }
-        >
-
-          <label>
+        {/* LOGIN FORM */}
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="contact">
             Email or Phone Number
           </label>
 
-
-        
-<input
-  type="text"
-  inputMode="text"
-  value={contact}
-  onChange={(event) => {
-    setContact(event.target.value);
-  }}
-  placeholder="Enter your email or phone number"
-  autoComplete="username"
-  autoCapitalize="none"
-  spellCheck={false}
-  required
-/>
-
-
-
+          <input
+            id="contact"
+            type="text"
+            inputMode="text"
+            value={contact}
+            onChange={(event) => {
+              setContact(event.target.value);
+              setError("");
+            }}
+            placeholder="Enter email or 10-digit mobile number"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+          />
 
           <button
             type="submit"
-
             className="auth-submit"
-
             disabled={loading}
           >
-
-            {loading
-              ? "Logging in..."
-              : "Login"}
-
+            {loading ? "Logging in..." : "Login"}
           </button>
-
-
         </form>
 
-
-        {/* =================================================
-           REGISTER
-        ================================================= */}
-
+        {/* REGISTER */}
         <p className="auth-switch">
-
-          New to KEERTHANA?
-
-          {" "}
-
+          New to KEERTHANA?{" "}
           <Link to="/register">
             Create Account
           </Link>
-
         </p>
-
-
       </div>
-
     </div>
-
   );
-
 }
 
-
 export default Login;
-
