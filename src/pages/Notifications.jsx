@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../context/NotificationsContext";
 import "../assets/css/notifications.css";
 
+import { useEffect } from "react";
+
 function Notifications() {
   const navigate = useNavigate();
 
@@ -223,6 +225,28 @@ function Notifications() {
     );
   }
 
+  const [currentPage, setCurrentPage] = useState(1);
+
+const NOTIFICATIONS_PER_PAGE = 10;
+
+const totalPages = Math.ceil(
+  notifications.length / NOTIFICATIONS_PER_PAGE
+);
+
+const startIndex =
+  (currentPage - 1) * NOTIFICATIONS_PER_PAGE;
+
+const paginatedNotifications = notifications.slice(
+  startIndex,
+  startIndex + NOTIFICATIONS_PER_PAGE
+);
+
+useEffect(() => {
+  if (currentPage > Math.max(1, totalPages)) {
+    setCurrentPage(Math.max(1, totalPages));
+  }
+}, [currentPage, totalPages]);
+
   return (
     <main className="notifications-page">
       {/* Header */}
@@ -360,7 +384,7 @@ function Notifications() {
           </div>
 
           <div className="notifications-list">
-            {notifications.map((notification, index) => {
+            {paginatedNotifications.map((notification, index) => {
               const isRead =
                 isNotificationRead(notification);
 
@@ -452,6 +476,33 @@ function Notifications() {
               );
             })}
           </div>
+
+
+          
+{totalPages > 1 && (
+  <div className="notifications-pagination">
+    <button
+      type="button"
+      onClick={() => setCurrentPage((page) => page - 1)}
+      disabled={currentPage === 1}
+    >
+      Previous
+    </button>
+
+    <span>
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <button
+      type="button"
+      onClick={() => setCurrentPage((page) => page + 1)}
+      disabled={currentPage === totalPages}
+    >
+      Next
+    </button>
+  </div>
+)}
+
         </section>
       )}
     </main>
