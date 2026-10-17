@@ -218,81 +218,59 @@ const loadMoodSongs = async () => {
      LOAD BROWSE SONGS
   ======================================================= */
 
-  const loadBrowseSongs =
-    async () => {
+const loadBrowseSongs = async () => {
+  try {
+    setBrowseLoading(true);
+    setBrowseError("");
 
-      try {
+    const response = await API.get(
+      `/moods/${encodeURIComponent(mood)}/browse`
+    );
 
-        setBrowseLoading(true);
+    const data = response?.data;
 
-        setBrowseError("");
+    setBrowseSongs(
+      Array.isArray(data?.songs)
+        ? data.songs
+        : []
+    );
+  } catch (err) {
+    console.error(
+      "Browse songs error:",
+      err.response?.data || err.message
+    );
 
-const response = await API.get(
-  `/moods/${encodeURIComponent(mood)}/browse`
-);
+    setBrowseSongs([]);
+    setBrowseError(
+      err.response?.data?.message ||
+        "Unable to browse songs."
+    );
+  } finally {
+    setBrowseLoading(false);
+  }
+};
 
-const data = response?.data;
-setBrowseSongs(Array.isArray(data?.songs) ? data.songs : []);
-
-
-        if (
-          Array.isArray(
-            data?.songs
-          )
-        ) {
-
-          setBrowseSongs(
-            data.songs
-          );
-
-        } else {
-
-          setBrowseSongs([]);
-
-        }
-
-      } catch (err) {
-
-        console.error(
-          "Browse songs error:",
-          err
-        );
-
-
-        setBrowseError(
-          "Unable to browse songs."
-        );
-
-      } finally {
-
-        setBrowseLoading(false);
-
-      }
-    };
 
 
   /* =======================================================
      INITIAL LOAD
   ======================================================= */
 
-  useEffect(() => {
 
-    if (
-      mood &&
-      currentMood
-    ) {
+useEffect(() => {
+  setSongs([]);
+  setBrowseSongs([]);
+  setError("");
+  setBrowseError("");
 
-      loadMoodSongs();
+  if (!mood || !currentMood) {
+    setLoading(false);
+    return;
+  }
 
-    } else {
+  loadMoodSongs();
+}, [mood]);
 
-      setLoading(false);
-
-    }
-
-  }, [
-    mood,
-  ]);
 
 
   /* =======================================================
@@ -359,74 +337,36 @@ const handleAddSong = async (song) => {
      REMOVE SONG FROM MOOD
   ======================================================= */
 
-  const handleRemoveSong =
-    async (song) => {
+const handleRemoveSong = async (song) => {
+  if (!song?.id || removingId !== null) {
+    return;
+  }
 
-      if (
-        !song?.id ||
-        removingId
-      ) {
-        return;
-      }
+  try {
+    setRemovingId(song.id);
 
+    await API.delete(
+      `/moods/songs/${song.id}/${encodeURIComponent(mood)}`
+    );
 
-      try {
+    await Promise.all([
+      loadMoodSongs(),
+      loadBrowseSongs(),
+    ]);
+  } catch (err) {
+    console.error(
+      "Remove song from mood error:",
+      err.response?.data || err.message
+    );
 
-        setRemovingId(
-          song.id
-        );
-
-
-     await API.delete(
-  `/moods/songs/${song.id}/${encodeURIComponent(mood)}`
-);
-
-await loadMoodSongs();
-await loadBrowseSongs();
-
-
-        setBrowseSongs(
-          (previous) =>
-            previous.map(
-              (item) =>
-                item.id === song.id
-                  ? {
-                      ...item,
-                      is_in_mood: false,
-                      moods: Array.isArray(
-                        item.moods
-                      )
-                        ? item.moods.filter(
-                            (itemMood) =>
-                              itemMood !== mood
-                          )
-                        : [],
-                    }
-                  : item
-            )
-        );
-
-
-        await loadMoodSongs();
-
-      } catch (err) {
-
-        console.error(
-          "Remove song from mood error:",
-          err
-        );
-
-        alert(
-          err?.response?.data?.message ||
-            "Unable to remove song from mood."
-        );
-
-      } finally {
-
-        setRemovingId(null);
-
-      }
-    };
+    alert(
+      err.response?.data?.message ||
+        "Unable to remove song from mood."
+    );
+  } finally {
+    setRemovingId(null);
+  }
+};
 
 
   /* =======================================================

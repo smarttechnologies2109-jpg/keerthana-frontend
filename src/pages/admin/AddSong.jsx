@@ -1,13 +1,6 @@
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-} from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
   FaCloudUploadAlt,
@@ -19,58 +12,23 @@ import {
 } from "react-icons/fa";
 
 import API from "../../services/api";
-
 import "../../assets/css/admin/addSong.css";
 
+const LANGUAGES = [
+  { value: "Telugu", nativeName: "తెలుగు" },
+  { value: "Hindi", nativeName: "हिन्दी" },
+  { value: "English", nativeName: "English" },
+  { value: "Malayalam", nativeName: "മലയാളം" },
+  { value: "Kannada", nativeName: "ಕನ್ನಡ" },
+  { value: "Tamil", nativeName: "தமிழ்" },
+];
 
-function AddSong() {
-
-  const navigate = useNavigate();
-
-
-  /* =====================================================
-     SUPPORTED LANGUAGES
-  ===================================================== */
-
-  const LANGUAGES = [
-    {
-      value: "Telugu",
-      nativeName: "తెలుగు",
-    },
-    {
-      value: "Hindi",
-      nativeName: "हिन्दी",
-    },
-    {
-      value: "English",
-      nativeName: "English",
-    },
-    {
-      value: "Malayalam",
-      nativeName: "മലയാളം",
-    },
-    {
-      value: "Kannada",
-      nativeName: "ಕನ್ನಡ",
-    },
-    {
-      value: "Tamil",
-      nativeName: "தமிழ்",
-    },
-  ];
-
-
-  /* =====================================================
-     LANGUAGE CONFIGURATION
-  ===================================================== */
-
-  const LANGUAGE_CONFIG = {
-
-    Telugu: {
-      nativeName: "తెలుగు",
-      titleLabel: "పాట పేరు",
-      titlePlaceholder: "తెలుగు పాట పేరు",
-      lyricsPlaceholder: `పల్లవి:
+const LANGUAGE_CONFIG = {
+  Telugu: {
+    nativeName: "తెలుగు",
+    titleLabel: "పాట పేరు",
+    titlePlaceholder: "తెలుగు పాట పేరు",
+    lyricsPlaceholder: `పల్లవి:
 మీ పాట పల్లవి...
 
 చరణం 1:
@@ -78,13 +36,12 @@ function AddSong() {
 
 చరణం 2:
 రెండవ చరణం...`,
-    },
-
-    Hindi: {
-      nativeName: "हिन्दी",
-      titleLabel: "गीत का नाम",
-      titlePlaceholder: "हिन्दी गीत का नाम",
-      lyricsPlaceholder: `पल्लवी:
+  },
+  Hindi: {
+    nativeName: "हिन्दी",
+    titleLabel: "गीत का नाम",
+    titlePlaceholder: "हिन्दी गीत का नाम",
+    lyricsPlaceholder: `पल्लवी:
 आपके गीत की पल्लवी...
 
 चरण 1:
@@ -92,13 +49,12 @@ function AddSong() {
 
 चरण 2:
 दूसरा चरण...`,
-    },
-
-    English: {
-      nativeName: "English",
-      titleLabel: "Song Title",
-      titlePlaceholder: "Song title",
-      lyricsPlaceholder: `Chorus:
+  },
+  English: {
+    nativeName: "English",
+    titleLabel: "Song Title",
+    titlePlaceholder: "Song title",
+    lyricsPlaceholder: `Chorus:
 Enter the chorus lyrics...
 
 Verse 1:
@@ -106,13 +62,12 @@ Enter the first verse...
 
 Verse 2:
 Enter the second verse...`,
-    },
-
-    Malayalam: {
-      nativeName: "മലയാളം",
-      titleLabel: "പാട്ടിന്റെ പേര്",
-      titlePlaceholder: "മലയാളം പാട്ടിന്റെ പേര്",
-      lyricsPlaceholder: `പല്ലവി:
+  },
+  Malayalam: {
+    nativeName: "മലയാളം",
+    titleLabel: "പാട്ടിന്റെ പേര്",
+    titlePlaceholder: "മലയാളം പാട്ടിന്റെ പേര്",
+    lyricsPlaceholder: `പല്ലവി:
 പാട്ടിന്റെ പല്ലവി...
 
 ചരണം 1:
@@ -120,13 +75,12 @@ Enter the second verse...`,
 
 ചരണം 2:
 രണ്ടാം ചരണം...`,
-    },
-
-    Kannada: {
-      nativeName: "ಕನ್ನಡ",
-      titleLabel: "ಹಾಡಿನ ಹೆಸರು",
-      titlePlaceholder: "ಕನ್ನಡ ಹಾಡಿನ ಹೆಸರು",
-      lyricsPlaceholder: `ಪಲ್ಲವಿ:
+  },
+  Kannada: {
+    nativeName: "ಕನ್ನಡ",
+    titleLabel: "ಹಾಡಿನ ಹೆಸರು",
+    titlePlaceholder: "ಕನ್ನಡ ಹಾಡಿನ ಹೆಸರು",
+    lyricsPlaceholder: `ಪಲ್ಲವಿ:
 ಹಾಡಿನ ಪಲ್ಲವಿ...
 
 ಚರಣ 1:
@@ -134,13 +88,12 @@ Enter the second verse...`,
 
 ಚರಣ 2:
 ಎರಡನೇ ಚರಣ...`,
-    },
-
-    Tamil: {
-      nativeName: "தமிழ்",
-      titleLabel: "பாடல் பெயர்",
-      titlePlaceholder: "தமிழ் பாடல் பெயர்",
-      lyricsPlaceholder: `பல்லவி:
+  },
+  Tamil: {
+    nativeName: "தமிழ்",
+    titleLabel: "பாடல் பெயர்",
+    titlePlaceholder: "தமிழ் பாடல் பெயர்",
+    lyricsPlaceholder: `பல்லவி:
 பாடலின் பல்லவி...
 
 சரணம் 1:
@@ -148,2024 +101,747 @@ Enter the second verse...`,
 
 சரணம் 2:
 இரண்டாவது சரணம்...`,
-    },
+  },
+};
 
-  };
+const MOODS = [
+  { value: "worship", label: "Worship" },
+  { value: "praise", label: "Praise" },
+  { value: "prayer", label: "Prayer" },
+  { value: "hope", label: "Hope & Faith" },
+  { value: "peace", label: "Peace & Comfort" },
+  { value: "thanksgiving", label: "Thanksgiving" },
+];
 
+const initialForm = {
+  title: "",
+  title_english: "",
+  language: "Telugu",
+  lyrics: "",
+  artist_id: "",
+  album_id: "",
+  category_id: "",
+  ministry_id: "",
+  moods: [],
+  featured: false,
+};
 
-  /* =====================================================
-     FORM STATE
-  ===================================================== */
+const extractList = (data, key) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.[key])) return data[key];
+  return [];
+};
 
-  const [form, setForm] = useState({
+const normalizeLanguage = (language) =>
+  String(language || "").trim().toLowerCase();
 
-    title: "",
+function AddSong() {
+  const navigate = useNavigate();
 
-    title_english: "",
+  const [form, setForm] = useState(initialForm);
 
-    language: "Telugu",
+  const [audioFile, setAudioFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState("");
 
-    lyrics: "",
+  const [artists, setArtists] = useState([]);
+  const [albums, setAlbums] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [ministries, setMinistries] = useState([]);
 
-    artist_id: "",
+  const [artistsLoading, setArtistsLoading] = useState(true);
+  const [albumsLoading, setAlbumsLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [ministriesLoading, setMinistriesLoading] = useState(true);
 
-    album_id: "",
+  const [showArtistForm, setShowArtistForm] = useState(false);
+  const [showAlbumForm, setShowAlbumForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
 
-    category_id: "",
-
-    ministry_id: "",
-
-    moods: [],
-
-    featured: false,
-
+  const [newArtist, setNewArtist] = useState({
+    name: "",
+    bio: "",
   });
 
+  const [newAlbum, setNewAlbum] = useState({
+    title: "",
+    release_year: "",
+  });
+
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+  });
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [quickSaving, setQuickSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const selectedLanguage =
-    LANGUAGE_CONFIG[
-      form.language
-    ] ||
-    LANGUAGE_CONFIG.Telugu;
-
+    LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
 
   /* =====================================================
-     FILE STATE
-  ===================================================== */
+     LOAD EACH ENTITY INDEPENDENTLY
 
-  const [
-    audioFile,
-    setAudioFile,
-  ] = useState(null);
-
-
-  const [
-    coverFile,
-    setCoverFile,
-  ] = useState(null);
-
-
-  const [
-    coverPreview,
-    setCoverPreview,
-  ] = useState("");
-
-
-  /* =====================================================
-     DROPDOWN DATA
-  ===================================================== */
-
-  const [
-    artists,
-    setArtists,
-  ] = useState([]);
-
-
-  const [
-    albums,
-    setAlbums,
-  ] = useState([]);
-
-
-  const [
-    categories,
-    setCategories,
-  ] = useState([]);
-
-
-  const [
-    ministries,
-    setMinistries,
-  ] = useState([]);
-
-
-  const [
-    ministriesLoading,
-    setMinistriesLoading,
-  ] = useState(true);
-
-
-  /* =====================================================
-     QUICK CREATE FORMS
-  ===================================================== */
-
-  const [
-    showArtistForm,
-    setShowArtistForm,
-  ] = useState(false);
-
-
-  const [
-    showAlbumForm,
-    setShowAlbumForm,
-  ] = useState(false);
-
-
-  const [
-    showCategoryForm,
-    setShowCategoryForm,
-  ] = useState(false);
-
-
-  /* =====================================================
-     NEW ARTIST
-  ===================================================== */
-
-  const [
-    newArtist,
-    setNewArtist,
-  ] = useState({
-
-    name: "",
-
-    bio: "",
-
-  });
-
-
-  /* =====================================================
-     NEW ALBUM
-  ===================================================== */
-
-  const [
-    newAlbum,
-    setNewAlbum,
-  ] = useState({
-
-    title: "",
-
-    artist_id: "",
-
-    release_year: "",
-
-  });
-
-
-  /* =====================================================
-     NEW CATEGORY
-  ===================================================== */
-
-  const [
-    newCategory,
-    setNewCategory,
-  ] = useState({
-
-    name: "",
-
-  });
-
-
-  /* =====================================================
-     PAGE STATE
-  ===================================================== */
-
-  const [
-    pageLoading,
-    setPageLoading,
-  ] = useState(true);
-
-
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
-
-
-  const [
-    quickSaving,
-    setQuickSaving,
-  ] = useState(false);
-
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-
-  const [
-    success,
-    setSuccess,
-  ] = useState("");
-
-
-  /* =====================================================
-     LOAD ALL DATA
+     One failed endpoint does not prevent the other
+     dropdowns from loading.
   ===================================================== */
 
   useEffect(() => {
+    let cancelled = false;
 
-    const loadData = async () => {
-
+    const loadOne = async (
+      endpoint,
+      key,
+      setter,
+      setLoading,
+      label
+    ) => {
       try {
+        const response = await API.get(endpoint);
 
-        setPageLoading(true);
-
-        setMinistriesLoading(true);
-
-        setError("");
-
-
-        const [
-          artistsResponse,
-          albumsResponse,
-          categoriesResponse,
-          ministriesResponse,
-        ] = await Promise.all([
-
-          API.get("/artists"),
-
-          API.get("/albums"),
-
-          API.get("/categories"),
-
-          API.get("/ministries"),
-
-        ]);
-
-
-        /* =================================================
-           ARTISTS
-        ================================================= */
-
-        const artistData =
-          artistsResponse.data;
-
-        if (
-          Array.isArray(
-            artistData?.artists
-          )
-        ) {
-
-          setArtists(
-            artistData.artists
-          );
-
-        } else if (
-          Array.isArray(
-            artistData
-          )
-        ) {
-
-          setArtists(
-            artistData
-          );
-
-        } else {
-
-          setArtists([]);
-
+        if (!cancelled) {
+          setter(extractList(response.data, key));
         }
+      } catch (err) {
+        console.error(`Failed to load ${label}:`, err);
 
-
-        /* =================================================
-           ALBUMS
-        ================================================= */
-
-        const albumData =
-          albumsResponse.data;
-
-        if (
-          Array.isArray(
-            albumData?.albums
-          )
-        ) {
-
-          setAlbums(
-            albumData.albums
+        if (!cancelled) {
+          setter([]);
+          setError((previous) =>
+            previous
+              ? `${previous} ${label} could not be loaded.`
+              : `${label} could not be loaded. Other fields remain available.`
           );
-
-        } else if (
-          Array.isArray(
-            albumData
-          )
-        ) {
-
-          setAlbums(
-            albumData
-          );
-
-        } else {
-
-          setAlbums([]);
-
         }
-
-
-        /* =================================================
-           CATEGORIES
-        ================================================= */
-
-        const categoryData =
-          categoriesResponse.data;
-
-        if (
-          Array.isArray(
-            categoryData?.categories
-          )
-        ) {
-
-          setCategories(
-            categoryData.categories
-          );
-
-        } else if (
-          Array.isArray(
-            categoryData
-          )
-        ) {
-
-          setCategories(
-            categoryData
-          );
-
-        } else {
-
-          setCategories([]);
-
-        }
-
-
-        /* =================================================
-           MINISTRIES
-        ================================================= */
-
-        const ministryData =
-          ministriesResponse.data;
-
-        if (
-          Array.isArray(
-            ministryData
-          )
-        ) {
-
-          setMinistries(
-            ministryData
-          );
-
-        } else if (
-          Array.isArray(
-            ministryData?.ministries
-          )
-        ) {
-
-          setMinistries(
-            ministryData.ministries
-          );
-
-        } else {
-
-          setMinistries([]);
-
-        }
-
-
-      } catch (error) {
-
-        console.error(
-          "Add Song form data error:",
-          error
-        );
-
-
-        setError(
-          error.response?.data?.message ||
-          "Unable to load artists, albums, categories or ministries."
-        );
-
-
       } finally {
-
-        setPageLoading(false);
-
-        setMinistriesLoading(false);
-
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-
     };
 
+    const requests = [
+      loadOne(
+        "/artists",
+        "artists",
+        setArtists,
+        setArtistsLoading,
+        "Artists"
+      ),
+      loadOne(
+        "/albums",
+        "albums",
+        setAlbums,
+        setAlbumsLoading,
+        "Albums"
+      ),
+      loadOne(
+        "/categories",
+        "categories",
+        setCategories,
+        setCategoriesLoading,
+        "Categories"
+      ),
+      loadOne(
+        "/ministries",
+        "ministries",
+        setMinistries,
+        setMinistriesLoading,
+        "Ministries"
+      ),
+    ];
 
-    loadData();
+    Promise.all(requests).finally(() => {
+      if (!cancelled) {
+        setPageLoading(false);
+      }
+    });
 
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-
   /* =====================================================
-     LANGUAGE NORMALIZER
+     LANGUAGE FILTERS
+
+     Records without a language remain visible for
+     compatibility with existing database records.
   ===================================================== */
 
-  const normalizeLanguage = (
-    language
-  ) => {
+  const isAvailableForLanguage = (item) => {
+    if (!item) return false;
 
-    return String(
-      language || ""
-    )
-      .trim()
-      .toLowerCase();
+    const itemLanguage = normalizeLanguage(item.language);
 
+    if (!itemLanguage) return true;
+
+    return itemLanguage === normalizeLanguage(form.language);
   };
 
-
-  /* =====================================================
-     CHECK LANGUAGE
-     
-     IMPORTANT:
-     If an old database record does not have a language,
-     we still show it instead of hiding it.
-  ===================================================== */
-
-  const isAvailableForLanguage = (
-    item,
-    selectedLanguageValue
-  ) => {
-
-    if (!item) {
-      return false;
-    }
-
-    const itemLanguage =
-      normalizeLanguage(
-        item.language
-      );
-
-    const selected =
-      normalizeLanguage(
-        selectedLanguageValue
-      );
-
-    /*
-      If backend record has no language,
-      show it for compatibility with
-      existing records.
-    */
-
-    if (!itemLanguage) {
-      return true;
-    }
-
-    return (
-      itemLanguage === selected
-    );
-
-  };
-
-
-  /* =====================================================
-     FILTER DATA BY SELECTED LANGUAGE
-     
-     Existing records without a language are also shown.
-  ===================================================== */
-
-  const filteredArtists =
-    artists.filter(
-      (artist) =>
-        isAvailableForLanguage(
-          artist,
-          form.language
-        )
-    );
-
-
-  const filteredAlbums =
-    albums.filter(
-      (album) =>
-        isAvailableForLanguage(
-          album,
-          form.language
-        )
-    );
-
-
-  const filteredCategories =
-    categories.filter(
-      (category) =>
-        isAvailableForLanguage(
-          category,
-          form.language
-        )
-    );
-
-
-  const filteredMinistries =
-    ministries.filter(
-      (ministry) =>
-        isAvailableForLanguage(
-          ministry,
-          form.language
-        )
-    );
-
+  const filteredArtists = artists.filter(isAvailableForLanguage);
+  const filteredAlbums = albums.filter(isAvailableForLanguage);
+  const filteredCategories = categories.filter(isAvailableForLanguage);
+  const filteredMinistries = ministries.filter(isAvailableForLanguage);
 
   /* =====================================================
      LANGUAGE CHANGE
   ===================================================== */
 
-  const handleLanguageChange = (
-    event
-  ) => {
+  const handleLanguageChange = (event) => {
+    const language = event.target.value;
 
-    const language =
-      event.target.value;
-
-
-    setForm(
-      (previous) => ({
-
-        ...previous,
-
-        language,
-
-        artist_id: "",
-
-        album_id: "",
-
-        category_id: "",
-
-        ministry_id: "",
-
-      })
-    );
-
-
-    setNewAlbum(
-      (previous) => ({
-
-        ...previous,
-
-        artist_id: "",
-
-      })
-    );
-
-
-    setShowArtistForm(false);
-
-    setShowAlbumForm(false);
-
-    setShowCategoryForm(false);
+    setForm((previous) => ({
+      ...previous,
+      language,
+      artist_id: "",
+      album_id: "",
+      category_id: "",
+      ministry_id: "",
+    }));
 
     setError("");
-
     setSuccess("");
 
+    setShowArtistForm(false);
+    setShowAlbumForm(false);
+    setShowCategoryForm(false);
   };
 
-
   /* =====================================================
-     CLEAN COVER PREVIEW
+     COVER PREVIEW CLEANUP
   ===================================================== */
 
   useEffect(() => {
-
     return () => {
-
-      if (
-        coverPreview
-      ) {
-
-        URL.revokeObjectURL(
-          coverPreview
-        );
-
+      if (coverPreview) {
+        URL.revokeObjectURL(coverPreview);
       }
-
     };
-
   }, [coverPreview]);
-
 
   /* =====================================================
      NORMAL FIELD CHANGE
   ===================================================== */
 
-  const handleChange = (
-    event
-  ) => {
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
 
-    const {
-      name,
-      value,
-      type,
-      checked,
-    } = event.target;
-
-
-    setForm(
-      (previous) => ({
-
-        ...previous,
-
-        [name]:
-          type === "checkbox"
-            ? checked
-            : value,
-
-      })
-    );
-
+    setForm((previous) => ({
+      ...previous,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
-
 
   /* =====================================================
      MOOD CHANGE
   ===================================================== */
 
-  const handleMoodChange = (
-    event
-  ) => {
+  const handleMoodChange = (event) => {
+    const { value, checked } = event.target;
 
-    const {
-      value,
-      checked,
-    } = event.target;
-
-
-    setForm(
-      (previous) => ({
-
-        ...previous,
-
-        moods:
-
-          checked
-
-            ? [
-                ...(previous.moods || []),
-                value,
-              ]
-
-            : (
-                previous.moods || []
-              ).filter(
-                (mood) =>
-                  mood !== value
-              ),
-
-      })
-    );
-
+    setForm((previous) => ({
+      ...previous,
+      moods: checked
+        ? [...new Set([...(previous.moods || []), value])]
+        : (previous.moods || []).filter((mood) => mood !== value),
+    }));
   };
-
 
   /* =====================================================
      ARTIST CHANGE
+
+     Artist selection no longer clears the selected album.
+     Albums are independent in this form.
   ===================================================== */
 
-  const handleArtistChange = (
-    event
-  ) => {
-
-    const artistId =
-      event.target.value;
-
-
-    setForm(
-      (previous) => ({
-
-        ...previous,
-
-        artist_id:
-          artistId,
-
-        album_id: "",
-
-      })
-    );
-
-
-    setNewAlbum(
-      (previous) => ({
-
-        ...previous,
-
-        artist_id:
-          artistId,
-
-      })
-    );
-
+  const handleArtistChange = (event) => {
+    setForm((previous) => ({
+      ...previous,
+      artist_id: event.target.value,
+    }));
   };
-
 
   /* =====================================================
      QUICK CREATE ARTIST
   ===================================================== */
 
-  const createArtist =
-    async () => {
+  const createArtist = async () => {
+    const name = newArtist.name.trim();
 
-      const name =
-        newArtist
-          .name
-          .trim();
+    if (!name) {
+      setError("Artist name is required.");
+      return;
+    }
 
+    try {
+      setQuickSaving(true);
+      setError("");
+      setSuccess("");
 
-      if (!name) {
+      const response = await API.post("/admin/artists", {
+        name,
+        bio: newArtist.bio.trim(),
+        language: form.language,
+      });
 
-        setError(
-          "Artist name is required."
-        );
+      const artist = response.data?.artist;
 
-        return;
-
+      if (!artist?.id) {
+        throw new Error("Artist was not returned by server.");
       }
 
+      setArtists((previous) => [
+        ...previous.filter(
+          (item) => String(item.id) !== String(artist.id)
+        ),
+        artist,
+      ]);
 
-      try {
+      setForm((previous) => ({
+        ...previous,
+        artist_id: String(artist.id),
+      }));
 
-        setQuickSaving(true);
-
-        setError("");
-
-        setSuccess("");
-
-
-        const response =
-          await API.post(
-            "/admin/artists",
-            {
-
-              name,
-
-              bio:
-                newArtist
-                  .bio
-                  .trim(),
-
-              language:
-                form.language,
-
-            }
-          );
-
-
-        const artist =
-          response
-            .data
-            .artist;
-
-
-        if (!artist) {
-
-          throw new Error(
-            "Artist was not returned by server."
-          );
-
-        }
-
-
-        setArtists(
-          (previous) => [
-
-            ...previous,
-
-            artist,
-
-          ]
-        );
-
-
-        setForm(
-          (previous) => ({
-
-            ...previous,
-
-            artist_id:
-              String(
-                artist.id
-              ),
-
-            album_id: "",
-
-          })
-        );
-
-
-        setNewAlbum(
-          (previous) => ({
-
-            ...previous,
-
-            artist_id:
-              String(
-                artist.id
-              ),
-
-          })
-        );
-
-
-        setNewArtist({
-
-          name: "",
-
-          bio: "",
-
-        });
-
-
-        setShowArtistForm(false);
-
-
-        setSuccess(
-          `Artist "${artist.name}" added successfully.`
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Create artist error:",
-          error
-        );
-
-
-        setError(
-          error.response
-            ?.data
-            ?.message ||
-          error.message ||
+      setNewArtist({ name: "", bio: "" });
+      setShowArtistForm(false);
+      setSuccess(`Artist "${artist.name}" added successfully.`);
+    } catch (err) {
+      console.error("Create artist error:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
           "Unable to create artist."
-        );
-
-
-      } finally {
-
-        setQuickSaving(false);
-
-      }
-
-    };
-
+      );
+    } finally {
+      setQuickSaving(false);
+    }
+  };
 
   /* =====================================================
      QUICK CREATE ALBUM
+
+     Artist is optional in this form. The backend and
+     database must also allow artist_id to be NULL.
   ===================================================== */
 
-  const createAlbum =
-    async () => {
+  const createAlbum = async () => {
+    const title = newAlbum.title.trim();
 
-      const title =
-        newAlbum
-          .title
-          .trim();
+    if (!title) {
+      setError("Album title is required.");
+      return;
+    }
 
+    try {
+      setQuickSaving(true);
+      setError("");
+      setSuccess("");
 
-      const artistId =
-        newAlbum
-          .artist_id ||
-        form.artist_id;
+      const payload = {
+        title,
+        artist_id: null,
+        release_year: newAlbum.release_year
+          ? Number(newAlbum.release_year)
+          : null,
+        language: form.language,
+      };
 
+      const response = await API.post("/admin/albums", payload);
+      const album = response.data?.album;
 
-      if (!title) {
-
-        setError(
-          "Album title is required."
+      if (!album?.id) {
+        throw new Error(
+          "Album was not returned by server. Check the album API response."
         );
-
-        return;
-
       }
 
+      setAlbums((previous) => [
+        ...previous.filter(
+          (item) => String(item.id) !== String(album.id)
+        ),
+        album,
+      ]);
 
-      if (!artistId) {
+      setForm((previous) => ({
+        ...previous,
+        album_id: String(album.id),
+      }));
 
-        setError(
-          "Please select or create an artist before creating an album."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        setQuickSaving(true);
-
-        setError("");
-
-        setSuccess("");
-
-
-        const response =
-          await API.post(
-            "/admin/albums",
-            {
-
-              title,
-
-              artist_id:
-                Number(
-                  artistId
-                ),
-
-              release_year:
-                newAlbum
-                  .release_year
-                  ? Number(
-                      newAlbum
-                        .release_year
-                    )
-                  : null,
-
-              language:
-                form.language,
-
-            }
-          );
-
-
-        const album =
-          response
-            .data
-            .album;
-
-
-        if (!album) {
-
-          throw new Error(
-            "Album was not returned by server."
-          );
-
-        }
-
-
-        setAlbums(
-          (previous) => [
-
-            ...previous,
-
-            album,
-
-          ]
-        );
-
-
-        setForm(
-          (previous) => ({
-
-            ...previous,
-
-            album_id:
-              String(
-                album.id
-              ),
-
-          })
-        );
-
-
-        setNewAlbum({
-
-          title: "",
-
-          artist_id:
-            String(
-              artistId
-            ),
-
-          release_year: "",
-
-        });
-
-
-        setShowAlbumForm(false);
-
-
-        setSuccess(
-          `Album "${album.title}" added successfully.`
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Create album error:",
-          error
-        );
-
-
-        setError(
-          error.response
-            ?.data
-            ?.message ||
-          error.message ||
+      setNewAlbum({ title: "", release_year: "" });
+      setShowAlbumForm(false);
+      setSuccess(`Album "${album.title}" added successfully.`);
+    } catch (err) {
+      console.error("Create album error:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
           "Unable to create album."
-        );
-
-
-      } finally {
-
-        setQuickSaving(false);
-
-      }
-
-    };
-
+      );
+    } finally {
+      setQuickSaving(false);
+    }
+  };
 
   /* =====================================================
      QUICK CREATE CATEGORY
   ===================================================== */
 
-  const createCategory =
-    async () => {
+  const createCategory = async () => {
+    const name = newCategory.name.trim();
 
-      const name =
-        newCategory
-          .name
-          .trim();
+    if (!name) {
+      setError("Category name is required.");
+      return;
+    }
 
+    try {
+      setQuickSaving(true);
+      setError("");
+      setSuccess("");
 
-      if (!name) {
+      const response = await API.post("/admin/categories", {
+        name,
+        language: form.language,
+      });
 
-        setError(
-          "Category name is required."
-        );
+      const category = response.data?.category;
 
-        return;
-
+      if (!category?.id) {
+        throw new Error("Category was not returned by server.");
       }
 
+      setCategories((previous) => [
+        ...previous.filter(
+          (item) => String(item.id) !== String(category.id)
+        ),
+        category,
+      ]);
 
-      try {
+      setForm((previous) => ({
+        ...previous,
+        category_id: String(category.id),
+      }));
 
-        setQuickSaving(true);
-
-        setError("");
-
-        setSuccess("");
-
-
-        const response =
-          await API.post(
-            "/admin/categories",
-            {
-
-              name,
-
-              language:
-                form.language,
-
-            }
-          );
-
-
-        const category =
-          response
-            .data
-            .category;
-
-
-        if (!category) {
-
-          throw new Error(
-            "Category was not returned by server."
-          );
-
-        }
-
-
-        setCategories(
-          (previous) => [
-
-            ...previous,
-
-            category,
-
-          ]
-        );
-
-
-        setForm(
-          (previous) => ({
-
-            ...previous,
-
-            category_id:
-              String(
-                category.id
-              ),
-
-          })
-        );
-
-
-        setNewCategory({
-
-          name: "",
-
-        });
-
-
-        setShowCategoryForm(false);
-
-
-        setSuccess(
-          `Category "${category.name}" added successfully.`
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Create category error:",
-          error
-        );
-
-
-        setError(
-          error.response
-            ?.data
-            ?.message ||
-          error.message ||
+      setNewCategory({ name: "" });
+      setShowCategoryForm(false);
+      setSuccess(`Category "${category.name}" added successfully.`);
+    } catch (err) {
+      console.error("Create category error:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
           "Unable to create category."
-        );
-
-
-      } finally {
-
-        setQuickSaving(false);
-
-      }
-
-    };
-
+      );
+    } finally {
+      setQuickSaving(false);
+    }
+  };
 
   /* =====================================================
      AUDIO FILE
   ===================================================== */
 
-const handleAudioChange = (event) => {
-  const file = event.target.files?.[0];
+  const handleAudioChange = (event) => {
+    const file = event.target.files?.[0];
 
-  if (!file) {
-    setAudioFile(null);
-    return;
-  }
-
-  const fileName = file.name.toLowerCase();
-
-  const validExtension =
-    fileName.endsWith(".mp3") ||
-    fileName.endsWith(".m4a");
-
-  const allowedTypes = [
-    "audio/mpeg",
-    "audio/mp3",
-    "audio/mp4",
-    "audio/x-m4a",
-    "application/octet-stream",
-  ];
-
-  if (!validExtension && !allowedTypes.includes(file.type)) {
-    setError("Please select an MP3 or M4A audio file.");
-    setAudioFile(null);
-    event.target.value = "";
-    return;
-  }
-
-  const maxSize = 30 * 1024 * 1024;
-
-  if (file.size === 0) {
-    setError("The selected audio file is empty. Please choose another file.");
-    setAudioFile(null);
-    event.target.value = "";
-    return;
-  }
-
-  if (file.size > maxSize) {
-    setError("Audio file must be smaller than 30 MB.");
-    setAudioFile(null);
-    event.target.value = "";
-    return;
-  }
-
-  setAudioFile(file);
-  setError("");
-
-  console.log("Audio selected:", {
-    name: file.name,
-    type: file.type,
-    size: file.size,
-  });
-};
-
-
-
-  /* =====================================================
-     REMOVE AUDIO
-  ===================================================== */
-
-  const removeAudio = () => {
-
-    setAudioFile(null);
-
-
-    const input =
-      document.getElementById(
-        "song-audio-input"
-      );
-
-
-    if (input) {
-
-      input.value = "";
-
+    if (!file) {
+      setAudioFile(null);
+      return;
     }
 
+    const fileName = file.name.toLowerCase();
+    const validExtension =
+      fileName.endsWith(".mp3") || fileName.endsWith(".m4a");
+
+    const allowedTypes = [
+      "audio/mpeg",
+      "audio/mp3",
+      "audio/mp4",
+      "audio/x-m4a",
+      "application/octet-stream",
+    ];
+
+    if (!validExtension && !allowedTypes.includes(file.type)) {
+      setError("Please select an MP3 or M4A audio file.");
+      setAudioFile(null);
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size === 0) {
+      setError("The selected audio file is empty.");
+      setAudioFile(null);
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 30 * 1024 * 1024) {
+      setError("Audio file must be smaller than 30 MB.");
+      setAudioFile(null);
+      event.target.value = "";
+      return;
+    }
+
+    setAudioFile(file);
+    setError("");
   };
 
+  const removeAudio = () => {
+    setAudioFile(null);
+
+    const input = document.getElementById("song-audio-input");
+
+    if (input) input.value = "";
+  };
 
   /* =====================================================
      COVER FILE
   ===================================================== */
 
-  const handleCoverChange = (
-    event
-  ) => {
+  const handleCoverChange = (event) => {
+    const file = event.target.files?.[0];
 
-    const file =
-      event
-        .target
-        .files?.[0];
+    if (!file) return;
 
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-    if (!file) {
-      return;
-    }
-
-
-    const allowedTypes = [
-
-      "image/jpeg",
-
-      "image/png",
-
-      "image/webp",
-
-    ];
-
-
-    if (
-      !allowedTypes.includes(
-        file.type
-      )
-    ) {
-
-      setError(
-        "Cover image must be JPG, PNG or WebP."
-      );
-
-
+    if (!allowedTypes.includes(file.type)) {
+      setError("Cover image must be JPG, PNG or WebP.");
       event.target.value = "";
-
       return;
-
     }
 
-
-    const maxImageSize =
-      10 *
-      1024 *
-      1024;
-
-
-    if (
-      file.size >
-      maxImageSize
-    ) {
-
-      setError(
-        "Cover image must be smaller than 10 MB."
-      );
-
-
+    if (file.size === 0) {
+      setError("The selected cover image is empty.");
       event.target.value = "";
-
       return;
-
     }
 
-
-    if (coverPreview) {
-
-      URL.revokeObjectURL(
-        coverPreview
-      );
-
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Cover image must be smaller than 10 MB.");
+      event.target.value = "";
+      return;
     }
-
-
-    const preview =
-      URL.createObjectURL(
-        file
-      );
-
 
     setCoverFile(file);
-
-    setCoverPreview(preview);
-
+    setCoverPreview(URL.createObjectURL(file));
     setError("");
-
   };
-
-
-  /* =====================================================
-     REMOVE COVER
-  ===================================================== */
 
   const removeCover = () => {
-
-    if (coverPreview) {
-
-      URL.revokeObjectURL(
-        coverPreview
-      );
-
-    }
-
-
     setCoverFile(null);
-
     setCoverPreview("");
 
+    const input = document.getElementById("song-cover-input");
 
-    const input =
-      document.getElementById(
-        "song-cover-input"
-      );
-
-
-    if (input) {
-
-      input.value = "";
-
-    }
-
+    if (input) input.value = "";
   };
-
 
   /* =====================================================
      FILE SIZE
   ===================================================== */
 
-  const formatFileSize = (
-    bytes
-  ) => {
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "0 MB";
 
-    if (!bytes) {
-
-      return "0 MB";
-
-    }
-
-
-    const mb =
-      bytes /
-      (1024 * 1024);
-
-
-    return `${mb.toFixed(2)} MB`;
-
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
-
 
   /* =====================================================
      SUBMIT SONG
   ===================================================== */
 
-  const handleSubmit =
-    async (
-      event
-    ) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-      event.preventDefault();
+    setError("");
+    setSuccess("");
 
-      setError("");
+    if (!LANGUAGES.some((language) => language.value === form.language)) {
+      setError("Please select a valid song language.");
+      return;
+    }
 
-      setSuccess("");
+    if (!form.title.trim()) {
+      setError(`${selectedLanguage.titleLabel} is required.`);
+      return;
+    }
 
+    if (!form.artist_id) {
+      setError("Please select or create an artist.");
+      return;
+    }
 
-      /* LANGUAGE */
+    if (!form.category_id) {
+      setError("Please select or create a category.");
+      return;
+    }
 
-      if (
-        !LANGUAGES.some(
-          (language) =>
-            language.value ===
-            form.language
+    if (!audioFile) {
+      setError("Please select an audio file.");
+      return;
+    }
+
+    const selectedArtist = artists.find(
+      (item) => String(item.id) === String(form.artist_id)
+    );
+
+    const selectedAlbum = form.album_id
+      ? albums.find(
+          (item) => String(item.id) === String(form.album_id)
         )
-      ) {
+      : null;
 
-        setError(
-          "Please select a valid song language."
-        );
+    const selectedCategory = categories.find(
+      (item) => String(item.id) === String(form.category_id)
+    );
 
-        return;
-
-      }
-
-
-      /* TITLE */
-
-      if (
-        !form.title.trim()
-      ) {
-
-        setError(
-          `${selectedLanguage.titleLabel} is required.`
-        );
-
-        return;
-
-      }
-
-
-      /* ARTIST */
-
-      if (
-        !form.artist_id
-      ) {
-
-        setError(
-          "Please select or create an artist."
-        );
-
-        return;
-
-      }
-
-
-      /* CATEGORY */
-
-      if (
-        !form.category_id
-      ) {
-
-        setError(
-          "Please select or create a category."
-        );
-
-        return;
-
-      }
-
-
-      /* AUDIO */
-
-      if (
-        !audioFile
-      ) {
-
-        setError(
-          "Please select an audio file."
-        );
-
-        return;
-
-      }
-
-
-      /* =================================================
-         FRONTEND LANGUAGE SAFETY CHECK
-      ================================================= */
-
-      const selectedArtist =
-        artists.find(
-          (artist) =>
-            String(
-              artist.id
-            ) ===
-            String(
-              form.artist_id
-            )
-        );
-
-
-      const selectedAlbum =
-        form.album_id
-          ? albums.find(
-              (album) =>
-                String(
-                  album.id
-                ) ===
-                String(
-                  form.album_id
-                )
-            )
-          : null;
-
-
-      const selectedCategory =
-        categories.find(
-          (category) =>
-            String(
-              category.id
-            ) ===
-            String(
-              form.category_id
-            )
-        );
-
-
-      const selectedMinistry =
-        form.ministry_id
-          ? ministries.find(
-              (ministry) =>
-                String(
-                  ministry.id
-                ) ===
-                String(
-                  form.ministry_id
-                )
-            )
-          : null;
-
-
-      const languageMatches = (
-        item
-      ) => {
-
-        if (!item) {
-          return true;
-        }
-
-
-        /*
-          Records with no language are allowed.
-          This keeps older database records usable.
-        */
-
-        const itemLanguage =
-          normalizeLanguage(
-            item.language
-          );
-
-
-        if (!itemLanguage) {
-          return true;
-        }
-
-
-        return (
-          itemLanguage ===
-          normalizeLanguage(
-            form.language
-          )
-        );
-
-      };
-
-
-      if (
-        !languageMatches(
-          selectedArtist
+    const selectedMinistry = form.ministry_id
+      ? ministries.find(
+          (item) => String(item.id) === String(form.ministry_id)
         )
-      ) {
+      : null;
 
-        setError(
-          "Selected artist does not belong to the selected song language."
-        );
+    const languageMatches = (item) => {
+      if (!item) return true;
 
-        return;
+      const itemLanguage = normalizeLanguage(item.language);
 
-      }
-
-
-      if (
-        !languageMatches(
-          selectedAlbum
-        )
-      ) {
-
-        setError(
-          "Selected album does not belong to the selected song language."
-        );
-
-        return;
-
-      }
-
-
-      if (
-        !languageMatches(
-          selectedCategory
-        )
-      ) {
-
-        setError(
-          "Selected category does not belong to the selected song language."
-        );
-
-        return;
-
-      }
-
-
-      if (
-        !languageMatches(
-          selectedMinistry
-        )
-      ) {
-
-        setError(
-          "Selected ministry does not belong to the selected song language."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        setSaving(true);
-
-
-        const formData =
-          new FormData();
-
-
-        /* TITLE */
-
-        formData.append(
-          "title",
-          form.title.trim()
-        );
-
-
-        /* ENGLISH TITLE */
-
-        formData.append(
-          "title_english",
-          form.title_english.trim()
-        );
-
-
-        /* LANGUAGE */
-
-        formData.append(
-          "language",
-          form.language
-        );
-
-
-        /* LYRICS */
-
-        formData.append(
-          "lyrics",
-          form.lyrics
-        );
-
-
-        /* ARTIST */
-
-        formData.append(
-          "artist_id",
-          form.artist_id
-        );
-
-
-        /* ALBUM */
-
-        if (
-          form.album_id
-        ) {
-
-          formData.append(
-            "album_id",
-            form.album_id
-          );
-
-        }
-
-
-        /* CATEGORY */
-
-        formData.append(
-          "category_id",
-          form.category_id
-        );
-
-
-        /* MINISTRY */
-
-       /* MINISTRY */
-
-const selectedMinistryId =
-  String(form.ministry_id || "").trim();
-
-if (selectedMinistryId !== "") {
-  formData.append(
-    "ministry_id",
-    selectedMinistryId
-  );
-}
-
-console.log("Song ministry selected:", {
-  ministry_id: selectedMinistryId || null,
-  ministry_name:
-    ministries.find(
-      (ministry) =>
-        String(ministry.id) === selectedMinistryId
-    )?.name || null,
-});
-
-
-        /* MOODS */
-
-        formData.append(
-          "moods",
-          JSON.stringify(
-            form.moods || []
-          )
-        );
-
-
-        /* FEATURED */
-
-        formData.append(
-          "featured",
-          String(
-            form.featured
-          )
-        );
-
-
-        /* AUDIO */
-
-     if (!(audioFile instanceof File)) {
-  setError("Please select an audio file.");
-  setSaving(false);
-  return;
-}
-
-formData.set("audio", audioFile);
-
-console.log("Audio being uploaded:", {
-  name: audioFile.name,
-  type: audioFile.type,
-  size: audioFile.size,
-  formDataHasAudio: formData.has("audio"),
-});
-
-
-        /* COVER */
-
-        if (
-          coverFile
-        ) {
-
-          formData.append(
-            "cover",
-            coverFile
-          );
-
-        }
-
-
-        /* =================================================
-           SEND SONG
-        ================================================= */
-
-/* =================================================
-   SEND SONG
-================================================= */
-
-console.log("MOODS IN FORM STATE:", form.moods);
-
-console.log(
-  "MOODS IN FORMDATA:",
-  formData.get("moods")
-);
-
-console.log(
-  "ALL FORMDATA ENTRIES:",
-  [...formData.entries()].map(([key, value]) => [
-    key,
-    value instanceof File ? value.name : value,
-  ])
-);
-
-// Actually send the song to the backend.
-const response = await API.post(
-  "/admin/songs",
-  formData
-);
-
-console.log("Song upload response:", response.data);
-
-if (!response.data?.success) {
-  throw new Error(
-    response.data?.message || "Song upload failed."
-  );
-}
-
-setSuccess("Song uploaded successfully!");
-
-setTimeout(() => {
-  navigate("/admin/songs");
-}, 1000);
-
-console.log("Song upload response:", response.data);
-
-setSuccess("Song uploaded successfully!");
-
-
-
-        setTimeout(
-          () => {
-
-            navigate(
-              "/admin/songs"
-            );
-
-          },
-          1000
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Song upload error:",
-          error
-        );
-
-
-        setError(
-          error.response
-            ?.data
-            ?.message ||
-          "Unable to upload song."
-        );
-
-
-      } finally {
-
-        setSaving(false);
-
-      }
-
+      return (
+        !itemLanguage ||
+        itemLanguage === normalizeLanguage(form.language)
+      );
     };
 
+    if (!languageMatches(selectedArtist)) {
+      setError("Selected artist does not belong to the selected song language.");
+      return;
+    }
+
+    if (!languageMatches(selectedAlbum)) {
+      setError("Selected album does not belong to the selected song language.");
+      return;
+    }
+
+    if (!languageMatches(selectedCategory)) {
+      setError("Selected category does not belong to the selected song language.");
+      return;
+    }
+
+    if (!languageMatches(selectedMinistry)) {
+      setError("Selected ministry does not belong to the selected song language.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const formData = new FormData();
+
+      formData.append("title", form.title.trim());
+      formData.append("title_english", form.title_english.trim());
+      formData.append("language", form.language);
+      formData.append("lyrics", form.lyrics);
+      formData.append("artist_id", form.artist_id);
+      formData.append("category_id", form.category_id);
+
+      if (form.album_id) {
+        formData.append("album_id", form.album_id);
+      }
+
+      if (form.ministry_id) {
+        formData.append("ministry_id", form.ministry_id);
+      }
+
+      formData.append("moods", JSON.stringify(form.moods || []));
+      formData.append("featured", String(form.featured));
+      formData.append("audio", audioFile);
+
+      if (coverFile) {
+        formData.append("cover", coverFile);
+      }
+
+      const response = await API.post("/admin/songs", formData);
+
+      if (response.data?.success === false) {
+        throw new Error(
+          response.data?.message || "Song upload failed."
+        );
+      }
+
+      setSuccess("Song uploaded successfully!");
+
+      setTimeout(() => {
+        navigate("/admin/songs");
+      }, 1000);
+    } catch (err) {
+      console.error("Song upload error:", err);
+
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Unable to upload song."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
   /* =====================================================
      PAGE LOADING
   ===================================================== */
 
-  if (
-    pageLoading
-  ) {
-
+  if (pageLoading) {
     return (
-
       <div className="admin-page">
-
-        <div className="admin-loading">
-
-          Loading Add Song...
-
-        </div>
-
+        <div className="admin-loading">Loading Add Song...</div>
       </div>
-
     );
-
   }
-
 
   /* =====================================================
      PAGE
   ===================================================== */
 
   return (
-
     <div className="admin-page">
-
-
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
       <div className="admin-form-header">
-
         <button
           type="button"
           className="admin-back-button"
-          onClick={() =>
-            navigate(
-              "/admin/songs"
-            )
-          }
+          onClick={() => navigate("/admin/songs")}
         >
-
           <FaArrowLeft />
-
           Back
-
         </button>
 
-
         <div>
-
-          <span>
-            KEERTHANA ADMIN
-          </span>
-
-
-          <h1>
-            Add New Song
-          </h1>
-
-
+          <span>KEERTHANA ADMIN</span>
+          <h1>Add New Song</h1>
           <p>
-            Add the song, artist,
-            album, category, ministry,
-            mood, audio and lyrics
-            from one page.
+            Add the song, artist, album, category, ministry,
+            mood, audio and lyrics from one page.
           </p>
-
         </div>
-
       </div>
 
+      {error && <div className="admin-error">{error}</div>}
+      {success && <div className="admin-success">{success}</div>}
 
-      {/* =================================================
-          ERROR
-      ================================================= */}
-
-      {error && (
-
-        <div className="admin-error">
-
-          {error}
-
-        </div>
-
-      )}
-
-
-      {/* =================================================
-          SUCCESS
-      ================================================= */}
-
-      {success && (
-
-        <div className="admin-success">
-
-          {success}
-
-        </div>
-
-      )}
-
-
-      {/* =================================================
-          SONG FORM
-      ================================================= */}
-
-      <form
-        className="admin-song-form"
-        onSubmit={handleSubmit}
-      >
-
-
-        {/* =================================================
-            SONG INFORMATION
-        ================================================= */}
-
+      <form className="admin-song-form" onSubmit={handleSubmit}>
         <div className="admin-form-section">
-
           <div className="admin-form-section-title">
-
-            <h2>
-              Song Information
-            </h2>
-
-            <p>
-              Enter the basic
-              details of the song.
-            </p>
-
+            <h2>Song Information</h2>
+            <p>Enter the basic details of the song.</p>
           </div>
 
-
           <div className="admin-form-grid">
-
-
-            {/* =================================================
-                LANGUAGE
-            ================================================= */}
-
+            {/* LANGUAGE */}
             <div className="admin-field">
-
-              <label>
-                Song Language
-              </label>
-
+              <label>Song Language</label>
 
               <select
                 name="language"
@@ -2173,72 +849,36 @@ setSuccess("Song uploaded successfully!");
                 onChange={handleLanguageChange}
                 required
               >
-
-                {LANGUAGES.map(
-                  (language) => (
-
-                    <option
-                      key={language.value}
-                      value={language.value}
-                    >
-
-                      {language.nativeName}
-
-                    </option>
-
-                  )
-                )}
-
+                {LANGUAGES.map((language) => (
+                  <option key={language.value} value={language.value}>
+                    {language.nativeName}
+                  </option>
+                ))}
               </select>
 
-
               <small>
-
-                Selected language:
-                {" "}
-                {selectedLanguage.nativeName}
-
+                Selected language: {selectedLanguage.nativeName}
               </small>
-
             </div>
 
-
-            {/* =================================================
-                TITLE
-            ================================================= */}
-
+            {/* SONG TITLE */}
             <div className="admin-field">
-
-              <label>
-                {selectedLanguage.titleLabel} *
-              </label>
-
+              <label>{selectedLanguage.titleLabel} *</label>
 
               <input
                 type="text"
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder={
-                  selectedLanguage.titlePlaceholder
-                }
+                placeholder={selectedLanguage.titlePlaceholder}
                 maxLength={255}
                 required
               />
-
             </div>
 
-
-            {/* =================================================
-                ENGLISH TITLE
-            ================================================= */}
-
+            {/* ENGLISH TITLE */}
             <div className="admin-field">
-
-              <label>
-                English Title
-              </label>
-
+              <label>English Title</label>
 
               <input
                 type="text"
@@ -2248,52 +888,27 @@ setSuccess("Song uploaded successfully!");
                 placeholder="English title"
                 maxLength={255}
               />
-
             </div>
 
-
-            {/* =================================================
-                ARTIST
-            ================================================= */}
-
+            {/* ARTIST */}
             <div className="admin-field">
-
               <div className="admin-field-label-row">
-
-                <label>
-                  Artist
-                </label>
-
+                <label>Artist *</label>
 
                 <button
                   type="button"
                   className="admin-inline-add-button"
                   onClick={() => {
-
                     setError("");
-
                     setSuccess("");
-
-                    setShowArtistForm(
-                      (previous) =>
-                        !previous
-                    );
-
+                    setShowArtistForm((previous) => !previous);
                     setShowAlbumForm(false);
-
                     setShowCategoryForm(false);
-
                   }}
                 >
-
-                  <FaPlus />
-
-                  New Artist
-
+                  <FaPlus /> New Artist
                 </button>
-
               </div>
-
 
               <select
                 name="artist_id"
@@ -2301,113 +916,60 @@ setSuccess("Song uploaded successfully!");
                 onChange={handleArtistChange}
                 required
               >
+                <option value="">Select Artist</option>
 
-                <option value="">
-                  Select Artist
-                </option>
-
-
-                {filteredArtists.map(
-                  (artist) => (
-
-                    <option
-                      key={artist.id}
-                      value={artist.id}
-                    >
-
-                      {artist.name}
-
-                    </option>
-
-                  )
-                )}
-
+                {filteredArtists.map((artist) => (
+                  <option key={artist.id} value={artist.id}>
+                    {artist.name}
+                  </option>
+                ))}
               </select>
 
+              {artistsLoading && <small>Loading artists...</small>}
 
-              {filteredArtists.length === 0 && (
-
+              {!artistsLoading && filteredArtists.length === 0 && (
                 <small>
-
-                  No artists available for{" "}
-                  {selectedLanguage.nativeName}.
-                  {" "}
-                  Please create a new artist.
-
+                  No artists available for {selectedLanguage.nativeName}.
+                  Please create an artist.
                 </small>
-
               )}
 
-
               {showArtistForm && (
-
                 <div className="admin-quick-create">
-
-                  <h4>
-                    Add New Artist
-                  </h4>
-
+                  <h4>Add New Artist</h4>
 
                   <input
                     type="text"
                     placeholder="Artist name"
                     value={newArtist.name}
-                    onChange={(
-                      event
-                    ) =>
-
-                      setNewArtist(
-                        (previous) => ({
-
-                          ...previous,
-
-                          name:
-                            event.target.value,
-
-                        })
-                      )
-
+                    onChange={(event) =>
+                      setNewArtist((previous) => ({
+                        ...previous,
+                        name: event.target.value,
+                      }))
                     }
                   />
-
 
                   <textarea
                     rows="3"
                     placeholder="Artist bio (optional)"
                     value={newArtist.bio}
-                    onChange={(
-                      event
-                    ) =>
-
-                      setNewArtist(
-                        (previous) => ({
-
-                          ...previous,
-
-                          bio:
-                            event.target.value,
-
-                        })
-                      )
-
+                    onChange={(event) =>
+                      setNewArtist((previous) => ({
+                        ...previous,
+                        bio: event.target.value,
+                      }))
                     }
                   />
 
-
                   <div className="admin-quick-actions">
-
                     <button
                       type="button"
                       disabled={quickSaving}
-                      onClick={() =>
-                        setShowArtistForm(false)
-                      }
+                      onClick={() => setShowArtistForm(false)}
                     >
-
                       Cancel
-
                     </button>
-
 
                     <button
                       type="button"
@@ -2415,240 +977,98 @@ setSuccess("Song uploaded successfully!");
                       disabled={quickSaving}
                       onClick={createArtist}
                     >
-
                       <FaPlus />
-
-                      {quickSaving
-                        ? "Adding..."
-                        : "Add Artist"}
-
+                      {quickSaving ? "Adding..." : "Add Artist"}
                     </button>
-
                   </div>
-
                 </div>
-
               )}
-
             </div>
 
-
-            {/* =================================================
-                ALBUM
-            ================================================= */}
-
+            {/* ALBUM */}
             <div className="admin-field">
-
               <div className="admin-field-label-row">
-
-                <label>
-                  Album
-                </label>
-
+                <label>Album</label>
 
                 <button
                   type="button"
                   className="admin-inline-add-button"
                   onClick={() => {
-
                     setError("");
-
                     setSuccess("");
-
-
-                    if (
-                      !form.artist_id
-                    ) {
-
-                      setError(
-                        "Please select or create an artist first."
-                      );
-
-                      return;
-
-                    }
-
-
-                    setNewAlbum(
-                      (previous) => ({
-
-                        ...previous,
-
-                        artist_id:
-                          form.artist_id,
-
-                      })
-                    );
-
-
-                    setShowAlbumForm(
-                      (previous) =>
-                        !previous
-                    );
-
+                    setShowAlbumForm((previous) => !previous);
                     setShowArtistForm(false);
-
                     setShowCategoryForm(false);
-
                   }}
                 >
-
-                  <FaPlus />
-
-                  New Album
-
+                  <FaPlus /> New Album
                 </button>
-
               </div>
-
 
               <select
                 name="album_id"
                 value={form.album_id}
                 onChange={handleChange}
               >
+                <option value="">No Album / Single</option>
 
-                <option value="">
-                  No Album / Single
-                </option>
-
-
-                {filteredAlbums
-
-                  .filter(
-                    (album) => {
-
-                      if (
-                        !form.artist_id
-                      ) {
-
-                        return false;
-
-                      }
-
-
-                      if (
-                        !album.artist_id
-                      ) {
-
-                        return false;
-
-                      }
-
-
-                      return (
-                        String(
-                          album.artist_id
-                        ) ===
-                        String(
-                          form.artist_id
-                        )
-                      );
-
-                    }
-                  )
-
-                  .map(
-                    (album) => (
-
-                      <option
-                        key={album.id}
-                        value={album.id}
-                      >
-
-                        {album.title}
-
-                      </option>
-
-                    )
-                  )}
-
+                {filteredAlbums.map((album) => (
+                  <option key={album.id} value={album.id}>
+                    {album.title}
+                  </option>
+                ))}
               </select>
 
+              {albumsLoading && <small>Loading albums...</small>}
 
               <small>
-
-                Album is optional.
-                Leave this as
-                "No Album / Single"
-                for a single.
-
+                Album is optional. Select any available album or leave
+                this as No Album / Single.
               </small>
 
-
               {showAlbumForm && (
-
                 <div className="admin-quick-create">
-
-                  <h4>
-                    Add New Album
-                  </h4>
-
+                  <h4>Add New Album</h4>
 
                   <input
                     type="text"
                     placeholder="Album title"
                     value={newAlbum.title}
-                    onChange={(
-                      event
-                    ) =>
-
-                      setNewAlbum(
-                        (previous) => ({
-
-                          ...previous,
-
-                          title:
-                            event.target.value,
-
-                        })
-                      )
-
+                    onChange={(event) =>
+                      setNewAlbum((previous) => ({
+                        ...previous,
+                        title: event.target.value,
+                      }))
                     }
                   />
-
 
                   <input
                     type="number"
                     min="1900"
                     max="2100"
                     placeholder="Release year (optional)"
-                    value={
-                      newAlbum.release_year
-                    }
-                    onChange={(
-                      event
-                    ) =>
-
-                      setNewAlbum(
-                        (previous) => ({
-
-                          ...previous,
-
-                          release_year:
-                            event.target.value,
-
-                        })
-                      )
-
+                    value={newAlbum.release_year}
+                    onChange={(event) =>
+                      setNewAlbum((previous) => ({
+                        ...previous,
+                        release_year: event.target.value,
+                      }))
                     }
                   />
 
+                  <small>
+                    An album without an artist requires backend and database
+                    support for a NULL artist_id.
+                  </small>
 
                   <div className="admin-quick-actions">
-
                     <button
                       type="button"
                       disabled={quickSaving}
-                      onClick={() =>
-                        setShowAlbumForm(false)
-                      }
+                      onClick={() => setShowAlbumForm(false)}
                     >
-
                       Cancel
-
                     </button>
-
 
                     <button
                       type="button"
@@ -2656,66 +1076,33 @@ setSuccess("Song uploaded successfully!");
                       disabled={quickSaving}
                       onClick={createAlbum}
                     >
-
                       <FaPlus />
-
-                      {quickSaving
-                        ? "Adding..."
-                        : "Add Album"}
-
+                      {quickSaving ? "Adding..." : "Add Album"}
                     </button>
-
                   </div>
-
                 </div>
-
               )}
-
             </div>
 
-
-            {/* =================================================
-                CATEGORY
-            ================================================= */}
-
+            {/* CATEGORY */}
             <div className="admin-field">
-
               <div className="admin-field-label-row">
-
-                <label>
-                  Category
-                </label>
-
+                <label>Category *</label>
 
                 <button
                   type="button"
                   className="admin-inline-add-button"
                   onClick={() => {
-
                     setError("");
-
                     setSuccess("");
-
-                    setShowCategoryForm(
-                      (previous) =>
-                        !previous
-                    );
-
+                    setShowCategoryForm((previous) => !previous);
                     setShowArtistForm(false);
-
                     setShowAlbumForm(false);
-
                   }}
                 >
-
-                  <FaPlus />
-
-                  New Category
-
+                  <FaPlus /> New Category
                 </button>
-
               </div>
-
 
               <select
                 name="category_id"
@@ -2723,86 +1110,45 @@ setSuccess("Song uploaded successfully!");
                 onChange={handleChange}
                 required
               >
+                <option value="">Select Category</option>
 
-                <option value="">
-                  Select Category
-                </option>
-
-
-                {filteredCategories.map(
-                  (category) => (
-
-                    <option
-                      key={category.id}
-                      value={category.id}
-                    >
-
-                      {category.name}
-
-                    </option>
-
-                  )
-                )}
-
+                {filteredCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
 
+              {categoriesLoading && <small>Loading categories...</small>}
 
-              {filteredCategories.length === 0 && (
-
+              {!categoriesLoading && filteredCategories.length === 0 && (
                 <small>
-
-                  No categories available for{" "}
-                  {selectedLanguage.nativeName}.
-                  {" "}
-                  Please create a new category.
-
+                  No categories available for {selectedLanguage.nativeName}.
+                  Please create a category.
                 </small>
-
               )}
 
-
               {showCategoryForm && (
-
                 <div className="admin-quick-create">
-
-                  <h4>
-                    Add New Category
-                  </h4>
-
+                  <h4>Add New Category</h4>
 
                   <input
                     type="text"
                     placeholder="Category name"
                     value={newCategory.name}
-                    onChange={(
-                      event
-                    ) =>
-
-                      setNewCategory({
-
-                        name:
-                          event.target.value,
-
-                      })
-
+                    onChange={(event) =>
+                      setNewCategory({ name: event.target.value })
                     }
                   />
 
-
                   <div className="admin-quick-actions">
-
                     <button
                       type="button"
                       disabled={quickSaving}
-                      onClick={() =>
-                        setShowCategoryForm(false)
-                      }
+                      onClick={() => setShowCategoryForm(false)}
                     >
-
                       Cancel
-
                     </button>
-
 
                     <button
                       type="button"
@@ -2810,533 +1156,203 @@ setSuccess("Song uploaded successfully!");
                       disabled={quickSaving}
                       onClick={createCategory}
                     >
-
                       <FaPlus />
-
-                      {quickSaving
-                        ? "Adding..."
-                        : "Add Category"}
-
+                      {quickSaving ? "Adding..." : "Add Category"}
                     </button>
-
                   </div>
-
                 </div>
-
               )}
-
             </div>
 
-
-            {/* =================================================
-                MINISTRY
-            ================================================= */}
-
+            {/* MINISTRY */}
             <div className="admin-field">
-
               <div className="admin-field-label-row">
-
-                <label htmlFor="ministry_id">
-                  Ministry
-                </label>
-
+                <label htmlFor="ministry_id">Ministry</label>
               </div>
-
 
               <select
                 id="ministry_id"
                 name="ministry_id"
                 value={form.ministry_id}
                 onChange={handleChange}
-                disabled={ministriesLoading}
               >
-
                 <option value="">
-
                   {ministriesLoading
                     ? "Loading ministries..."
                     : "No Ministry / General"}
-
                 </option>
 
-
-                {filteredMinistries.map(
-                  (ministry) => (
-
-                    <option
-                      key={ministry.id}
-                      value={ministry.id}
-                    >
-
-                      {ministry.name}
-
-                    </option>
-
-                  )
-                )}
-
+                {filteredMinistries.map((ministry) => (
+                  <option key={ministry.id} value={ministry.id}>
+                    {ministry.name}
+                  </option>
+                ))}
               </select>
 
+              <small>Ministry is optional.</small>
 
-              <small>
-
-                Ministry is optional.
-
-              </small>
-
-
-              {!ministriesLoading &&
-                filteredMinistries.length === 0 && (
-
-                  <small
-                    style={{
-                      display: "block",
-                      marginTop: "6px",
-                    }}
-                  >
-
-                    No ministries available for{" "}
-                    {selectedLanguage.nativeName}.
-                    {" "}
-                    You can add ministries from
-                    Admin → Ministries.
-
-                  </small>
-
-                )}
-
+              {!ministriesLoading && filteredMinistries.length === 0 && (
+                <small>
+                  No ministries available for {selectedLanguage.nativeName}.
+                  You can add ministries from Admin → Ministries.
+                </small>
+              )}
             </div>
 
-
-            {/* =================================================
-                MOODS
-            ================================================= */}
-
+            {/* MOODS */}
             <div className="admin-field admin-mood-field">
-
               <div className="admin-field-label-row">
-
-                <label>
-                  Music Mood
-                </label>
-
+                <label>Music Mood</label>
               </div>
 
-
               <small>
-
-                Select one or more moods for
-                this Christian song.
-
+                Select one or more moods for this Christian song.
               </small>
-
 
               <div className="admin-mood-grid">
+                {MOODS.map((mood) => (
+                  <label className="admin-mood-option" key={mood.value}>
+                    <input
+                      type="checkbox"
+                      value={mood.value}
+                      checked={form.moods.includes(mood.value)}
+                      onChange={handleMoodChange}
+                    />
 
-
-                <label className="admin-mood-option">
-
-                  <input
-                    type="checkbox"
-                    value="worship"
-                    checked={
-                      form.moods.includes(
-                        "worship"
-                      )
-                    }
-                    onChange={
-                      handleMoodChange
-                    }
-                  />
-
-                  <span>
-                    Worship
-                  </span>
-
-                </label>
-
-
-                <label className="admin-mood-option">
-
-                  <input
-                    type="checkbox"
-                    value="praise"
-                    checked={
-                      form.moods.includes(
-                        "praise"
-                      )
-                    }
-                    onChange={
-                      handleMoodChange
-                    }
-                  />
-
-                  <span>
-                    Praise
-                  </span>
-
-                </label>
-
-
-                <label className="admin-mood-option">
-
-                  <input
-                    type="checkbox"
-                    value="prayer"
-                    checked={
-                      form.moods.includes(
-                        "prayer"
-                      )
-                    }
-                    onChange={
-                      handleMoodChange
-                    }
-                  />
-
-                  <span>
-                    Prayer
-                  </span>
-
-                </label>
-
-
-                <label className="admin-mood-option">
-
-                  <input
-                    type="checkbox"
-                    value="hope"
-                    checked={
-                      form.moods.includes(
-                        "hope"
-                      )
-                    }
-                    onChange={
-                      handleMoodChange
-                    }
-                  />
-
-                  <span>
-                    Hope & Faith
-                  </span>
-
-                </label>
-
-
-                <label className="admin-mood-option">
-
-                  <input
-                    type="checkbox"
-                    value="peace"
-                    checked={
-                      form.moods.includes(
-                        "peace"
-                      )
-                    }
-                    onChange={
-                      handleMoodChange
-                    }
-                  />
-
-                  <span>
-                    Peace & Comfort
-                  </span>
-
-                </label>
-
-
-                <label className="admin-mood-option">
-
-                  <input
-                    type="checkbox"
-                    value="thanksgiving"
-                    checked={
-                      form.moods.includes(
-                        "thanksgiving"
-                      )
-                    }
-                    onChange={
-                      handleMoodChange
-                    }
-                  />
-
-                  <span>
-                    Thanksgiving
-                  </span>
-
-                </label>
-
-
+                    <span>{mood.label}</span>
+                  </label>
+                ))}
               </div>
-
             </div>
-
-
           </div>
-
         </div>
 
-
-        {/* =================================================
-            MEDIA
-        ================================================= */}
-
+        {/* MEDIA */}
         <div className="admin-form-section">
-
           <div className="admin-form-section-title">
-
-            <h2>
-              Media
-            </h2>
-
-            <p>
-              Upload the song audio
-              and cover artwork.
-            </p>
-
+            <h2>Media</h2>
+            <p>Upload the song audio and cover artwork.</p>
           </div>
 
-
           <div className="admin-upload-grid">
-
-
             {/* AUDIO */}
-
             <div className="admin-upload-box">
-
               <div className="admin-upload-icon">
-
                 <FaMusic />
-
               </div>
 
-
-              <h3>
-                Audio File *
-              </h3>
-
-
-              <p>
-                MP3 or M4A
-              </p>
-
+              <h3>Audio File *</h3>
+              <p>MP3 or M4A, maximum 30 MB</p>
 
               {!audioFile ? (
-
                 <>
-
                   <input
                     id="song-audio-input"
                     className="admin-file-input"
                     type="file"
                     accept=".mp3,.m4a,audio/mpeg,audio/mp4"
-                    onChange={
-                      handleAudioChange
-                    }
+                    onChange={handleAudioChange}
                   />
-
 
                   <label
                     htmlFor="song-audio-input"
                     className="admin-upload-button"
                   >
-
-                    <FaCloudUploadAlt />
-
-                    Choose Audio
-
+                    <FaCloudUploadAlt /> Choose Audio
                   </label>
-
                 </>
-
               ) : (
-
                 <div className="admin-selected-file">
-
                   <div>
-
-                    <strong>
-                      {audioFile.name}
-                    </strong>
-
-                    <span>
-                      {
-                        formatFileSize(
-                          audioFile.size
-                        )
-                      }
-                    </span>
-
+                    <strong>{audioFile.name}</strong>
+                    <span>{formatFileSize(audioFile.size)}</span>
                   </div>
-
 
                   <button
                     type="button"
-                    onClick={
-                      removeAudio
-                    }
+                    onClick={removeAudio}
                     aria-label="Remove audio"
                   >
-
                     <FaTimes />
-
                   </button>
-
                 </div>
-
               )}
-
             </div>
 
-
             {/* COVER */}
-
             <div className="admin-upload-box">
-
               {!coverPreview ? (
-
                 <div className="admin-upload-icon">
-
                   <FaImage />
-
                 </div>
-
               ) : (
-
                 <img
                   className="admin-cover-preview"
                   src={coverPreview}
                   alt="Song cover preview"
                 />
-
               )}
 
-
-              <h3>
-                Cover Image
-              </h3>
-
-
-              <p>
-                JPG, PNG or WebP
-              </p>
-
+              <h3>Cover Image</h3>
+              <p>JPG, PNG or WebP, maximum 10 MB</p>
 
               {!coverFile ? (
-
                 <>
-
                   <input
                     id="song-cover-input"
                     className="admin-file-input"
                     type="file"
                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                    onChange={
-                      handleCoverChange
-                    }
+                    onChange={handleCoverChange}
                   />
-
 
                   <label
                     htmlFor="song-cover-input"
                     className="admin-upload-button"
                   >
-
-                    <FaCloudUploadAlt />
-
-                    Choose Cover
-
+                    <FaCloudUploadAlt /> Choose Cover
                   </label>
-
                 </>
-
               ) : (
-
                 <div className="admin-selected-file">
-
                   <div>
-
-                    <strong>
-                      {coverFile.name}
-                    </strong>
-
-                    <span>
-                      {
-                        formatFileSize(
-                          coverFile.size
-                        )
-                      }
-                    </span>
-
+                    <strong>{coverFile.name}</strong>
+                    <span>{formatFileSize(coverFile.size)}</span>
                   </div>
-
 
                   <button
                     type="button"
-                    onClick={
-                      removeCover
-                    }
+                    onClick={removeCover}
                     aria-label="Remove cover"
                   >
-
                     <FaTimes />
-
                   </button>
-
                 </div>
-
               )}
-
             </div>
-
-
           </div>
-
         </div>
 
-
-        {/* =================================================
-            LYRICS
-        ================================================= */}
-
+        {/* LYRICS */}
         <div className="admin-form-section">
-
           <div className="admin-form-section-title">
-
-            <h2>
-              Lyrics — {selectedLanguage.nativeName}
-            </h2>
-
-            <p>
-              Enter the lyrics in the selected
-              song language.
-            </p>
-
+            <h2>Lyrics — {selectedLanguage.nativeName}</h2>
+            <p>Enter the lyrics in the selected song language.</p>
           </div>
 
-
           <div className="admin-field">
-
             <textarea
               name="lyrics"
               value={form.lyrics}
               onChange={handleChange}
               rows="16"
-              placeholder={
-                selectedLanguage.lyricsPlaceholder
-              }
+              placeholder={selectedLanguage.lyricsPlaceholder}
             />
-
           </div>
-
         </div>
 
-
-        {/* =================================================
-            FEATURED
-        ================================================= */}
-
+        {/* FEATURED */}
         <label className="admin-checkbox">
-
           <input
             type="checkbox"
             name="featured"
@@ -3344,76 +1360,35 @@ setSuccess("Song uploaded successfully!");
             onChange={handleChange}
           />
 
-
           <div>
-
-            <strong>
-              Featured Song
-            </strong>
-
-            <span>
-              Show this song in
-              Featured Worship.
-            </span>
-
+            <strong>Featured Song</strong>
+            <span>Show this song in Featured Worship.</span>
           </div>
-
         </label>
 
-
-        {/* =================================================
-            ACTIONS
-        ================================================= */}
-
+        {/* ACTIONS */}
         <div className="admin-form-actions">
-
           <button
             type="button"
             className="admin-cancel-button"
-            disabled={
-              saving ||
-              quickSaving
-            }
-            onClick={() =>
-              navigate(
-                "/admin/songs"
-              )
-            }
+            disabled={saving || quickSaving}
+            onClick={() => navigate("/admin/songs")}
           >
-
             Cancel
-
           </button>
-
 
           <button
             type="submit"
             className="admin-primary-button"
-            disabled={
-              saving ||
-              quickSaving
-            }
+            disabled={saving || quickSaving}
           >
-
             <FaSave />
-
-
-            {saving
-              ? "Uploading..."
-              : "Save Song"}
-
+            {saving ? "Uploading..." : "Save Song"}
           </button>
-
         </div>
-
-
       </form>
-
     </div>
-
   );
-
 }
-
 
 export default AddSong;
