@@ -35,6 +35,7 @@
   ===================================================== */
 
 
+
 export function getMediaUrl(path) {
   if (typeof path !== "string" || !path.trim()) {
     return null;
@@ -42,7 +43,6 @@ export function getMediaUrl(path) {
 
   const value = path.trim();
 
-  // Reject invalid values before constructing a URL.
   if (
     value.toLowerCase() === "undefined" ||
     value.toLowerCase() === "null" ||
@@ -53,16 +53,44 @@ export function getMediaUrl(path) {
     return null;
   }
 
-  // Preserve valid absolute URLs.
- if (/^https?:\/\//i.test(value)) {
-  return value;
-}
+  // Handle absolute URLs.
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      const url = new URL(value);
+
+      // Convert private KEERTHANA S3 URLs to CloudFront.
+      if (
+        url.hostname ===
+        "keerthana-media-908209635187.s3.ap-south-1.amazonaws.com"
+      ) {
+        const key = decodeURIComponent(
+          url.pathname.replace(/^\/+/, "")
+        );
+
+        if (
+          key.startsWith("audio/") ||
+          key.startsWith("covers/")
+        ) {
+          return `${CLOUDFRONT_URL}/${key
+            .split("/")
+            .map(encodeURIComponent)
+            .join("/")}`;
+        }
+      }
+
+      // Keep existing CloudFront and other absolute URLs.
+      return value;
+    } catch {
+      console.error("Invalid media URL:", value);
+      return null;
+    }
+  }
 
   const cleanPath = value.startsWith("/")
     ? value
     : `/${value}`;
 
-  // Audio: /media/audio/song.mp3 -> CloudFront /audio/song.mp3
+  // Audio: /media/audio/song.mp3
   if (cleanPath.startsWith("/media/audio/")) {
     const filename = cleanPath.slice("/media/audio/".length);
 
@@ -73,7 +101,7 @@ export function getMediaUrl(path) {
     return `${CLOUDFRONT_URL}/audio/${filename}`;
   }
 
-  // Images: /media/images/image.jpg -> CloudFront /covers/image.jpg
+  // Images: /media/images/image.jpg
   if (cleanPath.startsWith("/media/images/")) {
     const filename = cleanPath.slice("/media/images/".length);
 
@@ -84,7 +112,7 @@ export function getMediaUrl(path) {
     return `${CLOUDFRONT_URL}/covers/${filename}`;
   }
 
-  // Other media remains on the backend.
+  // Other relative media remains on the backend.
   return `${BACKEND_URL}${cleanPath}`;
 }
 
