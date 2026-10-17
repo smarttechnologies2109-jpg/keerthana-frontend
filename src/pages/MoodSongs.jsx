@@ -187,59 +187,31 @@ const MoodSongs = () => {
   /* =======================================================
      LOAD MOOD SONGS
   ======================================================= */
+const loadMoodSongs = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-  const loadMoodSongs =
-    async () => {
+    const response = await API.get(
+      `/moods/${encodeURIComponent(mood)}/songs`
+    );
 
-      try {
+    setSongs(
+      Array.isArray(response.data?.songs)
+        ? response.data.songs
+        : []
+    );
+  } catch (err) {
+    console.error(
+      "Load mood songs error:",
+      err.response?.data || err.message
+    );
 
-        setLoading(true);
-
-        setError("");
-
-
-       const response = await API.get(
-  `/moods/${encodeURIComponent(mood)}/songs`
-);
-
-const data = response?.data;
-setSongs(Array.isArray(data?.songs) ? data.songs : []);
-
-
-        if (
-          Array.isArray(
-            data?.songs
-          )
-        ) {
-
-          setSongs(
-            data.songs
-          );
-
-        } else {
-
-          setSongs([]);
-
-        }
-
-      } catch (err) {
-
-        console.error(
-          "Load mood songs error:",
-          err
-        );
-
-
-        setError(
-          "Unable to load songs for this mood."
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-    };
+    setError("Unable to load songs for this mood.");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   /* =======================================================
@@ -354,77 +326,33 @@ setBrowseSongs(Array.isArray(data?.songs) ? data.songs : []);
   /* =======================================================
      ADD SONG TO MOOD
   ======================================================= */
+const handleAddSong = async (song) => {
+  if (!song?.id || addingId !== null) return;
 
-  const handleAddSong =
-    async (song) => {
+  try {
+    setAddingId(song.id);
 
-      if (
-        !song?.id ||
-        addingId
-      ) {
-        return;
-      }
+    await API.post(`/moods/songs/${song.id}`, { mood });
 
+    // Reload saved data from the backend.
+    await Promise.all([
+      loadMoodSongs(),
+      loadBrowseSongs(),
+    ]);
+  } catch (err) {
+    console.error(
+      "Add song to mood error:",
+      err.response?.data || err.message
+    );
 
-      try {
-
-        setAddingId(
-          song.id
-        );
-
-await API.post(
-  `/moods/songs/${song.id}`,
-  { mood }
-);
-
-await loadMoodSongs();
-await loadBrowseSongs();
-
-
-        setBrowseSongs(
-          (previous) =>
-            previous.map(
-              (item) =>
-                item.id === song.id
-                  ? {
-                      ...item,
-                      is_in_mood: true,
-                      moods: Array.from(
-                        new Set([
-                          ...(Array.isArray(
-                            item.moods
-                          )
-                            ? item.moods
-                            : []),
-                          mood,
-                        ])
-                      ),
-                    }
-                  : item
-            )
-        );
-
-
-        await loadMoodSongs();
-
-      } catch (err) {
-
-        console.error(
-          "Add song to mood error:",
-          err
-        );
-
-        alert(
-          err?.response?.data?.message ||
-            "Unable to add song to mood."
-        );
-
-      } finally {
-
-        setAddingId(null);
-
-      }
-    };
+    alert(
+      err.response?.data?.message ||
+      "Unable to add song to mood."
+    );
+  } finally {
+    setAddingId(null);
+  }
+};
 
 
   /* =======================================================
