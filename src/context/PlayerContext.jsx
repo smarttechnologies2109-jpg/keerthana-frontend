@@ -7,11 +7,11 @@ import {
   useRef,
   useState,
 } from "react";
-
 import {
   isNativeAndroid,
   initializeNativeMusicPlayer,
   setNativePlaylist,
+  setNativeMusicVolume,
   Playlist,
   RmxAudioStatusMessage,
 } from "../utils/nativeMusicPlayer";
@@ -1072,20 +1072,34 @@ const seek = useCallback(
   /* VOLUME */
 
   const changeVolume = useCallback(
-    (value) => {
-      const newVolume = Math.min(
-        Math.max(Number(value) || 0, 0),
-        1
-      );
+  async (value) => {
+    const newVolume = Math.min(
+      Math.max(Number(value) || 0, 0),
+      1
+    );
 
-      setVolume(newVolume);
-      setIsMuted(newVolume === 0);
+    setVolume(newVolume);
+    setIsMuted(newVolume === 0);
 
-      audio.volume = newVolume;
-      audio.muted = newVolume === 0;
-    },
-    [audio]
-  );
+    if (isNativeAndroid) {
+      try {
+        await setNativeMusicVolume(newVolume);
+      } catch (error) {
+        console.error(
+          "Native music volume change failed:",
+          error
+        );
+      }
+
+      return;
+    }
+
+    audio.volume = newVolume;
+    audio.muted = newVolume === 0;
+  },
+  [audio]
+);
+
 
   const toggleMute = useCallback(() => {
     setIsMuted((previous) => !previous);

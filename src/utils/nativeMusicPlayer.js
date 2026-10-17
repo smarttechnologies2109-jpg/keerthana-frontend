@@ -122,3 +122,17 @@ export async function seekNativeMusic(seconds) {
     position: Math.max(0, Number(seconds) || 0),
   });
 }
+export async function setNativeMusicVolume(volume) {
+  if (!isNativeAndroid) return;
+
+  await initializeNativeMusicPlayer();
+
+  const safeVolume = Math.min(
+    Math.max(Number(volume) || 0, 0),
+    1
+  );
+
+  await Playlist.setPlaybackVolume({
+    volume: safeVolume,
+  });
+}
