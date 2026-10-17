@@ -1952,13 +1952,22 @@ console.log(
 // Actually send the song to the backend.
 const response = await API.post(
   "/admin/songs",
-  formData,
-  {
-    headers: {
-      "Content-Type": undefined,
-    },
-  }
+  formData
 );
+
+console.log("Song upload response:", response.data);
+
+if (!response.data?.success) {
+  throw new Error(
+    response.data?.message || "Song upload failed."
+  );
+}
+
+setSuccess("Song uploaded successfully!");
+
+setTimeout(() => {
+  navigate("/admin/songs");
+}, 1000);
 
 console.log("Song upload response:", response.data);
 
