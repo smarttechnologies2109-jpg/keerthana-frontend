@@ -28,7 +28,10 @@ export async function initializeNativeMusicPlayer() {
       return true;
     })().catch((error) => {
       initializationPromise = null;
-      console.error("Native music player initialization failed:", error);
+      console.error(
+        "Native music player initialization failed:",
+        error
+      );
       throw error;
     });
   }
@@ -71,19 +74,58 @@ export function toNativeTrack(song, audioUrl) {
   };
 }
 
-export async function setNativePlaylist(songs, resolveAudioUrl) {
+export async function setNativePlaylist(
+  songs,
+  resolveAudioUrl
+) {
+  if (!isNativeAndroid) return [];
+
   await initializeNativeMusicPlayer();
 
   const items = [];
 
   for (const song of songs) {
     const id = song?.id ?? song?.song_id;
-    if (id == null) continue;
 
-    const audioUrl = await resolveAudioUrl(song);
-    if (!audioUrl) continue;
+    if (id == null) {
+      console.warn(
+        "Skipping native track without an ID:",
+        song
+      );
+      continue;
+    }
 
-    items.push(toNativeTrack(song, audioUrl));
+    try {
+      const audioUrl = await resolveAudioUrl(song);
+
+      if (
+        typeof audioUrl !== "string" ||
+        !audioUrl.trim() ||
+        !/^https?:\/\//i.test(audioUrl.trim())
+      ) {
+        console.warn("Invalid native audio URL:", {
+          id,
+          title: song?.title,
+          audioUrl,
+        });
+        continue;
+      }
+
+      items.push(
+        toNativeTrack(song, audioUrl.trim())
+      );
+    } catch (error) {
+      console.error(
+        `Failed to resolve audio URL for song ${id}:`,
+        error
+      );
+    }
+  }
+
+  if (items.length === 0) {
+    throw new Error(
+      "No songs with valid audio URLs are available for Android playback."
+    );
   }
 
   await Playlist.setPlaylistItems({
@@ -91,10 +133,20 @@ export async function setNativePlaylist(songs, resolveAudioUrl) {
     options: { startPaused: true },
   });
 
+  console.log(
+    "Android playlist loaded:",
+    items.map((item) => ({
+      trackId: item.trackId,
+      title: item.title,
+      assetUrl: item.assetUrl,
+    }))
+  );
+
   return items;
 }
 
 export { Playlist, RmxAudioStatusMessage };
+
 export async function playNativeMusic() {
   await initializeNativeMusicPlayer();
   await Playlist.play();
@@ -102,26 +154,35 @@ export async function playNativeMusic() {
 
 export async function pauseNativeMusic() {
   if (!isNativeAndroid) return;
+
+  await initializeNativeMusicPlayer();
   await Playlist.pause();
 }
 
 export async function skipNativeNext() {
   if (!isNativeAndroid) return;
+
+  await initializeNativeMusicPlayer();
   await Playlist.skipForward();
 }
 
 export async function skipNativePrevious() {
   if (!isNativeAndroid) return;
+
+  await initializeNativeMusicPlayer();
   await Playlist.skipBack();
 }
 
 export async function seekNativeMusic(seconds) {
   if (!isNativeAndroid) return;
 
+  await initializeNativeMusicPlayer();
+
   await Playlist.seekTo({
     position: Math.max(0, Number(seconds) || 0),
   });
 }
+
 export async function setNativeMusicVolume(volume) {
   if (!isNativeAndroid) return;
 

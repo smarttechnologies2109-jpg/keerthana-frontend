@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+
 import {
   isNativeAndroid,
   initializeNativeMusicPlayer,
@@ -14,7 +15,9 @@ import {
   setNativeMusicVolume,
   Playlist,
   RmxAudioStatusMessage,
+  seekNativeMusic,
 } from "../utils/nativeMusicPlayer";
+
 
 import { getMediaUrl } from "../utils/media";
 import API from "../services/api";
@@ -556,69 +559,140 @@ export const PlayerProvider = ({ children }) => {
       cancelled = true;
     };
   }, []);
-useEffect(() => {
-  if (!isNativeAndroid) return;
 
-  let cancelled = false;
-  let listenerHandle;
 
-  const setupNativePlayer = async () => {
-    try {
-      await initializeNativeMusicPlayer();
 
-      if (cancelled) return;
+  /* ANDROID NATIVE PLAYBACK STATUS */
 
-      listenerHandle = await Playlist.addListener(
-        "status",
-        ({ status }) => {
-          if (!status) return;
+  useEffect(() => {
+    if (!isNativeAndroid) return;
 
-          if (
-            status.msgType ===
-            RmxAudioStatusMessage.RMXSTATUS_PLAYING
-          ) {
-            setIsPlaying(true);
-          }
+    let cancelled = false;
+    let listenerHandle = null;
 
-          if (
-            status.msgType ===
-            RmxAudioStatusMessage.RMXSTATUS_PAUSE
-          ) {
-            setIsPlaying(false);
-          }
+    const setupNativePlayer = async () => {
+      try {
+        await initializeNativeMusicPlayer();
 
-          if (
-            status.msgType ===
-            RmxAudioStatusMessage.RMXSTATUS_PLAYBACK_POSITION
-          ) {
-            const position = status.value?.position;
+        if (cancelled) return;
 
-            if (Number.isFinite(position)) {
-              setCurrentTime(position);
+        listenerHandle = await Playlist.addListener(
+          "status",
+          ({ status }) => {
+            if (cancelled || !status) return;
+
+            const value = status.value ?? {};
+            const message = status.msgType;
+
+            // The plugin reports currentPosition, not position.
+            if (
+              value.currentPosition != null &&
+              Number.isFinite(Number(value.currentPosition))
+            ) {
+              setCurrentTime(
+                Math.max(0, Number(value.currentPosition))
+              );
+            }
+
+            // Duration is reported in seconds.
+            if (
+              value.duration != null &&
+              Number.isFinite(Number(value.duration)) &&
+              Number(value.duration) > 0
+            ) {
+              setDuration(Number(value.duration));
+            }
+
+            switch (message) {
+              case RmxAudioStatusMessage.RMXSTATUS_PLAYING:
+                setIsPlaying(true);
+                setIsLoading(false);
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_LOADING:
+                setIsLoading(true);
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_CANPLAY:
+              case RmxAudioStatusMessage.RMXSTATUS_LOADED:
+                setIsLoading(false);
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_PAUSE:
+                setIsPlaying(false);
+                setIsLoading(false);
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_PLAYBACK_POSITION:
+              case RmxAudioStatusMessage.RMXSTATUS_DURATION:
+              case RmxAudioStatusMessage.RMXSTATUS_SEEK:
+                // Time and duration have already been updated above.
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_TRACK_CHANGED:
+                setCurrentTime(
+                  Number(value.currentPosition) || 0
+                );
+
+                if (
+                  Number.isFinite(Number(value.duration)) &&
+                  Number(value.duration) > 0
+                ) {
+                  setDuration(Number(value.duration));
+                } else {
+                  setDuration(0);
+                }
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_COMPLETED:
+                setIsPlaying(false);
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_STOPPED:
+                setIsPlaying(false);
+                setIsLoading(false);
+                break;
+
+              case RmxAudioStatusMessage.RMXSTATUS_ERROR:
+                console.error(
+                  "Android native playback error:",
+                  value
+                );
+                setIsPlaying(false);
+                setIsLoading(false);
+                break;
+
+              default:
+                break;
             }
           }
-
-          if (
-            status.msgType ===
-            RmxAudioStatusMessage.RMXSTATUS_ERROR
-          ) {
-            console.error("Native playback error:", status.value);
-            setIsPlaying(false);
-          }
+        );
+      } catch (error) {
+        if (!cancelled) {
+          console.error(
+            "Android native status listener failed:",
+            error
+          );
         }
-      );
-    } catch (error) {
-      console.error("Native player setup failed:", error);
-    }
-  };
+      }
+    };
 
-  setupNativePlayer();
+    setupNativePlayer();
 
-  return () => {
-    cancelled = true;
-    listenerHandle?.remove();
-  };
-}, []);
+    return () => {
+      cancelled = true;
+
+      if (listenerHandle) {
+        listenerHandle.remove().catch((error) => {
+          console.warn(
+            "Could not remove native status listener:",
+            error
+          );
+        });
+      }
+    };
+  }, []);
+
   /* AUDIO EVENTS */
 
   useEffect(() => {
@@ -777,37 +851,53 @@ const playSong = useCallback(
 
       checkLikedSong(getSongId(song)).catch(() => {});
 
-      if (isNativeAndroid) {
-        await initializeNativeMusicPlayer();
+if (isNativeAndroid) {
+  await initializeNativeMusicPlayer();
 
-        // Use real remote/media URLs for native playback.
-        // Browser Blob URLs from IndexedDB cannot be passed directly
-        // to the Android media service.
-        const nativeItems = await setNativePlaylist(
-          activeQueue,
-          async (item) => getSongAudioUrl(item)
-        );
+  const nativeItems = await setNativePlaylist(
+    activeQueue,
+    async (item) => getSongAudioUrl(item)
+  );
 
-        if (requestId !== playRequestIdRef.current) return;
+  const selectedId = String(getSongId(song));
 
-        const selectedId = String(getSongId(song));
-        const nativeIndex = nativeItems.findIndex(
-          (item) => item.trackId === selectedId
-        );
+  const nativeIndex = nativeItems.findIndex(
+    (item) => String(item.trackId) === selectedId
+  );
 
-        if (nativeIndex < 0) {
-          throw new Error(
-            "Selected song is not available in the native playlist."
-          );
-        }
+  if (nativeIndex < 0) {
+    throw new Error(`Song not found in native playlist: ${selectedId}`);
+  }
 
-        await Playlist.playTrackByIndex({ index: nativeIndex });
+  const selectedTrack = nativeItems[nativeIndex];
 
-        if (requestId !== playRequestIdRef.current) return;
+  if (
+    !selectedTrack.assetUrl ||
+    !/^https?:\/\//i.test(selectedTrack.assetUrl)
+  ) {
+    throw new Error(
+      `Invalid Android audio URL: ${selectedTrack.assetUrl}`
+    );
+  }
 
-        setIsPlaying(true);
-        setIsLoading(false);
-      } else {
+  console.log("Playing Android song:", {
+    title: selectedTrack.title,
+    audioUrl: selectedTrack.assetUrl,
+    index: nativeIndex,
+  });
+
+  await Playlist.playTrackByIndex({
+    index: nativeIndex,
+    position: 0,
+  });
+
+  if (requestId !== playRequestIdRef.current) return;
+
+  setIsPlaying(true);
+  setIsLoading(false);
+} else {
+ 
+
         const audioUrl = await resolveSongSource(song);
 
         if (requestId !== playRequestIdRef.current) return;
@@ -1017,57 +1107,101 @@ const seek = useCallback(
 
 
   /* AUTO NEXT AND REPEAT */
+useEffect(() => {
+  if (isNativeAndroid) return;
 
-  useEffect(() => {
-    const handleEnded = async () => {
-      if (!currentSong) return;
+  const handleEnded = async () => {
+    if (!currentSong) return;
 
-      if (repeatMode === "one") {
-        try {
-          audio.currentTime = 0;
-          await audio.play();
-        } catch (error) {
-          console.error("Repeat playback failed:", error);
-          setIsPlaying(false);
-        }
-
-        return;
+    if (repeatMode === "one") {
+      try {
+        audio.currentTime = 0;
+        await audio.play();
+      } catch (error) {
+        console.error("Repeat playback failed:", error);
+        setIsPlaying(false);
       }
 
-      await nextSong();
-    };
+      return;
+    }
 
-    audio.addEventListener("ended", handleEnded);
+    await nextSong();
+  };
 
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [audio, currentSong, repeatMode, nextSong]);
+  audio.addEventListener("ended", handleEnded);
+
+  return () => {
+    audio.removeEventListener("ended", handleEnded);
+  };
+}, [
+  audio,
+  currentSong,
+  repeatMode,
+  nextSong,
+]);
 
   /* SEEK */
 
 
-  const seekForward = useCallback(
-    (seconds = 10) => {
-      if (Number.isFinite(audio.duration)) {
-        audio.currentTime = Math.min(
-          audio.currentTime + seconds,
-          audio.duration
+const seekForward = useCallback(
+  async (seconds = 10) => {
+    if (isNativeAndroid) {
+      const nextTime = Math.max(
+        0,
+        currentTime + seconds
+      );
+
+      try {
+        await seekNativeMusic(nextTime);
+        setCurrentTime(nextTime);
+      } catch (error) {
+        console.error(
+          "Android seek forward failed:",
+          error
         );
       }
-    },
-    [audio]
-  );
 
-  const seekBackward = useCallback(
-    (seconds = 10) => {
-      audio.currentTime = Math.max(
-        audio.currentTime - seconds,
-        0
+      return;
+    }
+
+    if (Number.isFinite(audio.duration)) {
+      audio.currentTime = Math.min(
+        audio.currentTime + seconds,
+        audio.duration
       );
-    },
-    [audio]
-  );
+    }
+  },
+  [audio, currentTime]
+);
+
+const seekBackward = useCallback(
+  async (seconds = 10) => {
+    if (isNativeAndroid) {
+      const previousTime = Math.max(
+        0,
+        currentTime - seconds
+      );
+
+      try {
+        await seekNativeMusic(previousTime);
+        setCurrentTime(previousTime);
+      } catch (error) {
+        console.error(
+          "Android seek backward failed:",
+          error
+        );
+      }
+
+      return;
+    }
+
+    audio.currentTime = Math.max(
+      audio.currentTime - seconds,
+      0
+    );
+  },
+  [audio, currentTime]
+);
 
   /* VOLUME */
 
@@ -1372,32 +1506,40 @@ const seek = useCallback(
   );
 
   /* CLOSE / CLEAR PLAYER */
+const clearPlayer = useCallback(async () => {
+  playRequestIdRef.current += 1;
 
-  const clearPlayer = useCallback(() => {
-    playRequestIdRef.current += 1;
+  try {
+    if (isNativeAndroid) {
+      await Playlist.pause();
+      await Playlist.clearAllItems();
+    } else {
+      audio.pause();
 
-    audio.pause();
+      try {
+        audio.currentTime = 0;
+      } catch {}
 
-    try {
-      audio.currentTime = 0;
-    } catch {}
+      audio.removeAttribute("src");
+      audio.load();
+    }
+  } catch (error) {
+    console.error("Failed to clear player:", error);
+  }
 
-    audio.removeAttribute("src");
-    audio.load();
+  releaseObjectUrl();
 
-    releaseObjectUrl();
+  setCurrentSong(null);
+  setQueue([]);
+  setCurrentIndex(-1);
+  setCurrentTime(0);
+  setDuration(0);
+  setIsPlaying(false);
+  setIsLiked(false);
+  setIsLoading(false);
 
-    setCurrentSong(null);
-    setQueue([]);
-    setCurrentIndex(-1);
-    setCurrentTime(0);
-    setDuration(0);
-    setIsPlaying(false);
-    setIsLiked(false);
-    setIsLoading(false);
-
-    localStorage.removeItem(PLAYER_STORAGE_KEY);
-  }, [audio, releaseObjectUrl]);
+  localStorage.removeItem(PLAYER_STORAGE_KEY);
+}, [audio, releaseObjectUrl]);
 
   const closePlayer = clearPlayer;
 
