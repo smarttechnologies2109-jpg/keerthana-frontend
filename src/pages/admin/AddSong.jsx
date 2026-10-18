@@ -314,30 +314,34 @@ function AddSong() {
   /* =====================================================
      NORMAL FIELD CHANGE
   ===================================================== */
+const handleChange = (event) => {
+  const { name, value, type, checked } = event.target;
 
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+  setForm((previous) => ({
+    ...previous,
+    [name]: type === "checkbox" ? checked : value,
+  }));
+};
 
   /* =====================================================
      MOOD CHANGE
   ===================================================== */
 
-  const handleMoodChange = (event) => {
-    const { value, checked } = event.target;
+const handleMoodChange = (event) => {
+  const { value, checked } = event.target;
 
-    setForm((previous) => ({
+  setForm((previous) => {
+    const currentMoods = previous.moods || [];
+
+    return {
       ...previous,
+      // Preserve all other fields, including ministry_id.
       moods: checked
-        ? [...new Set([...(previous.moods || []), value])]
-        : (previous.moods || []).filter((mood) => mood !== value),
-    }));
-  };
+        ? [...new Set([...currentMoods, value])]
+        : currentMoods.filter((mood) => mood !== value),
+    };
+  });
+};
 
   /* =====================================================
      ARTIST CHANGE
@@ -1127,24 +1131,20 @@ function AddSong() {
                 <label htmlFor="ministry_id">Ministry</label>
               </div>
 
-              <select
-                id="ministry_id"
-                name="ministry_id"
-                value={form.ministry_id}
-                onChange={handleChange}
-              >
-                <option value="">
-                  {ministriesLoading
-                    ? "Loading ministries..."
-                    : "No Ministry / General"}
-                </option>
+             <select
+  id="ministry_id"
+  name="ministry_id"
+  value={form.ministry_id}
+  onChange={handleChange}
+>
+  <option value="">No Ministry / General</option>
 
-                {filteredMinistries.map((ministry) => (
-                  <option key={ministry.id} value={ministry.id}>
-                    {ministry.name}
-                  </option>
-                ))}
-              </select>
+  {ministries.map((ministry) => (
+    <option key={ministry.id} value={String(ministry.id)}>
+      {ministry.name}
+    </option>
+  ))}
+</select>
 
               <small>Ministry is optional and independent of category.</small>
 
