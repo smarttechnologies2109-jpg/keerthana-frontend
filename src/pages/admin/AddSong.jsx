@@ -132,9 +132,6 @@ const extractList = (data, key) => {
   return [];
 };
 
-const normalizeLanguage = (language) =>
-  String(language || "").trim().toLowerCase();
-
 function AddSong() {
   const navigate = useNavigate();
 
@@ -184,8 +181,8 @@ function AddSong() {
   /* =====================================================
      LOAD EACH ENTITY INDEPENDENTLY
 
-     One failed endpoint does not prevent the other
-     dropdowns from loading.
+     A failed endpoint does not prevent other dropdowns
+     from loading.
   ===================================================== */
 
   useEffect(() => {
@@ -209,6 +206,7 @@ function AddSong() {
 
         if (!cancelled) {
           setter([]);
+
           setError((previous) =>
             previous
               ? `${previous} ${label} could not be loaded.`
@@ -265,29 +263,24 @@ function AddSong() {
   }, []);
 
   /* =====================================================
-     LANGUAGE FILTERS
+     INDEPENDENT DROPDOWN LISTS
 
-     Records without a language remain visible for
-     compatibility with existing database records.
+     No language filtering.
+     No artist-to-album dependency.
+     No category-to-ministry dependency.
   ===================================================== */
 
-  const isAvailableForLanguage = (item) => {
-    if (!item) return false;
-
-    const itemLanguage = normalizeLanguage(item.language);
-
-    if (!itemLanguage) return true;
-
-    return itemLanguage === normalizeLanguage(form.language);
-  };
-
-  const filteredArtists = artists.filter(isAvailableForLanguage);
-  const filteredAlbums = albums.filter(isAvailableForLanguage);
-  const filteredCategories = categories.filter(isAvailableForLanguage);
-  const filteredMinistries = ministries.filter(isAvailableForLanguage);
+  const filteredArtists = artists;
+  const filteredAlbums = albums;
+  const filteredCategories = categories;
+  const filteredMinistries = ministries;
 
   /* =====================================================
      LANGUAGE CHANGE
+
+     Keep the selected artist, album, category and ministry.
+     Changing language only changes the song language and
+     language-specific labels/placeholders.
   ===================================================== */
 
   const handleLanguageChange = (event) => {
@@ -296,10 +289,6 @@ function AddSong() {
     setForm((previous) => ({
       ...previous,
       language,
-      artist_id: "",
-      album_id: "",
-      category_id: "",
-      ministry_id: "",
     }));
 
     setError("");
@@ -353,8 +342,7 @@ function AddSong() {
   /* =====================================================
      ARTIST CHANGE
 
-     Artist selection no longer clears the selected album.
-     Albums are independent in this form.
+     Selecting an artist does not change the album.
   ===================================================== */
 
   const handleArtistChange = (event) => {
@@ -410,6 +398,7 @@ function AddSong() {
       setSuccess(`Artist "${artist.name}" added successfully.`);
     } catch (err) {
       console.error("Create artist error:", err);
+
       setError(
         err.response?.data?.message ||
           err.message ||
@@ -423,8 +412,8 @@ function AddSong() {
   /* =====================================================
      QUICK CREATE ALBUM
 
-     Artist is optional in this form. The backend and
-     database must also allow artist_id to be NULL.
+     Album creation does not depend on the selected artist.
+     The backend/database must permit a NULL artist_id.
   ===================================================== */
 
   const createAlbum = async () => {
@@ -475,6 +464,7 @@ function AddSong() {
       setSuccess(`Album "${album.title}" added successfully.`);
     } catch (err) {
       console.error("Create album error:", err);
+
       setError(
         err.response?.data?.message ||
           err.message ||
@@ -487,6 +477,8 @@ function AddSong() {
 
   /* =====================================================
      QUICK CREATE CATEGORY
+
+     Category creation does not depend on a ministry.
   ===================================================== */
 
   const createCategory = async () => {
@@ -530,6 +522,7 @@ function AddSong() {
       setSuccess(`Category "${category.name}" added successfully.`);
     } catch (err) {
       console.error("Create category error:", err);
+
       setError(
         err.response?.data?.message ||
           err.message ||
@@ -553,6 +546,7 @@ function AddSong() {
     }
 
     const fileName = file.name.toLowerCase();
+
     const validExtension =
       fileName.endsWith(".mp3") || fileName.endsWith(".m4a");
 
@@ -606,7 +600,11 @@ function AddSong() {
 
     if (!file) return;
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
 
     if (!allowedTypes.includes(file.type)) {
       setError("Cover image must be JPG, PNG or WebP.");
@@ -652,6 +650,10 @@ function AddSong() {
 
   /* =====================================================
      SUBMIT SONG
+
+     Artist and category remain required.
+     Album and ministry are optional.
+     No language-matching validation is performed.
   ===================================================== */
 
   const handleSubmit = async (event) => {
@@ -685,57 +687,6 @@ function AddSong() {
       return;
     }
 
-    const selectedArtist = artists.find(
-      (item) => String(item.id) === String(form.artist_id)
-    );
-
-    const selectedAlbum = form.album_id
-      ? albums.find(
-          (item) => String(item.id) === String(form.album_id)
-        )
-      : null;
-
-    const selectedCategory = categories.find(
-      (item) => String(item.id) === String(form.category_id)
-    );
-
-    const selectedMinistry = form.ministry_id
-      ? ministries.find(
-          (item) => String(item.id) === String(form.ministry_id)
-        )
-      : null;
-
-    const languageMatches = (item) => {
-      if (!item) return true;
-
-      const itemLanguage = normalizeLanguage(item.language);
-
-      return (
-        !itemLanguage ||
-        itemLanguage === normalizeLanguage(form.language)
-      );
-    };
-
-    if (!languageMatches(selectedArtist)) {
-      setError("Selected artist does not belong to the selected song language.");
-      return;
-    }
-
-    if (!languageMatches(selectedAlbum)) {
-      setError("Selected album does not belong to the selected song language.");
-      return;
-    }
-
-    if (!languageMatches(selectedCategory)) {
-      setError("Selected category does not belong to the selected song language.");
-      return;
-    }
-
-    if (!languageMatches(selectedMinistry)) {
-      setError("Selected ministry does not belong to the selected song language.");
-      return;
-    }
-
     try {
       setSaving(true);
 
@@ -745,6 +696,7 @@ function AddSong() {
       formData.append("title_english", form.title_english.trim());
       formData.append("language", form.language);
       formData.append("lyrics", form.lyrics);
+
       formData.append("artist_id", form.artist_id);
       formData.append("category_id", form.category_id);
 
@@ -832,6 +784,8 @@ function AddSong() {
       {success && <div className="admin-success">{success}</div>}
 
       <form className="admin-song-form" onSubmit={handleSubmit}>
+        {/* SONG INFORMATION */}
+
         <div className="admin-form-section">
           <div className="admin-form-section-title">
             <h2>Song Information</h2>
@@ -840,6 +794,7 @@ function AddSong() {
 
           <div className="admin-form-grid">
             {/* LANGUAGE */}
+
             <div className="admin-field">
               <label>Song Language</label>
 
@@ -862,6 +817,7 @@ function AddSong() {
             </div>
 
             {/* SONG TITLE */}
+
             <div className="admin-field">
               <label>{selectedLanguage.titleLabel} *</label>
 
@@ -877,6 +833,7 @@ function AddSong() {
             </div>
 
             {/* ENGLISH TITLE */}
+
             <div className="admin-field">
               <label>English Title</label>
 
@@ -891,6 +848,7 @@ function AddSong() {
             </div>
 
             {/* ARTIST */}
+
             <div className="admin-field">
               <div className="admin-field-label-row">
                 <label>Artist *</label>
@@ -928,10 +886,7 @@ function AddSong() {
               {artistsLoading && <small>Loading artists...</small>}
 
               {!artistsLoading && filteredArtists.length === 0 && (
-                <small>
-                  No artists available for {selectedLanguage.nativeName}.
-                  Please create an artist.
-                </small>
+                <small>No artists available. Please create an artist.</small>
               )}
 
               {showArtistForm && (
@@ -986,6 +941,7 @@ function AddSong() {
             </div>
 
             {/* ALBUM */}
+
             <div className="admin-field">
               <div className="admin-field-label-row">
                 <label>Album</label>
@@ -1022,8 +978,8 @@ function AddSong() {
               {albumsLoading && <small>Loading albums...</small>}
 
               <small>
-                Album is optional. Select any available album or leave
-                this as No Album / Single.
+                Album is optional. Select any album or leave this as
+                No Album / Single.
               </small>
 
               {showAlbumForm && (
@@ -1057,8 +1013,8 @@ function AddSong() {
                   />
 
                   <small>
-                    An album without an artist requires backend and database
-                    support for a NULL artist_id.
+                    Creating an album without an artist requires backend
+                    and database support for a NULL artist_id.
                   </small>
 
                   <div className="admin-quick-actions">
@@ -1085,6 +1041,7 @@ function AddSong() {
             </div>
 
             {/* CATEGORY */}
+
             <div className="admin-field">
               <div className="admin-field-label-row">
                 <label>Category *</label>
@@ -1123,8 +1080,7 @@ function AddSong() {
 
               {!categoriesLoading && filteredCategories.length === 0 && (
                 <small>
-                  No categories available for {selectedLanguage.nativeName}.
-                  Please create a category.
+                  No categories available. Please create a category.
                 </small>
               )}
 
@@ -1165,6 +1121,7 @@ function AddSong() {
             </div>
 
             {/* MINISTRY */}
+
             <div className="admin-field">
               <div className="admin-field-label-row">
                 <label htmlFor="ministry_id">Ministry</label>
@@ -1189,17 +1146,18 @@ function AddSong() {
                 ))}
               </select>
 
-              <small>Ministry is optional.</small>
+              <small>Ministry is optional and independent of category.</small>
 
               {!ministriesLoading && filteredMinistries.length === 0 && (
                 <small>
-                  No ministries available for {selectedLanguage.nativeName}.
-                  You can add ministries from Admin → Ministries.
+                  No ministries available. Add ministries from
+                  Admin → Ministries.
                 </small>
               )}
             </div>
 
             {/* MOODS */}
+
             <div className="admin-field admin-mood-field">
               <div className="admin-field-label-row">
                 <label>Music Mood</label>
@@ -1228,6 +1186,7 @@ function AddSong() {
         </div>
 
         {/* MEDIA */}
+
         <div className="admin-form-section">
           <div className="admin-form-section-title">
             <h2>Media</h2>
@@ -1236,6 +1195,7 @@ function AddSong() {
 
           <div className="admin-upload-grid">
             {/* AUDIO */}
+
             <div className="admin-upload-box">
               <div className="admin-upload-icon">
                 <FaMusic />
@@ -1280,6 +1240,7 @@ function AddSong() {
             </div>
 
             {/* COVER */}
+
             <div className="admin-upload-box">
               {!coverPreview ? (
                 <div className="admin-upload-icon">
@@ -1334,6 +1295,7 @@ function AddSong() {
         </div>
 
         {/* LYRICS */}
+
         <div className="admin-form-section">
           <div className="admin-form-section-title">
             <h2>Lyrics — {selectedLanguage.nativeName}</h2>
@@ -1352,6 +1314,7 @@ function AddSong() {
         </div>
 
         {/* FEATURED */}
+
         <label className="admin-checkbox">
           <input
             type="checkbox"
@@ -1367,6 +1330,7 @@ function AddSong() {
         </label>
 
         {/* ACTIONS */}
+
         <div className="admin-form-actions">
           <button
             type="button"
