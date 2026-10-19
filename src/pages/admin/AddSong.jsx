@@ -628,6 +628,31 @@ const handleMoodChange = (event) => {
     if (input) input.value = "";
   };
 
+
+
+  const handleChange = (event) => {
+  const { name, value, type, checked } = event.target;
+
+  console.log("========== FORM CHANGE ==========");
+  console.log("Field name:", name);
+  console.log("New value:", value);
+  console.log("Input type:", type);
+  console.log("Checked:", checked);
+  console.log("Form before change:", form);
+
+  setForm((previous) => {
+    const updatedForm = {
+      ...previous,
+      [name]: type === "checkbox" ? checked : value,
+    };
+
+    console.log("Form after change:", updatedForm);
+    console.log("Moods after change:", updatedForm.moods);
+    console.log("Ministry after change:", updatedForm.ministry_id);
+
+    return updatedForm;
+  });
+};
   /* =====================================================
      COVER FILE
   ===================================================== */
