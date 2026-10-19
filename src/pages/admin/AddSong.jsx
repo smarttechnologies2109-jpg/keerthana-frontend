@@ -317,13 +317,25 @@ function AddSong() {
      NORMAL FIELD CHANGE
   ===================================================== */
 
-const handleChange = (event) => {
-  const { name, value, type, checked } = event.target;
+const handleMinistryChange = (event) => {
+  const ministryId = event.target.value;
 
-  setForm((previous) => ({
-    ...previous,
-    [name]: type === "checkbox" ? checked : value,
-  }));
+  console.log("========== MINISTRY CHANGE ==========");
+  console.log("Selected ministry ID:", ministryId);
+  console.log("Form before ministry change:", form);
+  console.log("Moods before ministry change:", form.moods);
+
+  setForm((previous) => {
+    const updatedForm = {
+      ...previous,
+      ministry_id: ministryId,
+    };
+
+    console.log("Form after ministry change:", updatedForm);
+    console.log("Moods after ministry change:", updatedForm.moods);
+
+    return updatedForm;
+  });
 };
 
   /* =====================================================
@@ -335,17 +347,30 @@ const handleChange = (event) => {
 const handleMoodChange = (event) => {
   const { value, checked } = event.target;
 
+  console.log("========== MOOD CHANGE ==========");
+  console.log("Selected mood:", value);
+  console.log("Checked:", checked);
+
   setForm((previous) => {
     const currentMoods = previous.moods || [];
 
-    return {
+    const updatedMoods = checked
+      ? currentMoods.includes(value)
+        ? currentMoods
+        : [...currentMoods, value]
+      : currentMoods.filter((mood) => mood !== value);
+
+    const updatedForm = {
       ...previous,
-      moods: checked
-        ? currentMoods.includes(value)
-          ? currentMoods
-          : [...currentMoods, value]
-        : currentMoods.filter((mood) => mood !== value),
+      moods: updatedMoods,
     };
+
+    console.log("Previous moods:", currentMoods);
+    console.log("Updated moods:", updatedMoods);
+    console.log("Ministry ID:", updatedForm.ministry_id);
+    console.log("Full updated form:", updatedForm);
+
+    return updatedForm;
   });
 };
 
@@ -842,7 +867,7 @@ formData.append("moods", JSON.stringify(form.moods || []));
                 type="text"
                 name="title"
                 value={form.title}
-                onChange={handleChange}
+                onChange={handleMinistryChange}
                 placeholder={selectedLanguage.titlePlaceholder}
                 maxLength={255}
                 required
@@ -1145,23 +1170,22 @@ formData.append("moods", JSON.stringify(form.moods || []));
     <label htmlFor="ministry_id">Ministry</label>
   </div>
 
-  <select
-    id="ministry_id"
-    name="ministry_id"
-    value={form.ministry_id}
-    onChange={handleChange}
-  >
-    <option value="">Select ministry name</option>
+<select
+  name="ministry_id"
+  value={form.ministry_id}
+  onChange={handleMinistryChange}
+>
+  <option value="">Select Ministry (Optional)</option>
 
-    {ministries.map((ministry) => (
-      <option
-        key={ministry.id}
-        value={String(ministry.id)}
-      >
-        {ministry.name}
-      </option>
-    ))}
-  </select>
+  {ministries.map((ministry) => (
+    <option
+      key={ministry.id}
+      value={String(ministry.id)}
+    >
+      {ministry.name}
+    </option>
+  ))}
+</select>
 
   <small>
     Ministry is optional and independent of mood and category.
