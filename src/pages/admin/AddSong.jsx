@@ -331,17 +331,18 @@ const handleMoodChange = (event) => {
   const { value, checked } = event.target;
 
   setForm((previous) => {
-    const currentMoods = previous.moods || [];
+    const moods = previous.moods || [];
 
     return {
       ...previous,
-      // Preserve all other fields, including ministry_id.
+      ministry_id: previous.ministry_id,
       moods: checked
-        ? [...new Set([...currentMoods, value])]
-        : currentMoods.filter((mood) => mood !== value),
+        ? [...new Set([...moods, value])]
+        : moods.filter((mood) => mood !== value),
     };
   });
 };
+
 
   /* =====================================================
      ARTIST CHANGE
@@ -1126,15 +1127,17 @@ const handleMoodChange = (event) => {
 
             {/* MINISTRY */}
 
-            <div className="admin-field">
-              <div className="admin-field-label-row">
-                <label htmlFor="ministry_id">Ministry</label>
-              </div>
 
-             <select
+<div className="admin-field">
+  <div className="admin-field-label-row">
+    <label htmlFor="ministry_id">Ministry</label>
+  </div>
+
+ 
+<select
   id="ministry_id"
   name="ministry_id"
-  value={form.ministry_id}
+  value={String(form.ministry_id ?? "")}
   onChange={handleChange}
 >
   <option value="">No Ministry / General</option>
@@ -1146,15 +1149,10 @@ const handleMoodChange = (event) => {
   ))}
 </select>
 
-              <small>Ministry is optional and independent of category.</small>
 
-              {!ministriesLoading && filteredMinistries.length === 0 && (
-                <small>
-                  No ministries available. Add ministries from
-                  Admin → Ministries.
-                </small>
-              )}
-            </div>
+  <small>Ministry is optional and independent of mood and category.</small>
+</div>
+
 
             {/* MOODS */}
 
@@ -1167,20 +1165,23 @@ const handleMoodChange = (event) => {
                 Select one or more moods for this Christian song.
               </small>
 
-              <div className="admin-mood-grid">
-                {MOODS.map((mood) => (
-                  <label className="admin-mood-option" key={mood.value}>
-                    <input
-                      type="checkbox"
-                      value={mood.value}
-                      checked={form.moods.includes(mood.value)}
-                      onChange={handleMoodChange}
-                    />
+              
+<div className="admin-mood-grid">
+  {MOODS.map((mood) => (
+    <label className="admin-mood-option" key={mood.value}>
+      <input
+        type="checkbox"
+        name="moods"
+        value={mood.value}
+        checked={(form.moods || []).includes(mood.value)}
+        onChange={handleMoodChange}
+      />
 
-                    <span>{mood.label}</span>
-                  </label>
-                ))}
-              </div>
+      <span>{mood.label}</span>
+    </label>
+  ))}
+</div>
+
             </div>
           </div>
         </div>
