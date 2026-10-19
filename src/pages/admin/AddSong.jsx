@@ -178,6 +178,8 @@ function AddSong() {
   const selectedLanguage =
     LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
 
+    const [selectedMinistryId, setSelectedMinistryId] = useState("");
+
   /* =====================================================
      LOAD EACH ENTITY INDEPENDENTLY
 
@@ -317,28 +319,43 @@ function AddSong() {
 const handleChange = (event) => {
   const { name, value, type, checked } = event.target;
 
+  if (name === "ministry_id") {
+    setSelectedMinistryId(value);
+
+    setForm((previous) => ({
+      ...previous,
+      ministry_id: value,
+    }));
+
+    return;
+  }
+
   setForm((previous) => ({
     ...previous,
     [name]: type === "checkbox" ? checked : value,
   }));
 };
-
   /* =====================================================
      MOOD CHANGE
   ===================================================== */
+
 
 const handleMoodChange = (event) => {
   const { value, checked } = event.target;
 
   setForm((previous) => {
-    const moods = previous.moods || [];
+    const moods = new Set(previous.moods || []);
+
+    if (checked) {
+      moods.add(value);
+    } else {
+      moods.delete(value);
+    }
 
     return {
       ...previous,
-      ministry_id: previous.ministry_id,
-      moods: checked
-        ? [...new Set([...moods, value])]
-        : moods.filter((mood) => mood !== value),
+      ministry_id: selectedMinistryId || previous.ministry_id,
+      moods: Array.from(moods),
     };
   });
 };
@@ -709,9 +726,9 @@ const handleMoodChange = (event) => {
         formData.append("album_id", form.album_id);
       }
 
-      if (form.ministry_id) {
-        formData.append("ministry_id", form.ministry_id);
-      }
+     if (ministryId) {
+  formData.append("ministry_id", ministryId);
+}
 
       formData.append("moods", JSON.stringify(form.moods || []));
       formData.append("featured", String(form.featured));
@@ -1134,10 +1151,11 @@ const handleMoodChange = (event) => {
   </div>
 
  
+
 <select
   id="ministry_id"
   name="ministry_id"
-  value={String(form.ministry_id ?? "")}
+  value={selectedMinistryId}
   onChange={handleChange}
 >
   <option value="">No Ministry / General</option>
@@ -1148,6 +1166,7 @@ const handleMoodChange = (event) => {
     </option>
   ))}
 </select>
+
 
 
   <small>Ministry is optional and independent of mood and category.</small>
