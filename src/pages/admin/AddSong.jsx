@@ -320,22 +320,12 @@ function AddSong() {
 const handleMinistryChange = (event) => {
   const ministryId = event.target.value;
 
-  console.log("========== MINISTRY CHANGE ==========");
-  console.log("Selected ministry ID:", ministryId);
-  console.log("Form before ministry change:", form);
-  console.log("Moods before ministry change:", form.moods);
+  console.log("[AddSong] Ministry selected:", ministryId);
 
-  setForm((previous) => {
-    const updatedForm = {
-      ...previous,
-      ministry_id: ministryId,
-    };
-
-    console.log("Form after ministry change:", updatedForm);
-    console.log("Moods after ministry change:", updatedForm.moods);
-
-    return updatedForm;
-  });
+  setForm((previous) => ({
+    ...previous,
+    ministry_id: ministryId,
+  }));
 };
 
   /* =====================================================
@@ -347,9 +337,7 @@ const handleMinistryChange = (event) => {
 const handleMoodChange = (event) => {
   const { value, checked } = event.target;
 
-  console.log("========== MOOD CHANGE ==========");
-  console.log("Selected mood:", value);
-  console.log("Checked:", checked);
+  console.log("[AddSong] Mood changed:", { value, checked });
 
   setForm((previous) => {
     const currentMoods = previous.moods || [];
@@ -365,10 +353,8 @@ const handleMoodChange = (event) => {
       moods: updatedMoods,
     };
 
-    console.log("Previous moods:", currentMoods);
-    console.log("Updated moods:", updatedMoods);
-    console.log("Ministry ID:", updatedForm.ministry_id);
-    console.log("Full updated form:", updatedForm);
+    console.log("[AddSong] Current ministry:", updatedForm.ministry_id);
+    console.log("[AddSong] Current moods:", updatedForm.moods);
 
     return updatedForm;
   });
@@ -885,19 +871,21 @@ formData.append("moods", JSON.stringify(form.moods || []));
 
             {/* SONG TITLE */}
 
-            <div className="admin-field">
-              <label>{selectedLanguage.titleLabel} *</label>
+       {/* SONG TITLE */}
 
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleMinistryChange}
-                placeholder={selectedLanguage.titlePlaceholder}
-                maxLength={255}
-                required
-              />
-            </div>
+<div className="admin-field">
+  <label>{selectedLanguage.titleLabel} *</label>
+
+  <input
+    type="text"
+    name="title"
+    value={form.title}
+    onChange={handleChange}
+    placeholder={selectedLanguage.titlePlaceholder}
+    maxLength={255}
+    required
+  />
+</div>
 
             {/* ENGLISH TITLE */}
 
@@ -1190,33 +1178,32 @@ formData.append("moods", JSON.stringify(form.moods || []));
             {/* MINISTRY */}
 
 
+{/* MINISTRY */}
+
 <div className="admin-field">
   <div className="admin-field-label-row">
     <label htmlFor="ministry_id">Ministry</label>
   </div>
 
-<select
-  name="ministry_id"
-  value={form.ministry_id}
-  onChange={handleMinistryChange}
->
-  <option value="">Select Ministry (Optional)</option>
+  <select
+    id="ministry_id"
+    name="ministry_id"
+    value={form.ministry_id}
+    onChange={handleMinistryChange}
+  >
+    <option value="">Select Ministry (Optional)</option>
 
-  {ministries.map((ministry) => (
-    <option
-      key={ministry.id}
-      value={String(ministry.id)}
-    >
-      {ministry.name}
-    </option>
-  ))}
-</select>
+    {ministries.map((ministry) => (
+      <option key={ministry.id} value={String(ministry.id)}>
+        {ministry.name}
+      </option>
+    ))}
+  </select>
 
   <small>
-    Ministry is optional and independent of mood and category.
+    The selected ministry will remain unchanged when you select moods.
   </small>
 </div>
-
 
 
             {/* MOODS */}
