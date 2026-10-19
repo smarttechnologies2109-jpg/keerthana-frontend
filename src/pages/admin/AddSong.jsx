@@ -178,7 +178,7 @@ function AddSong() {
   const selectedLanguage =
     LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
 
-    const [selectedMinistryId, setSelectedMinistryId] = useState("");
+  
 
   /* =====================================================
      LOAD EACH ENTITY INDEPENDENTLY
@@ -316,49 +316,39 @@ function AddSong() {
   /* =====================================================
      NORMAL FIELD CHANGE
   ===================================================== */
+
 const handleChange = (event) => {
   const { name, value, type, checked } = event.target;
-
-  if (name === "ministry_id") {
-    setSelectedMinistryId(value);
-
-    setForm((previous) => ({
-      ...previous,
-      ministry_id: value,
-    }));
-
-    return;
-  }
 
   setForm((previous) => ({
     ...previous,
     [name]: type === "checkbox" ? checked : value,
   }));
 };
+
   /* =====================================================
      MOOD CHANGE
   ===================================================== */
+
 
 
 const handleMoodChange = (event) => {
   const { value, checked } = event.target;
 
   setForm((previous) => {
-    const moods = new Set(previous.moods || []);
-
-    if (checked) {
-      moods.add(value);
-    } else {
-      moods.delete(value);
-    }
+    const currentMoods = previous.moods || [];
 
     return {
       ...previous,
-      ministry_id: selectedMinistryId || previous.ministry_id,
-      moods: Array.from(moods),
+      moods: checked
+        ? currentMoods.includes(value)
+          ? currentMoods
+          : [...currentMoods, value]
+        : currentMoods.filter((mood) => mood !== value),
     };
   });
 };
+
 
 
   /* =====================================================
@@ -726,11 +716,16 @@ const handleMoodChange = (event) => {
         formData.append("album_id", form.album_id);
       }
 
-     if (ministryId) {
-  formData.append("ministry_id", ministryId);
+
+if (form.ministry_id) {
+  formData.append("ministry_id", form.ministry_id);
 }
 
-      formData.append("moods", JSON.stringify(form.moods || []));
+formData.append("moods", JSON.stringify(form.moods || []));
+
+
+
+   
       formData.append("featured", String(form.featured));
       formData.append("audio", audioFile);
 
@@ -1150,27 +1145,29 @@ const handleMoodChange = (event) => {
     <label htmlFor="ministry_id">Ministry</label>
   </div>
 
- 
+  <select
+    id="ministry_id"
+    name="ministry_id"
+    value={form.ministry_id}
+    onChange={handleChange}
+  >
+    <option value="">Select ministry name</option>
 
-<select
-  id="ministry_id"
-  name="ministry_id"
-  value={selectedMinistryId}
-  onChange={handleChange}
->
-  <option value="">No Ministry / General</option>
+    {ministries.map((ministry) => (
+      <option
+        key={ministry.id}
+        value={String(ministry.id)}
+      >
+        {ministry.name}
+      </option>
+    ))}
+  </select>
 
-  {ministries.map((ministry) => (
-    <option key={ministry.id} value={String(ministry.id)}>
-      {ministry.name}
-    </option>
-  ))}
-</select>
-
-
-
-  <small>Ministry is optional and independent of mood and category.</small>
+  <small>
+    Ministry is optional and independent of mood and category.
+  </small>
 </div>
+
 
 
             {/* MOODS */}
