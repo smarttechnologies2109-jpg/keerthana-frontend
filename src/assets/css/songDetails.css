@@ -5062,3 +5062,1463 @@ body.prayer-mode-active {
     touch-action: manipulation;
   }
 }
+
+/* =========================================================
+   KEERTHANA MUSIC — SONG DETAILS PREMIUM THEME
+   Midnight Navy • Royal Blue • Soft Gold
+========================================================= */
+
+.song-details-page,
+.prayer-mode-page {
+  --sd-bg: #070c18;
+  --sd-surface: #101a2e;
+  --sd-card: #131f36;
+  --sd-card-hover: #1a2a47;
+  --sd-blue: #4169e1;
+  --sd-blue-light: #7395ff;
+  --sd-gold: #d9b66f;
+  --sd-gold-light: #f0d69a;
+  --sd-text: #f5f7ff;
+  --sd-muted: #a8b4ca;
+  --sd-border: rgba(174, 192, 228, 0.15);
+  --sd-danger: #ff858e;
+
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  color: var(--sd-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.song-details-page {
+  min-height: 100vh;
+  padding: 28px 36px 140px;
+  background:
+    radial-gradient(
+      ellipse at 78% 8%,
+      rgba(65, 105, 225, 0.15),
+      transparent 36%
+    ),
+    linear-gradient(145deg, #070c18, #0a1222 55%, #080e1c);
+  box-sizing: border-box;
+}
+
+.song-details-page *,
+.prayer-mode-page * {
+  box-sizing: border-box;
+}
+
+.song-details-page button,
+.prayer-mode-page button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.song-details-page button:focus-visible,
+.prayer-mode-page button:focus-visible {
+  outline: 2px solid var(--sd-gold);
+  outline-offset: 4px;
+}
+
+/* TOP BAR */
+
+.song-details-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 38px;
+  max-width: 1400px;
+}
+
+.song-back-button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  color: var(--sd-text);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--sd-border);
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.song-back-button:hover {
+  color: var(--sd-gold-light);
+  background: var(--sd-card-hover);
+  border-color: rgba(217, 182, 111, 0.5);
+  transform: translateY(-2px);
+}
+
+.song-details-topbar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.song-details-topbar > div span,
+.song-type,
+.lyrics-heading > div:first-child > span {
+  color: var(--sd-gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.song-details-topbar > div strong {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+}
+
+/* SONG HERO */
+
+.song-details-hero {
+  display: grid;
+  grid-template-columns: minmax(230px, 330px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+  max-width: 1400px;
+  margin: 0 auto 52px;
+  padding: clamp(24px, 4vw, 48px);
+  overflow: hidden;
+  position: relative;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(24, 39, 67, 0.95),
+      rgba(12, 21, 39, 0.97) 65%
+    );
+  border: 1px solid var(--sd-border);
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.23);
+}
+
+.song-details-hero::before {
+  content: "";
+  position: absolute;
+  top: -130px;
+  right: -100px;
+  width: 330px;
+  height: 330px;
+  pointer-events: none;
+  background: rgba(65, 105, 225, 0.11);
+  filter: blur(65px);
+  border-radius: 50%;
+}
+
+.song-details-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--sd-surface);
+  border: 1px solid rgba(217, 182, 111, 0.28);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.35);
+}
+
+.song-details-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.song-details-info {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.song-type {
+  display: inline-block;
+  margin-bottom: 17px;
+}
+
+.song-details-info h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1.6px;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.song-details-info h2 {
+  margin: 10px 0 18px;
+  color: #c0cbe0;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.song-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 28px;
+  color: var(--sd-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.song-meta button {
+  padding: 0;
+  color: #dbe4f7;
+  font-size: inherit;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.song-meta button:hover {
+  color: var(--sd-gold-light);
+}
+
+.song-meta > span {
+  color: var(--sd-gold);
+}
+
+/* ACTION BUTTONS */
+
+.song-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 11px;
+}
+
+.song-actions > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 43px;
+  padding: 0 15px;
+  color: #e5ebf8;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--sd-border);
+  border-radius: 13px;
+  cursor: pointer;
+}
+
+.song-actions > button:hover:not(:disabled) {
+  color: var(--sd-gold-light);
+  background: rgba(65, 105, 225, 0.14);
+  border-color: rgba(217, 182, 111, 0.45);
+  transform: translateY(-2px);
+}
+
+.song-actions > button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.song-actions > .song-main-play {
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  color: #111827;
+  font-size: 19px;
+  background: linear-gradient(135deg, #f0d69a, #c79a4a);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 7px 24px rgba(217, 182, 111, 0.2);
+}
+
+.song-actions > .song-main-play:hover:not(:disabled) {
+  color: #070c18;
+  background: linear-gradient(135deg, #ffe8b0, #d9b66f);
+  box-shadow: 0 10px 30px rgba(217, 182, 111, 0.32);
+}
+
+.song-actions > .song-like,
+.song-actions > .song-favorite {
+  width: 43px;
+  min-width: 43px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.song-actions > .song-like.active {
+  color: #ff8297;
+  background: rgba(255, 91, 125, 0.1);
+  border-color: rgba(255, 91, 125, 0.3);
+}
+
+.song-actions > .song-favorite.active {
+  color: var(--sd-gold-light);
+  background: rgba(217, 182, 111, 0.1);
+  border-color: rgba(217, 182, 111, 0.35);
+}
+
+.song-actions > .song-prayer-mode-button {
+  color: var(--sd-gold-light);
+  background: rgba(217, 182, 111, 0.08);
+  border-color: rgba(217, 182, 111, 0.24);
+}
+
+.song-actions > .song-offline-button.offline-active {
+  color: #c6d5ff;
+  background: rgba(65, 105, 225, 0.16);
+  border-color: rgba(115, 149, 255, 0.35);
+}
+
+.song-like-error {
+  flex-basis: 100%;
+  margin: 2px 0;
+  color: var(--sd-danger);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* LYRICS SECTION */
+
+.lyrics-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(22px, 3.5vw, 40px);
+  scroll-margin-top: 24px;
+  background: linear-gradient(145deg, #101a2e, #0c1527);
+  border: 1px solid var(--sd-border);
+  border-radius: 24px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.15);
+}
+
+.lyrics-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.lyrics-heading h2 {
+  margin: 8px 0 0;
+  color: #fff;
+  font-size: clamp(23px, 3vw, 31px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.lyrics-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.lyrics-tools button {
+  min-height: 36px;
+  padding: 0 11px;
+  color: #dce5f7;
+  font-size: 11px;
+  font-weight: 600;
+  background: #15223a;
+  border: 1px solid var(--sd-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.lyrics-tools button:hover:not(:disabled),
+.lyrics-tools button.active {
+  color: var(--sd-gold-light);
+  background: rgba(65, 105, 225, 0.16);
+  border-color: rgba(217, 182, 111, 0.45);
+}
+
+.lyrics-tools button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lyrics-tools .lyrics-share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #101827;
+  background: linear-gradient(135deg, #f0d69a, #c79a4a);
+  border: none;
+}
+
+.lyrics-tools .lyrics-share-button:hover:not(:disabled) {
+  color: #070c18;
+  background: #f5dfa9;
+}
+
+.lyrics-control-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(174, 192, 228, 0.1);
+  border-radius: 12px;
+}
+
+.lyrics-control-group .lyrics-control-label {
+  padding: 0 5px;
+  color: #9eacc5;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.lyrics-control-group .lyrics-font-value {
+  min-width: 42px;
+  color: var(--sd-gold-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.lyrics-tools .lyrics-reset-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  min-width: 36px;
+  padding: 0;
+}
+
+.song-lyrics {
+  padding: 32px 8px 12px;
+  color: #e5eaf5;
+  font-family: "Noto Sans Telugu", "Noto Serif Telugu", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  word-break: normal;
+  line-break: auto;
+}
+
+.no-lyrics {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 220px;
+  color: var(--sd-muted);
+  text-align: center;
+}
+
+.no-lyrics > svg {
+  color: var(--sd-gold);
+  font-size: 32px;
+}
+
+.no-lyrics h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.no-lyrics p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* LOADING AND ERROR */
+
+.song-details-loading,
+.song-details-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 14px;
+  color: var(--sd-muted);
+  text-align: center;
+}
+
+.song-details-loading > svg,
+.song-details-error > svg {
+  color: var(--sd-gold);
+  font-size: 38px;
+}
+
+.song-details-loading h2,
+.song-details-error h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.song-details-error p {
+  font-size: 13px;
+}
+
+.song-details-error button {
+  min-height: 42px;
+  padding: 0 20px;
+  color: #101827;
+  font-weight: 700;
+  background: var(--sd-gold);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* SLEEP MODE MODAL */
+
+.sleep-mode-overlay,
+.song-report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(3, 7, 16, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.sleep-mode-modal,
+.song-report-modal {
+  width: min(100%, 470px);
+  max-height: min(88vh, 800px);
+  padding: 28px;
+  overflow-y: auto;
+  color: var(--sd-text);
+  background: linear-gradient(145deg, #14213a, #0a1222);
+  border: 1px solid rgba(217, 182, 111, 0.25);
+  border-radius: 25px;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+}
+
+.sleep-mode-modal *,
+.song-report-modal * {
+  box-sizing: border-box;
+}
+
+.sleep-mode-modal-header,
+.song-report-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.sleep-mode-modal-header > div > span,
+.song-report-header > div > span {
+  color: var(--sd-gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.sleep-mode-modal-header h2,
+.song-report-header h2 {
+  margin: 8px 0 0;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+}
+
+.sleep-mode-modal-header > button,
+.song-report-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  color: #dce5f7;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--sd-border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.sleep-mode-modal-header > button:hover,
+.song-report-close:hover {
+  color: var(--sd-gold-light);
+  background: var(--sd-card-hover);
+}
+
+.sleep-mode-icon {
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  margin: 28px auto 18px;
+  color: var(--sd-gold-light);
+  font-size: 31px;
+  background: linear-gradient(
+    145deg,
+    rgba(65, 105, 225, 0.24),
+    rgba(217, 182, 111, 0.12)
+  );
+  border: 1px solid rgba(217, 182, 111, 0.28);
+  border-radius: 25px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+.sleep-mode-description {
+  margin: 0 auto 24px;
+  max-width: 340px;
+  color: #b5c1d7;
+  font-size: 13px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.sleep-current-timer {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 20px;
+  padding: 15px;
+  color: var(--sd-gold-light);
+  background: rgba(217, 182, 111, 0.07);
+  border: 1px solid rgba(217, 182, 111, 0.2);
+  border-radius: 15px;
+}
+
+.sleep-current-timer > svg {
+  font-size: 23px;
+}
+
+.sleep-current-timer > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sleep-current-timer span {
+  color: var(--sd-muted);
+  font-size: 11px;
+}
+
+.sleep-current-timer strong {
+  font-size: 21px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.sleep-timer-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sleep-timer-options button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 86px;
+  color: #fff;
+  background: #15223a;
+  border: 1px solid var(--sd-border);
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.sleep-timer-options button:hover {
+  color: var(--sd-gold-light);
+  background: rgba(65, 105, 225, 0.17);
+  border-color: var(--sd-gold);
+  transform: translateY(-3px);
+}
+
+.sleep-timer-options button strong {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.sleep-timer-options button span {
+  color: #aab7ce;
+  font-size: 10px;
+}
+
+.sleep-cancel-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 43px;
+  margin-top: 15px;
+  color: #ffb1b7;
+  background: rgba(255, 100, 115, 0.08);
+  border: 1px solid rgba(255, 100, 115, 0.25);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.sleep-cancel-button:hover {
+  background: rgba(255, 100, 115, 0.15);
+}
+
+.sleep-mode-footer {
+  margin: 22px 0 0;
+  color: #8492ab;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* REPORT MODAL */
+
+.song-report-song {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--sd-border);
+  border-radius: 14px;
+}
+
+.song-report-song > svg {
+  color: var(--sd-gold);
+  font-size: 20px;
+}
+
+.song-report-song > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.song-report-song strong {
+  color: #fff;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.song-report-song span {
+  color: var(--sd-muted);
+  font-size: 11px;
+}
+
+.song-report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.song-report-form label {
+  margin-top: 7px;
+  color: #dbe4f7;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.song-report-form select,
+.song-report-form textarea {
+  width: 100%;
+  padding: 12px 13px;
+  color: #f5f7ff;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.65;
+  background: #0b1425;
+  border: 1px solid var(--sd-border);
+  border-radius: 11px;
+  outline: none;
+}
+
+.song-report-form select:focus,
+.song-report-form textarea:focus {
+  border-color: var(--sd-gold);
+  box-shadow: 0 0 0 3px rgba(217, 182, 111, 0.09);
+}
+
+.song-report-form select option {
+  color: #f5f7ff;
+  background: #0b1425;
+}
+
+.song-report-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.song-report-character-count {
+  color: #8d9bb4;
+  font-size: 10px;
+  text-align: right;
+}
+
+.song-report-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px;
+  color: #d7e3ff;
+  font-size: 12px;
+  line-height: 1.6;
+  background: rgba(65, 105, 225, 0.12);
+  border: 1px solid rgba(115, 149, 255, 0.24);
+  border-radius: 11px;
+}
+
+.song-report-success svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--sd-gold);
+}
+
+.song-report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.song-report-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 17px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 11px;
+  cursor: pointer;
+}
+
+.song-report-cancel {
+  color: #dbe4f7;
+  background: #17243b;
+  border: 1px solid var(--sd-border);
+}
+
+.song-report-submit {
+  color: #111827;
+  background: linear-gradient(135deg, #f0d69a, #c79a4a);
+  border: none;
+}
+
+.song-report-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* PRAYER MODE */
+
+.prayer-mode-page {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 22px clamp(18px, 4vw, 54px);
+  overflow-y: auto;
+  background:
+    radial-gradient(
+      ellipse at 50% 28%,
+      rgba(65, 105, 225, 0.14),
+      transparent 48%
+    ),
+    linear-gradient(145deg, #070c18, #0a1426 55%, #070c18);
+}
+
+.prayer-mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.prayer-mode-brand,
+.prayer-mode-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.prayer-mode-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--sd-gold-light);
+  background: rgba(217, 182, 111, 0.1);
+  border: 1px solid rgba(217, 182, 111, 0.24);
+  border-radius: 14px;
+}
+
+.prayer-mode-brand > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.prayer-mode-brand span {
+  color: var(--sd-gold);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+}
+
+.prayer-mode-brand strong {
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+}
+
+.prayer-mode-header-actions > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 13px;
+  color: #dce5f7;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--sd-border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.prayer-mode-header-actions > button:hover {
+  color: var(--sd-gold-light);
+  border-color: rgba(217, 182, 111, 0.4);
+}
+
+.prayer-mode-header-actions > .prayer-mode-close {
+  width: 40px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.prayer-active-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sd-gold-light);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.prayer-mode-song-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 4vw, 42px);
+  width: 100%;
+  max-width: 1000px;
+  margin: 35px auto 24px;
+}
+
+.prayer-mode-cover {
+  flex-shrink: 0;
+  width: clamp(105px, 16vw, 180px);
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--sd-surface);
+  border: 1px solid rgba(217, 182, 111, 0.28);
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+}
+
+.prayer-mode-cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.prayer-mode-song-text {
+  min-width: 0;
+}
+
+.prayer-mode-song-text > span {
+  color: var(--sd-gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.prayer-mode-song-text h1 {
+  margin: 10px 0 5px;
+  color: #fff;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.prayer-mode-song-text h2 {
+  margin: 6px 0;
+  color: #b7c4db;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.prayer-mode-song-text p {
+  margin: 9px 0 0;
+  color: var(--sd-gold-light);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.prayer-mode-lyrics {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 24px clamp(12px, 3vw, 36px);
+  color: #edf1fb;
+  font-family: "Noto Sans Telugu", "Noto Serif Telugu", sans-serif;
+  font-weight: 400;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+  background: rgba(16, 26, 46, 0.64);
+  border: 1px solid rgba(174, 192, 228, 0.1);
+  border-radius: 20px;
+}
+
+.prayer-mode-no-lyrics {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 35px 10px;
+  color: var(--sd-muted);
+  font-size: 14px;
+}
+
+.prayer-mode-no-lyrics svg {
+  color: var(--sd-gold);
+  font-size: 27px;
+}
+
+.prayer-mode-player {
+  width: 100%;
+  max-width: 800px;
+  margin: auto auto 0;
+  padding: 18px 0 5px;
+}
+
+.prayer-mode-progress {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.prayer-mode-progress span {
+  color: #aebbd1;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.prayer-mode-progress span:last-child {
+  text-align: right;
+}
+
+.prayer-mode-progress input,
+.prayer-mode-volume input {
+  width: 100%;
+  accent-color: var(--sd-gold);
+  cursor: pointer;
+}
+
+.prayer-mode-song-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 25px);
+}
+
+.prayer-mode-song-toolbar button {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  color: #dbe4f7;
+  background: #15223a;
+  border: 1px solid var(--sd-border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.prayer-mode-song-toolbar button:hover:not(:disabled),
+.prayer-mode-song-toolbar button.active {
+  color: var(--sd-gold-light);
+  border-color: rgba(217, 182, 111, 0.45);
+}
+
+.prayer-mode-song-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.prayer-mode-song-toolbar .prayer-mode-play {
+  width: 57px;
+  height: 57px;
+  color: #101827;
+  font-size: 18px;
+  background: linear-gradient(135deg, #f0d69a, #c79a4a);
+  border: none;
+}
+
+.prayer-mode-song-toolbar .prayer-mode-play:hover {
+  color: #070c18;
+  background: #f5dfa9;
+}
+
+.prayer-mode-volume {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(240px, 100%);
+  margin: 18px auto;
+  color: var(--sd-gold);
+}
+
+.prayer-mode-volume input {
+  max-width: 180px;
+}
+
+.prayer-mode-sleep-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px auto;
+  color: #c0cbe0;
+  font-size: 12px;
+}
+
+.prayer-mode-sleep-status > svg,
+.prayer-mode-sleep-status strong {
+  color: var(--sd-gold-light);
+}
+
+.prayer-mode-sleep-status button {
+  padding: 6px 10px;
+  color: #ffb1b7;
+  background: rgba(255, 100, 115, 0.08);
+  border: 1px solid rgba(255, 100, 115, 0.23);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.prayer-mode-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 17px 0 0;
+  color: #8492ab;
+  font-size: 11px;
+  letter-spacing: 0.2px;
+}
+
+.prayer-mode-hint svg {
+  color: var(--sd-gold);
+}
+
+/* MOBILE RESPONSIVENESS */
+
+@media (max-width: 900px) {
+  .song-details-page {
+    padding: 22px 20px 125px;
+  }
+
+  .song-details-hero {
+    grid-template-columns: minmax(180px, 250px) minmax(0, 1fr);
+    gap: 25px;
+    padding: 25px;
+  }
+
+  .song-actions {
+    gap: 9px;
+  }
+
+  .lyrics-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lyrics-tools {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .song-details-page {
+    padding: 17px 14px 115px;
+  }
+
+  .song-details-topbar {
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .song-back-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .song-details-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 23px;
+    padding: 19px;
+    margin-bottom: 25px;
+    border-radius: 21px;
+  }
+
+  .song-details-cover {
+    width: min(100%, 270px);
+    margin: 0 auto;
+    border-radius: 18px;
+  }
+
+  .song-details-info h1 {
+    font-size: clamp(27px, 8vw, 37px);
+    letter-spacing: -0.9px;
+  }
+
+  .song-details-info h2 {
+    font-size: 16px;
+  }
+
+  .song-meta {
+    gap: 7px;
+    margin-bottom: 21px;
+    font-size: 12px;
+  }
+
+  .song-actions {
+    gap: 8px;
+  }
+
+  .song-actions > button {
+    min-height: 40px;
+    padding: 0 11px;
+    font-size: 11px;
+    border-radius: 11px;
+  }
+
+  .song-actions > .song-main-play {
+    width: 48px;
+    height: 48px;
+  }
+
+  .song-actions > .song-like,
+  .song-actions > .song-favorite {
+    width: 41px;
+    min-width: 41px;
+  }
+
+  .lyrics-section {
+    padding: 20px 15px;
+    border-radius: 19px;
+  }
+
+  .lyrics-heading h2 {
+    font-size: 25px;
+  }
+
+  .lyrics-tools {
+    gap: 8px;
+  }
+
+  .lyrics-control-group {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .lyrics-tools button {
+    min-height: 35px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .song-lyrics {
+    padding: 25px 2px 10px;
+  }
+
+  .sleep-mode-modal,
+  .song-report-modal {
+    padding: 22px 18px;
+    border-radius: 21px;
+  }
+
+  .sleep-timer-options {
+    gap: 7px;
+  }
+
+  .sleep-timer-options button {
+    min-height: 76px;
+    border-radius: 12px;
+  }
+
+  .sleep-timer-options button strong {
+    font-size: 21px;
+  }
+
+  .prayer-mode-page {
+    padding: 14px;
+  }
+
+  .prayer-mode-header {
+    align-items: flex-start;
+    gap: 10px;
+    padding-bottom: 16px;
+  }
+
+  .prayer-mode-brand {
+    gap: 9px;
+  }
+
+  .prayer-mode-brand-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .prayer-mode-brand span {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .prayer-mode-brand strong {
+    font-size: 12px;
+  }
+
+  .prayer-mode-header-actions {
+    gap: 7px;
+  }
+
+  .prayer-mode-header-actions > button {
+    min-height: 37px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+
+  .prayer-mode-header-actions > .prayer-mode-close {
+    width: 37px;
+  }
+
+  .prayer-active-timer {
+    display: none;
+  }
+
+  .prayer-mode-song-info {
+    align-items: center;
+    gap: 15px;
+    margin: 23px auto 15px;
+  }
+
+  .prayer-mode-cover {
+    width: 105px;
+    border-radius: 15px;
+  }
+
+  .prayer-mode-song-text h1 {
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+
+  .prayer-mode-song-text h2 {
+    font-size: 13px;
+  }
+
+  .prayer-mode-song-text p {
+    font-size: 11px;
+  }
+
+  .prayer-mode-lyrics {
+    padding: 19px 14px;
+    margin-bottom: 15px;
+    border-radius: 16px;
+  }
+
+  .prayer-mode-progress {
+    grid-template-columns: 35px minmax(0, 1fr) 35px;
+    gap: 8px;
+  }
+
+  .prayer-mode-song-toolbar {
+    gap: 15px;
+  }
+
+  .prayer-mode-song-toolbar button {
+    width: 39px;
+    height: 39px;
+  }
+
+  .prayer-mode-song-toolbar .prayer-mode-play {
+    width: 51px;
+    height: 51px;
+  }
+}
+
+@media (max-width: 380px) {
+  .song-details-page {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .song-details-hero {
+    padding: 15px;
+  }
+
+  .song-actions > button {
+    gap: 6px;
+    padding: 0 9px;
+  }
+
+  .sleep-timer-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prayer-mode-sleep-button span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .song-details-page *,
+  .prayer-mode-page *,
+  .sleep-mode-modal *,
+  .song-report-modal * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

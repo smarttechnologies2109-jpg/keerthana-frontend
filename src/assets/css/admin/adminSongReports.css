@@ -1,14 +1,42 @@
 
 /* =========================================================
-   ADMIN SONG REPORTS PAGE
+   KEERTHANA MUSIC — ADMIN SONG REPORTS
+   Premium Navy • Royal Blue • Soft Gold
+   Typography: Inter
 ========================================================= */
 
 .admin-song-reports-page {
+  --report-bg: #080d1a;
+  --report-surface: #0e1628;
+  --report-card: #111c31;
+  --report-card-hover: #16233b;
+  --report-border: rgba(160, 183, 222, 0.14);
+  --report-border-hover: rgba(105, 151, 239, 0.4);
+
+  --report-text: #f2f5fc;
+  --report-text-secondary: #b0bdd3;
+  --report-muted: #8392ad;
+
+  --report-blue: #4c83f5;
+  --report-blue-light: #78a4ff;
+  --report-gold: #e0bd78;
+
   width: 100%;
   min-height: 100%;
   padding: 30px;
   box-sizing: border-box;
-  color: #17352a;
+
+  color: var(--report-text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  background:
+    radial-gradient(
+      ellipse at top right,
+      rgba(47, 86, 160, 0.11),
+      transparent 40%
+    ),
+    var(--report-bg);
 }
 
 
@@ -28,26 +56,32 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-  color: #c9a45c;
-  font-size: 12px;
+  margin-bottom: 9px;
+
+  color: var(--report-gold);
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.8px;
+  text-transform: uppercase;
 }
 
 .admin-song-reports-header h1 {
   margin: 0;
-  color: #12372a;
-  font-size: 32px;
+
+  color: var(--report-text);
+  font-size: clamp(25px, 3vw, 32px);
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
 }
 
 .admin-song-reports-header p {
-  margin: 8px 0 0;
-  color: #718078;
-  font-size: 14px;
-  line-height: 1.6;
+  max-width: 650px;
+  margin: 9px 0 0;
+
+  color: var(--report-muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 
@@ -61,16 +95,22 @@
   justify-content: center;
   gap: 9px;
 
-  min-height: 44px;
-  padding: 0 18px;
+  flex-shrink: 0;
+  min-height: 43px;
+  padding: 0 17px;
 
-  border: 1px solid #d8e0db;
+  border: 1px solid var(--report-border);
   border-radius: 10px;
 
-  background: #ffffff;
-  color: #12372a;
+  background: linear-gradient(
+    145deg,
+    #17243b,
+    #101a2d
+  );
+  color: var(--report-text);
 
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 700;
 
   cursor: pointer;
@@ -78,19 +118,26 @@
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
+    color 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
 .admin-song-reports-refresh:hover:not(:disabled) {
-  background: #f5f8f6;
-  border-color: #c9a45c;
-  box-shadow: 0 5px 16px rgba(18, 55, 42, 0.08);
+  background: #1b2b48;
+  border-color: rgba(120, 164, 255, 0.55);
+  color: var(--report-blue-light);
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
+.admin-song-reports-refresh:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .admin-song-reports-refresh:disabled {
-  opacity: 0.65;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -121,63 +168,88 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .admin-report-summary-card {
+  position: relative;
+  overflow: hidden;
+
   display: flex;
   align-items: center;
   gap: 15px;
 
-  min-height: 94px;
-  padding: 18px;
+  min-width: 0;
+  min-height: 100px;
+  padding: 19px;
 
-  background: #ffffff;
-  border: 1px solid #e3e9e5;
-  border-radius: 14px;
+  background: linear-gradient(
+    145deg,
+    rgba(20, 33, 56, 0.98),
+    rgba(14, 23, 40, 0.98)
+  );
+
+  border: 1px solid var(--report-border);
+  border-radius: 15px;
 
   box-sizing: border-box;
 
-  box-shadow:
-    0 4px 18px rgba(18, 55, 42, 0.05);
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.12);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-report-summary-card:hover {
+  border-color: var(--report-border-hover);
+  background: linear-gradient(
+    145deg,
+    #172642,
+    #111c31
+  );
+
+  transform: translateY(-2px);
 }
 
 .admin-report-summary-icon {
-  width: 48px;
-  height: 48px;
-
-  flex: 0 0 48px;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+
+  border-radius: 13px;
 
   font-size: 18px;
 }
 
 .admin-report-summary-icon.total {
-  background: #edf4f0;
-  color: #12372a;
+  background: rgba(76, 131, 245, 0.15);
+  color: var(--report-blue-light);
+  border: 1px solid rgba(76, 131, 245, 0.2);
 }
 
 .admin-report-summary-icon.pending {
-  background: #fff7e7;
-  color: #b27b12;
+  background: rgba(224, 189, 120, 0.12);
+  color: var(--report-gold);
+  border: 1px solid rgba(224, 189, 120, 0.2);
 }
 
 .admin-report-summary-icon.resolved {
-  background: #edf8f1;
-  color: #2d8150;
+  background: rgba(57, 167, 122, 0.12);
+  color: #70d2a7;
+  border: 1px solid rgba(57, 167, 122, 0.2);
 }
 
 .admin-report-summary-card span {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 
-  color: #78857e;
-
+  color: var(--report-muted);
   font-size: 12px;
   font-weight: 600;
 }
@@ -185,10 +257,11 @@
 .admin-report-summary-card strong {
   display: block;
 
-  color: #12372a;
-
-  font-size: 25px;
+  color: var(--report-text);
+  font-size: 26px;
   font-weight: 800;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 
@@ -208,17 +281,18 @@
 .admin-song-reports-search {
   position: relative;
   flex: 1;
+  min-width: 0;
   max-width: 600px;
 }
 
 .admin-song-reports-search svg {
   position: absolute;
-  left: 15px;
   top: 50%;
+  left: 15px;
 
   transform: translateY(-50%);
 
-  color: #8a9891;
+  color: var(--report-muted);
   font-size: 14px;
 
   pointer-events: none;
@@ -230,70 +304,82 @@
 
   padding: 0 16px 0 42px;
 
-  border: 1px solid #dce4df;
+  border: 1px solid var(--report-border);
   border-radius: 10px;
 
-  background: #ffffff;
-  color: #17352a;
+  background: #0e1729;
+  color: var(--report-text);
 
   outline: none;
+  box-sizing: border-box;
 
   font-family: inherit;
   font-size: 13px;
 
-  box-sizing: border-box;
-
   transition:
     border-color 0.2s ease,
+    background 0.2s ease,
     box-shadow 0.2s ease;
 }
 
 .admin-song-reports-search input::placeholder {
-  color: #9aa59f;
+  color: #71819d;
+}
+
+.admin-song-reports-search input:hover {
+  border-color: rgba(160, 183, 222, 0.25);
 }
 
 .admin-song-reports-search input:focus {
-  border-color: #c9a45c;
+  background: #111d32;
+  border-color: var(--report-blue);
 
-  box-shadow:
-    0 0 0 3px rgba(201, 164, 92, 0.12);
+  box-shadow: 0 0 0 3px rgba(76, 131, 245, 0.13);
 }
 
 .admin-song-reports-filter {
-  min-width: 170px;
+  min-width: 175px;
   height: 46px;
 
-  padding: 0 14px;
+  padding: 0 35px 0 14px;
 
-  border: 1px solid #dce4df;
+  border: 1px solid var(--report-border);
   border-radius: 10px;
 
-  background: #ffffff;
-  color: #17352a;
+  background-color: #0e1729;
+  color: var(--report-text-secondary);
 
   outline: none;
 
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-song-reports-filter:hover {
+  border-color: rgba(120, 164, 255, 0.4);
 }
 
 .admin-song-reports-filter:focus {
-  border-color: #c9a45c;
+  border-color: var(--report-blue);
+  box-shadow: 0 0 0 3px rgba(76, 131, 245, 0.13);
+}
 
-  box-shadow:
-    0 0 0 3px rgba(201, 164, 92, 0.12);
+.admin-song-reports-filter option {
+  background: #111c31;
+  color: var(--report-text);
 }
 
 
 /* =========================================================
-   ERROR
+   ERROR ALERT
 ========================================================= */
 
 .admin-song-reports-error {
@@ -304,11 +390,11 @@
   margin-bottom: 22px;
   padding: 15px 17px;
 
-  border: 1px solid #f0d5d5;
+  border: 1px solid rgba(231, 105, 105, 0.3);
   border-radius: 12px;
 
-  background: #fff7f7;
-  color: #9c3939;
+  background: rgba(135, 43, 53, 0.13);
+  color: #ff9a9a;
 }
 
 .admin-song-reports-error > svg {
@@ -319,35 +405,51 @@
 .admin-song-reports-error > div {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 
   flex: 1;
+  min-width: 0;
 }
 
 .admin-song-reports-error strong {
+  color: #ffb0b0;
   font-size: 13px;
+  font-weight: 800;
 }
 
 .admin-song-reports-error span {
+  color: #d79a9f;
   font-size: 12px;
-  color: #a45b5b;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .admin-song-reports-error button {
   min-height: 36px;
   padding: 0 13px;
 
-  border: 1px solid #e0baba;
+  flex-shrink: 0;
+
+  border: 1px solid rgba(231, 105, 105, 0.35);
   border-radius: 8px;
 
-  background: #ffffff;
-  color: #9c3939;
+  background: rgba(135, 43, 53, 0.16);
+  color: #ffb0b0;
 
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.admin-song-reports-error button:hover {
+  background: rgba(170, 48, 61, 0.25);
+  border-color: rgba(255, 154, 154, 0.55);
 }
 
 
@@ -356,25 +458,27 @@
 ========================================================= */
 
 .admin-song-reports-loading {
-  min-height: 280px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 15px;
 
-  gap: 14px;
+  min-height: 280px;
 
-  color: #74817b;
+  color: var(--report-muted);
   font-size: 13px;
+  font-weight: 500;
 }
 
 .admin-report-spinner {
-  width: 34px;
-  height: 34px;
+  width: 35px;
+  height: 35px;
 
-  border: 3px solid #e2e9e5;
-  border-top-color: #c9a45c;
+  border: 3px solid rgba(120, 164, 255, 0.15);
+  border-top-color: var(--report-blue-light);
+  border-right-color: var(--report-gold);
+
   border-radius: 50%;
 
   animation: adminReportSpin 0.8s linear infinite;
@@ -382,22 +486,25 @@
 
 
 /* =========================================================
-   EMPTY
+   EMPTY STATE
 ========================================================= */
 
 .admin-song-reports-empty {
-  min-height: 300px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  padding: 40px;
+  min-height: 300px;
+  padding: 40px 24px;
 
-  background: #ffffff;
+  background: linear-gradient(
+    145deg,
+    rgba(17, 28, 49, 0.9),
+    rgba(12, 20, 35, 0.9)
+  );
 
-  border: 1px dashed #d7e0db;
+  border: 1px dashed rgba(160, 183, 222, 0.23);
   border-radius: 16px;
 
   text-align: center;
@@ -405,19 +512,19 @@
 }
 
 .admin-report-empty-icon {
-  width: 62px;
-  height: 62px;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 16px;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 17px;
 
-  border-radius: 50%;
+  border: 1px solid rgba(76, 131, 245, 0.22);
+  border-radius: 18px;
 
-  background: #edf4f0;
-  color: #12372a;
+  background: rgba(76, 131, 245, 0.12);
+  color: var(--report-blue-light);
 
   font-size: 23px;
 }
@@ -425,21 +532,19 @@
 .admin-song-reports-empty h2 {
   margin: 0;
 
-  color: #12372a;
-
+  color: var(--report-text);
   font-size: 19px;
   font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .admin-song-reports-empty p {
   max-width: 430px;
+  margin: 9px 0 0;
 
-  margin: 8px 0 0;
-
-  color: #7c8982;
-
+  color: var(--report-muted);
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 
@@ -460,26 +565,34 @@
 .admin-song-report-card {
   overflow: hidden;
 
-  background: #ffffff;
+  background: linear-gradient(
+    145deg,
+    rgba(17, 28, 49, 0.98),
+    rgba(13, 22, 39, 0.98)
+  );
 
-  border: 1px solid #e1e8e4;
+  border: 1px solid var(--report-border);
   border-radius: 15px;
 
-  box-shadow:
-    0 5px 20px rgba(18, 55, 42, 0.045);
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.12);
 
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
+    background 0.2s ease,
     transform 0.2s ease;
 }
 
 .admin-song-report-card:hover {
-  border-color: #d2ddd7;
+  background: linear-gradient(
+    145deg,
+    #14213a,
+    #101a2d
+  );
 
-  box-shadow:
-    0 8px 26px rgba(18, 55, 42, 0.07);
+  border-color: var(--report-border-hover);
 
+  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
@@ -492,65 +605,66 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
 
   padding: 19px 20px;
 
-  border-bottom: 1px solid #edf1ef;
+  border-bottom: 1px solid rgba(160, 183, 222, 0.1);
 }
 
 .admin-song-report-song {
-  min-width: 0;
-
   display: flex;
   align-items: center;
   gap: 13px;
+
+  min-width: 0;
 }
 
 .admin-song-report-song-icon {
-  width: 44px;
-  height: 44px;
-
-  flex: 0 0 44px;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 11px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
 
-  background: #edf4f0;
-  color: #12372a;
+  border: 1px solid rgba(76, 131, 245, 0.2);
+  border-radius: 12px;
+
+  background: rgba(76, 131, 245, 0.13);
+  color: var(--report-blue-light);
 
   font-size: 16px;
 }
 
 .admin-song-report-song h2 {
-  margin: 0 0 4px;
+  overflow: hidden;
 
-  color: #17352a;
+  margin: 0 0 5px;
 
-  font-size: 15px;
+  color: var(--report-text);
+  font-size: 14px;
   font-weight: 800;
+  line-height: 1.5;
 
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .admin-song-report-song span {
   display: block;
 
-  color: #8a9690;
-
+  color: var(--report-muted);
   font-size: 11px;
   font-weight: 600;
+  line-height: 1.5;
 }
 
 
 /* =========================================================
-   STATUS BADGE
+   STATUS BADGES
+   Status colors remain semantic for clarity.
 ========================================================= */
 
 .admin-song-report-status {
@@ -564,6 +678,7 @@
   min-height: 31px;
   padding: 0 11px;
 
+  border: 1px solid transparent;
   border-radius: 999px;
 
   font-size: 11px;
@@ -576,18 +691,21 @@
 }
 
 .admin-song-report-status.pending {
-  background: #fff6df;
-  color: #a16c09;
+  background: rgba(224, 189, 120, 0.12);
+  border-color: rgba(224, 189, 120, 0.2);
+  color: #edca83;
 }
 
 .admin-song-report-status.resolved {
-  background: #eaf7ef;
-  color: #2e8050;
+  background: rgba(57, 167, 122, 0.12);
+  border-color: rgba(57, 167, 122, 0.22);
+  color: #70d2a7;
 }
 
 .admin-song-report-status.rejected {
-  background: #fff0f0;
-  color: #b04444;
+  background: rgba(222, 86, 100, 0.12);
+  border-color: rgba(222, 86, 100, 0.22);
+  color: #ff929c;
 }
 
 
@@ -598,14 +716,14 @@
 .admin-song-report-type {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 
   padding: 15px 20px 0;
 }
 
 .admin-song-report-type span {
-  color: #8b9791;
-
+  color: var(--report-muted);
   font-size: 11px;
   font-weight: 700;
 }
@@ -617,18 +735,20 @@
   min-height: 28px;
   padding: 0 10px;
 
+  border: 1px solid rgba(120, 164, 255, 0.14);
   border-radius: 7px;
 
-  background: #f2f6f3;
-  color: #315344;
+  background: rgba(76, 131, 245, 0.09);
+  color: #b8ceff;
 
   font-size: 11px;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 
 /* =========================================================
-   MESSAGE
+   REPORT MESSAGE
 ========================================================= */
 
 .admin-song-report-message {
@@ -637,29 +757,27 @@
 
 .admin-song-report-message > span {
   display: block;
+  margin-bottom: 8px;
 
-  margin-bottom: 7px;
-
-  color: #8b9791;
-
+  color: var(--report-muted);
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 .admin-song-report-message p {
   margin: 0;
+  padding: 13px 15px;
 
-  padding: 13px 14px;
+  border-left: 3px solid var(--report-gold);
+  border-radius: 0 9px 9px 0;
 
-  border-left: 3px solid #c9a45c;
-  border-radius: 0 8px 8px 0;
-
-  background: #faf9f5;
-
-  color: #3e4f47;
+  background: rgba(6, 12, 24, 0.55);
+  color: #c4cee0;
 
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.75;
 
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -667,82 +785,85 @@
 
 
 /* =========================================================
-   FOOTER
+   REPORT FOOTER
 ========================================================= */
 
 .admin-song-report-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
 
   padding: 15px 20px;
 
-  border-top: 1px solid #edf1ef;
+  border-top: 1px solid rgba(160, 183, 222, 0.1);
 }
 
 .admin-song-report-user {
-  min-width: 0;
-
   display: flex;
   align-items: center;
   gap: 10px;
+
+  min-width: 0;
 }
 
 .admin-song-report-user > svg {
-  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
 
-  padding: 7px;
-
+  padding: 8px;
   box-sizing: border-box;
 
+  border: 1px solid rgba(120, 164, 255, 0.15);
   border-radius: 50%;
 
-  background: #edf4f0;
-  color: #12372a;
+  background: rgba(76, 131, 245, 0.11);
+  color: var(--report-blue-light);
 
   font-size: 12px;
 }
 
 .admin-song-report-user > div {
-  min-width: 0;
-
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+
+  min-width: 0;
 }
 
 .admin-song-report-user strong {
-  color: #31483d;
+  overflow: hidden;
 
+  color: #dbe4f5;
   font-size: 12px;
+  font-weight: 700;
 
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .admin-song-report-user span {
-  color: #8b9791;
+  overflow: hidden;
 
+  color: var(--report-muted);
   font-size: 11px;
 
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .admin-song-report-footer time {
   flex: 0 0 auto;
 
-  color: #8a9690;
-
+  color: var(--report-muted);
   font-size: 11px;
   font-weight: 600;
+  text-align: right;
 }
 
 
@@ -754,14 +875,12 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-
   gap: 16px;
 
-  padding: 15px 20px 18px;
+  padding: 16px 20px 19px;
 
-  background: #fafcfb;
-
-  border-top: 1px solid #edf1ef;
+  background: rgba(5, 10, 20, 0.28);
+  border-top: 1px solid rgba(160, 183, 222, 0.1);
 }
 
 
@@ -772,29 +891,31 @@
 .admin-song-report-status-control {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
+
+  min-width: 0;
 }
 
 .admin-song-report-status-control label {
-  color: #62736a;
+  color: var(--report-muted);
 
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .admin-song-report-status-control select {
-  min-width: 145px;
-  height: 38px;
+  min-width: 150px;
+  height: 39px;
 
-  padding: 0 32px 0 11px;
+  padding: 0 32px 0 12px;
 
-  border: 1px solid #d5dfd9;
-  border-radius: 8px;
+  border: 1px solid var(--report-border);
+  border-radius: 9px;
 
-  background: #ffffff;
-  color: #29473a;
+  background-color: #101a2d;
+  color: var(--report-text-secondary);
 
   outline: none;
 
@@ -806,23 +927,28 @@
 
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .admin-song-report-status-control select:hover:not(:disabled) {
-  border-color: #c9a45c;
+  border-color: rgba(120, 164, 255, 0.45);
+  background-color: #14213a;
 }
 
 .admin-song-report-status-control select:focus {
-  border-color: #c9a45c;
-
-  box-shadow:
-    0 0 0 3px rgba(201, 164, 92, 0.12);
+  border-color: var(--report-blue);
+  box-shadow: 0 0 0 3px rgba(76, 131, 245, 0.13);
 }
 
 .admin-song-report-status-control select:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+}
+
+.admin-song-report-status-control select option {
+  background: #111c31;
+  color: var(--report-text);
 }
 
 
@@ -834,17 +960,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
 
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 39px;
+  padding: 0 15px;
 
-  border: 1px solid #efd0d0;
-  border-radius: 8px;
+  border: 1px solid rgba(222, 86, 100, 0.28);
+  border-radius: 9px;
 
-  background: #fff7f7;
-  color: #ad4646;
+  background: rgba(135, 43, 53, 0.13);
+  color: #ff9ba3;
 
   font-family: inherit;
   font-size: 12px;
@@ -860,9 +985,9 @@
 }
 
 .admin-song-report-delete:hover:not(:disabled) {
-  background: #fff0f0;
-  border-color: #dfb0b0;
-  color: #963737;
+  background: rgba(170, 48, 61, 0.23);
+  border-color: rgba(255, 130, 143, 0.5);
+  color: #ffb4bb;
 
   transform: translateY(-1px);
 }
@@ -872,7 +997,7 @@
 }
 
 .admin-song-report-delete:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -888,23 +1013,28 @@
 .admin-song-reports-page button:focus-visible,
 .admin-song-reports-page select:focus-visible,
 .admin-song-reports-page input:focus-visible {
-  outline: 2px solid #c9a45c;
-  outline-offset: 2px;
+  outline: 2px solid var(--report-blue-light);
+  outline-offset: 3px;
+}
+
+.admin-song-reports-page button:focus:not(:focus-visible),
+.admin-song-reports-page select:focus:not(:focus-visible),
+.admin-song-reports-page input:focus:not(:focus-visible) {
+  outline: none;
 }
 
 
 /* =========================================================
-   RESPONSIVE - TABLET
+   RESPONSIVE — TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
-
   .admin-song-reports-page {
     padding: 24px;
   }
 
   .admin-song-reports-summary {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .admin-song-reports-toolbar {
@@ -919,23 +1049,22 @@
   .admin-song-reports-filter {
     width: 100%;
   }
-
 }
 
 
 /* =========================================================
-   RESPONSIVE - MOBILE
+   RESPONSIVE — MOBILE
 ========================================================= */
 
 @media (max-width: 700px) {
-
   .admin-song-reports-page {
-    padding: 18px;
+    padding: 19px;
   }
 
   .admin-song-reports-header {
+    align-items: stretch;
     flex-direction: column;
-    gap: 16px;
+    gap: 17px;
   }
 
   .admin-song-reports-header h1 {
@@ -946,9 +1075,19 @@
     width: 100%;
   }
 
+  .admin-song-reports-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-report-summary-card {
+    min-height: 86px;
+  }
+
   .admin-song-report-card-header {
     align-items: flex-start;
     flex-direction: column;
+    gap: 13px;
   }
 
   .admin-song-report-status {
@@ -958,18 +1097,23 @@
   .admin-song-report-footer {
     align-items: flex-start;
     flex-direction: column;
-    gap: 10px;
+    gap: 11px;
+  }
+
+  .admin-song-report-footer time {
+    text-align: left;
   }
 
   .admin-song-report-actions {
     align-items: stretch;
     flex-direction: column;
+    gap: 15px;
   }
 
   .admin-song-report-status-control {
     align-items: stretch;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
   }
 
   .admin-song-report-status-control select {
@@ -980,75 +1124,173 @@
     width: 100%;
   }
 
+  .admin-song-reports-error {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .admin-song-reports-error > div {
+    flex-basis: calc(100% - 40px);
+  }
+
+  .admin-song-reports-error button {
+    margin-left: 30px;
+  }
 }
 
 
 /* =========================================================
-   RESPONSIVE - SMALL MOBILE
+   RESPONSIVE — SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 480px) {
-
   .admin-song-reports-page {
     padding: 14px;
   }
 
   .admin-song-reports-eyebrow {
     font-size: 10px;
-    letter-spacing: 1.4px;
+    letter-spacing: 1.3px;
   }
 
   .admin-song-reports-header h1 {
     font-size: 24px;
+    letter-spacing: -0.5px;
   }
 
   .admin-song-reports-header p {
     font-size: 12px;
   }
 
+  .admin-song-reports-summary {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
   .admin-report-summary-card {
-    min-height: 82px;
+    min-height: 80px;
     padding: 14px;
+    gap: 12px;
   }
 
   .admin-report-summary-icon {
     width: 42px;
     height: 42px;
     flex-basis: 42px;
+    font-size: 16px;
   }
 
   .admin-report-summary-card strong {
     font-size: 22px;
   }
 
+  .admin-song-reports-search input,
+  .admin-song-reports-filter {
+    height: 44px;
+    font-size: 12px;
+  }
+
   .admin-song-report-card-header {
-    padding: 16px;
+    padding: 15px;
   }
 
-  .admin-song-report-type {
-    padding-left: 16px;
-    padding-right: 16px;
+  .admin-song-report-song {
+    gap: 10px;
+    width: 100%;
   }
 
-  .admin-song-report-message {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .admin-song-report-footer {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .admin-song-report-actions {
-    padding-left: 16px;
-    padding-right: 16px;
+  .admin-song-report-song-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .admin-song-report-song h2 {
-    max-width: 210px;
+    max-width: 220px;
+    font-size: 13px;
   }
 
+  .admin-song-report-type {
+    padding: 14px 15px 0;
+  }
+
+  .admin-song-report-message {
+    padding: 14px 15px;
+  }
+
+  .admin-song-report-message p {
+    padding: 11px 12px;
+    font-size: 12px;
+  }
+
+  .admin-song-report-footer {
+    padding: 14px 15px;
+  }
+
+  .admin-song-report-actions {
+    padding: 14px 15px 16px;
+  }
+
+  .admin-song-reports-empty {
+    min-height: 250px;
+    padding: 28px 18px;
+  }
+
+  .admin-song-reports-empty h2 {
+    font-size: 17px;
+  }
+
+  .admin-song-reports-empty p {
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE — VERY SMALL SCREENS
+========================================================= */
+
+@media (max-width: 360px) {
+  .admin-song-reports-page {
+    padding: 11px;
+  }
+
+  .admin-song-reports-header h1 {
+    font-size: 22px;
+  }
+
+  .admin-report-summary-card {
+    padding: 12px;
+  }
+
+  .admin-song-report-card-header {
+    padding: 13px;
+  }
+
+  .admin-song-report-type,
+  .admin-song-report-message,
+  .admin-song-report-footer {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  .admin-song-report-actions {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  .admin-song-report-status-control select {
+    min-width: 0;
+  }
+
+  .admin-song-reports-error {
+    gap: 9px;
+    padding: 12px;
+  }
+
+  .admin-song-reports-error button {
+    margin-left: 0;
+  }
 }
 
 
@@ -1057,7 +1299,6 @@
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
   .admin-song-reports-page *,
   .admin-song-reports-page *::before,
   .admin-song-reports-page *::after {
@@ -1066,6 +1307,4 @@
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
-
 }
-

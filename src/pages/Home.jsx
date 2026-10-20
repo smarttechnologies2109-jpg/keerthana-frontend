@@ -406,7 +406,7 @@ function Home() {
 
           <h2>Christian Music</h2>
 
-          <p>Worship • Praise • Listen</p>
+          <p>Worship deeply. Praise freely. Find peace in every song.</p>
 
           {songs.length > 0 && (
             <button
@@ -433,6 +433,71 @@ function Home() {
           <div className="hero-circle">
             <FaMusic />
           </div>
+        </div>
+      </section>
+
+      {/* ===============================================
+          QUICK DISCOVERY — new visual section only
+      =============================================== */}
+
+      <section className="home-discovery-strip" aria-label="Discover Christian music">
+        <div className="home-discovery-intro">
+          <span className="home-eyebrow">YOUR DAILY SOUNDTRACK</span>
+          <h2>Find music for this moment</h2>
+          <p>Choose a mood and spend a moment in worship.</p>
+        </div>
+        <div className="home-mood-pills">
+          {[
+            { label: "Worship", emoji: "🙏", path: "/moods/worship" },
+            { label: "Praise", emoji: "🙌", path: "/moods/praise" },
+            { label: "Prayer", emoji: "🕊️", path: "/moods/prayer" },
+            { label: "Hope", emoji: "✨", path: "/moods/hope" },
+            { label: "Peace", emoji: "🌿", path: "/moods/peace" },
+            { label: "Thanksgiving", emoji: "🤍", path: "/moods/thanksgiving" },
+          ].map((mood) => (
+            <button
+              type="button"
+              className="home-mood-pill"
+              key={mood.label}
+              onClick={() => navigate(mood.path)}
+            >
+              <span aria-hidden="true">{mood.emoji}</span>
+              {mood.label}
+              <FaChevronRight aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-language-section" aria-label="Browse music by language">
+        <div className="home-language-heading">
+          <div>
+            <span className="home-eyebrow">MUSIC THAT SPEAKS TO YOU</span>
+            <h2>Browse by language</h2>
+          </div>
+          <span className="home-language-note">Your favourite Christian songs, in your language.</span>
+        </div>
+        <div className="home-language-grid">
+          {[
+            { label: "Telugu", code: "తె", tone: "telugu" },
+            { label: "Hindi", code: "हि", tone: "hindi" },
+            { label: "English", code: "EN", tone: "english" },
+            { label: "Malayalam", code: "മ", tone: "malayalam" },
+            { label: "Kannada", code: "ಕ", tone: "kannada" },
+            { label: "Tamil", code: "த", tone: "tamil" },
+          ].map((language) => (
+            <button
+              type="button"
+              className={`home-language-card ${language.tone}`}
+              key={language.label}
+              onClick={() => navigate(`/search?q=${encodeURIComponent(language.label)}`)}
+              aria-label={`Explore ${language.label} Christian songs`}
+            >
+              <span className="home-language-symbol" aria-hidden="true">{language.code}</span>
+              <span className="home-language-name">{language.label}</span>
+              <span className="home-language-action">Explore music <FaChevronRight aria-hidden="true" /></span>
+            </button>
+          ))}
         </div>
       </section>
 

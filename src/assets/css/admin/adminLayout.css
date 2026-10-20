@@ -1,39 +1,65 @@
+
 /* =========================================================
-   KEERTHANA
-   PROFESSIONAL ADMIN LAYOUT
+   KEERTHANA MUSIC — ADMIN LAYOUT
+   Premium Production UI
+   Dark Navy + Royal Blue + Soft Gold
 ========================================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* =========================================================
    ROOT ADMIN LAYOUT
 ========================================================= */
 
 .admin-layout {
-  position: relative;
+  --admin-bg: #080d19;
+  --admin-surface: #101a2c;
+  --admin-card: #111e33;
+  --admin-card-hover: #192a46;
+  --admin-text: #f4f6ff;
+  --admin-muted: #9baac4;
+  --admin-blue: #5b8cff;
+  --admin-blue-light: #a8c3ff;
+  --admin-gold: #e8ca91;
+  --admin-border: rgba(174, 194, 230, 0.14);
 
+  position: relative;
   display: flex;
 
   width: 100%;
   min-height: 100vh;
+  box-sizing: border-box;
+
+  overflow-x: clip;
+
+  color: var(--admin-text);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
 
   background:
     radial-gradient(
-      circle at 85% 10%,
-      rgba(29, 185, 84, 0.08),
+      circle at 85% 5%,
+      rgba(91, 140, 255, 0.12),
       transparent 32%
     ),
     radial-gradient(
-      circle at 20% 90%,
-      rgba(74, 120, 255, 0.05),
+      circle at 15% 90%,
+      rgba(232, 202, 145, 0.045),
       transparent 30%
     ),
-    #080a09;
-
-  color: #ffffff;
-
-  overflow-x: hidden;
+    linear-gradient(
+      180deg,
+      #0b1323 0%,
+      #080d19 58%,
+      #060a13 100%
+    );
 }
 
+.admin-layout *,
+.admin-layout *::before,
+.admin-layout *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
    DECORATIVE BACKGROUND
@@ -42,49 +68,41 @@
 .admin-layout-bg {
   position: fixed;
   inset: 0;
-
-  pointer-events: none;
+  z-index: 0;
 
   overflow: hidden;
-
-  z-index: 0;
+  pointer-events: none;
 }
-
 
 .admin-layout-glow {
   position: absolute;
-
   border-radius: 50%;
 
   filter: blur(120px);
-
-  opacity: 0.18;
+  pointer-events: none;
 }
 
-
 .admin-layout-glow-one {
-  width: 420px;
-  height: 420px;
-
   top: -180px;
   right: -100px;
 
-  background: #1db954;
+  width: 420px;
+  height: 420px;
+
+  background: rgba(91, 140, 255, 0.25);
+  opacity: 0.48;
 }
 
-
 .admin-layout-glow-two {
-  width: 350px;
-  height: 350px;
-
   bottom: -180px;
   left: 20%;
 
-  background: #345cff;
+  width: 350px;
+  height: 350px;
 
-  opacity: 0.08;
+  background: rgba(232, 202, 145, 0.16);
+  opacity: 0.24;
 }
-
 
 /* =========================================================
    MAIN ADMIN SECTION
@@ -92,23 +110,17 @@
 
 .admin-main {
   position: relative;
+  z-index: 1;
 
   flex: 1;
-
   min-width: 0;
   min-height: 100vh;
 
-  /*
-    Must match AdminSidebar width.
-    We can adjust this after seeing AdminSidebar.jsx.
-  */
+  /* Keep synchronized with AdminSidebar width. */
   margin-left: 260px;
 
   padding: 24px;
-
-  z-index: 1;
 }
-
 
 /* =========================================================
    CONTENT CONTAINER
@@ -116,66 +128,79 @@
 
 .admin-content {
   position: relative;
+  isolation: isolate;
 
   width: 100%;
   max-width: 1600px;
-
+  min-width: 0;
   min-height: calc(100vh - 48px);
 
   margin: 0 auto;
-
   padding: 30px;
 
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.06);
+  overflow-wrap: anywhere;
 
-  border-radius: 24px;
+  border: 1px solid var(--admin-border);
+  border-radius: 22px;
 
   background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(91, 140, 255, 0.055),
+      transparent 32%
+    ),
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.035),
-      rgba(255, 255, 255, 0.012)
+      rgba(17, 30, 51, 0.92),
+      rgba(9, 15, 28, 0.94)
     );
 
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.28),
+    0 20px 55px rgba(0, 0, 0, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
 
-  backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
-
-/* Small top highlight */
+/* =========================================================
+   SUBTLE TOP HIGHLIGHT
+========================================================= */
 
 .admin-content::before {
   content: "";
 
   position: absolute;
-
   top: 0;
   left: 8%;
+  z-index: -1;
 
   width: 84%;
   height: 1px;
 
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(29, 185, 84, 0.35),
-      transparent
-    );
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(91, 140, 255, 0.5),
+    rgba(232, 202, 145, 0.32),
+    transparent
+  );
 
   pointer-events: none;
 }
 
-
 /* =========================================================
    COMMON ADMIN TYPOGRAPHY
 ========================================================= */
+
+.admin-content,
+.admin-content button,
+.admin-content input,
+.admin-content select,
+.admin-content textarea {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+}
 
 .admin-content h1,
 .admin-content h2,
@@ -183,180 +208,243 @@
 .admin-content h4 {
   margin-top: 0;
 
-  color: #ffffff;
-
-  letter-spacing: -0.02em;
+  color: var(--admin-text);
+  letter-spacing: -0.025em;
 }
-
 
 .admin-content h1 {
-  font-size: clamp(26px, 3vw, 36px);
-  font-weight: 750;
-}
+  margin-bottom: 16px;
 
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+}
 
 .admin-content h2 {
-  font-size: 24px;
-  font-weight: 700;
-}
+  margin-bottom: 14px;
 
+  font-size: clamp(20px, 2.2vw, 24px);
+  font-weight: 750;
+  line-height: 1.3;
+}
 
 .admin-content h3 {
+  margin-bottom: 10px;
+
   font-size: 18px;
-  font-weight: 650;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
+.admin-content h4 {
+  margin-bottom: 8px;
+
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.45;
+}
 
 .admin-content p {
-  color: #a6ada9;
-
-  line-height: 1.6;
+  color: var(--admin-muted);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
 }
 
+/* =========================================================
+   COMMON LINKS
+========================================================= */
+
+.admin-content a {
+  color: var(--admin-blue-light);
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+.admin-content a:hover {
+  color: var(--admin-gold);
+}
+
+/* =========================================================
+   COMMON FORM ELEMENTS
+========================================================= */
+
+.admin-content input,
+.admin-content select,
+.admin-content textarea {
+  color: var(--admin-text);
+}
+
+.admin-content input::placeholder,
+.admin-content textarea::placeholder {
+  color: #7787a3;
+}
+
+.admin-content input:focus-visible,
+.admin-content select:focus-visible,
+.admin-content textarea:focus-visible {
+  outline: 2px solid rgba(91, 140, 255, 0.75);
+  outline-offset: 2px;
+}
 
 /* =========================================================
    COMMON SCROLLBAR
 ========================================================= */
 
+.admin-main {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 195, 255, 0.28) transparent;
+}
+
 .admin-main::-webkit-scrollbar {
   width: 7px;
 }
-
 
 .admin-main::-webkit-scrollbar-track {
   background: transparent;
 }
 
-
 .admin-main::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-
   border-radius: 20px;
+  background: rgba(168, 195, 255, 0.22);
 }
-
 
 .admin-main::-webkit-scrollbar-thumb:hover {
-  background: rgba(29, 185, 84, 0.45);
+  background: rgba(232, 202, 145, 0.48);
 }
 
-
 /* =========================================================
-   DESKTOP
+   LARGE DESKTOP
 ========================================================= */
 
 @media (min-width: 1440px) {
-
   .admin-main {
     padding: 28px 32px;
   }
 
-
   .admin-content {
     min-height: calc(100vh - 56px);
-
     padding: 36px;
   }
-
 }
-
 
 /* =========================================================
    LAPTOP
 ========================================================= */
 
 @media (max-width: 1200px) {
-
   .admin-main {
     margin-left: 230px;
-
     padding: 20px;
   }
 
-
   .admin-content {
     min-height: calc(100vh - 40px);
-
     padding: 26px;
-
     border-radius: 20px;
   }
-
 }
-
 
 /* =========================================================
    TABLET / MOBILE
 ========================================================= */
 
 @media (max-width: 768px) {
-
   .admin-layout {
     display: block;
   }
 
-
   .admin-main {
     width: 100%;
+    min-height: 100vh;
 
     margin-left: 0;
-
-    padding:
-      16px
-      14px
-      90px;
+    padding: 16px 14px 90px;
   }
-
 
   .admin-content {
     min-height: calc(100vh - 106px);
-
     padding: 20px;
-
     border-radius: 18px;
   }
 
-
   .admin-layout-glow-one {
+    top: -100px;
+    right: -100px;
+
     width: 280px;
     height: 280px;
   }
 
-
   .admin-layout-glow-two {
     display: none;
   }
-
 }
-
 
 /* =========================================================
    SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 480px) {
-
   .admin-main {
-    padding:
-      12px
-      10px
-      85px;
+    padding: 12px 10px 85px;
   }
 
-
   .admin-content {
+    min-height: calc(100vh - 97px);
     padding: 16px;
-
     border-radius: 16px;
   }
 
-
   .admin-content h1 {
     font-size: 24px;
+    line-height: 1.25;
   }
-
 
   .admin-content h2 {
     font-size: 20px;
   }
 
+  .admin-content h3 {
+    font-size: 16px;
+  }
+
+  .admin-content p {
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 350px) {
+  .admin-main {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .admin-content {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .admin-content h1 {
+    font-size: 22px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-layout *,
+  .admin-layout *::before,
+  .admin-layout *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

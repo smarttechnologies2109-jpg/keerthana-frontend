@@ -1,155 +1,161 @@
+
 /* =========================================================
-   KEERTHANA ADMIN HEADER
-   Premium Dashboard Header
+   KEERTHANA MUSIC — ADMIN HEADER
+   Premium Production UI
+   Dark Navy + Royal Blue + Soft Gold
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================
+   HEADER ROOT
 ========================================================= */
 
 .admin-header {
+  --admin-bg: #0b1425;
+  --admin-surface: #101d32;
+  --admin-surface-hover: #192944;
+  --admin-text: #f4f6ff;
+  --admin-muted: #96a7c3;
+  --admin-blue: #5b8cff;
+  --admin-blue-light: #a8c3ff;
+  --admin-gold: #e8ca91;
+  --admin-border: rgba(174, 194, 230, 0.14);
+
   position: sticky;
   top: 0;
   z-index: 1000;
 
-  width: 100%;
-  min-height: 76px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 22px;
 
-  gap: 24px;
-
-  padding: 12px 24px;
-
+  width: 100%;
+  min-height: 82px;
   box-sizing: border-box;
+  padding: 0 28px;
+
+  color: var(--admin-text);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
 
   background:
-    linear-gradient(
-      135deg,
-      #0b281e 0%,
-      #12372a 55%,
-      #102f24 100%
-    );
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(91, 140, 255, 0.09),
+      transparent 35%
+    ),
+    linear-gradient(110deg, #101b2f 0%, #0b1425 60%, #0a1120 100%);
 
-  border-bottom: 1px solid
-    rgba(201, 164, 92, 0.18);
-
-  box-shadow:
-    0 8px 30px
-    rgba(0, 0, 0, 0.18);
-
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--admin-border);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
 }
 
+.admin-header *,
+.admin-header *::before,
+.admin-header *::after {
+  box-sizing: border-box;
+}
+
+.admin-header button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* =========================================================
    LEFT SECTION
 ========================================================= */
 
 .admin-header-left {
-  min-width: 0;
-
   display: flex;
   align-items: center;
+  gap: 17px;
 
-  gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
-
 /* =========================================================
-   MENU BUTTON
+   SIDEBAR MENU BUTTON
 ========================================================= */
 
 .admin-header-menu-button {
-  width: 44px;
-  height: 44px;
-
-  flex-shrink: 0;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
-  border: 1px solid
-    rgba(201, 164, 92, 0.22);
+  width: 42px;
+  height: 42px;
+  padding: 0;
 
-  border-radius: 13px;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
 
-  background:
-    rgba(255, 255, 255, 0.045);
-
-  color: #f8f4e8;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--admin-blue-light);
 
   font-size: 17px;
-
   cursor: pointer;
 
   transition:
     background 0.2s ease,
-    border-color 0.2s ease,
     color 0.2s ease,
+    border-color 0.2s ease,
     transform 0.2s ease;
 }
 
 .admin-header-menu-button:hover {
+  background: rgba(91, 140, 255, 0.13);
+  color: var(--admin-gold);
+  border-color: rgba(91, 140, 255, 0.38);
   transform: translateY(-1px);
-
-  background:
-    rgba(201, 164, 92, 0.12);
-
-  border-color:
-    rgba(201, 164, 92, 0.48);
-
-  color: #c9a45c;
 }
 
-
 /* =========================================================
-   BACK / FORWARD
+   BACK / FORWARD NAVIGATION
 ========================================================= */
 
 .admin-header-history {
   display: flex;
   align-items: center;
-
   gap: 7px;
+  flex-shrink: 0;
 }
 
 .admin-header-circle-button {
-  width: 38px;
-  height: 38px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  border: none;
+  width: 35px;
+  height: 35px;
+  padding: 0;
+
+  border: 1px solid transparent;
   border-radius: 50%;
 
-  background:
-    rgba(255, 255, 255, 0.055);
-
-  color:
-    rgba(255, 255, 255, 0.70);
+  background: transparent;
+  color: var(--admin-muted);
 
   font-size: 13px;
-
   cursor: pointer;
 
   transition:
     background 0.2s ease,
     color 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.2s ease;
 }
 
 .admin-header-circle-button:hover {
-  transform: translateY(-1px);
-
-  background:
-    rgba(201, 164, 92, 0.13);
-
-  color: #c9a45c;
+  background: rgba(91, 140, 255, 0.12);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
 }
 
+.admin-header-circle-button:active {
+  transform: scale(0.96);
+}
 
 /* =========================================================
    BRAND
@@ -158,243 +164,202 @@
 .admin-header-brand {
   display: flex;
   align-items: center;
-
   gap: 11px;
+  flex-shrink: 0;
 
-  margin-left: 2px;
-
-  padding: 0;
-
+  padding: 5px 0;
   border: none;
-
   background: transparent;
-
   color: inherit;
-
-  cursor: pointer;
-
   text-align: left;
+  cursor: pointer;
 }
 
 .admin-header-logo {
-  width: 44px;
-  height: 44px;
-
-  flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
+  width: 43px;
+  height: 43px;
+
+  border: 1px solid rgba(232, 202, 145, 0.32);
   border-radius: 13px;
 
   background:
     linear-gradient(
-      135deg,
-      #c9a45c,
-      #a9813e
+      145deg,
+      rgba(232, 202, 145, 0.19),
+      rgba(91, 140, 255, 0.13)
     );
 
-  color: #102c21;
-
-  font-size: 17px;
+  color: var(--admin-gold);
+  font-size: 19px;
 
   box-shadow:
-    0 5px 18px
-    rgba(201, 164, 92, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 5px 16px rgba(0, 0, 0, 0.12);
 
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.2s ease;
 }
 
-.admin-header-brand:hover
-.admin-header-logo {
+.admin-header-brand:hover .admin-header-logo {
   transform: translateY(-1px);
-
-  box-shadow:
-    0 8px 22px
-    rgba(201, 164, 92, 0.26);
+  border-color: rgba(232, 202, 145, 0.58);
 }
 
 .admin-header-brand-text {
   display: flex;
   flex-direction: column;
-
-  gap: 3px;
-
-  line-height: 1;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
 }
 
 .admin-header-brand-text strong {
-  font-family:
-    "Cormorant Garamond",
-    serif;
-
-  font-size: 18px;
-
-  letter-spacing: 0.10em;
-
-  color: #fffdf6;
+  color: var(--admin-text);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.25px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .admin-header-brand-text span {
-  font-size: 9px;
-
-  font-weight: 600;
-
-  letter-spacing: 0.08em;
-
-  text-transform: uppercase;
-
-  color:
-    rgba(255, 255, 255, 0.48);
+  color: var(--admin-muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.65px;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
-
 /* =========================================================
-   DIVIDER
+   VERTICAL DIVIDER
 ========================================================= */
 
 .admin-header-divider {
   width: 1px;
-  height: 34px;
+  height: 38px;
+  flex-shrink: 0;
+  margin: 0 2px;
 
-  margin: 0 4px;
-
-  background:
-    rgba(255, 255, 255, 0.10);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(174, 194, 230, 0.23),
+    transparent
+  );
 }
 
-
 /* =========================================================
-   PAGE INFO
+   PAGE TITLE
 ========================================================= */
 
 .admin-header-page-info {
-  min-width: 130px;
-
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 5px;
 
-  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.admin-header-page-info span {
+.admin-header-page-info > span {
+  color: var(--admin-blue-light);
   font-size: 9px;
-
   font-weight: 800;
-
-  letter-spacing: 0.18em;
-
-  color:
-    rgba(201, 164, 92, 0.76);
-
-  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
 .admin-header-page-info h2 {
   margin: 0;
+  overflow: hidden;
 
-  font-size: 19px;
-
-  line-height: 1.2;
-
+  color: var(--admin-text);
+  font-size: 17px;
   font-weight: 700;
+  letter-spacing: -0.35px;
+  line-height: 1.35;
 
-  color: #fffdf6;
-
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 
 /* =========================================================
    RIGHT SECTION
 ========================================================= */
 
 .admin-header-right {
-  min-width: 0;
-
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  gap: 17px;
 
-  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
-
 /* =========================================================
-   STATUS
+   ONLINE STATUS
 ========================================================= */
 
 .admin-header-status {
   display: flex;
   align-items: center;
-
-  gap: 9px;
-
-  padding: 8px 12px;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.07);
-
-  border-radius: 12px;
-
-  background:
-    rgba(255, 255, 255, 0.035);
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .admin-status-indicator {
-  width: 9px;
-  height: 9px;
-
   display: flex;
   align-items: center;
   justify-content: center;
+
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: rgba(76, 201, 145, 0.12);
 }
 
 .admin-status-dot {
-  width: 8px;
-  height: 8px;
-
   display: block;
+  width: 6px;
+  height: 6px;
 
   border-radius: 50%;
+  background: #55d6a0;
 
-  background: #66c27a;
-
-  box-shadow:
-    0 0 0 4px
-    rgba(102, 194, 122, 0.10),
-    0 0 12px
-    rgba(102, 194, 122, 0.30);
+  box-shadow: 0 0 9px rgba(85, 214, 160, 0.45);
 }
 
 .admin-status-text {
   display: flex;
   flex-direction: column;
-
-  gap: 2px;
-
-  line-height: 1;
+  gap: 4px;
 }
 
 .admin-status-text strong {
+  color: var(--admin-text);
   font-size: 11px;
-
-  color: #e7f5e9;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .admin-status-text span {
-  font-size: 8px;
-
-  color:
-    rgba(255, 255, 255, 0.40);
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.08em;
+  color: var(--admin-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
 }
-
 
 /* =========================================================
    RIGHT DIVIDER
@@ -402,248 +367,251 @@
 
 .admin-header-right-divider {
   width: 1px;
-  height: 34px;
+  height: 35px;
+  flex-shrink: 0;
 
-  background:
-    rgba(255, 255, 255, 0.10);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(174, 194, 230, 0.22),
+    transparent
+  );
 }
 
-
 /* =========================================================
-   PROFILE
+   ADMIN PROFILE BUTTON
 ========================================================= */
 
 .admin-header-profile {
   display: flex;
   align-items: center;
-
   gap: 10px;
 
-  padding: 5px 9px 5px 5px;
+  min-width: 0;
+  max-width: 210px;
+  padding: 6px 10px 6px 6px;
 
-  border: 1px solid
-    rgba(255, 255, 255, 0.07);
+  border: 1px solid transparent;
+  border-radius: 13px;
 
-  border-radius: 14px;
-
-  background:
-    rgba(255, 255, 255, 0.035);
-
+  background: transparent;
   color: inherit;
-
-  cursor: pointer;
-
   text-align: left;
+  cursor: pointer;
 
   transition:
     background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.2s ease;
 }
 
 .admin-header-profile:hover {
-  transform: translateY(-1px);
-
-  background:
-    rgba(201, 164, 92, 0.09);
-
-  border-color:
-    rgba(201, 164, 92, 0.28);
+  background: rgba(91, 140, 255, 0.09);
+  border-color: var(--admin-border);
 }
 
-
-/* =========================================================
-   AVATAR
-========================================================= */
-
 .admin-header-avatar {
-  width: 38px;
-  height: 38px;
-
-  flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
-  border-radius: 11px;
+  width: 39px;
+  height: 39px;
+
+  border: 1px solid rgba(232, 202, 145, 0.36);
+  border-radius: 12px;
 
   background:
     linear-gradient(
-      135deg,
-      #c9a45c,
-      #9d7837
+      145deg,
+      #233b62,
+      #14223b
     );
 
-  color: #102c21;
+  color: var(--admin-gold);
+  font-size: 15px;
+  font-weight: 800;
 
-  font-size: 14px;
-
-  font-weight: 900;
-
-  box-shadow:
-    0 4px 12px
-    rgba(201, 164, 92, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-
-/* =========================================================
-   USER INFO
-========================================================= */
-
 .admin-header-user-info {
-  min-width: 90px;
-
   display: flex;
   flex-direction: column;
+  gap: 4px;
 
-  gap: 3px;
+  min-width: 0;
 }
 
 .admin-header-user-info strong {
-  max-width: 140px;
-
+  display: block;
+  max-width: 145px;
   overflow: hidden;
 
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-
+  color: var(--admin-text);
   font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
 
-  color: #fffdf6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-header-user-info span {
-  font-size: 8px;
-
-  color:
-    rgba(255, 255, 255, 0.42);
-
-  letter-spacing: 0.08em;
-
-  text-transform: uppercase;
+  color: var(--admin-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
-
 /* =========================================================
-   LOGOUT
+   LOGOUT BUTTON
 ========================================================= */
 
 .admin-header-logout {
-  width: 44px;
-  height: 44px;
-
-  flex-shrink: 0;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
-  border: 1px solid
-    rgba(255, 255, 255, 0.08);
+  width: 41px;
+  height: 41px;
+  padding: 0;
 
-  border-radius: 13px;
+  border: 1px solid rgba(232, 202, 145, 0.19);
+  border-radius: 12px;
 
-  background:
-    rgba(255, 255, 255, 0.045);
+  background: rgba(232, 202, 145, 0.055);
+  color: var(--admin-gold);
 
-  color:
-    rgba(255, 255, 255, 0.65);
-
-  font-size: 15px;
-
+  font-size: 16px;
   cursor: pointer;
 
   transition:
     background 0.2s ease,
-    border-color 0.2s ease,
     color 0.2s ease,
+    border-color 0.2s ease,
     transform 0.2s ease;
 }
 
 .admin-header-logout:hover {
+  background: rgba(225, 91, 104, 0.12);
+  border-color: rgba(225, 91, 104, 0.34);
+  color: #ff9ba5;
   transform: translateY(-1px);
-
-  background:
-    rgba(180, 60, 60, 0.12);
-
-  border-color:
-    rgba(220, 90, 90, 0.38);
-
-  color: #e88a8a;
 }
 
+.admin-header-logout:active {
+  transform: scale(0.96);
+}
+
+/* =========================================================
+   KEYBOARD ACCESSIBILITY
+========================================================= */
+
+.admin-header button:focus-visible {
+  outline: 2px solid var(--admin-gold);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   LARGE TABLETS / SMALL DESKTOPS
+========================================================= */
+
+@media (max-width: 1200px) {
+  .admin-header {
+    gap: 15px;
+    padding: 0 20px;
+  }
+
+  .admin-header-left {
+    gap: 12px;
+  }
+
+  .admin-header-right {
+    gap: 12px;
+  }
+
+  .admin-header-history {
+    gap: 3px;
+  }
+
+  .admin-header-brand-text strong {
+    font-size: 14px;
+  }
+
+  .admin-header-status {
+    gap: 7px;
+  }
+}
 
 /* =========================================================
    TABLET
 ========================================================= */
 
-@media (max-width: 1050px) {
-
+@media (max-width: 960px) {
   .admin-header {
-    padding: 11px 16px;
-
-    gap: 14px;
+    min-height: 74px;
+    padding: 0 17px;
+    gap: 12px;
   }
 
-  .admin-header-brand-text {
+  .admin-header-left {
+    gap: 10px;
+  }
+
+  .admin-header-history {
     display: none;
   }
 
   .admin-header-divider {
-    display: none;
+    height: 32px;
   }
 
-  .admin-header-page-info {
-    min-width: 100px;
-  }
-
-  .admin-header-page-info h2 {
+  .admin-header-logo {
+    width: 39px;
+    height: 39px;
+    border-radius: 11px;
     font-size: 17px;
   }
 
-  .admin-header-status {
-    padding: 8px 10px;
+  .admin-header-page-info h2 {
+    font-size: 15px;
   }
 
-  .admin-header-user-info {
+  .admin-header-page-info > span {
+    font-size: 8px;
+  }
+
+  .admin-header-status {
     display: none;
   }
 
-  .admin-header-profile {
-    padding: 5px;
+  .admin-header-right-divider {
+    display: none;
   }
 }
-
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
-@media (max-width: 700px) {
-
+@media (max-width: 600px) {
   .admin-header {
-    min-height: 68px;
-
-    padding: 9px 12px;
-
+    min-height: 66px;
+    padding: 0 12px;
     gap: 9px;
   }
 
   .admin-header-left {
-    gap: 8px;
+    gap: 9px;
   }
 
   .admin-header-menu-button {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 11px;
-  }
-
-  .admin-header-history {
-    display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 15px;
   }
 
   .admin-header-brand {
@@ -651,22 +619,24 @@
   }
 
   .admin-header-logo {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 11px;
-  }
-
-  .admin-header-brand-text {
-    display: flex;
-  }
-
-  .admin-header-brand-text strong {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
     font-size: 15px;
   }
 
+  .admin-header-brand-text strong {
+    font-size: 12px;
+    letter-spacing: 0.8px;
+  }
+
   .admin-header-brand-text span {
-    font-size: 7px;
+    font-size: 9px;
+    letter-spacing: 0.2px;
+  }
+
+  .admin-header-divider {
+    display: none;
   }
 
   .admin-header-page-info {
@@ -677,87 +647,91 @@
     gap: 7px;
   }
 
-  .admin-header-status {
+  .admin-header-profile {
+    gap: 7px;
+    padding: 3px;
+    border-radius: 10px;
+  }
+
+  .admin-header-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .admin-header-user-info strong {
+    max-width: 92px;
+    font-size: 11px;
+  }
+
+  .admin-header-user-info span {
+    font-size: 9px;
+  }
+
+  .admin-header-logout {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+  .admin-header {
+    padding: 0 9px;
+    gap: 6px;
+  }
+
+  .admin-header-left {
+    gap: 7px;
+  }
+
+  .admin-header-brand {
+    gap: 6px;
+  }
+
+  .admin-header-brand-text span {
     display: none;
   }
 
-  .admin-header-right-divider {
+  .admin-header-brand-text strong {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-header-user-info {
     display: none;
   }
 
   .admin-header-profile {
-    border: none;
-
-    background: transparent;
-
     padding: 2px;
   }
 
-  .admin-header-avatar {
-    width: 38px;
-    height: 38px;
+  .admin-header-right {
+    gap: 6px;
   }
 
   .admin-header-logout {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 11px;
+    width: 33px;
+    height: 33px;
   }
 }
-
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 430px) {
-
-  .admin-header {
-    padding: 8px 10px;
-  }
-
-  .admin-header-brand-text {
-    display: none;
-  }
-
-  .admin-header-logo {
-    width: 38px;
-    height: 38px;
-  }
-
-  .admin-header-logout {
-    width: 38px;
-    height: 38px;
-  }
-}
-
-
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-.admin-header-menu-button:focus-visible,
-.admin-header-circle-button:focus-visible,
-.admin-header-brand:focus-visible,
-.admin-header-profile:focus-visible,
-.admin-header-logout:focus-visible {
-  outline: 2px solid #c9a45c;
-  outline-offset: 3px;
-}
-
 
 /* =========================================================
    REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
-  .admin-header-menu-button,
-  .admin-header-circle-button,
-  .admin-header-brand,
-  .admin-header-profile,
-  .admin-header-logout {
-    transition: none;
+  .admin-header *,
+  .admin-header *::before,
+  .admin-header *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

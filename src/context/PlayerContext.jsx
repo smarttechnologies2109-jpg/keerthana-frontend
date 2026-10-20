@@ -1359,34 +1359,47 @@ const seekBackward = useCallback(
 
   /* QUEUE: ADD WITHOUT PLAYING */
 
+
+  /* QUEUE: ADD WITHOUT PLAYING */
+
   const addToQueue = useCallback(
     (song) => {
       if (getSongId(song) == null) return;
 
       setQueue((previous) => {
-        if (previous.some((item) => sameSong(item, song))) {
-          return previous;
+        const existingQueue = Array.isArray(previous)
+          ? previous
+          : [];
+
+        // Do not add the same song twice.
+        if (
+          existingQueue.some((item) => sameSong(item, song))
+        ) {
+          return existingQueue;
         }
 
-        // If no queue exists, preserve the currently playing song.
+        // Preserve the currently playing song at the front
+        // when creating a queue for the first time.
         if (
           currentSong &&
-          !previous.some((item) => sameSong(item, currentSong))
+          !existingQueue.some(
+            (item) => sameSong(item, currentSong)
+          )
         ) {
-          return [...previous, currentSong, song];
+          return [...existingQueue, currentSong, song];
         }
 
-        return [...previous, song];
+        return [...existingQueue, song];
       });
 
       setCurrentIndex((previousIndex) => {
         if (previousIndex >= 0) return previousIndex;
-
         return currentSong ? 0 : -1;
       });
     },
     [currentSong]
   );
+
 
   /* QUEUE: REMOVE */
 
@@ -1490,20 +1503,40 @@ const seekBackward = useCallback(
 
   /* PLAY A SONG SELECTED FROM THE QUEUE */
 
+
+  /* PLAY A SONG SELECTED FROM THE QUEUE */
+
   const playQueueSong = useCallback(
     async (song) => {
-      if (!song) return;
+      if (!song || getSongId(song) == null) return;
 
-      const index = queue.findIndex((item) => sameSong(item, song));
+      const activeQueue = Array.isArray(queue) ? queue : [];
+
+      const index = activeQueue.findIndex(
+        (item) => sameSong(item, song)
+      );
 
       if (index >= 0) {
-        await playSong(queue[index], queue, index);
-      } else {
-        await playSong(song, queue, 0);
+        await playSong(activeQueue[index], activeQueue, index);
+        return;
       }
+
+      // If the selected song is not currently in the queue,
+      // create a valid queue containing the current song and selection.
+      const nextQueue =
+        currentSong && !sameSong(currentSong, song)
+          ? [currentSong, song]
+          : [song];
+
+      const nextIndex = nextQueue.findIndex(
+        (item) => sameSong(item, song)
+      );
+
+      await playSong(song, nextQueue, nextIndex);
     },
-    [queue, playSong]
+    [queue, currentSong, playSong]
   );
+
 
   /* CLOSE / CLEAR PLAYER */
 const clearPlayer = useCallback(async () => {

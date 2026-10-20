@@ -1,709 +1,857 @@
+
 /* =========================================================
-   MINISTRIES PAGE
+   KEERTHANA — MINISTRIES
+   Premium Production Music App UI
+   Dark Navy + Royal Blue + Soft Gold
 ========================================================= */
 
-.ministries-page {
-  min-height: 100%;
-  width: 100%;
-  padding-bottom: 60px;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
 
+.ministries-page {
+  --min-bg: #080d19;
+  --min-surface: #101a2c;
+  --min-card: #111e33;
+  --min-card-hover: #192a46;
+  --min-text: #f4f6ff;
+  --min-muted: #9baac4;
+  --min-blue: #5b8cff;
+  --min-blue-light: #a8c3ff;
+  --min-gold: #e8ca91;
+  --min-border: rgba(174, 194, 230, 0.14);
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: 130px;
+  overflow: hidden;
+  color: var(--min-text);
+  background:
+    radial-gradient(circle at 12% 3%, rgba(66, 108, 198, 0.12), transparent 30%),
+    radial-gradient(circle at 92% 10%, rgba(232, 202, 145, 0.055), transparent 26%),
+    linear-gradient(180deg, #0b1323 0%, #080d19 60%, #060a13 100%);
+}
 
 /* =========================================================
    HERO
 ========================================================= */
 
 .ministries-hero {
-  margin: 24px;
-  padding: 34px;
-  border-radius: 24px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(40, 40, 60, 0.98),
-      rgba(20, 20, 30, 0.98)
-    );
-
-  box-shadow:
-    0 12px 35px rgba(0, 0, 0, 0.18);
-
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 30px;
-
+  margin: 24px;
+  padding: clamp(25px, 4vw, 40px);
+  overflow: hidden;
   box-sizing: border-box;
+  border: 1px solid var(--min-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(91, 140, 255, 0.16), transparent 36%),
+    linear-gradient(125deg, #182844 0%, #101b30 55%, #0b1323 100%);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.24);
 }
 
+.ministries-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -110px;
+  right: -50px;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgba(232, 202, 145, 0.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
 
-/* =========================================================
-   HERO CONTENT
-========================================================= */
+/* HERO CONTENT */
 
 .ministries-hero-content {
   display: flex;
   align-items: center;
   gap: 22px;
+  min-width: 0;
 }
-
 
 .ministries-hero-icon {
-  width: 72px;
-  height: 72px;
-
-  border-radius: 20px;
-
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-
-  background: rgba(255, 255, 255, 0.12);
-
-  color: #ffffff;
-
-  font-size: 30px;
-
-  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border: 1px solid rgba(232, 202, 145, 0.20);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(232, 202, 145, 0.16), rgba(91, 140, 255, 0.12));
+  color: var(--min-gold);
+  font-size: 29px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
-
 
 .ministries-eyebrow {
   display: block;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  letter-spacing: 2px;
-
-  opacity: 0.65;
-
-  color: #ffffff;
-
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  color: var(--min-blue-light);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
 }
-
 
 .ministries-hero h1 {
   margin: 0;
-
-  color: #ffffff;
-
-  font-size: 34px;
+  color: var(--min-text);
+  font-size: clamp(27px, 3.2vw, 38px);
   font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.8px;
 }
-
 
 .ministries-hero p {
-  margin: 8px 0 0;
-
-  color: rgba(255, 255, 255, 0.72);
-
-  font-size: 15px;
-
-  line-height: 1.6;
-
   max-width: 600px;
+  margin: 11px 0 0;
+  color: var(--min-muted);
+  font-size: 14px;
+  line-height: 1.75;
 }
-
 
 /* =========================================================
    SEARCH
 ========================================================= */
 
 .ministries-search {
-  min-width: 270px;
-
-  height: 48px;
-
-  padding: 0 16px;
-
-  border-radius: 14px;
-
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-
-  gap: 10px;
-
-  background: rgba(255, 255, 255, 0.10);
-
-  color: rgba(255, 255, 255, 0.7);
-
+  gap: 12px;
+  width: min(320px, 35%);
+  min-width: 240px;
+  height: 49px;
   box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid rgba(174, 194, 230, 0.16);
+  border-radius: 13px;
+  background: rgba(5, 10, 20, 0.36);
+  color: var(--min-blue-light);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
+.ministries-search:focus-within {
+  border-color: rgba(91, 140, 255, 0.65);
+  background: rgba(5, 10, 20, 0.55);
+  box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.10);
+}
 
 .ministries-search input {
   width: 100%;
-
+  min-width: 0;
+  padding: 0;
   border: none;
   outline: none;
-
   background: transparent;
-
-  color: #ffffff;
-
-  font-size: 14px;
+  color: var(--min-text);
+  font-family: inherit;
+  font-size: 13px;
 }
-
 
 .ministries-search input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: #7787a3;
 }
 
-
 /* =========================================================
-   CONTENT
+   CONTENT / SECTION HEADING
 ========================================================= */
 
 .ministries-content {
   padding: 0 24px;
 }
 
-
 .ministries-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-
-  margin-bottom: 22px;
+  gap: 15px;
+  margin: 0 0 22px;
 }
-
 
 .ministries-heading h2 {
   margin: 0;
-
-  font-size: 24px;
-
+  color: var(--min-text);
+  font-size: clamp(20px, 2.5vw, 25px);
   font-weight: 800;
+  letter-spacing: -0.4px;
 }
-
 
 .ministries-heading p {
-  margin: 5px 0 0;
-
-  color: #777;
-
-  font-size: 14px;
+  margin: 6px 0 0;
+  color: var(--min-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
-
 /* =========================================================
-   GRID
+   MINISTRY GRID
 ========================================================= */
 
 .ministries-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fill,
-      minmax(230px, 1fr)
-    );
-
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 22px;
+  align-items: stretch;
 }
 
-
 /* =========================================================
-   CARD
+   MINISTRY CARD
 ========================================================= */
 
 .ministry-card {
-  background: #ffffff;
-
-  border-radius: 18px;
-
+  position: relative;
+  min-width: 0;
   overflow: hidden;
-
+  border: 1px solid var(--min-border);
+  border-radius: 18px;
+  background: linear-gradient(155deg, #14223a, #0d1628);
   cursor: pointer;
-
-  border: 1px solid
-    rgba(0, 0, 0, 0.07);
-
-  box-shadow:
-    0 7px 22px rgba(0, 0, 0, 0.07);
-
+  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.18);
   transition:
     transform 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
 }
-
 
 .ministry-card:hover {
   transform: translateY(-5px);
-
-  box-shadow:
-    0 15px 35px rgba(0, 0, 0, 0.13);
+  border-color: rgba(91, 140, 255, 0.42);
+  background: linear-gradient(155deg, #1a2b48, #101b30);
+  box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30);
 }
 
+.ministry-card:focus-visible {
+  outline: 2px solid var(--min-blue-light);
+  outline-offset: 4px;
+}
 
 /* =========================================================
    IMAGE
 ========================================================= */
 
 .ministry-card-image {
-  height: 210px;
-
   position: relative;
-
+  height: 210px;
   overflow: hidden;
-
-  background:
-    linear-gradient(
-      135deg,
-      #292938,
-      #171720
-    );
+  background: linear-gradient(135deg, #22395e, #111b30);
 }
 
+.ministry-card-image::after {
+  content: "";
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(to bottom, transparent, rgba(5, 10, 20, 0.52));
+  pointer-events: none;
+}
 
 .ministry-card-image img {
+  display: block;
   width: 100%;
   height: 100%;
-
   object-fit: cover;
-
-  display: block;
+  transition: transform 0.45s ease;
 }
 
+.ministry-card:hover .ministry-card-image img {
+  transform: scale(1.055);
+}
+
+/* IMAGE PLACEHOLDER */
 
 .ministry-card-placeholder {
   position: absolute;
-
   inset: 0;
-
   display: none;
-
   align-items: center;
   justify-content: center;
-
-  color: rgba(255, 255, 255, 0.85);
-
-  font-size: 55px;
-
   background:
-    linear-gradient(
-      135deg,
-      #292938,
-      #171720
-    );
+    radial-gradient(circle at 50% 35%, rgba(91, 140, 255, 0.18), transparent 50%),
+    linear-gradient(135deg, #1c2d4a, #0c1424);
+  color: var(--min-gold);
+  font-size: 50px;
 }
-
 
 .ministry-card-placeholder.show {
   display: flex;
 }
 
-
-/* =========================================================
-   IMAGE OVERLAY
-========================================================= */
+/* IMAGE OVERLAY */
 
 .ministry-card-overlay {
   position: absolute;
-
+  z-index: 1;
   inset: 0;
-
   display: flex;
-
   align-items: flex-end;
   justify-content: flex-end;
-
-  padding: 14px;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.35),
-      transparent 45%
-    );
-
+  padding: 13px;
   pointer-events: none;
 }
 
-
 .ministry-card-overlay span {
-  width: 42px;
-  height: 42px;
-
-  border-radius: 50%;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  background: rgba(255, 255, 255, 0.94);
-
-  color: #222;
-
-  box-shadow:
-    0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(232, 202, 145, 0.96);
+  color: #111a2a;
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.22s ease;
 }
 
+.ministry-card:hover .ministry-card-overlay span {
+  transform: scale(1.07);
+}
 
 /* =========================================================
-   CARD INFO
+   CARD INFORMATION
 ========================================================= */
 
 .ministry-card-info {
   padding: 18px;
 }
 
-
 .ministry-card-info h3 {
   margin: 0;
-
-  font-size: 18px;
-
+  color: var(--min-text);
+  font-size: 17px;
   font-weight: 750;
-
-  color: #222;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
-
 
 .ministry-card-info p {
-  margin: 8px 0 0;
-
-  color: #777;
-
-  font-size: 13px;
-
-  line-height: 1.5;
-
   display: -webkit-box;
-
-  -webkit-line-clamp: 2;
-
-  -webkit-box-orient: vertical;
-
+  min-height: 39px;
+  margin: 8px 0 0;
   overflow: hidden;
+  color: var(--min-muted);
+  font-size: 12px;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-
-/* =========================================================
-   CARD FOOTER
-========================================================= */
+/* CARD FOOTER */
 
 .ministry-card-footer {
-  margin-top: 17px;
-
-  padding-top: 13px;
-
-  border-top: 1px solid
-    rgba(0, 0, 0, 0.07);
-
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
-  color: #555;
-
-  font-size: 13px;
-
-  font-weight: 600;
-}
-
-
-.ministry-card-footer svg {
+  gap: 10px;
+  margin-top: 17px;
+  padding-top: 14px;
+  border-top: 1px solid var(--min-border);
+  color: var(--min-blue-light);
   font-size: 12px;
-
-  transition:
-    transform 0.2s ease;
+  font-weight: 650;
 }
 
-
-.ministry-card:hover
 .ministry-card-footer svg {
+  flex-shrink: 0;
+  color: var(--min-gold);
+  font-size: 12px;
+  transition: transform 0.22s ease;
+}
+
+.ministry-card:hover .ministry-card-footer svg {
   transform: translateX(4px);
 }
-
 
 /* =========================================================
    LOADING
 ========================================================= */
 
 .ministries-loading {
-  min-height: 400px;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  color: #777;
+  min-height: 400px;
+  color: var(--min-muted);
+  text-align: center;
 }
-
 
 .ministries-spinner {
-  width: 42px;
-  height: 42px;
-
+  width: 40px;
+  height: 40px;
+  margin-bottom: 16px;
+  border: 3px solid rgba(91, 140, 255, 0.16);
+  border-top-color: var(--min-blue);
+  border-right-color: var(--min-gold);
   border-radius: 50%;
-
-  border: 4px solid
-    rgba(0, 0, 0, 0.1);
-
-  border-top-color: #333;
-
-  animation:
-    ministries-spin 0.8s
-    linear infinite;
-
-  margin-bottom: 15px;
+  animation: ministries-spin 0.8s linear infinite;
 }
 
-
 @keyframes ministries-spin {
-
   to {
     transform: rotate(360deg);
   }
-
 }
-
 
 /* =========================================================
    ERROR
 ========================================================= */
 
 .ministries-error {
-  min-height: 400px;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  text-align: center;
-
+  min-height: 400px;
   padding: 30px;
+  text-align: center;
 }
-
 
 .ministries-error-icon {
-  width: 70px;
-  height: 70px;
-
-  border-radius: 50%;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  background: #f2f2f2;
-
-  color: #555;
-
-  font-size: 28px;
-
-  margin-bottom: 15px;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 17px;
+  border: 1px solid var(--min-border);
+  border-radius: 50%;
+  background: var(--min-card);
+  color: var(--min-gold);
+  font-size: 27px;
 }
-
 
 .ministries-error h2 {
   margin: 0 0 8px;
-
+  color: var(--min-text);
   font-size: 22px;
 }
 
-
 .ministries-error p {
-  color: #777;
-
   margin: 0 0 20px;
+  color: var(--min-muted);
+  line-height: 1.6;
 }
-
 
 .ministries-error button {
-  border: none;
-
-  padding: 11px 22px;
-
+  min-height: 42px;
+  padding: 0 21px;
+  border: 1px solid rgba(91, 140, 255, 0.30);
   border-radius: 10px;
-
-  background: #222;
-
+  background: linear-gradient(135deg, #5b8cff, #416fd5);
   color: #ffffff;
-
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-
-  font-weight: 600;
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
+.ministries-error button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
 
 /* =========================================================
-   EMPTY
+   EMPTY STATE
 ========================================================= */
 
 .ministries-empty {
-  min-height: 300px;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  text-align: center;
-
+  min-height: 300px;
   padding: 30px;
+  text-align: center;
 }
-
 
 .ministries-empty-icon {
-  width: 70px;
-  height: 70px;
-
-  border-radius: 50%;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  background: #f2f2f2;
-
-  color: #555;
-
-  font-size: 28px;
-
-  margin-bottom: 15px;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 17px;
+  border: 1px solid var(--min-border);
+  border-radius: 50%;
+  background: var(--min-card);
+  color: var(--min-gold);
+  font-size: 27px;
 }
 
-
 .ministries-empty h3 {
-  margin: 0 0 7px;
-
+  margin: 0 0 8px;
+  color: var(--min-text);
   font-size: 20px;
 }
 
-
 .ministries-empty p {
+  max-width: 420px;
   margin: 0;
-
-  color: #777;
+  color: var(--min-muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
-
 /* =========================================================
-   RESPONSIVE
+   TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
-
   .ministries-hero {
     flex-direction: column;
-
     align-items: stretch;
+    gap: 24px;
   }
-
 
   .ministries-search {
     width: 100%;
     min-width: 0;
   }
 
+  .ministries-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 17px;
+  }
 }
 
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media (max-width: 600px) {
+  .ministries-page {
+    padding-bottom: 145px;
+  }
 
   .ministries-hero {
     margin: 15px;
-
-    padding: 24px;
-
-    border-radius: 18px;
+    padding: 22px 18px;
+    gap: 21px;
+    border-radius: 19px;
   }
-
 
   .ministries-hero-content {
     align-items: flex-start;
+    gap: 14px;
   }
-
 
   .ministries-hero-icon {
-    width: 58px;
-    height: 58px;
-
+    width: 54px;
+    height: 54px;
     border-radius: 15px;
-
-    font-size: 24px;
+    font-size: 22px;
   }
 
+  .ministries-eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.7px;
+  }
 
   .ministries-hero h1 {
-    font-size: 28px;
+    font-size: 26px;
   }
-
 
   .ministries-hero p {
-    font-size: 13px;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.65;
   }
 
+  .ministries-search {
+    height: 46px;
+    padding: 0 13px;
+  }
 
   .ministries-content {
     padding: 0 15px;
   }
 
-
-  .ministries-grid {
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
-
-    gap: 12px;
+  .ministries-heading {
+    align-items: flex-start;
+    margin-bottom: 17px;
   }
 
-
-  .ministry-card-image {
-    height: 150px;
+  .ministries-heading h2 {
+    font-size: 21px;
   }
 
-
-  .ministry-card-info {
-    padding: 13px;
-  }
-
-
-  .ministry-card-info h3 {
-    font-size: 15px;
-  }
-
-
-  .ministry-card-info p {
+  .ministries-heading p {
     font-size: 12px;
   }
 
+  .ministries-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 
-  .ministry-card-footer {
+  .ministry-card {
+    border-radius: 14px;
+  }
+
+  .ministry-card-image {
+    height: auto;
+    aspect-ratio: 1 / 0.88;
+  }
+
+  .ministry-card-overlay {
+    padding: 8px;
+  }
+
+  .ministry-card-overlay span {
+    width: 32px;
+    height: 32px;
     font-size: 11px;
   }
 
+  .ministry-card-info {
+    padding: 12px;
+  }
+
+  .ministry-card-info h3 {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .ministry-card-info p {
+    min-height: 34px;
+    margin-top: 6px;
+    font-size: 10px;
+    line-height: 1.6;
+  }
+
+  .ministry-card-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    font-size: 10px;
+  }
+
+  .ministry-card-footer svg {
+    font-size: 10px;
+  }
 }
 
+/* VERY SMALL SCREENS */
 
-@media (max-width: 400px) {
-
+@media (max-width: 350px) {
   .ministries-grid {
     grid-template-columns: 1fr;
   }
 
-
   .ministry-card-image {
-    height: 190px;
+    aspect-ratio: 1.5 / 1;
   }
 
+  .ministry-card-info {
+    padding: 15px;
+  }
+
+  .ministry-card-info h3 {
+    font-size: 16px;
+  }
+
+  .ministry-card-info p {
+    font-size: 12px;
+  }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  .ministry-card,
+  .ministry-card-image img,
+  .ministry-card-overlay span,
+  .ministry-card-footer svg,
+  .ministries-error button {
+    transition: none;
+  }
+
+  .ministries-spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* =========================================================
+   MINISTRIES EMPTY STATE — CLEAR SEARCH BUTTON
+========================================================= */
+
+.ministries-empty button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  margin-top: 22px;
+  padding: 11px 24px;
+
+  border: 1px solid rgba(231, 199, 123, 0.4);
+  border-radius: 30px;
+
+  background: linear-gradient(
+    135deg,
+    #4169e1,
+    #294db5
+  );
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(65, 105, 225, 0.22);
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.ministries-empty button:hover {
+  background: linear-gradient(
+    135deg,
+    #e7c77b,
+    #c9a653
+  );
+
+  color: #10182a;
+
+  border-color: #e7c77b;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 24px rgba(231, 199, 123, 0.2);
+}
+
+.ministries-empty button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.ministries-empty button:focus-visible {
+  outline: 2px solid #e7c77b;
+  outline-offset: 4px;
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+  .ministries-empty button {
+    width: auto;
+    min-height: 42px;
+    padding: 10px 22px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — MINISTRIES TYPOGRAPHY
+   Consistent Premium App-Wide Font
+========================================================= */
+
+.ministries-page,
+.ministries-page button,
+.ministries-page input {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+}
+
+/* Hero heading */
+.ministries-hero h1 {
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+}
+
+/* Small section label */
+.ministries-eyebrow {
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+
+/* Hero description */
+.ministries-hero p {
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  line-height: 1.75;
+}
+
+/* Section heading */
+.ministries-heading h2 {
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+.ministries-heading p {
+  font-weight: 400;
+}
+
+/* Search input */
+.ministries-search input {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* Ministry card title */
+.ministry-card-info h3 {
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.4;
+}
+
+/* Ministry description */
+.ministry-card-info p {
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  line-height: 1.65;
+}
+
+/* Card footer */
+.ministry-card-footer {
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* Empty and error states */
+.ministries-empty h3,
+.ministries-error h2 {
+  font-weight: 750;
+  letter-spacing: -0.3px;
+}
+
+.ministries-empty p,
+.ministries-error p {
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* Search and action-button keyboard focus */
+.ministries-page button:focus-visible {
+  outline: 2px solid var(--min-gold);
+  outline-offset: 3px;
+}
+
+/* Accessibility: respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .ministries-page *,
+  .ministries-page *::before,
+  .ministries-page *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

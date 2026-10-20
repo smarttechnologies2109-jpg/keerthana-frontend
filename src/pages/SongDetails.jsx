@@ -229,7 +229,12 @@ const [likeError, setLikeError] = useState("");
         setLoading(true);
         setError("");
 
-        const response = await API.get(`/songs/${id}`);
+       const response = await API.get(`/songs/${id}`);
+
+console.log("Song details API response:", response.data);
+console.log("Lyrics returned:", response.data?.song?.lyrics);
+
+setSong(response.data.song);
 
         setSong(response.data.song);
       } catch (err) {

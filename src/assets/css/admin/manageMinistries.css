@@ -1,18 +1,54 @@
+
 /* =========================================================
-   KEERTHANA - MANAGE MINISTRIES
-   IMPORTANT:
-   Works with existing AdminSidebar + AdminHeader
+   KEERTHANA MUSIC — MANAGE MINISTRIES
+   Premium Navy • Royal Blue • Soft Gold
+   Compatible with existing AdminSidebar + AdminHeader
+   CSS redesign only — no React or API logic changes
 ========================================================= */
 
 
 /* =========================================================
-   PAGE
+   GLOBAL PAGE
 ========================================================= */
 
 .admin-ministries-page {
+  --ministry-bg: #080d19;
+  --ministry-surface: #0e1729;
+  --ministry-card: #111d32;
+  --ministry-card-hover: #16243d;
+  --ministry-border: rgba(151, 177, 220, 0.14);
+  --ministry-text: #f3f6ff;
+  --ministry-muted: #96a6c1;
+  --ministry-blue: #527dff;
+  --ministry-blue-hover: #7094ff;
+  --ministry-gold: #e8c779;
+  --ministry-gold-soft: rgba(232, 199, 121, 0.12);
+
   min-height: 100vh;
   width: 100%;
-  background: #f5f7fb;
+  box-sizing: border-box;
+
+  color: var(--ministry-text);
+  background:
+    radial-gradient(
+      ellipse at 80% 0%,
+      rgba(57, 91, 173, 0.13),
+      transparent 42%
+    ),
+    var(--ministry-bg);
+
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.admin-ministries-page *,
+.admin-ministries-page *::before,
+.admin-ministries-page *::after {
   box-sizing: border-box;
 }
 
@@ -21,27 +57,14 @@
    MAIN CONTENT
 ========================================================= */
 
-/*
-  Sidebar is handled by AdminSidebar.
-  Header is handled by AdminHeader.
-
-  Give the ministries content its own safe area.
-*/
-
 .admin-ministries-main {
   min-height: 100vh;
   width: 100%;
-  box-sizing: border-box;
-
-  /*
-    Change these two values ONLY if your existing
-    sidebar/header use different sizes.
-  */
 
   margin-left: 250px;
-  padding-top: 75px;
+  padding: 88px 0 45px;
 
-  padding-bottom: 40px;
+  box-sizing: border-box;
 }
 
 
@@ -51,27 +74,29 @@
 
 .admin-ministries-header {
   width: calc(100% - 50px);
-  margin: 25px auto 0;
+  margin: 18px auto 0;
 
-  min-height: 75px;
+  min-height: 100px;
+  padding: 22px 26px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 22px;
 
-  gap: 20px;
+  background:
+    linear-gradient(
+      125deg,
+      rgba(20, 34, 59, 0.98),
+      rgba(13, 23, 41, 0.98)
+    );
 
-  padding: 20px 24px;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid var(--ministry-border);
+  border-radius: 17px;
 
   box-shadow:
-    0 4px 18px rgba(15, 23, 42, 0.05);
+    0 12px 35px rgba(0, 0, 0, 0.19),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
 
@@ -82,87 +107,118 @@
 .admin-ministries-title {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 
   min-width: 0;
 }
 
-
 .admin-ministries-title-icon {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
 
   flex-shrink: 0;
-
-  border-radius: 12px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #eef2ff;
-  color: #4f46e5;
+  border-radius: 15px;
+
+  color: var(--ministry-gold);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(232, 199, 121, 0.17),
+      rgba(82, 125, 255, 0.13)
+    );
+
+  border: 1px solid rgba(232, 199, 121, 0.2);
 
   font-size: 23px;
-}
 
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.12);
+}
 
 .admin-ministries-title h1 {
   margin: 0;
 
-  color: #111827;
+  color: var(--ministry-text);
 
-  font-size: 25px;
-  font-weight: 700;
-
-  line-height: 1.2;
+  font-size: clamp(21px, 2vw, 27px);
+  font-weight: 750;
+  letter-spacing: -0.7px;
+  line-height: 1.25;
 }
 
-
 .admin-ministries-title p {
-  margin: 5px 0 0;
+  margin: 7px 0 0;
 
-  color: #6b7280;
+  color: var(--ministry-muted);
 
   font-size: 13px;
+  line-height: 1.6;
 }
 
 
 /* =========================================================
-   ADD BUTTON
+   ADD MINISTRY BUTTON
 ========================================================= */
 
 .admin-ministry-add-button {
+  min-height: 44px;
+  padding: 0 19px;
+
   flex-shrink: 0;
-
-  min-height: 42px;
-
-  padding: 0 17px;
-
-  border: none;
-  border-radius: 9px;
-
-  background: #4f46e5;
-  color: #ffffff;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 9px;
 
-  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6389ff,
+      #4267df
+    );
+
+  color: #ffffff;
 
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 
   cursor: pointer;
 
-  transition: all 0.2s ease;
+  box-shadow:
+    0 6px 17px rgba(57, 91, 205, 0.24);
+
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-
 .admin-ministry-add-button:hover {
-  background: #4338ca;
+  background:
+    linear-gradient(
+      135deg,
+      #7799ff,
+      #5278ef
+    );
+
+  box-shadow:
+    0 9px 23px rgba(57, 91, 205, 0.34);
+
+  transform: translateY(-1px);
+}
+
+.admin-ministry-add-button:active {
+  transform: translateY(0);
 }
 
 
@@ -172,33 +228,29 @@
 
 .admin-ministry-alert {
   width: calc(100% - 50px);
-
   margin: 18px auto 0;
+
+  padding: 14px 17px;
 
   box-sizing: border-box;
 
-  padding: 13px 16px;
-
-  border-radius: 9px;
+  border-radius: 11px;
 
   font-size: 13px;
   font-weight: 500;
+  line-height: 1.6;
 }
-
 
 .admin-ministry-alert.error {
-  background: #fef2f2;
-  color: #b91c1c;
-
-  border: 1px solid #fecaca;
+  color: #ffb4b4;
+  background: rgba(150, 37, 50, 0.15);
+  border: 1px solid rgba(255, 105, 120, 0.28);
 }
 
-
 .admin-ministry-alert.success {
-  background: #f0fdf4;
-  color: #15803d;
-
-  border: 1px solid #bbf7d0;
+  color: #a7e6c1;
+  background: rgba(30, 120, 79, 0.13);
+  border: 1px solid rgba(82, 204, 142, 0.25);
 }
 
 
@@ -208,20 +260,17 @@
 
 .admin-ministry-form-card {
   width: calc(100% - 50px);
-
-  margin: 20px auto 0;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  margin: 22px auto 0;
 
   overflow: hidden;
 
+  background: var(--ministry-surface);
+
+  border: 1px solid var(--ministry-border);
+  border-radius: 16px;
+
   box-shadow:
-    0 4px 18px rgba(15, 23, 42, 0.05);
+    0 12px 34px rgba(0, 0, 0, 0.17);
 }
 
 
@@ -230,164 +279,194 @@
 ========================================================= */
 
 .admin-ministry-form-header {
-  min-height: 65px;
-
-  padding: 18px 22px;
-
-  box-sizing: border-box;
+  min-height: 70px;
+  padding: 19px 23px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 
-  gap: 15px;
+  border-bottom: 1px solid var(--ministry-border);
 
-  border-bottom: 1px solid #e5e7eb;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(82, 125, 255, 0.055),
+      transparent 65%
+    );
 }
-
 
 .admin-ministry-form-header h2 {
   margin: 0;
 
-  color: #111827;
+  color: var(--ministry-text);
 
   font-size: 18px;
   font-weight: 700;
+  letter-spacing: -0.25px;
 }
-
 
 .admin-ministry-form-header p {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
 
-  color: #6b7280;
+  color: var(--ministry-muted);
 
   font-size: 12px;
+  line-height: 1.6;
 }
 
-
 .admin-ministry-close-button {
-  width: 36px;
-  height: 36px;
+  width: 37px;
+  height: 37px;
 
   flex-shrink: 0;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #f3f4f6;
-  color: #6b7280;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  border: 1px solid var(--ministry-border);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.035);
+  color: #b8c5dc;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-
 .admin-ministry-close-button:hover {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(235, 83, 101, 0.12);
+  border-color: rgba(255, 105, 120, 0.3);
+  color: #ff9da8;
 }
 
 
 /* =========================================================
-   FORM
+   FORM LAYOUT
 ========================================================= */
 
 .admin-ministry-form {
-  padding: 22px;
-
-  box-sizing: border-box;
+  padding: 25px;
 
   display: grid;
+  gap: 21px;
 
-  gap: 18px;
+  background: transparent;
 }
-
 
 .admin-ministry-field {
   width: 100%;
 
   display: flex;
   flex-direction: column;
+  gap: 8px;
 
-  gap: 7px;
+  min-width: 0;
 }
-
 
 .admin-ministry-field label {
-  color: #374151;
+  color: #dbe4f5;
 
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
+  line-height: 1.5;
 }
 
-
 .admin-ministry-field label span {
-  color: #dc2626;
-
   margin-left: 3px;
+
+  color: #ff8e9c;
 }
 
 
 /* =========================================================
-   INPUTS
+   INPUTS / SELECTS / TEXTAREA
 ========================================================= */
 
 .admin-ministry-field input,
 .admin-ministry-field select,
 .admin-ministry-field textarea {
   width: 100%;
+  min-width: 0;
 
   box-sizing: border-box;
 
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1px solid rgba(151, 177, 220, 0.19);
+  border-radius: 10px;
 
-  background: #ffffff;
-  color: #111827;
+  background: #0a1221;
+  color: var(--ministry-text);
 
   font-family: inherit;
   font-size: 13px;
 
   outline: none;
 
-  transition: 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
-
 
 .admin-ministry-field input,
 .admin-ministry-field select {
-  height: 43px;
-
-  padding: 0 12px;
+  height: 45px;
+  padding: 0 13px;
 }
 
-
 .admin-ministry-field textarea {
-  min-height: 105px;
+  min-height: 115px;
+  padding: 12px 13px;
 
-  padding: 11px 12px;
+  line-height: 1.65;
 
   resize: vertical;
 }
 
+.admin-ministry-field input::placeholder,
+.admin-ministry-field textarea::placeholder {
+  color: #6e809f;
+  opacity: 1;
+}
+
+.admin-ministry-field select {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.admin-ministry-field select option {
+  background: #101b2e;
+  color: #f3f6ff;
+}
+
+.admin-ministry-field input:hover,
+.admin-ministry-field select:hover,
+.admin-ministry-field textarea:hover {
+  border-color: rgba(120, 151, 226, 0.36);
+}
 
 .admin-ministry-field input:focus,
 .admin-ministry-field select:focus,
 .admin-ministry-field textarea:focus {
-  border-color: #6366f1;
+  border-color: var(--ministry-blue);
+
+  background: #0d1729;
 
   box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.1);
+    0 0 0 3px rgba(82, 125, 255, 0.14);
 }
 
-
 .admin-ministry-field small {
-  color: #6b7280;
+  color: var(--ministry-muted);
 
   font-size: 11px;
+  line-height: 1.6;
 }
 
 
@@ -399,35 +478,54 @@
   position: relative;
 
   width: 100%;
-  min-height: 130px;
+  min-height: 150px;
 
-  box-sizing: border-box;
-
-  padding: 20px;
-
-  border: 2px dashed #c7d2fe;
-  border-radius: 11px;
-
-  background: #f8faff;
+  padding: 23px;
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
+  gap: 10px;
+
+  box-sizing: border-box;
+
+  border: 1.5px dashed rgba(111, 146, 255, 0.43);
+  border-radius: 13px;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(82, 125, 255, 0.09),
+      transparent 75%
+    ),
+    #0b1424;
 
   text-align: center;
 
-  gap: 9px;
-
-  transition: 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-
 .admin-ministry-upload-box:hover {
-  border-color: #818cf8;
+  border-color: var(--ministry-gold);
 
-  background: #f5f3ff;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(232, 199, 121, 0.075),
+      transparent 75%
+    ),
+    #0d1728;
+}
+
+.admin-ministry-upload-box:focus-within {
+  border-color: var(--ministry-blue);
+
+  box-shadow:
+    0 0 0 3px rgba(82, 125, 255, 0.13);
 }
 
 
@@ -441,46 +539,73 @@
   width: 1px;
   height: 1px;
 
-  opacity: 0;
+  padding: 0;
+  margin: -1px;
 
   overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+
+  white-space: nowrap;
+
+  border: 0;
 }
 
 
 /* =========================================================
-   BROWSE BUTTON
+   UPLOAD BUTTON
 ========================================================= */
 
 .admin-ministry-upload-button {
-  min-height: 40px;
-
-  padding: 0 17px;
+  min-height: 41px;
+  padding: 0 18px;
 
   box-sizing: border-box;
 
-  border-radius: 8px;
-
-  background: #4f46e5;
-  color: #ffffff !important;
-
   display: inline-flex !important;
-
   align-items: center;
   justify-content: center;
+  gap: 9px;
 
-  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 9px;
 
+  background:
+    linear-gradient(
+      135deg,
+      #6389ff,
+      #4267df
+    );
+
+  color: #ffffff !important;
+
+  font-family: inherit;
   font-size: 13px !important;
-  font-weight: 600 !important;
+  font-weight: 650 !important;
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  box-shadow:
+    0 5px 14px rgba(57, 91, 205, 0.2);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-
 .admin-ministry-upload-button:hover {
-  background: #4338ca;
+  background:
+    linear-gradient(
+      135deg,
+      #7799ff,
+      #5278ef
+    );
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 18px rgba(57, 91, 205, 0.28);
 }
 
 
@@ -489,133 +614,146 @@
 ========================================================= */
 
 .admin-ministry-image-preview {
-  width: 150px;
-  height: 150px;
+  width: 155px;
+  height: 155px;
 
-  margin-top: 3px;
+  margin-top: 5px;
 
   overflow: hidden;
-
-  border-radius: 12px;
-
-  border: 1px solid #e5e7eb;
-
-  background: #f3f4f6;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border: 1px solid rgba(232, 199, 121, 0.22);
+  border-radius: 14px;
+
+  background: #111d32;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-
 .admin-ministry-image-preview img {
+  display: block;
+
   width: 100%;
   height: 100%;
-
-  display: block;
 
   object-fit: cover;
 }
 
 
 /* =========================================================
-   FORM BUTTONS
+   FORM ACTIONS
 ========================================================= */
 
 .admin-ministry-form-actions {
   display: flex;
-
   align-items: center;
   justify-content: flex-end;
+  gap: 11px;
 
-  gap: 10px;
+  padding-top: 5px;
 
-  padding-top: 3px;
+  border-top: 1px solid rgba(151, 177, 220, 0.1);
 }
-
 
 .admin-ministry-cancel-button,
 .admin-ministry-save-button {
-  min-height: 42px;
-
-  padding: 0 16px;
-
-  border-radius: 8px;
+  min-height: 43px;
+  padding: 0 18px;
 
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
+  gap: 8px;
 
-  gap: 7px;
+  border-radius: 10px;
 
   font-family: inherit;
-
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
 
   cursor: pointer;
-}
 
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
 
 .admin-ministry-cancel-button {
-  background: #ffffff;
+  border: 1px solid rgba(151, 177, 220, 0.22);
 
-  color: #374151;
-
-  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.035);
+  color: #d4def0;
 }
-
 
 .admin-ministry-cancel-button:hover {
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(151, 177, 220, 0.38);
 }
 
-
 .admin-ministry-save-button {
-  background: #4f46e5;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  background:
+    linear-gradient(
+      135deg,
+      #6389ff,
+      #4267df
+    );
 
   color: #ffffff;
 
-  border: none;
+  box-shadow:
+    0 5px 15px rgba(57, 91, 205, 0.2);
 }
-
 
 .admin-ministry-save-button:hover {
-  background: #4338ca;
-}
+  background:
+    linear-gradient(
+      135deg,
+      #7799ff,
+      #5278ef
+    );
 
+  box-shadow:
+    0 7px 19px rgba(57, 91, 205, 0.3);
+
+  transform: translateY(-1px);
+}
 
 .admin-ministry-cancel-button:disabled,
 .admin-ministry-save-button:disabled,
 .admin-ministry-close-button:disabled {
-  opacity: 0.55;
-
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 
 /* =========================================================
-   LIST CARD
+   MINISTRY LIST CARD
 ========================================================= */
 
 .admin-ministry-list-card {
   width: calc(100% - 50px);
-
-  margin: 20px auto 0;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 14px;
+  margin: 22px auto 0;
 
   overflow: hidden;
 
+  background: var(--ministry-surface);
+
+  border: 1px solid var(--ministry-border);
+  border-radius: 16px;
+
   box-shadow:
-    0 4px 18px rgba(15, 23, 42, 0.05);
+    0 12px 34px rgba(0, 0, 0, 0.17);
 }
 
 
@@ -624,43 +762,48 @@
 ========================================================= */
 
 .admin-ministry-list-header {
-  padding: 18px 22px;
+  padding: 21px 24px;
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--ministry-border);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(82, 125, 255, 0.055),
+      transparent 70%
+    );
 }
-
 
 .admin-ministry-list-header > div {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
-  gap: 10px;
+  gap: 12px;
 }
-
 
 .admin-ministry-list-header h2 {
   margin: 0;
 
-  color: #111827;
+  color: var(--ministry-text);
 
   font-size: 18px;
   font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
-
 .admin-ministry-list-header span {
-  padding: 5px 9px;
+  flex-shrink: 0;
 
+  padding: 6px 11px;
+
+  border: 1px solid rgba(232, 199, 121, 0.2);
   border-radius: 20px;
 
-  background: #eef2ff;
-
-  color: #4f46e5;
+  background: var(--ministry-gold-soft);
+  color: var(--ministry-gold);
 
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 
@@ -669,126 +812,140 @@
 ========================================================= */
 
 .admin-ministry-loading {
-  min-height: 250px;
+  min-height: 270px;
+  padding: 30px;
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  gap: 12px;
+  gap: 15px;
 }
-
 
 .admin-ministry-loading p {
   margin: 0;
 
-  color: #6b7280;
+  color: var(--ministry-muted);
 
   font-size: 13px;
 }
 
-
 .admin-ministry-spinner {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
 
-  border: 4px solid #e5e7eb;
-
-  border-top-color: #4f46e5;
+  border: 3px solid rgba(151, 177, 220, 0.15);
+  border-top-color: var(--ministry-gold);
+  border-right-color: var(--ministry-blue);
 
   border-radius: 50%;
 
   animation: ministrySpin 0.8s linear infinite;
 }
 
-
 @keyframes ministrySpin {
-
   to {
     transform: rotate(360deg);
   }
-
 }
 
 
 /* =========================================================
-   EMPTY
+   EMPTY STATE
 ========================================================= */
 
 .admin-ministry-empty {
-  min-height: 280px;
-
-  padding: 35px 20px;
-
-  box-sizing: border-box;
+  min-height: 300px;
+  padding: 40px 22px;
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
+
+  box-sizing: border-box;
 
   text-align: center;
 }
 
-
 .admin-ministry-empty > svg {
-  margin-bottom: 13px;
+  margin-bottom: 16px;
 
-  font-size: 44px;
+  color: var(--ministry-gold);
 
-  color: #a5b4fc;
+  font-size: 46px;
+
+  filter:
+    drop-shadow(0 5px 14px rgba(232, 199, 121, 0.12));
 }
-
 
 .admin-ministry-empty h3 {
   margin: 0;
 
-  color: #111827;
+  color: var(--ministry-text);
 
-  font-size: 18px;
+  font-size: 19px;
+  font-weight: 700;
 }
-
 
 .admin-ministry-empty p {
-  max-width: 400px;
+  max-width: 410px;
 
-  margin: 7px 0 18px;
+  margin: 9px 0 21px;
 
-  color: #6b7280;
+  color: var(--ministry-muted);
 
   font-size: 13px;
+  line-height: 1.75;
 }
 
-
 .admin-ministry-empty-button {
-  min-height: 40px;
+  min-height: 41px;
+  padding: 0 17px;
 
-  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
 
-  border-radius: 8px;
-
-  background: #4f46e5;
+  background:
+    linear-gradient(
+      135deg,
+      #6389ff,
+      #4267df
+    );
 
   color: #ffffff;
 
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 7px;
-
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
 
   cursor: pointer;
+
+  box-shadow:
+    0 5px 15px rgba(57, 91, 205, 0.2);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-ministry-empty-button:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #7799ff,
+      #5278ef
+    );
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 20px rgba(57, 91, 205, 0.3);
 }
 
 
@@ -797,19 +954,17 @@
 ========================================================= */
 
 .admin-ministry-grid {
-  padding: 22px;
-
-  box-sizing: border-box;
+  padding: 24px;
 
   display: grid;
 
   grid-template-columns:
     repeat(
       auto-fill,
-      minmax(250px, 1fr)
+      minmax(min(100%, 250px), 1fr)
     );
 
-  gap: 18px;
+  gap: 20px;
 }
 
 
@@ -820,23 +975,42 @@
 .admin-ministry-card {
   min-width: 0;
 
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 12px;
-
   overflow: hidden;
 
-  transition: 0.2s ease;
-}
+  background:
+    linear-gradient(
+      155deg,
+      rgba(20, 33, 56, 0.98),
+      rgba(13, 22, 39, 0.98)
+    );
 
-
-.admin-ministry-card:hover {
-  transform: translateY(-2px);
+  border: 1px solid var(--ministry-border);
+  border-radius: 14px;
 
   box-shadow:
-    0 8px 20px rgba(15, 23, 42, 0.08);
+    0 5px 17px rgba(0, 0, 0, 0.1);
+
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.admin-ministry-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(232, 199, 121, 0.27);
+
+  background:
+    linear-gradient(
+      155deg,
+      rgba(24, 40, 67, 0.98),
+      rgba(15, 25, 44, 0.98)
+    );
+
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.23);
 }
 
 
@@ -845,34 +1019,49 @@
 ========================================================= */
 
 .admin-ministry-card-image {
-  width: 100%;
-  height: 170px;
+  position: relative;
 
-  background: #f3f4f6;
+  width: 100%;
+  height: 180px;
 
   overflow: hidden;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
+
+  background:
+    linear-gradient(
+      145deg,
+      #162644,
+      #0b1424
+    );
+
+  border-bottom: 1px solid rgba(151, 177, 220, 0.1);
 }
 
-
 .admin-ministry-card-image img {
+  display: block;
+
   width: 100%;
   height: 100%;
 
   object-fit: cover;
 
-  display: block;
+  transition: transform 0.35s ease;
 }
 
+.admin-ministry-card:hover .admin-ministry-card-image img {
+  transform: scale(1.035);
+}
 
 .admin-ministry-card-image > svg {
-  color: #a5b4fc;
+  color: rgba(232, 199, 121, 0.72);
 
-  font-size: 48px;
+  font-size: 49px;
+
+  filter:
+    drop-shadow(0 4px 12px rgba(232, 199, 121, 0.1));
 }
 
 
@@ -881,60 +1070,56 @@
 ========================================================= */
 
 .admin-ministry-card-content {
-  padding: 16px;
+  padding: 18px;
 
   box-sizing: border-box;
 }
 
-
 .admin-ministry-card-content h3 {
   margin: 0;
 
-  color: #111827;
+  color: var(--ministry-text);
 
   font-size: 16px;
   font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.5;
 
-  line-height: 1.4;
-
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
-
 
 .admin-ministry-language {
   width: fit-content;
+  max-width: 100%;
 
-  margin-top: 8px;
+  margin-top: 10px;
+  padding: 5px 10px;
 
-  padding: 4px 9px;
-
+  border: 1px solid rgba(82, 125, 255, 0.22);
   border-radius: 20px;
 
-  background: #eef2ff;
-
-  color: #4f46e5;
+  background: rgba(82, 125, 255, 0.1);
+  color: #a9bdff;
 
   font-size: 11px;
+  font-weight: 650;
 
-  font-weight: 600;
+  overflow-wrap: anywhere;
 }
-
 
 .admin-ministry-card-content p {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
 
-  color: #6b7280;
+  color: var(--ministry-muted);
 
   font-size: 12px;
+  line-height: 1.8;
 
-  line-height: 1.6;
-
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-
 .admin-ministry-card-content p.no-description {
-  color: #9ca3af;
+  color: #7e8da7;
 
   font-style: italic;
 }
@@ -945,25 +1130,26 @@
 ========================================================= */
 
 .admin-ministry-card-footer {
-  margin-top: 15px;
-
-  padding-top: 12px;
-
-  border-top: 1px solid #e5e7eb;
+  margin-top: 17px;
+  padding-top: 13px;
 
   display: flex;
-
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 
-  gap: 8px;
+  border-top: 1px solid rgba(151, 177, 220, 0.12);
 }
 
-
 .admin-ministry-card-footer > span {
-  color: #9ca3af;
+  min-width: 0;
+
+  color: #8393ad;
 
   font-size: 10px;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -972,57 +1158,82 @@
 ========================================================= */
 
 .admin-ministry-card-actions {
+  flex-shrink: 0;
+
   display: flex;
-
   align-items: center;
-
-  gap: 6px;
+  gap: 7px;
 }
-
 
 .admin-ministry-edit-button,
 .admin-ministry-delete-button {
-  width: 32px;
-  height: 32px;
-
-  border-radius: 7px;
+  width: 35px;
+  height: 35px;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
+  border-radius: 9px;
+
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
-
 
 .admin-ministry-edit-button {
-  border: 1px solid #c7d2fe;
+  border: 1px solid rgba(82, 125, 255, 0.25);
 
-  background: #eef2ff;
-
-  color: #4f46e5;
+  background: rgba(82, 125, 255, 0.1);
+  color: #a9bdff;
 }
-
 
 .admin-ministry-edit-button:hover {
-  background: #e0e7ff;
-}
+  border-color: rgba(82, 125, 255, 0.5);
 
+  background: rgba(82, 125, 255, 0.2);
+  color: #d2dcff;
+
+  transform: translateY(-1px);
+}
 
 .admin-ministry-delete-button {
-  border: 1px solid #fecaca;
+  border: 1px solid rgba(255, 112, 128, 0.22);
 
-  background: #fef2f2;
+  background: rgba(255, 89, 108, 0.075);
+  color: #ff9ca8;
+}
 
-  color: #dc2626;
+.admin-ministry-delete-button:hover {
+  border-color: rgba(255, 112, 128, 0.45);
+
+  background: rgba(255, 89, 108, 0.16);
+  color: #ffc0c8;
+
+  transform: translateY(-1px);
 }
 
 
-.admin-ministry-delete-button:hover {
-  background: #fee2e2;
+/* =========================================================
+   KEYBOARD ACCESSIBILITY
+========================================================= */
+
+.admin-ministries-page button:focus-visible,
+.admin-ministries-page input:focus-visible,
+.admin-ministries-page select:focus-visible,
+.admin-ministries-page textarea:focus-visible,
+.admin-ministries-page label:focus-visible {
+  outline: 2px solid var(--ministry-gold);
+  outline-offset: 3px;
+}
+
+.admin-ministries-page button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 
@@ -1031,43 +1242,61 @@
 ========================================================= */
 
 @media (min-width: 1400px) {
-
   .admin-ministries-main {
     margin-left: 260px;
   }
-
-}
-
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 1000px) {
-
-  .admin-ministries-main {
-    margin-left: 220px;
-
-    padding-top: 70px;
-  }
-
 
   .admin-ministries-header,
   .admin-ministry-form-card,
   .admin-ministry-list-card,
   .admin-ministry-alert {
-    width: calc(100% - 35px);
+    width: calc(100% - 64px);
+    max-width: 1600px;
   }
 
+  .admin-ministry-grid {
+    padding: 27px;
+    gap: 23px;
+  }
+
+  .admin-ministry-card-image {
+    height: 195px;
+  }
+}
+
+
+/* =========================================================
+   TABLET / SMALL DESKTOP
+========================================================= */
+
+@media (max-width: 1000px) {
+  .admin-ministries-main {
+    margin-left: 220px;
+    padding-top: 78px;
+  }
+
+  .admin-ministries-header,
+  .admin-ministry-form-card,
+  .admin-ministry-list-card,
+  .admin-ministry-alert {
+    width: calc(100% - 36px);
+  }
+
+  .admin-ministries-header {
+    padding: 20px;
+  }
 
   .admin-ministry-grid {
     grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
+      repeat(2, minmax(0, 1fr));
+
+    padding: 19px;
+    gap: 16px;
   }
 
+  .admin-ministry-card-image {
+    height: 160px;
+  }
 }
 
 
@@ -1076,69 +1305,110 @@
 ========================================================= */
 
 @media (max-width: 768px) {
+  .admin-ministries-page {
+    min-height: 100vh;
+  }
 
   .admin-ministries-main {
+    width: 100%;
     margin-left: 0;
-
-    padding-top: 70px;
+    padding-top: 76px;
+    padding-bottom: 30px;
   }
-
 
   .admin-ministries-header {
-    width: calc(100% - 30px);
+    width: calc(100% - 28px);
 
-    margin-top: 15px;
-
-    padding: 17px;
+    margin-top: 13px;
+    padding: 19px;
 
     flex-direction: column;
-
     align-items: stretch;
+    gap: 19px;
+
+    border-radius: 14px;
   }
 
+  .admin-ministries-title {
+    gap: 13px;
+  }
+
+  .admin-ministries-title-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 12px;
+
+    font-size: 21px;
+  }
+
+  .admin-ministries-title h1 {
+    font-size: 22px;
+  }
 
   .admin-ministry-add-button {
     width: 100%;
+    min-height: 45px;
   }
-
 
   .admin-ministry-alert,
   .admin-ministry-form-card,
   .admin-ministry-list-card {
-    width: calc(100% - 30px);
+    width: calc(100% - 28px);
   }
 
+  .admin-ministry-alert {
+    margin-top: 14px;
+  }
 
   .admin-ministry-form-card,
   .admin-ministry-list-card {
-    margin-top: 15px;
+    margin-top: 16px;
   }
 
-
-  .admin-ministry-grid {
-    grid-template-columns: 1fr;
-
-    padding: 16px;
-  }
-
-
-  .admin-ministry-form {
+  .admin-ministry-form-header {
     padding: 17px;
   }
 
+  .admin-ministry-form {
+    padding: 19px;
+    gap: 19px;
+  }
+
+  .admin-ministry-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 15px;
+  }
+
+  .admin-ministry-card-image {
+    height: 195px;
+  }
+
+  .admin-ministry-card-content {
+    padding: 17px;
+  }
 
   .admin-ministry-form-actions {
     flex-direction: column-reverse;
-
     align-items: stretch;
+    gap: 10px;
   }
-
 
   .admin-ministry-cancel-button,
   .admin-ministry-save-button {
     width: 100%;
+    min-height: 44px;
   }
 
+  .admin-ministry-list-header {
+    padding: 18px;
+  }
+
+  .admin-ministry-empty {
+    min-height: 260px;
+    padding: 30px 18px;
+  }
 }
 
 
@@ -1147,53 +1417,116 @@
 ========================================================= */
 
 @media (max-width: 480px) {
+  .admin-ministries-main {
+    padding-top: 70px;
+  }
+
+  .admin-ministries-header {
+    width: calc(100% - 22px);
+    padding: 15px;
+  }
+
+  .admin-ministries-title {
+    gap: 11px;
+  }
 
   .admin-ministries-title-icon {
-    width: 46px;
-    height: 46px;
+    width: 43px;
+    height: 43px;
 
-    font-size: 20px;
+    font-size: 19px;
   }
-
 
   .admin-ministries-title h1 {
-    font-size: 21px;
+    font-size: 20px;
+    letter-spacing: -0.45px;
   }
-
 
   .admin-ministries-title p {
     font-size: 11px;
   }
 
+  .admin-ministry-alert,
+  .admin-ministry-form-card,
+  .admin-ministry-list-card {
+    width: calc(100% - 22px);
+  }
 
   .admin-ministry-form-header {
-    padding: 16px;
+    padding: 15px;
   }
 
+  .admin-ministry-form-header h2,
+  .admin-ministry-list-header h2 {
+    font-size: 16px;
+  }
 
   .admin-ministry-form {
+    padding: 15px;
+    gap: 17px;
+  }
+
+  .admin-ministry-field input,
+  .admin-ministry-field select {
+    height: 44px;
+  }
+
+  .admin-ministry-upload-box {
+    min-height: 135px;
     padding: 16px;
   }
-
-
-  .admin-ministry-list-header {
-    padding: 16px;
-  }
-
-
-  .admin-ministry-grid {
-    padding: 14px;
-  }
-
-
-  .admin-ministry-card-image {
-    height: 160px;
-  }
-
 
   .admin-ministry-image-preview {
-    width: 130px;
-    height: 130px;
+    width: 125px;
+    height: 125px;
   }
 
+  .admin-ministry-list-header {
+    padding: 15px;
+  }
+
+  .admin-ministry-grid {
+    padding: 12px;
+    gap: 13px;
+  }
+
+  .admin-ministry-card-image {
+    height: 165px;
+  }
+
+  .admin-ministry-card-content {
+    padding: 15px;
+  }
+
+  .admin-ministry-card-content h3 {
+    font-size: 15px;
+  }
+
+  .admin-ministry-card-footer {
+    align-items: flex-end;
+  }
+
+  .admin-ministry-empty h3 {
+    font-size: 17px;
+  }
+
+  .admin-ministry-empty p {
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-ministries-page *,
+  .admin-ministries-page *::before,
+  .admin-ministries-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

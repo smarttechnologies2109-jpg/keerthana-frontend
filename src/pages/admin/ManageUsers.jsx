@@ -19,7 +19,7 @@ import {
   useAuth,
 } from "../../context/AuthContext";
 
-import "../../assets/css/manageUsers.css";
+import "../../assets/css/admin/manageUsers.css";
 
 
 function ManageUsers() {

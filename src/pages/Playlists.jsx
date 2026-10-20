@@ -8,6 +8,9 @@ import {
   FaArrowLeft,
   FaTimes,
   FaCheck,
+  FaHeadphones,
+  FaArrowRight,
+  FaPlay,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/playlists.css";
@@ -15,7 +18,7 @@ import "../assets/css/playlists.css";
 function Playlists() {
   const navigate = useNavigate();
 
-  // Demo state. Replace with your existing playlist API data.
+  // Existing demo state and playlist behavior
   const [playlists, setPlaylists] = useState([
     {
       id: 1,
@@ -109,210 +112,307 @@ function Playlists() {
 
   return (
     <main className="playlists-page">
-      <header className="playlists-header">
-        <div>
-          <span className="playlists-eyebrow">
-            KEERTHANA MUSIC
-          </span>
+      <div className="playlists-main">
+        <header className="playlists-hero">
+          <div className="playlists-hero-glow" aria-hidden="true" />
 
-          <h1>
-            {activePlaylist ? activePlaylist.name : "Your Playlists"}
-          </h1>
+          <div className="playlists-hero-copy">
+            <span className="playlists-eyebrow">
+              <span className="playlists-eyebrow-dot" />
+              KEERTHANA MUSIC
+            </span>
 
-          <p>
-            {activePlaylist
-              ? "Manage your collection of worship songs."
-              : "Create, organize, and manage your favourite music collections."}
-          </p>
-        </div>
+            <h1>
+              Your worship.
+              <br />
+              <span>Your collections.</span>
+            </h1>
 
-        <button
-          type="button"
-          className="playlists-create-button"
-          onClick={() => setShowCreateModal(true)}
-        >
-          <FaPlus />
-          Create Playlist
-        </button>
-      </header>
-
-      {activePlaylist ? (
-        <section className="playlist-detail">
-          <button
-            type="button"
-            className="playlist-back-button"
-            onClick={() => setActivePlaylist(null)}
-          >
-            <FaArrowLeft />
-            All Playlists
-          </button>
-
-          <div className="playlist-detail-heading">
-            <div className="playlist-detail-art">
-              <FaMusic />
-            </div>
-
-            <div className="playlist-detail-info">
-              <span className="playlist-detail-label">
-                PLAYLIST
-              </span>
-
-              <h2>{activePlaylist.name}</h2>
-
-              <p>
-                {activePlaylist.description || "Your personal music collection"}
-              </p>
-
-              <span className="playlist-song-count">
-                {activePlaylist.songs.length} songs
-              </span>
-            </div>
-          </div>
-
-          <div className="playlist-management-actions">
-            <button
-              type="button"
-              className="playlist-action-clear"
-              onClick={() => requestAction("clear", activePlaylist)}
-              disabled={activePlaylist.songs.length === 0}
-            >
-              <FaEraser />
-              Clear Songs
-            </button>
+            <p>
+              Create a soundtrack for every moment.
+              Keep your favourite praise, prayer, and worship
+              songs together in one personal space.
+            </p>
 
             <button
               type="button"
-              className="playlist-action-delete"
-              onClick={() => requestAction("delete", activePlaylist)}
+              className="playlists-create-button"
+              onClick={() => setShowCreateModal(true)}
             >
-              <FaTrash />
-              Delete Playlist
+              <FaPlus />
+              <span>Create playlist</span>
+              <FaArrowRight className="playlists-button-arrow" />
             </button>
           </div>
 
-          {activePlaylist.songs.length === 0 ? (
-            <div className="playlist-empty-state">
-              <div className="playlist-empty-icon">
+          <div className="playlists-hero-art" aria-hidden="true">
+            <div className="playlists-hero-orbit playlists-hero-orbit-one" />
+            <div className="playlists-hero-orbit playlists-hero-orbit-two" />
+
+            <div className="playlists-hero-disc">
+              <div className="playlists-hero-disc-inner">
+                <FaHeadphones />
+              </div>
+            </div>
+
+            <span className="playlists-hero-note playlists-note-one">♫</span>
+            <span className="playlists-hero-note playlists-note-two">♪</span>
+
+            <div className="playlists-hero-caption">
+              <span className="playlists-caption-icon">
+                <FaMusic />
+              </span>
+              <span>
+                <strong>Made for your moments</strong>
+                <small>Praise · Prayer · Worship</small>
+              </span>
+            </div>
+          </div>
+        </header>
+
+        {activePlaylist ? (
+          <section className="playlist-detail">
+            <button
+              type="button"
+              className="playlist-back-button"
+              onClick={() => setActivePlaylist(null)}
+            >
+              <FaArrowLeft />
+              <span>All playlists</span>
+            </button>
+
+            <div className="playlist-detail-heading">
+              <div className="playlist-detail-art">
+                <div className="playlist-detail-art-glow" />
                 <FaMusic />
               </div>
 
-              <h3>This playlist is empty</h3>
+              <div className="playlist-detail-info">
+                <span className="playlist-detail-label">PLAYLIST</span>
 
-              <p>
-                Add songs to your playlist to build your worship collection.
-              </p>
+                <h2>{activePlaylist.name}</h2>
+
+                <p>
+                  {activePlaylist.description ||
+                    "Your personal music collection"}
+                </p>
+
+                <span className="playlist-song-count">
+                  <FaMusic />
+                  {activePlaylist.songs.length}{" "}
+                  {activePlaylist.songs.length === 1 ? "song" : "songs"}
+                </span>
+              </div>
+            </div>
+
+            <div className="playlist-management-actions">
+              <button
+                type="button"
+                className="playlist-action-clear"
+                onClick={() => requestAction("clear", activePlaylist)}
+                disabled={activePlaylist.songs.length === 0}
+              >
+                <FaEraser />
+                Clear songs
+              </button>
 
               <button
                 type="button"
-                className="playlists-create-button"
-                onClick={() => navigate("/search")}
+                className="playlist-action-delete"
+                onClick={() => requestAction("delete", activePlaylist)}
               >
-                <FaPlus />
-                Find Songs
+                <FaTrash />
+                Delete playlist
               </button>
             </div>
-          ) : (
-            <div className="playlist-songs-list">
-              {activePlaylist.songs.map((song, index) => (
-                <div className="playlist-song-row" key={song.id}>
-                  <span>{index + 1}</span>
+
+            {activePlaylist.songs.length === 0 ? (
+              <div className="playlist-empty-state">
+                <div className="playlist-empty-art">
                   <FaMusic />
-                  <span>{song.title}</span>
+                  <span>♪</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
-      ) : (
-        <section className="playlists-grid-section">
-          <div className="playlists-section-heading">
-            <div>
-              <h2>Your collections</h2>
-              <p>
-                {playlists.length}{" "}
-                {playlists.length === 1 ? "playlist" : "playlists"}
-              </p>
-            </div>
-          </div>
 
-          {playlists.length === 0 ? (
-            <div className="playlist-empty-state">
-              <div className="playlist-empty-icon">
-                <FaMusic />
+                <span className="playlist-empty-eyebrow">
+                  YOUR NEXT FAVOURITE SONG
+                </span>
+
+                <h3>This playlist is waiting for music</h3>
+
+                <p>
+                  Find songs that speak to your heart and add them
+                  to this collection.
+                </p>
+
+                <button
+                  type="button"
+                  className="playlists-create-button"
+                  onClick={() => navigate("/search")}
+                >
+                  <FaPlay />
+                  Find songs
+                </button>
               </div>
+            ) : (
+              <div className="playlist-songs-list">
+                {activePlaylist.songs.map((song, index) => (
+                  <div className="playlist-song-row" key={song.id}>
+                    <span className="playlist-song-index">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
 
-              <h3>Create your first playlist</h3>
+                    <span className="playlist-song-icon">
+                      <FaMusic />
+                    </span>
 
-              <p>
-                Organize your favourite Christian songs in one place.
-              </p>
+                    <span className="playlist-song-title">
+                      {song.title}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        ) : (
+          <section className="playlists-grid-section">
+            <div className="playlists-section-heading">
+              <div>
+                <span className="playlists-section-eyebrow">
+                  YOUR PERSONAL COLLECTION
+                </span>
+                <h2>Made by you</h2>
+                <p>
+                  Your playlists, organized around the music you love.
+                </p>
+              </div>
 
               <button
                 type="button"
-                className="playlists-create-button"
+                className="playlists-secondary-button"
                 onClick={() => setShowCreateModal(true)}
               >
                 <FaPlus />
-                Create Playlist
+                New playlist
               </button>
             </div>
-          ) : (
-            <div className="playlists-grid">
-              {playlists.map((playlist) => (
-                <article className="playlist-card" key={playlist.id}>
-                  <button
-                    type="button"
-                    className="playlist-card-open"
-                    onClick={() => openPlaylist(playlist)}
-                    aria-label={`Open ${playlist.name}`}
-                  >
-                    <div className="playlist-card-art">
-                      <FaMusic />
-                    </div>
+
+            {playlists.length === 0 ? (
+              <div className="playlist-empty-state">
+                <div className="playlist-empty-art">
+                  <FaMusic />
+                  <span>♪</span>
+                </div>
+
+                <span className="playlist-empty-eyebrow">
+                  START SOMETHING PERSONAL
+                </span>
+
+                <h3>Your first playlist starts here</h3>
+
+                <p>
+                  Bring your favourite Christian songs together
+                  in one beautiful collection.
+                </p>
+
+                <button
+                  type="button"
+                  className="playlists-create-button"
+                  onClick={() => setShowCreateModal(true)}
+                >
+                  <FaPlus />
+                  Create your first playlist
+                </button>
+              </div>
+            ) : (
+              <div className="playlists-grid">
+                {playlists.map((playlist, index) => (
+                  <article className="playlist-card" key={playlist.id}>
+                    <button
+                      type="button"
+                      className={`playlist-card-open playlist-card-artwork artwork-variant-${index % 4}`}
+                      onClick={() => openPlaylist(playlist)}
+                      aria-label={`Open ${playlist.name}`}
+                    >
+                      <span className="playlist-art-decoration playlist-art-decoration-one" />
+                      <span className="playlist-art-decoration playlist-art-decoration-two" />
+
+                      <span className="playlist-card-art-icon">
+                        <FaMusic />
+                      </span>
+
+                      <span className="playlist-card-open-play">
+                        <FaPlay />
+                      </span>
+
+                      <span className="playlist-card-art-label">
+                        KEERTHANA
+                      </span>
+                    </button>
 
                     <div className="playlist-card-info">
-                      <h3>{playlist.name}</h3>
+                      <button
+                        type="button"
+                        className="playlist-card-title-button"
+                        onClick={() => openPlaylist(playlist)}
+                      >
+                        <h3>{playlist.name}</h3>
+                      </button>
 
                       <p>
                         {playlist.description || "Your music collection"}
                       </p>
 
-                      <span>
+                      <span className="playlist-card-song-count">
                         {playlist.songs.length}{" "}
                         {playlist.songs.length === 1 ? "song" : "songs"}
                       </span>
                     </div>
-                  </button>
 
-                  <div className="playlist-card-actions">
-                    <button
-                      type="button"
-                      onClick={() => requestAction("clear", playlist)}
-                      disabled={playlist.songs.length === 0}
-                      aria-label={`Clear songs from ${playlist.name}`}
-                      title="Clear Songs"
-                    >
-                      <FaEraser />
-                      Clear
-                    </button>
+                    <div className="playlist-card-actions">
+                      <button
+                        type="button"
+                        onClick={() => requestAction("clear", playlist)}
+                        disabled={playlist.songs.length === 0}
+                        aria-label={`Clear songs from ${playlist.name}`}
+                        title="Clear songs"
+                      >
+                        <FaEraser />
+                        <span>Clear</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      className="playlist-card-delete"
-                      onClick={() => requestAction("delete", playlist)}
-                      aria-label={`Delete ${playlist.name}`}
-                      title="Delete Playlist"
-                    >
-                      <FaTrash />
-                      Delete
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+                      <button
+                        type="button"
+                        className="playlist-card-delete"
+                        onClick={() => requestAction("delete", playlist)}
+                        aria-label={`Delete ${playlist.name}`}
+                        title="Delete playlist"
+                      >
+                        <FaTrash />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        <footer className="playlists-footer-note">
+          <span className="playlists-footer-icon">
+            <FaMusic />
+          </span>
+
+          <div>
+            <strong>Every song can become a special moment.</strong>
+            <p>Build your own collection of praise, prayer, and worship.</p>
+          </div>
+
+          <span className="playlists-footer-note-mark" aria-hidden="true">
+            ♪
+          </span>
+        </footer>
+      </div>
 
       {showCreateModal && (
         <div
@@ -331,13 +431,9 @@ function Playlists() {
           >
             <div className="playlist-modal-heading">
               <div>
-                <span className="playlists-eyebrow">
-                  YOUR MUSIC
-                </span>
-
-                <h2 id="create-playlist-title">
-                  Create Playlist
-                </h2>
+                <span className="playlists-eyebrow">YOUR MUSIC</span>
+                <h2 id="create-playlist-title">Create a playlist</h2>
+                <p>Give your collection a name of its own.</p>
               </div>
 
               <button
@@ -351,9 +447,7 @@ function Playlists() {
             </div>
 
             <form onSubmit={createPlaylist}>
-              <label htmlFor="playlist-name">
-                Playlist name
-              </label>
+              <label htmlFor="playlist-name">Playlist name</label>
 
               <input
                 id="playlist-name"
@@ -366,7 +460,7 @@ function Playlists() {
               />
 
               <label htmlFor="playlist-description">
-                Description (optional)
+                Description <span>(optional)</span>
               </label>
 
               <textarea
@@ -375,7 +469,7 @@ function Playlists() {
                 onChange={(event) =>
                   setPlaylistDescription(event.target.value)
                 }
-                placeholder="Describe your playlist"
+                placeholder="What is this collection about?"
                 maxLength={250}
                 rows={3}
               />
@@ -394,7 +488,7 @@ function Playlists() {
                   className="playlists-create-button"
                 >
                   <FaCheck />
-                  Create
+                  Create playlist
                 </button>
               </div>
             </form>
@@ -403,7 +497,14 @@ function Playlists() {
       )}
 
       {confirmAction && (
-        <div className="playlist-modal-overlay">
+        <div
+          className="playlist-modal-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setConfirmAction(null);
+            }
+          }}
+        >
           <section
             className="playlist-modal playlist-confirm-modal"
             role="alertdialog"
@@ -415,16 +516,20 @@ function Playlists() {
               <FaTrash />
             </div>
 
+            <span className="playlist-confirm-eyebrow">
+              PLEASE CONFIRM
+            </span>
+
             <h2 id="playlist-confirm-title">
               {confirmAction.type === "clear"
-                ? "Clear all songs?"
+                ? "Clear this playlist?"
                 : "Delete this playlist?"}
             </h2>
 
             <p id="playlist-confirm-description">
               {confirmAction.type === "clear"
                 ? `All songs will be removed from "${confirmAction.playlist.name}". The playlist itself will remain.`
-                : `"${confirmAction.playlist.name}" and its playlist collection will be removed. This action cannot be undone.`}
+                : `"${confirmAction.playlist.name}" will be removed from your playlist collection. This action cannot be undone.`}
             </p>
 
             <div className="playlist-modal-actions">
@@ -433,7 +538,7 @@ function Playlists() {
                 className="playlist-modal-cancel"
                 onClick={() => setConfirmAction(null)}
               >
-                Cancel
+                Keep playlist
               </button>
 
               <button
@@ -442,8 +547,8 @@ function Playlists() {
                 onClick={confirmSelectedAction}
               >
                 {confirmAction.type === "clear"
-                  ? "Clear Songs"
-                  : "Delete Playlist"}
+                  ? "Clear songs"
+                  : "Delete playlist"}
               </button>
             </div>
           </section>

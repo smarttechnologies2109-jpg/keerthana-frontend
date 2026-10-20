@@ -1,46 +1,56 @@
+
 /* =========================================================
-   MINISTRY DETAILS PAGE
+   KEERTHANA — MINISTRY DETAILS
+   Premium navy, royal blue & soft gold
 ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+
+:root {
+  --ministry-bg: #080d1b;
+  --ministry-surface: #111a2e;
+  --ministry-surface-hover: #182541;
+  --ministry-border: rgba(255, 255, 255, 0.09);
+  --ministry-text: #f5f7ff;
+  --ministry-muted: #a0abc2;
+  --ministry-blue: #4169e1;
+  --ministry-blue-light: #7393ff;
+  --ministry-gold: #e7c77b;
+  --ministry-gold-soft: rgba(231, 199, 123, 0.12);
+}
+
+/* PAGE */
 
 .ministry-details-page {
   min-height: 100vh;
   width: 100%;
-  background: #f7f8fc;
-  padding: 30px 45px 120px;
   box-sizing: border-box;
-  color: #1f2937;
+  padding: 30px 40px 140px;
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(65, 105, 225, 0.13), transparent 36%),
+    var(--ministry-bg);
+  color: var(--ministry-text);
 }
 
-
-/* =========================================================
-   BACK BUTTON
-========================================================= */
+/* BACK BUTTON */
 
 .ministry-back-btn {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-
+  padding: 9px 0;
+  margin-bottom: 25px;
   border: none;
   background: transparent;
-
-  color: #6d28d9;
-
-  font-size: 15px;
-  font-weight: 600;
-
+  color: var(--ministry-gold);
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-
-  padding: 8px 0;
-  margin-bottom: 25px;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .ministry-back-btn:hover {
-  color: #4c1d95;
+  color: #ffe7aa;
   transform: translateX(-3px);
 }
 
@@ -48,190 +58,146 @@
   font-size: 14px;
 }
 
-
-/* =========================================================
-   MINISTRY HEADER
-========================================================= */
+/* MINISTRY HERO */
 
 .ministry-header {
-  width: 100%;
-
+  position: relative;
   display: flex;
   align-items: center;
-
   gap: 35px;
-
-  padding: 35px;
-
-  border-radius: 24px;
-
-  background: linear-gradient(
-    135deg,
-    #ede9fe 0%,
-    #f5f3ff 50%,
-    #ffffff 100%
-  );
-
-  box-shadow:
-    0 10px 35px rgba(31, 41, 55, 0.08);
-
+  width: 100%;
   box-sizing: border-box;
-
-  margin-bottom: 40px;
+  padding: 35px;
+  margin-bottom: 42px;
+  overflow: hidden;
+  border: 1px solid var(--ministry-border);
+  border-radius: 24px;
+  background:
+    linear-gradient(115deg, rgba(65, 105, 225, 0.2), transparent 65%),
+    linear-gradient(135deg, #151f36, #0e1526);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
 }
 
-
-/* =========================================================
-   MINISTRY IMAGE
-========================================================= */
+.ministry-header::after {
+  content: "";
+  position: absolute;
+  right: -100px;
+  top: -150px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  border: 1px solid rgba(231, 199, 123, 0.12);
+  box-shadow:
+    0 0 0 35px rgba(231, 199, 123, 0.025),
+    0 0 0 70px rgba(231, 199, 123, 0.02);
+  pointer-events: none;
+}
 
 .ministry-header-image {
+  position: relative;
+  z-index: 1;
   width: 220px;
   height: 220px;
-
   flex-shrink: 0;
-
-  border-radius: 22px;
-
   overflow: hidden;
-
-  background: #e5e7eb;
-
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(231, 199, 123, 0.28);
+  border-radius: 20px;
+  background: #18233b;
+  box-shadow: 0 15px 38px rgba(0, 0, 0, 0.35);
 }
 
 .ministry-header-image img {
+  display: block;
   width: 100%;
   height: 100%;
-
-  display: block;
-
   object-fit: cover;
+  transition: transform 0.45s ease;
 }
 
-
-/* =========================================================
-   MINISTRY CONTENT
-========================================================= */
+.ministry-header-image:hover img {
+  transform: scale(1.045);
+}
 
 .ministry-header-content {
+  position: relative;
+  z-index: 1;
   flex: 1;
-
   min-width: 0;
 }
 
 .ministry-label {
   display: inline-block;
-
-  margin-bottom: 8px;
-
-  color: #7c3aed;
-
-  font-size: 12px;
-
+  margin-bottom: 10px;
+  color: var(--ministry-gold);
+  font-size: 11px;
   font-weight: 800;
-
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .ministry-header-content h1 {
-  margin: 0 0 12px;
-
-  color: #111827;
-
-  font-size: 38px;
-
-  line-height: 1.2;
-
+  margin: 0 0 13px;
+  color: var(--ministry-text);
+  font-size: clamp(30px, 3vw, 42px);
   font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
 }
 
 .ministry-header-content p {
-  max-width: 750px;
-
+  max-width: 720px;
   margin: 0 0 18px;
-
-  color: #6b7280;
-
-  font-size: 15px;
-
-  line-height: 1.7;
+  color: var(--ministry-muted);
+  font-size: 14px;
+  line-height: 1.8;
 }
 
-
-/* =========================================================
-   SONG COUNT
-========================================================= */
+/* SONG COUNT */
 
 .ministry-song-count {
   display: flex;
   align-items: baseline;
-
-  gap: 6px;
-
-  margin-bottom: 20px;
-
-  color: #6b7280;
+  gap: 8px;
+  margin-bottom: 22px;
+  color: var(--ministry-muted);
 }
 
 .ministry-song-count strong {
-  color: #111827;
-
-  font-size: 21px;
-
+  color: var(--ministry-gold);
+  font-size: 22px;
   font-weight: 800;
 }
 
 .ministry-song-count span {
-  font-size: 14px;
+  font-size: 13px;
 }
 
-
-/* =========================================================
-   MINISTRY PLAY BUTTON
-========================================================= */
+/* MINISTRY PLAY BUTTON */
 
 .ministry-play-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 10px;
-
-  min-width: 125px;
+  min-width: 135px;
   height: 46px;
-
-  padding: 0 20px;
-
-  border: none;
-  border-radius: 24px;
-
-  background: #7c3aed;
-
-  color: #ffffff;
-
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  background: linear-gradient(135deg, #5278f0, #3157c9);
+  color: #fff;
   font-size: 14px;
-  font-weight: 700;
-
+  font-weight: 750;
   cursor: pointer;
-
-  box-shadow:
-    0 8px 20px rgba(124, 58, 237, 0.25);
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(49, 87, 201, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .ministry-play-btn:hover:not(:disabled) {
-  background: #6d28d9;
-
   transform: translateY(-2px);
-
-  box-shadow:
-    0 12px 25px rgba(124, 58, 237, 0.32);
+  filter: brightness(1.1);
+  box-shadow: 0 12px 28px rgba(49, 87, 201, 0.4);
 }
 
 .ministry-play-btn:active:not(:disabled) {
@@ -239,14 +205,13 @@
 }
 
 .ministry-play-btn.is-playing {
-  background: #4c1d95;
+  background: linear-gradient(135deg, #d7b768, #a98437);
+  color: #10182a;
 }
 
 .ministry-play-btn:disabled {
-  opacity: 0.5;
-
+  opacity: 0.45;
   cursor: not-allowed;
-
   box-shadow: none;
 }
 
@@ -254,10 +219,7 @@
   font-size: 13px;
 }
 
-
-/* =========================================================
-   SONGS SECTION
-========================================================= */
+/* SONG SECTION */
 
 .ministry-songs-section {
   width: 100%;
@@ -267,778 +229,736 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 22px;
 }
 
 .ministry-section-heading h2 {
-  margin: 0 0 5px;
-
-  color: #111827;
-
-  font-size: 26px;
-
+  margin: 0 0 6px;
+  color: var(--ministry-text);
+  font-size: 25px;
   font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .ministry-section-heading p {
   margin: 0;
-
-  color: #6b7280;
-
-  font-size: 14px;
+  color: var(--ministry-muted);
+  font-size: 13px;
 }
 
-
 /* =========================================================
-   SONG LIST
+   SQUARE SONG CARD GRID
 ========================================================= */
 
 .ministry-song-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 20px;
   width: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 8px;
+  align-items: stretch;
 }
 
-
-/* =========================================================
-   SONG ROW
-========================================================= */
+/* Each song becomes a square card */
 
 .ministry-song-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
   width: 100%;
-
-  min-height: 78px;
-
-  display: grid;
-
-  grid-template-columns:
-    45px
-    58px
-    minmax(200px, 1fr)
-    110px
-    75px
-    48px;
-
-  align-items: center;
-
-  gap: 15px;
-
-  padding: 10px 16px;
-
+  min-width: 0;
+  aspect-ratio: 1 / 1;
   box-sizing: border-box;
-
-  border-radius: 14px;
-
-  background: #ffffff;
-
-  border: 1px solid #eeeeF4;
-
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid var(--ministry-border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #151f34, #0f1729);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .ministry-song-row:hover {
-  background: #faf9ff;
-
-  border-color: #ddd6fe;
-
-  transform: translateY(-1px);
-
-  box-shadow:
-    0 5px 15px rgba(31, 41, 55, 0.06);
+  transform: translateY(-5px);
+  border-color: rgba(231, 199, 123, 0.4);
+  background: linear-gradient(145deg, #1b2945, #111b30);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.27);
 }
-
-
-/* =========================================================
-   CURRENT SONG ROW
-========================================================= */
 
 .ministry-song-row.is-current {
-  background: #f5f3ff;
-
-  border-color: #c4b5fd;
-
+  border-color: var(--ministry-gold);
+  background: linear-gradient(145deg, #1c2a47, #111a2e);
   box-shadow:
-    0 5px 18px rgba(124, 58, 237, 0.08);
+    0 0 0 1px rgba(231, 199, 123, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.2);
 }
 
-
-/* =========================================================
-   SONG NUMBER
-========================================================= */
+/* Song number */
 
 .song-number {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  color: #9ca3af;
-
-  font-size: 14px;
-
-  font-weight: 600;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  background: rgba(8, 13, 27, 0.82);
+  color: #d0d8e9;
+  font-size: 11px;
+  font-weight: 800;
+  backdrop-filter: blur(10px);
 }
 
 .ministry-song-row.is-current .song-number {
-  color: #7c3aed;
-
-  font-weight: 800;
+  border-color: rgba(231, 199, 123, 0.35);
+  color: var(--ministry-gold);
 }
 
-
-/* =========================================================
-   SONG COVER
-========================================================= */
+/* Song cover */
 
 .song-cover {
-  width: 58px;
-  height: 58px;
-
-  border-radius: 10px;
-
-  overflow: hidden;
-
-  background: #e5e7eb;
-
-  cursor: pointer;
-
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   flex-shrink: 0;
+  overflow: hidden;
+  margin-bottom: 13px;
+  border-radius: 12px;
+  background: #202b43;
+  cursor: pointer;
 }
 
 .song-cover img {
+  display: block;
   width: 100%;
   height: 100%;
-
-  display: block;
-
   object-fit: cover;
-
-  transition: transform 0.25s ease;
+  transition: transform 0.35s ease;
 }
 
-.song-cover:hover img {
-  transform: scale(1.06);
+.ministry-song-row:hover .song-cover img {
+  transform: scale(1.055);
 }
 
-
-/* =========================================================
-   SONG INFO
-========================================================= */
+/* Song text */
 
 .song-info {
   min-width: 0;
-
+  padding-right: 38px;
   cursor: pointer;
 }
 
 .song-info h3 {
-  margin: 0;
-
+  display: -webkit-box;
+  margin: 0 0 5px;
   overflow: hidden;
-
-  color: #111827;
-
-  font-size: 15px;
-
-  font-weight: 700;
-
-  line-height: 1.4;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
+  color: var(--ministry-text);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .ministry-song-row.is-current .song-info h3 {
-  color: #6d28d9;
+  color: var(--ministry-gold);
 }
 
 .song-info p {
-  margin: 2px 0 3px;
-
+  margin: 0 0 5px;
   overflow: hidden;
-
-  color: #9ca3af;
-
-  font-size: 12px;
-
-  line-height: 1.3;
-
+  color: #929fba;
+  font-size: 11px;
+  line-height: 1.4;
   text-overflow: ellipsis;
-
   white-space: nowrap;
 }
 
 .song-info span {
   display: block;
-
   overflow: hidden;
-
-  color: #6b7280;
-
-  font-size: 12px;
-
+  color: var(--ministry-muted);
+  font-size: 11px;
   line-height: 1.4;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
 }
 
-
-/* =========================================================
-   LANGUAGE
-========================================================= */
+/* Language badge */
 
 .song-language {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-top: 8px;
 }
 
 .song-language span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-width: 65px;
-
-  padding: 5px 9px;
-
+  max-width: 100%;
+  padding: 4px 9px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 20px;
-
-  background: #f3f4f6;
-
-  color: #6b7280;
-
-  font-size: 11px;
-
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.045);
+  color: #c0cbe0;
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ministry-song-row.is-current .song-language span {
-  background: #ede9fe;
-
-  color: #7c3aed;
+  border-color: rgba(231, 199, 123, 0.25);
+  background: var(--ministry-gold-soft);
+  color: var(--ministry-gold);
 }
 
-
-/* =========================================================
-   DURATION
-========================================================= */
+/* Duration */
 
 .song-duration {
-  text-align: center;
-
-  color: #6b7280;
-
-  font-size: 13px;
-
+  position: absolute;
+  right: 16px;
+  bottom: 20px;
+  color: #9ba8c0;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
-
-/* =========================================================
-   PLAY / PAUSE BUTTON
-========================================================= */
+/* Play / pause button */
 
 .song-play-btn {
-  width: 40px;
-  height: 40px;
-
+  position: absolute;
+  right: 14px;
+  bottom: 48px;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-
+  width: 40px;
+  height: 40px;
   padding: 0;
-
-  border: none;
-
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 50%;
-
-  background: #f3f4f6;
-
-  color: #4b5563;
-
+  background: rgba(8, 13, 27, 0.9);
+  color: #f7f8ff;
   cursor: pointer;
-
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
   transition:
+    transform 0.2s ease,
     background 0.2s ease,
     color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.2s ease;
 }
 
 .song-play-btn:hover:not(:disabled) {
-  background: #ede9fe;
-
-  color: #7c3aed;
-
-  transform: scale(1.05);
+  transform: scale(1.08);
+  border-color: var(--ministry-gold);
+  background: var(--ministry-blue);
+  color: #fff;
 }
 
 .song-play-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
 
-
-/* =========================================================
-   PLAYING BUTTON
-========================================================= */
-
 .song-play-btn.is-playing {
-  background: #7c3aed;
-
-  color: #ffffff;
-
-  box-shadow:
-    0 5px 15px rgba(124, 58, 237, 0.25);
+  border-color: rgba(231, 199, 123, 0.45);
+  background: var(--ministry-gold);
+  color: #10182a;
 }
 
 .song-play-btn.is-playing:hover {
-  background: #6d28d9;
-
-  color: #ffffff;
-
-  transform: scale(1.05);
+  background: #f1d795;
+  color: #10182a;
 }
 
 .song-play-btn:disabled {
   opacity: 0.4;
-
   cursor: not-allowed;
 }
 
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
+/* EMPTY STATE */
 
 .ministry-empty {
   width: 100%;
-
-  padding: 70px 25px;
-
   box-sizing: border-box;
-
+  padding: 70px 25px;
+  border: 1px solid var(--ministry-border);
+  border-radius: 20px;
+  background: var(--ministry-surface);
   text-align: center;
-
-  border-radius: 18px;
-
-  background: #ffffff;
-
-  border: 1px solid #eeeeF4;
 }
 
 .ministry-empty-icon {
-  width: 70px;
-  height: 70px;
-
-  margin: 0 auto 18px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(231, 199, 123, 0.2);
   border-radius: 50%;
-
-  background: #f3f0ff;
-
+  background: var(--ministry-gold-soft);
+  color: var(--ministry-gold);
   font-size: 30px;
 }
 
 .ministry-empty h3 {
   margin: 0 0 8px;
-
-  color: #111827;
-
+  color: var(--ministry-text);
   font-size: 20px;
 }
 
 .ministry-empty p {
   margin: 0;
-
-  color: #6b7280;
-
+  color: var(--ministry-muted);
   font-size: 14px;
+  line-height: 1.7;
 }
 
-
-/* =========================================================
-   LOADING
-========================================================= */
+/* LOADING */
 
 .ministry-loading {
-  min-height: 70vh;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  color: #7c3aed;
-
-  font-size: 16px;
-
-  font-weight: 600;
+  min-height: 70vh;
+  background: var(--ministry-bg);
+  color: var(--ministry-gold);
+  font-size: 15px;
+  font-weight: 650;
 }
 
-
-/* =========================================================
-   ERROR
-========================================================= */
+/* ERROR */
 
 .ministry-error {
-  min-height: 70vh;
-
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  text-align: center;
-
+  min-height: 70vh;
   padding: 30px;
+  background: var(--ministry-bg);
+  text-align: center;
 }
 
 .ministry-error h2 {
   margin: 0 0 10px;
-
-  color: #111827;
-
+  color: var(--ministry-text);
   font-size: 25px;
 }
 
 .ministry-error p {
   margin: 0 0 20px;
-
-  color: #6b7280;
-
+  color: var(--ministry-muted);
   font-size: 14px;
+  line-height: 1.7;
 }
 
 .ministry-error button {
-  border: none;
-
-  padding: 11px 20px;
-
-  border-radius: 22px;
-
-  background: #7c3aed;
-
-  color: #ffffff;
-
+  padding: 11px 21px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 25px;
+  background: var(--ministry-blue);
+  color: #fff;
   font-size: 14px;
-
-  font-weight: 600;
-
+  font-weight: 700;
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .ministry-error button:hover {
-  background: #6d28d9;
-
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  filter: brightness(1.12);
 }
 
-
-/* =========================================================
-   TABLET
-========================================================= */
+/* TABLET */
 
 @media (max-width: 1100px) {
-
   .ministry-details-page {
-    padding: 25px 30px 120px;
+    padding: 25px 28px 130px;
   }
-
 
   .ministry-header {
-    padding: 28px;
-
     gap: 28px;
+    padding: 28px;
   }
-
 
   .ministry-header-image {
     width: 185px;
     height: 185px;
   }
 
-
-  .ministry-header-content h1 {
-    font-size: 32px;
+  .ministry-song-list {
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 16px;
   }
-
 
   .ministry-song-row {
-    grid-template-columns:
-      35px
-      55px
-      minmax(180px, 1fr)
-      90px
-      65px
-      45px;
-
-    gap: 12px;
+    padding: 13px;
   }
-
 }
 
-
-/* =========================================================
-   TABLET / SMALL LAPTOP
-========================================================= */
+/* SMALL LAPTOP / TABLET */
 
 @media (max-width: 850px) {
-
   .ministry-header {
     align-items: flex-start;
   }
-
 
   .ministry-header-image {
     width: 160px;
     height: 160px;
   }
 
-
   .ministry-header-content h1 {
-    font-size: 28px;
+    font-size: 30px;
   }
 
+  .ministry-song-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+
+  .ministry-song-row {
+    padding: 12px;
+  }
 
   .song-language {
     display: none;
   }
 
-
-  .ministry-song-row {
-    grid-template-columns:
-      35px
-      55px
-      minmax(160px, 1fr)
-      65px
-      45px;
+  .song-play-btn {
+    bottom: 17px;
+    width: 36px;
+    height: 36px;
   }
 
+  .song-duration {
+    bottom: 13px;
+  }
+
+  .song-info {
+    padding-right: 35px;
+  }
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
+/* MOBILE */
 
 @media (max-width: 650px) {
-
   .ministry-details-page {
-    padding: 20px 15px 110px;
+    padding: 20px 15px 120px;
   }
-
 
   .ministry-back-btn {
-    margin-bottom: 18px;
-
-    font-size: 14px;
+    margin-bottom: 17px;
+    font-size: 13px;
   }
-
 
   .ministry-header {
     flex-direction: column;
-
     align-items: center;
-
-    text-align: center;
-
-    padding: 25px 20px;
-
-    gap: 20px;
-
+    gap: 19px;
+    padding: 24px 19px;
     border-radius: 20px;
+    text-align: center;
   }
-
 
   .ministry-header-image {
-    width: 175px;
-    height: 175px;
-
-    border-radius: 18px;
+    width: min(190px, 70%);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 16px;
   }
-
 
   .ministry-header-content {
     width: 100%;
   }
 
-
   .ministry-label {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    font-size: 10px;
   }
-
 
   .ministry-header-content h1 {
     font-size: 27px;
-
-    word-break: break-word;
+    letter-spacing: -0.5px;
   }
-
 
   .ministry-header-content p {
-    font-size: 14px;
-
-    line-height: 1.6;
+    font-size: 13px;
+    line-height: 1.7;
   }
-
 
   .ministry-song-count {
     justify-content: center;
   }
 
-
   .ministry-play-btn {
-    min-width: 120px;
+    min-width: 125px;
+    height: 44px;
   }
 
+  .ministry-section-heading {
+    align-items: flex-start;
+    margin-bottom: 17px;
+  }
 
   .ministry-section-heading h2 {
-    font-size: 23px;
+    font-size: 22px;
   }
-
 
   .ministry-section-heading p {
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.6;
   }
 
+  .ministry-song-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 
   .ministry-song-row {
-    grid-template-columns:
-      30px
-      50px
-      minmax(0, 1fr)
-      42px;
-
-    gap: 10px;
-
-    min-height: 68px;
-
-    padding: 8px 10px;
-
-    border-radius: 12px;
+    padding: 10px;
+    border-radius: 14px;
   }
 
+  .song-number {
+    top: 8px;
+    left: 8px;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    font-size: 10px;
+  }
 
   .song-cover {
-    width: 50px;
-    height: 50px;
-
-    border-radius: 8px;
+    margin-bottom: 10px;
+    border-radius: 9px;
   }
 
+  .song-info {
+    padding-right: 0;
+  }
 
-  .song-duration {
+  .song-info h3 {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .song-info p {
+    font-size: 10px;
+  }
+
+  .song-info span {
+    font-size: 10px;
+  }
+
+  .song-language {
     display: none;
   }
 
-
-  .song-info h3 {
-    font-size: 14px;
+  .song-duration {
+    right: 10px;
+    bottom: 12px;
+    left: 10px;
+    font-size: 10px;
   }
-
-
-  .song-info p {
-    font-size: 11px;
-  }
-
-
-  .song-info span {
-    font-size: 11px;
-  }
-
 
   .song-play-btn {
-    width: 38px;
-    height: 38px;
+    right: 9px;
+    bottom: 38px;
+    width: 32px;
+    height: 32px;
   }
-
 }
 
+/* SMALL MOBILE */
 
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 420px) {
-
+@media (max-width: 380px) {
   .ministry-details-page {
-    padding-left: 10px;
     padding-right: 10px;
+    padding-left: 10px;
   }
-
 
   .ministry-header {
-    padding: 22px 15px;
+    padding: 20px 14px;
   }
-
 
   .ministry-header-image {
-    width: 150px;
-    height: 150px;
+    width: 155px;
   }
-
 
   .ministry-header-content h1 {
     font-size: 24px;
   }
 
+  .ministry-song-list {
+    gap: 9px;
+  }
 
   .ministry-song-row {
-    grid-template-columns:
-      25px
-      45px
-      minmax(0, 1fr)
-      38px;
-
-    gap: 8px;
-
-    padding: 7px 8px;
+    padding: 8px;
+    border-radius: 12px;
   }
-
-
-  .song-cover {
-    width: 45px;
-    height: 45px;
-  }
-
-
-  .song-number {
-    font-size: 12px;
-  }
-
 
   .song-info h3 {
-    font-size: 13px;
+    font-size: 11px;
   }
-
-
-  .song-info p {
-    display: none;
-  }
-
 
   .song-play-btn {
-    width: 35px;
-    height: 35px;
+    right: 7px;
+    bottom: 35px;
+    width: 29px;
+    height: 29px;
   }
 
+  .song-duration {
+    bottom: 10px;
+    font-size: 9px;
+  }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  .ministry-details-page *,
+  .ministry-details-page *::before,
+  .ministry-details-page *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — MINISTRY DETAILS TYPOGRAPHY
+   Consistent Premium App-Wide Font
+========================================================= */
+
+.ministry-details-page,
+.ministry-details-page button {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+}
+
+/* Back navigation */
+.ministry-back-btn {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+
+/* Ministry label */
+.ministry-label {
+  font-weight: 700;
+  letter-spacing: 1.7px;
+}
+
+/* Ministry title */
+.ministry-header-content h1 {
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+}
+
+/* Ministry description */
+.ministry-header-content p {
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  line-height: 1.75;
+}
+
+/* Song count */
+.ministry-song-count strong {
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.ministry-song-count span {
+  font-weight: 400;
+}
+
+/* Play button */
+.ministry-play-btn {
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+
+/* Section heading */
+.ministry-section-heading h2 {
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+/* Song titles */
+.song-info h3 {
+  font-weight: 650;
+  letter-spacing: -0.15px;
+  line-height: 1.45;
+}
+
+/* Artist and supporting details */
+.song-info p,
+.song-info > span {
+  font-weight: 400;
+}
+
+/* Language badge */
+.song-language span {
+  font-weight: 600;
+}
+
+/* Song number and duration */
+.song-number,
+.song-duration {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty and error states */
+.ministry-empty h3,
+.ministry-error h2 {
+  font-weight: 750;
+  letter-spacing: -0.3px;
+}
+
+.ministry-empty p,
+.ministry-error p {
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* Consistent keyboard focus */
+.ministry-details-page button:focus-visible {
+  outline: 2px solid var(--ministry-gold);
+  outline-offset: 3px;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .ministry-details-page *,
+  .ministry-details-page *::before,
+  .ministry-details-page *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

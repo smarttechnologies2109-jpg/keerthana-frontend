@@ -1,146 +1,201 @@
-/* =========================================================
-   KEERTHANA ADMIN - MANAGE ALBUMS
-   ========================================================= */
 
+/* =========================================================
+   KEERTHANA ADMIN — MANAGE ALBUMS
+   Premium Navy / Royal Blue / Soft Gold UI
+========================================================= */
 
 /* =========================================================
    PAGE
-   ========================================================= */
+========================================================= */
 
 .admin-page {
+  --admin-bg: #080d1a;
+  --admin-surface: #0e1628;
+  --admin-card: #111c31;
+  --admin-card-hover: #172641;
+  --admin-border: rgba(160, 183, 222, 0.13);
+  --admin-text: #f4f6fc;
+  --admin-muted: #8c9ab5;
+  --admin-blue: #648cff;
+  --admin-blue-light: #8eabff;
+  --admin-gold: #e5c477;
+  --admin-gold-light: #f4dca0;
+
   width: 100%;
   min-height: 100%;
-  padding: 28px;
   box-sizing: border-box;
-  color: #e8f7fa;
+  padding: 30px;
+
+  color: var(--admin-text);
+
+  background:
+    radial-gradient(
+      circle at 92% 3%,
+      rgba(76, 113, 218, 0.11),
+      transparent 29%
+    ),
+    radial-gradient(
+      circle at 8% 90%,
+      rgba(229, 196, 119, 0.04),
+      transparent 28%
+    ),
+    var(--admin-bg);
+
+  font-family: "Inter", "Noto Sans Telugu", system-ui, sans-serif;
 }
 
+.admin-page *,
+.admin-page *::before,
+.admin-page *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
    HEADER
-   ========================================================= */
+========================================================= */
 
 .admin-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
+
   margin-bottom: 28px;
 }
 
 .admin-header > div:first-child > span,
 .admin-modal-header span {
   display: block;
-  margin-bottom: 7px;
-  color: #5ec8d7;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
+  margin-bottom: 8px;
+
+  color: var(--admin-gold);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
 .admin-header h1 {
   margin: 0;
-  color: #ffffff;
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1.2;
+
+  color: #f6f7ff;
+
+  font-size: clamp(25px, 3vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
 }
 
 .admin-header p {
-  margin: 8px 0 0;
-  color: #8da9b0;
-  font-size: 14px;
-  line-height: 1.5;
-}
+  margin: 9px 0 0;
 
+  color: var(--admin-muted);
+
+  font-size: 13px;
+  line-height: 1.7;
+}
 
 /* =========================================================
    PRIMARY BUTTON
-   ========================================================= */
+========================================================= */
 
 .admin-primary-button {
+  min-height: 44px;
+  padding: 0 19px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
 
-  min-height: 42px;
-  padding: 0 18px;
+  flex-shrink: 0;
 
-  border: 0;
-  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 11px;
 
   background: linear-gradient(
     135deg,
-    #0e91a5,
-    #08758a
+    #f0d797,
+    #dfbd70
   );
 
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
+  color: #111827;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
 
   cursor: pointer;
+
+  box-shadow:
+    0 7px 20px rgba(229, 196, 119, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
+    filter 0.2s ease,
     opacity 0.2s ease;
 }
 
-.admin-primary-button:hover {
-  transform: translateY(-1px);
+.admin-primary-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
 
   box-shadow:
-    0 8px 22px rgba(0, 145, 165, 0.22);
+    0 11px 27px rgba(229, 196, 119, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
-.admin-primary-button:active {
+.admin-primary-button:active:not(:disabled) {
   transform: translateY(0);
 }
 
 .admin-primary-button:disabled {
-  opacity: 0.55;
+  opacity: 0.48;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
-
 
 /* =========================================================
    MESSAGES
-   ========================================================= */
+========================================================= */
 
 .admin-error,
 .admin-success {
   width: 100%;
-  box-sizing: border-box;
-
   margin-bottom: 20px;
-  padding: 12px 15px;
+  padding: 13px 16px;
 
-  border-radius: 8px;
+  border-radius: 11px;
 
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
 }
 
 .admin-error {
-  border: 1px solid rgba(255, 85, 85, 0.25);
-  background: rgba(180, 35, 35, 0.12);
-  color: #ff9a9a;
+  border: 1px solid rgba(239, 100, 115, 0.25);
+  background: rgba(239, 100, 115, 0.085);
+  color: #ffadb6;
 }
 
 .admin-success {
-  border: 1px solid rgba(65, 205, 150, 0.25);
-  background: rgba(35, 170, 115, 0.1);
-  color: #75e1b5;
+  border: 1px solid rgba(76, 190, 145, 0.24);
+  background: rgba(76, 190, 145, 0.075);
+  color: #91e0bd;
 }
-
 
 /* =========================================================
    LOADING
-   ========================================================= */
+========================================================= */
 
 .admin-loading {
   min-height: 300px;
@@ -149,143 +204,168 @@
   align-items: center;
   justify-content: center;
 
-  color: #8da9b0;
-  font-size: 14px;
-}
+  padding: 24px;
 
+  color: #a0afcc;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
 
 /* =========================================================
    TOOLBAR
-   ========================================================= */
+========================================================= */
 
 .admin-song-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
 
-  margin-bottom: 18px;
+  margin-bottom: 19px;
 }
 
 .admin-song-search {
   width: min(440px, 100%);
+  min-height: 46px;
 
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
 
-  padding: 0 14px;
+  padding: 0 15px;
 
-  min-height: 44px;
-  box-sizing: border-box;
+  border: 1px solid var(--admin-border);
+  border-radius: 11px;
 
-  border: 1px solid rgba(110, 170, 180, 0.16);
-  border-radius: 9px;
-
-  background: rgba(7, 30, 38, 0.72);
+  background: rgba(14, 22, 40, 0.88);
 
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .admin-song-search:focus-within {
-  border-color: rgba(50, 180, 200, 0.5);
+  border-color: rgba(100, 140, 255, 0.72);
 
-  box-shadow:
-    0 0 0 3px rgba(30, 170, 190, 0.08);
+  background: rgba(17, 28, 49, 0.98);
+
+  box-shadow: 0 0 0 3px rgba(100, 140, 255, 0.12);
 }
 
 .admin-song-search svg {
   flex-shrink: 0;
-  color: #5ec8d7;
-  font-size: 14px;
+
+  color: var(--admin-gold);
+  font-size: 15px;
 }
 
 .admin-song-search input {
   width: 100%;
+  min-width: 0;
+  min-height: 42px;
 
   border: 0;
   outline: 0;
 
   background: transparent;
+  color: #edf1ff;
 
-  color: #e8f7fa;
+  font-family: inherit;
   font-size: 13px;
 }
 
 .admin-song-search input::placeholder {
-  color: #68838a;
+  color: #71809c;
+  opacity: 1;
 }
 
 .admin-song-count {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
 
-  color: #88a6ad;
-  font-size: 13px;
+  color: #a0afcc;
+
+  font-size: 12px;
+  font-weight: 600;
+
   white-space: nowrap;
 }
 
 .admin-song-count svg {
-  color: #5ec8d7;
+  color: var(--admin-gold);
+  font-size: 15px;
 }
 
-
 /* =========================================================
-   TABLE
-   ========================================================= */
+   TABLE WRAPPER
+========================================================= */
 
 .admin-table-wrapper {
   width: 100%;
 
   overflow-x: auto;
 
-  border: 1px solid rgba(100, 170, 180, 0.13);
-  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
 
-  background: rgba(5, 25, 32, 0.78);
+  background: rgba(14, 22, 40, 0.88);
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
 
   scrollbar-width: thin;
+  scrollbar-color: rgba(100, 140, 255, 0.4) transparent;
 }
+
+/* =========================================================
+   TABLE
+========================================================= */
 
 .admin-song-table {
   width: 100%;
   min-width: 720px;
 
   border-collapse: collapse;
+  border-spacing: 0;
 }
 
 .admin-song-table thead {
-  background: rgba(8, 38, 47, 0.85);
+  background: linear-gradient(
+    110deg,
+    rgba(30, 46, 78, 0.95),
+    rgba(18, 30, 53, 0.98)
+  );
 }
 
 .admin-song-table th {
-  padding: 14px 17px;
+  padding: 16px 18px;
 
-  border-bottom: 1px solid rgba(100, 170, 180, 0.12);
+  border-bottom: 1px solid var(--admin-border);
 
-  color: #72939a;
+  color: #a7b5d0;
 
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 1.1px;
 
-  letter-spacing: 1.2px;
   text-align: left;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .admin-song-table td {
-  padding: 14px 17px;
+  padding: 15px 18px;
 
-  border-bottom: 1px solid rgba(100, 170, 180, 0.08);
+  border-bottom: 1px solid rgba(160, 183, 222, 0.08);
 
-  color: #a8c0c5;
+  color: #bac5dc;
 
   font-size: 13px;
-
+  line-height: 1.6;
   vertical-align: middle;
 }
 
@@ -294,24 +374,23 @@
 }
 
 .admin-song-table tbody tr:hover {
-  background: rgba(35, 120, 135, 0.06);
+  background: rgba(100, 140, 255, 0.055);
 }
 
 .admin-song-table tbody tr:last-child td {
   border-bottom: 0;
 }
 
-
 /* =========================================================
    ALBUM CELL
-   ========================================================= */
+========================================================= */
 
 .admin-album-cell {
+  min-width: 220px;
+
   display: flex;
   align-items: center;
-  gap: 13px;
-
-  min-width: 220px;
+  gap: 14px;
 }
 
 .admin-album-cell strong {
@@ -323,33 +402,32 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  color: #e8f7fa;
-  font-size: 13px;
-  font-weight: 600;
-}
+  color: #f0f3ff;
 
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
 
 /* =========================================================
    ALBUM TABLE COVER
-   ========================================================= */
+========================================================= */
 
 .admin-album-cover {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
 
-  min-width: 52px;
-  min-height: 52px;
+  min-width: 54px;
+  min-height: 54px;
 
   overflow: hidden;
 
-  border-radius: 8px;
+  border: 1px solid rgba(160, 183, 222, 0.18);
+  border-radius: 10px;
 
-  background: #071c24;
+  background: #111c31;
 
-  border: 1px solid rgba(100, 190, 200, 0.13);
-
-  box-shadow:
-    0 5px 15px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 6px 17px rgba(0, 0, 0, 0.25);
 }
 
 .admin-album-cover img {
@@ -362,27 +440,26 @@
   object-position: center;
 }
 
-
 /* =========================================================
    TABLE ACTIONS
-   ========================================================= */
+========================================================= */
 
 .admin-table-actions {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .admin-action-button {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 9px;
 
   background: transparent;
 
@@ -391,36 +468,45 @@
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .admin-action-button.edit {
-  color: #67c9d8;
+  color: #9bb4ff;
 }
 
 .admin-action-button.edit:hover {
-  border-color: rgba(80, 190, 205, 0.2);
-  background: rgba(80, 190, 205, 0.1);
+  transform: translateY(-1px);
+
+  border-color: rgba(100, 140, 255, 0.28);
+  background: rgba(100, 140, 255, 0.12);
+
+  color: #c5d3ff;
 }
 
 .admin-action-button.delete {
-  color: #e77c7c;
+  color: #f09ba5;
 }
 
 .admin-action-button.delete:hover {
-  border-color: rgba(230, 80, 80, 0.2);
-  background: rgba(230, 80, 80, 0.1);
+  transform: translateY(-1px);
+
+  border-color: rgba(239, 100, 115, 0.27);
+  background: rgba(239, 100, 115, 0.12);
+
+  color: #ffc0c7;
 }
 
 .admin-action-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
-
 
 /* =========================================================
    EMPTY STATE
-   ========================================================= */
+========================================================= */
 
 .admin-empty-state {
   min-height: 300px;
@@ -430,46 +516,47 @@
   align-items: center;
   justify-content: center;
 
-  padding: 40px 20px;
+  padding: 42px 20px;
 
-  box-sizing: border-box;
+  border: 1px dashed rgba(160, 183, 222, 0.2);
+  border-radius: 14px;
 
-  border: 1px dashed rgba(100, 180, 190, 0.16);
-  border-radius: 12px;
-
-  background: rgba(5, 25, 32, 0.55);
+  background: rgba(14, 22, 40, 0.6);
 
   text-align: center;
 }
 
 .admin-empty-state > svg {
-  margin-bottom: 14px;
+  margin-bottom: 17px;
 
-  color: #397985;
-  font-size: 35px;
+  color: var(--admin-blue-light);
+  font-size: 38px;
 }
 
 .admin-empty-state h2 {
   margin: 0;
 
-  color: #d8edf0;
+  color: #edf1ff;
 
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.45;
 }
 
 .admin-empty-state p {
-  margin: 8px 0 20px;
+  max-width: 420px;
 
-  color: #718f96;
+  margin: 9px 0 22px;
+
+  color: var(--admin-muted);
 
   font-size: 13px;
+  line-height: 1.7;
 }
-
 
 /* =========================================================
    MODAL OVERLAY
-   ========================================================= */
+========================================================= */
 
 .admin-modal-overlay {
   position: fixed;
@@ -483,50 +570,45 @@
 
   padding: 24px;
 
-  box-sizing: border-box;
-
-  background: rgba(0, 10, 14, 0.78);
-
-  backdrop-filter: blur(7px);
-
   overflow-y: auto;
-}
 
+  background: rgba(3, 7, 17, 0.82);
+
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+}
 
 /* =========================================================
    MODAL
-   ========================================================= */
+========================================================= */
 
 .admin-modal {
   width: min(580px, 100%);
-
   max-height: calc(100vh - 48px);
 
   display: flex;
   flex-direction: column;
 
-  box-sizing: border-box;
+  overflow: hidden;
 
-  border: 1px solid rgba(100, 190, 200, 0.14);
-  border-radius: 14px;
+  border: 1px solid rgba(160, 183, 222, 0.17);
+  border-radius: 17px;
 
-  background:
-    linear-gradient(
-      180deg,
-      #092832 0%,
-      #061d25 100%
-    );
+  background: linear-gradient(
+    155deg,
+    #121f38 0%,
+    #0c1629 65%,
+    #0a1222 100%
+  );
 
   box-shadow:
-    0 25px 70px rgba(0, 0, 0, 0.55);
-
-  overflow: hidden;
+    0 28px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
-
 
 /* =========================================================
    MODAL HEADER
-   ========================================================= */
+========================================================= */
 
 .admin-modal-header {
   flex-shrink: 0;
@@ -534,26 +616,29 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 20px;
 
-  padding: 22px 24px 18px;
+  padding: 23px 25px 19px;
 
-  border-bottom: 1px solid rgba(100, 180, 190, 0.1);
+  border-bottom: 1px solid var(--admin-border);
+
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .admin-modal-header h2 {
   margin: 0;
 
-  color: #ffffff;
+  color: #f4f6ff;
 
   font-size: 21px;
-  font-weight: 650;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.4;
 }
 
 .admin-modal-close {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
   flex-shrink: 0;
 
@@ -561,12 +646,11 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(110, 180, 190, 0.12);
-  border-radius: 7px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
 
-  background: rgba(255, 255, 255, 0.025);
-
-  color: #7e9ba2;
+  background: rgba(255, 255, 255, 0.035);
+  color: #a6b4ce;
 
   cursor: pointer;
 
@@ -577,81 +661,78 @@
 }
 
 .admin-modal-close:hover {
-  border-color: rgba(110, 190, 200, 0.25);
-  background: rgba(110, 190, 200, 0.08);
-  color: #d9eef1;
+  border-color: rgba(229, 196, 119, 0.3);
+  background: rgba(229, 196, 119, 0.08);
+  color: var(--admin-gold-light);
 }
-
 
 /* =========================================================
    MODAL FORM
-   ========================================================= */
+========================================================= */
 
 .admin-modal form {
-  padding: 22px 24px 24px;
+  min-height: 0;
+
+  padding: 24px 25px 25px;
 
   overflow-y: auto;
 
   scrollbar-width: thin;
+  scrollbar-color: rgba(100, 140, 255, 0.4) transparent;
 }
-
 
 /* =========================================================
    FORM FIELD
-   ========================================================= */
+========================================================= */
 
 .admin-field {
-  margin-bottom: 18px;
+  min-width: 0;
+  margin-bottom: 20px;
 }
 
 .admin-field > label {
   display: block;
+  margin-bottom: 9px;
 
-  margin-bottom: 7px;
-
-  color: #9db8bd;
+  color: #c1cce2;
 
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .admin-field > small {
   display: block;
-
   margin-top: 8px;
 
-  color: #617f86;
+  color: var(--admin-muted);
 
   font-size: 11px;
-
-  line-height: 1.5;
+  line-height: 1.6;
 }
-
 
 /* =========================================================
    INPUTS
-   ========================================================= */
+========================================================= */
 
 .admin-field input[type="text"],
 .admin-field input[type="number"],
 .admin-field select {
   width: 100%;
-  height: 44px;
+  min-width: 0;
+  min-height: 46px;
 
-  box-sizing: border-box;
+  padding: 0 14px;
 
-  padding: 0 13px;
-
-  border: 1px solid rgba(110, 180, 190, 0.15);
-  border-radius: 8px;
+  border: 1px solid rgba(160, 183, 222, 0.17);
+  border-radius: 10px;
 
   outline: none;
 
-  background: rgba(3, 20, 27, 0.75);
+  background: rgba(6, 12, 25, 0.78);
+  color: #edf1ff;
 
-  color: #e8f7fa;
-
-  font-family: inherit;
+  font-family: "Inter", "Noto Sans Telugu", system-ui, sans-serif;
   font-size: 13px;
 
   transition:
@@ -663,72 +744,66 @@
 .admin-field input[type="text"]:focus,
 .admin-field input[type="number"]:focus,
 .admin-field select:focus {
-  border-color: rgba(65, 190, 205, 0.5);
+  border-color: rgba(100, 140, 255, 0.78);
 
-  background: rgba(3, 24, 31, 0.95);
+  background: rgba(9, 17, 34, 0.98);
 
-  box-shadow:
-    0 0 0 3px rgba(40, 180, 200, 0.07);
+  box-shadow: 0 0 0 3px rgba(100, 140, 255, 0.12);
 }
 
 .admin-field input::placeholder {
-  color: #536f76;
+  color: #71809c;
+  opacity: 1;
 }
 
 .admin-field select {
+  color-scheme: dark;
   cursor: pointer;
 }
 
 .admin-field select option {
-  background: #092832;
-  color: #e8f7fa;
+  background: #101a30;
+  color: #edf1ff;
 }
-
 
 /* =========================================================
    ALBUM COVER UPLOAD
-   ========================================================= */
+========================================================= */
 
 .album-cover-upload {
   width: 100%;
 
   display: flex;
   align-items: center;
+  gap: 22px;
 
-  gap: 20px;
+  padding: 17px;
 
-  padding: 15px;
+  border: 1px solid var(--admin-border);
+  border-radius: 13px;
 
-  box-sizing: border-box;
-
-  border: 1px solid rgba(100, 180, 190, 0.13);
-  border-radius: 11px;
-
-  background: rgba(3, 20, 27, 0.55);
+  background: rgba(6, 12, 25, 0.48);
 }
-
 
 /* =========================================================
    COVER PREVIEW
-   ========================================================= */
+========================================================= */
 
 .album-cover-upload-preview {
-  width: 190px;
-  height: 190px;
+  width: 180px;
+  height: 180px;
 
-  min-width: 190px;
-  min-height: 190px;
+  min-width: 180px;
+  min-height: 180px;
 
   overflow: hidden;
 
-  border-radius: 10px;
+  border: 1px solid rgba(160, 183, 222, 0.2);
+  border-radius: 13px;
 
-  background: #061b22;
+  background: #111c31;
 
-  border: 1px solid rgba(100, 190, 200, 0.15);
-
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 10px 27px rgba(0, 0, 0, 0.3);
 }
 
 .album-cover-upload-preview img {
@@ -741,10 +816,9 @@
   object-position: center;
 }
 
-
 /* =========================================================
    UPLOAD CONTENT
-   ========================================================= */
+========================================================= */
 
 .album-cover-upload-content {
   min-width: 0;
@@ -752,13 +826,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
-  gap: 5px;
+  gap: 6px;
 }
 
 .album-cover-upload-icon {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
 
   margin-bottom: 5px;
 
@@ -766,77 +839,69 @@
   align-items: center;
   justify-content: center;
 
-  border-radius: 9px;
+  border: 1px solid rgba(229, 196, 119, 0.2);
+  border-radius: 12px;
 
-  background: rgba(30, 170, 190, 0.1);
+  background: rgba(229, 196, 119, 0.09);
+  color: var(--admin-gold-light);
 
-  color: #55c4d3;
-
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .album-cover-upload-content strong {
-  color: #dceff2;
+  color: #eaf0ff;
 
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 750;
+  line-height: 1.5;
 }
 
 .album-cover-upload-content span {
-  color: #627f86;
+  color: var(--admin-muted);
 
   font-size: 11px;
-  line-height: 1.3;
+  line-height: 1.6;
 }
-
 
 /* =========================================================
    CHOOSE IMAGE BUTTON
-   ========================================================= */
+========================================================= */
 
 .album-cover-select {
   margin-top: 10px;
-
-  min-height: 38px;
-
-  padding: 0 14px;
-
+  min-height: 40px;
   font-size: 12px;
 }
 
-
 /* =========================================================
    FORM ACTIONS
-   ========================================================= */
+========================================================= */
 
 .admin-form-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 11px;
 
-  gap: 10px;
+  margin-top: 25px;
+  padding-top: 20px;
 
-  margin-top: 24px;
-  padding-top: 18px;
-
-  border-top: 1px solid rgba(100, 180, 190, 0.09);
+  border-top: 1px solid var(--admin-border);
 }
 
 .admin-cancel-button {
-  min-height: 42px;
+  min-height: 44px;
+  padding: 0 19px;
 
-  padding: 0 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
 
-  border: 1px solid rgba(110, 180, 190, 0.15);
-  border-radius: 9px;
-
-  background: rgba(255, 255, 255, 0.025);
-
-  color: #91aeb4;
+  background: rgba(255, 255, 255, 0.035);
+  color: #bac6de;
 
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
 
   cursor: pointer;
 
@@ -846,23 +911,20 @@
     color 0.2s ease;
 }
 
-.admin-cancel-button:hover {
-  border-color: rgba(110, 180, 190, 0.25);
-
-  background: rgba(100, 180, 190, 0.07);
-
-  color: #d8edf0;
+.admin-cancel-button:hover:not(:disabled) {
+  border-color: rgba(160, 183, 222, 0.28);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f2f5ff;
 }
 
 .admin-cancel-button:disabled {
-  opacity: 0.5;
+  opacity: 0.48;
   cursor: not-allowed;
 }
 
-
 /* =========================================================
    SCROLLBARS
-   ========================================================= */
+========================================================= */
 
 .admin-page ::-webkit-scrollbar {
   width: 7px;
@@ -875,27 +937,42 @@
 
 .admin-page ::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background: rgba(100, 160, 170, 0.25);
+  background: rgba(100, 140, 255, 0.28);
 }
 
 .admin-page ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 190, 200, 0.4);
+  background: rgba(100, 140, 255, 0.48);
 }
 
+/* =========================================================
+   ACCESSIBLE FOCUS
+========================================================= */
+
+.admin-primary-button:focus-visible,
+.admin-cancel-button:focus-visible,
+.admin-action-button:focus-visible,
+.admin-modal-close:focus-visible {
+  outline: 2px solid var(--admin-blue-light);
+  outline-offset: 3px;
+}
+
+.admin-song-search input:focus-visible {
+  outline: none;
+}
 
 /* =========================================================
-   RESPONSIVE - TABLET
-   ========================================================= */
+   RESPONSIVE — TABLET
+========================================================= */
 
 @media (max-width: 800px) {
-
   .admin-page {
-    padding: 20px;
+    padding: 23px;
   }
 
   .admin-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 17px;
   }
 
   .admin-header .admin-primary-button {
@@ -905,6 +982,7 @@
   .admin-song-toolbar {
     align-items: stretch;
     flex-direction: column;
+    gap: 13px;
   }
 
   .admin-song-search {
@@ -917,87 +995,129 @@
 
   .album-cover-upload {
     align-items: flex-start;
+    gap: 17px;
   }
 
+  .album-cover-upload-preview {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    min-height: 150px;
+  }
 }
 
-
 /* =========================================================
-   RESPONSIVE - MOBILE
-   ========================================================= */
+   RESPONSIVE — MOBILE
+========================================================= */
 
 @media (max-width: 600px) {
-
   .admin-page {
-    padding: 15px;
+    padding: 16px 13px 35px;
   }
 
   .admin-header {
-    margin-bottom: 20px;
+    margin-bottom: 21px;
+    gap: 15px;
   }
 
   .admin-header h1 {
-    font-size: 24px;
+    font-size: 25px;
   }
 
   .admin-header p {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .admin-header .admin-primary-button {
     width: 100%;
+    align-self: stretch;
+  }
+
+  .admin-song-count {
+    font-size: 11px;
+  }
+
+  .admin-table-wrapper {
+    border-radius: 11px;
+  }
+
+  .admin-song-table {
+    min-width: 680px;
+  }
+
+  .admin-song-table th {
+    padding: 13px 14px;
+    font-size: 9px;
+  }
+
+  .admin-song-table td {
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+
+  .admin-album-cell {
+    gap: 10px;
+    min-width: 190px;
+  }
+
+  .admin-album-cover {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+  }
+
+  .admin-album-cell strong {
+    max-width: 190px;
+    font-size: 12px;
   }
 
   .admin-modal-overlay {
     align-items: flex-start;
-
     padding: 12px;
   }
 
   .admin-modal {
     width: 100%;
     max-height: calc(100vh - 24px);
-
-    border-radius: 12px;
+    border-radius: 13px;
   }
 
   .admin-modal-header {
+    gap: 13px;
     padding: 18px;
+  }
+
+  .admin-modal-header h2 {
+    font-size: 19px;
   }
 
   .admin-modal form {
     padding: 18px;
   }
 
-  /* -----------------------------------------
-     MOBILE COVER UPLOAD
-     ----------------------------------------- */
+  .admin-field {
+    margin-bottom: 18px;
+  }
 
   .album-cover-upload {
     flex-direction: column;
     align-items: center;
-
-    padding: 16px;
+    gap: 16px;
+    padding: 17px;
   }
 
   .album-cover-upload-preview {
-    width: 190px;
-    height: 190px;
-
-    min-width: 190px;
-    min-height: 190px;
+    width: 180px;
+    height: 180px;
+    min-width: 180px;
+    min-height: 180px;
   }
 
   .album-cover-upload-content {
     width: 100%;
-
     align-items: center;
-
     text-align: center;
-  }
-
-  .album-cover-upload-icon {
-    margin-top: 2px;
   }
 
   .album-cover-select {
@@ -1006,43 +1126,72 @@
 
   .admin-form-actions {
     flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
   }
 
   .admin-form-actions button {
     width: 100%;
   }
-
 }
-
 
 /* =========================================================
    VERY SMALL MOBILE
-   ========================================================= */
+========================================================= */
 
 @media (max-width: 400px) {
-
   .admin-page {
-    padding: 12px;
+    padding: 13px 10px 30px;
   }
 
   .admin-header h1 {
-    font-size: 22px;
+    font-size: 23px;
+  }
+
+  .admin-modal-header {
+    padding: 16px;
   }
 
   .admin-modal-header h2 {
     font-size: 18px;
   }
 
-  .album-cover-upload-preview {
-    width: 165px;
-    height: 165px;
+  .admin-modal form {
+    padding: 16px;
+  }
 
-    min-width: 165px;
-    min-height: 165px;
+  .album-cover-upload {
+    padding: 13px;
+  }
+
+  .album-cover-upload-preview {
+    width: 160px;
+    height: 160px;
+    min-width: 160px;
+    min-height: 160px;
   }
 
   .admin-song-table {
     min-width: 650px;
   }
+}
 
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-primary-button,
+  .admin-action-button,
+  .admin-modal-close,
+  .admin-cancel-button,
+  .admin-song-search,
+  .admin-song-table tbody tr {
+    transition: none;
+  }
+
+  .admin-primary-button:hover:not(:disabled),
+  .admin-action-button:hover {
+    transform: none;
+  }
 }

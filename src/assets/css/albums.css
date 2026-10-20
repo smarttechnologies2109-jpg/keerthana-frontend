@@ -1,39 +1,39 @@
-/* =========================================================
-   KEERTHANA — ALBUMS PAGE
-   Professional Dark Navy + Teal + Gold UI
-========================================================= */
-
 
 /* =========================================================
-   PAGE
+   KEERTHANA — PREMIUM ALBUMS PAGE
+   Midnight Navy + Royal Blue + Champagne Gold
 ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
 
 .albums-page {
+  --album-bg: #080d19;
+  --album-surface: #101a2c;
+  --album-card: #121f35;
+  --album-hover: #192c49;
+  --album-text: #f4f6ff;
+  --album-muted: #a0aec6;
+  --album-blue: #4d85ff;
+  --album-blue-light: #9bbcff;
+  --album-gold: #e8ca91;
+  --album-border: rgba(164, 187, 226, 0.14);
+
   width: 100%;
   min-height: 100vh;
-
-  padding:
-    34px
-    clamp(22px, 3vw, 44px)
-    130px;
-
   box-sizing: border-box;
-
-  color: #f4f1e8;
-
+  padding: 32px clamp(18px, 3vw, 44px) 145px;
+  color: var(--album-text);
   background:
-    radial-gradient(
-      circle at 90% 5%,
-      rgba(49, 156, 145, 0.07),
-      transparent 26%
-    ),
-    radial-gradient(
-      circle at 5% 90%,
-      rgba(215, 181, 109, 0.03),
-      transparent 30%
-    );
+    radial-gradient(ellipse at 90% 0%, rgba(65, 112, 210, 0.12), transparent 32%),
+    radial-gradient(ellipse at 5% 60%, rgba(232, 202, 145, 0.035), transparent 30%),
+    var(--album-bg);
 }
 
+.albums-page *,
+.albums-page *::before,
+.albums-page *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
    HEADER
@@ -41,214 +41,113 @@
 
 .albums-header {
   position: relative;
-
-  min-height: 190px;
-
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-
-  margin-bottom: 32px;
-
-  padding:
-    32px
-    34px;
-
-  box-sizing: border-box;
-
+  min-height: 215px;
+  margin-bottom: 34px;
+  padding: clamp(27px, 4vw, 42px);
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.06);
-
-  border-radius: 22px;
-
+  border: 1px solid var(--album-border);
+  border-radius: 24px;
   background:
-    linear-gradient(
-      125deg,
-      rgba(18, 52, 61, 0.98) 0%,
-      rgba(11, 36, 44, 0.98) 52%,
-      rgba(7, 24, 30, 0.99) 100%
-    );
-
-  box-shadow:
-    0 20px 50px
-    rgba(0, 0, 0, 0.2),
-    inset
-    0 1px 0
-    rgba(255, 255, 255, 0.035);
+    radial-gradient(circle at 85% 15%, rgba(77, 133, 255, 0.2), transparent 36%),
+    linear-gradient(125deg, #172743 0%, #101a2c 55%, #172b49 100%);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.24);
 }
-
-
-/* GOLD DECORATIVE CIRCLE */
 
 .albums-header::before {
-  content: "";
-
   position: absolute;
-
-  width: 310px;
-  height: 310px;
-
-  top: -210px;
-  right: 90px;
-
-  border:
-    1px solid
-    rgba(215, 181, 109, 0.09);
-
+  z-index: -1;
+  top: -230px;
+  right: 8%;
+  width: 390px;
+  height: 390px;
+  border: 1px solid rgba(232, 202, 145, 0.12);
   border-radius: 50%;
-
+  box-shadow:
+    0 0 0 30px rgba(232, 202, 145, 0.025),
+    0 0 0 65px rgba(232, 202, 145, 0.015);
+  content: "";
   pointer-events: none;
 }
-
-
-/* TEAL GLOW */
 
 .albums-header::after {
-  content: "";
-
   position: absolute;
-
-  width: 230px;
-  height: 230px;
-
-  right: -70px;
-  bottom: -150px;
-
+  z-index: -1;
+  right: -100px;
+  bottom: -180px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-
-  background:
-    rgba(74, 176, 165, 0.06);
-
-  filter: blur(35px);
-
+  background: rgba(77, 133, 255, 0.12);
+  filter: blur(45px);
+  content: "";
   pointer-events: none;
 }
-
-
-/* =========================================================
-   HEADER SMALL TEXT
-========================================================= */
 
 .albums-header > p {
   position: relative;
-  z-index: 2;
-
-  margin:
-    0
-    0
-    8px;
-
-  color: #5fc0b6;
-
-  font-size: 8px;
+  z-index: 1;
+  margin: 0 0 10px;
+  color: var(--album-blue-light);
+  font-size: 10px;
   font-weight: 800;
-
-  letter-spacing: 2.4px;
-
+  letter-spacing: 2.5px;
   text-transform: uppercase;
 }
 
-
-/* =========================================================
-   HEADER TITLE
-========================================================= */
-
 .albums-header h1 {
   position: relative;
-  z-index: 2;
-
+  z-index: 1;
   margin: 0;
-
-  color: #f8f4ea;
-
-  font-family:
-    "Cormorant Garamond",
-    "Noto Serif Telugu",
-    Georgia,
-    serif;
-
-  font-size:
-    clamp(43px, 5vw, 62px);
-
-  font-weight: 700;
-
-  line-height: 0.95;
-
-  letter-spacing: -0.5px;
+  color: #fffaf0;
+  font-family: "Noto Sans Telugu", "Noto Serif Telugu", system-ui, sans-serif;
+  font-size: clamp(38px, 5vw, 62px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
 }
-
-
-/* =========================================================
-   HEADER SUBTITLE
-========================================================= */
 
 .albums-header > span {
   position: relative;
-  z-index: 2;
-
+  z-index: 1;
   display: block;
-
-  margin-top: 14px;
-
-  color: #849ba0;
-
-  font-size: 10px;
-  font-weight: 500;
-
-  letter-spacing: 0.3px;
+  max-width: 560px;
+  margin-top: 13px;
+  color: #a4b3ce;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
-
 /* =========================================================
-   ERROR
+   ERROR MESSAGE
 ========================================================= */
 
 .albums-error {
   margin-bottom: 22px;
-
-  padding:
-    13px
-    16px;
-
-  border:
-    1px solid
-    rgba(220, 86, 95, 0.18);
-
-  border-radius: 11px;
-
-  background:
-    rgba(220, 86, 95, 0.065);
-
-  color: #e8989e;
-
-  font-size: 10px;
-  font-weight: 600;
-
-  line-height: 1.5;
+  padding: 14px 17px;
+  border: 1px solid rgba(255, 135, 148, 0.2);
+  border-radius: 12px;
+  color: #ffb3bb;
+  background: rgba(150, 39, 57, 0.12);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
-
 /* =========================================================
-   GRID
+   ALBUM GRID
 ========================================================= */
 
 .albums-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fill,
-      minmax(180px, 1fr)
-    );
-
-  gap: 20px;
-
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 22px;
   width: 100%;
+  align-items: stretch;
 }
-
 
 /* =========================================================
    ALBUM CARD
@@ -256,429 +155,226 @@
 
 .album-card {
   position: relative;
-
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-
   padding: 12px;
-
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.055);
-
-  border-radius: 17px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(16, 33, 39, 0.9),
-      rgba(7, 19, 24, 0.94)
-    );
-
+  border: 1px solid var(--album-border);
+  border-radius: 18px;
+  color: inherit;
+  background: linear-gradient(155deg, #14223a, #101a2c 62%, #0b1424);
+  text-align: left;
   cursor: pointer;
-
-  box-shadow:
-    0 10px 30px
-    rgba(0, 0, 0, 0.15);
-
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
   transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
 }
 
-
-/* subtle accent */
-
 .album-card::before {
-  content: "";
-
   position: absolute;
-
-  z-index: 0;
-
-  width: 100px;
-  height: 100px;
-
   top: -65px;
-  right: -60px;
-
+  right: -65px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-
-  background:
-    rgba(85, 184, 174, 0.045);
-
+  background: rgba(77, 133, 255, 0.06);
+  content: "";
   pointer-events: none;
 }
 
-
-/* =========================================================
-   CARD HOVER
-========================================================= */
-
 .album-card:hover {
-  transform:
-    translateY(-6px);
-
-  border-color:
-    rgba(85, 184, 174, 0.16);
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(20, 42, 48, 0.96),
-      rgba(8, 22, 27, 0.97)
-    );
-
-  box-shadow:
-    0 20px 42px
-    rgba(0, 0, 0, 0.25);
+  transform: translateY(-5px);
+  border-color: rgba(77, 133, 255, 0.45);
+  background: linear-gradient(155deg, #1a2d4b, #111e33 65%, #0e192b);
+  box-shadow: 0 19px 40px rgba(0, 0, 0, 0.3);
 }
 
+.album-card:focus-visible {
+  outline: 2px solid var(--album-blue-light);
+  outline-offset: 4px;
+}
 
 /* =========================================================
-   COVER
+   SQUARE COVER ART
 ========================================================= */
 
 .album-card-cover {
   position: relative;
-
   z-index: 1;
-
   width: 100%;
-
   aspect-ratio: 1 / 1;
-
+  flex: 0 0 auto;
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.055);
-
-  border-radius: 13px;
-
-  background:
-    #10272e;
-
-  box-shadow:
-    0 9px 25px
-    rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(164, 187, 226, 0.15);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #20375a, #101a2c);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
 }
 
-
-/* =========================================================
-   COVER IMAGE
-========================================================= */
-
 .album-card-cover img {
+  display: block;
   width: 100%;
   height: 100%;
-
-  display: block;
-
   object-fit: cover;
-
-  transition:
-    transform 0.45s ease,
-    filter 0.45s ease;
+  transition: transform 350ms ease, filter 350ms ease;
 }
 
-
-.album-card:hover
-.album-card-cover img {
-  transform:
-    scale(1.055);
-
-  filter:
-    brightness(1.05);
+.album-card:hover .album-card-cover img {
+  transform: scale(1.055);
+  filter: brightness(1.06);
 }
-
-
-/* =========================================================
-   COVER DARK GRADIENT
-========================================================= */
 
 .album-card-cover::after {
-  content: "";
-
   position: absolute;
-
   inset: 0;
-
-  background:
-    linear-gradient(
-      to bottom,
-      transparent 55%,
-      rgba(3, 12, 15, 0.18)
-    );
-
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    rgba(3, 8, 18, 0.25)
+  );
+  content: "";
   pointer-events: none;
 }
 
-
 /* =========================================================
-   PLACEHOLDER
+   COVER PLACEHOLDER
 ========================================================= */
 
 .album-placeholder {
-  width: 100%;
-  height: 100%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
+  width: 100%;
+  height: 100%;
+  color: var(--album-gold);
   background:
-    radial-gradient(
-      circle at 50% 40%,
-      rgba(85, 184, 174, 0.12),
-      rgba(8, 24, 29, 0.95) 68%
-    );
-
-  color: #5ab9af;
+    radial-gradient(circle at 50% 35%, rgba(77, 133, 255, 0.2), transparent 55%),
+    linear-gradient(145deg, #20375a, #101a2c);
 }
-
 
 .album-placeholder svg {
-  font-size:
-    clamp(32px, 4vw, 48px);
-
-  opacity: 0.65;
-
-  filter:
-    drop-shadow(
-      0 7px 15px
-      rgba(0, 0, 0, 0.25)
-    );
-
-  transition:
-    transform 0.3s ease,
-    color 0.3s ease;
+  font-size: clamp(38px, 4vw, 55px);
+  opacity: 0.85;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+  transition: transform 250ms ease;
 }
 
-
-.album-card:hover
-.album-placeholder svg {
-  transform:
-    rotate(8deg)
-    scale(1.07);
-
-  color: #71cec4;
+.album-card:hover .album-placeholder svg {
+  transform: scale(1.08);
 }
-
 
 /* =========================================================
-   ALBUM INFO
+   ALBUM INFORMATION
 ========================================================= */
 
 .album-card-info {
   position: relative;
-  z-index: 2;
-
-  padding:
-    15px
-    5px
-    6px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 15px 4px 5px;
 }
 
-
-/* =========================================================
-   ALBUM TITLE
-========================================================= */
-
 .album-card-info h3 {
+  display: -webkit-box;
+  width: 100%;
+  min-height: 3em;
   margin: 0;
-
   overflow: hidden;
-
-  color: #eef1ed;
-
-  font-family:
-    "Noto Sans Telugu",
-    system-ui,
-    sans-serif;
-
-  font-size: 11px;
-  font-weight: 650;
-
-  line-height: 1.45;
-
-  white-space: nowrap;
-
-  text-overflow: ellipsis;
-
-  transition:
-    color 0.2s ease;
+  color: #f2f5ff;
+  font-family: "Noto Sans Telugu", "Noto Serif Telugu", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  transition: color 180ms ease;
 }
 
-
-.album-card:hover
-.album-card-info h3 {
+.album-card:hover .album-card-info h3 {
   color: #ffffff;
 }
 
-
-/* =========================================================
-   ARTIST
-========================================================= */
-
 .album-card-info p {
-  margin:
-    6px
-    0
-    0;
-
+  width: 100%;
+  margin: 7px 0 0;
   overflow: hidden;
-
-  color: #71878c;
-
-  font-size: 8.5px;
-  font-weight: 500;
-
-  white-space: nowrap;
-
+  color: var(--album-muted);
+  font-size: 12px;
+  line-height: 1.5;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-
-/* =========================================================
-   SONG COUNT
-========================================================= */
 
 .album-card-info span {
-  width: fit-content;
-
   display: inline-flex;
   align-items: center;
-
-  margin-top: 10px;
-
-  padding:
-    5px
-    8px;
-
-  border:
-    1px solid
-    rgba(215, 181, 109, 0.09);
-
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 12px;
+  padding: 5px 9px;
+  border: 1px solid rgba(232, 202, 145, 0.17);
   border-radius: 20px;
-
-  background:
-    rgba(215, 181, 109, 0.045);
-
-  color: #bca266;
-
-  font-size: 7px;
-  font-weight: 700;
-
-  letter-spacing: 0.3px;
+  color: var(--album-gold);
+  background: rgba(232, 202, 145, 0.07);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.4;
 }
-
 
 /* =========================================================
    EMPTY STATE
 ========================================================= */
 
 .albums-empty {
-  min-height: 380px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
+  min-height: 360px;
   margin-bottom: 20px;
-
-  padding: 40px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.055);
-
-  border-radius: 20px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(15, 31, 37, 0.9),
-      rgba(7, 18, 23, 0.95)
-    );
-
+  padding: 40px 24px;
+  border: 1px solid var(--album-border);
+  border-radius: 22px;
+  background: linear-gradient(145deg, #121f35, #0c1526);
   text-align: center;
-
-  box-shadow:
-    0 15px 42px
-    rgba(0, 0, 0, 0.16);
+  box-shadow: 0 15px 42px rgba(0, 0, 0, 0.16);
 }
-
-
-/* =========================================================
-   EMPTY ICON
-========================================================= */
 
 .albums-empty > svg {
-  width: 72px;
-  height: 72px;
-
+  width: 74px;
+  height: 74px;
   box-sizing: border-box;
-
-  margin-bottom: 20px;
-
+  margin-bottom: 22px;
   padding: 20px;
-
-  border:
-    1px solid
-    rgba(215, 181, 109, 0.12);
-
-  border-radius: 20px;
-
-  background:
-    rgba(215, 181, 109, 0.05);
-
-  color: #d7b56d;
-
-  box-shadow:
-    0 10px 28px
-    rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(232, 202, 145, 0.2);
+  border-radius: 22px;
+  color: var(--album-gold);
+  background: rgba(232, 202, 145, 0.06);
 }
-
-
-/* =========================================================
-   EMPTY TITLE
-========================================================= */
 
 .albums-empty h2 {
   margin: 0;
-
-  color: #f1eee6;
-
-  font-family:
-    "Cormorant Garamond",
-    Georgia,
-    serif;
-
-  font-size: 29px;
-  font-weight: 700;
+  color: var(--album-text);
+  font-size: 26px;
+  font-weight: 800;
 }
-
-
-/* =========================================================
-   EMPTY TEXT
-========================================================= */
 
 .albums-empty p {
-  margin:
-    8px
-    0
-    0;
-
-  color: #687e84;
-
-  font-size: 10px;
+  max-width: 420px;
+  margin: 10px 0 0;
+  color: var(--album-muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
-
 
 /* =========================================================
    LOADING STATE
@@ -688,214 +384,218 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  color: #72878c;
-
-  font-size: 10px;
+  color: var(--album-muted);
+  font-size: 13px;
   font-weight: 600;
-
-  letter-spacing: 0.5px;
 }
 
-
 /* =========================================================
-   LARGE SCREEN
+   LARGE DESKTOP
 ========================================================= */
 
 @media (min-width: 1450px) {
-
   .albums-grid {
-    grid-template-columns:
-      repeat(
-        auto-fill,
-        minmax(195px, 1fr)
-      );
-
-    gap: 22px;
+    grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
+    gap: 24px;
   }
-
 }
-
 
 /* =========================================================
    TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
-
   .albums-page {
-    padding:
-      26px
-      20px
-      120px;
+    padding: 26px 20px 130px;
   }
-
 
   .albums-header {
-    min-height: 175px;
-
-    padding:
-      28px
-      26px;
+    min-height: 185px;
+    padding: 30px 26px;
   }
-
-
-  .albums-header h1 {
-    font-size: 45px;
-  }
-
 
   .albums-grid {
-    grid-template-columns:
-      repeat(
-        auto-fill,
-        minmax(165px, 1fr)
-      );
-
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 17px;
   }
 
+  .album-card {
+    padding: 10px;
+  }
 }
-
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
 @media (max-width: 650px) {
-
   .albums-page {
-    padding:
-      16px
-      12px
-      150px;
+    padding: 16px 12px 150px;
   }
-
 
   .albums-header {
-    min-height: 155px;
-
-    margin-bottom: 24px;
-
-    padding:
-      23px
-      20px;
-
-    border-radius: 17px;
+    min-height: 165px;
+    margin-bottom: 25px;
+    padding: 24px 20px;
+    border-radius: 19px;
   }
-
 
   .albums-header h1 {
-    font-size: 38px;
+    font-size: clamp(34px, 9vw, 43px);
   }
-
 
   .albums-header > span {
-    margin-top: 10px;
-
-    font-size: 9px;
+    margin-top: 9px;
+    font-size: 12px;
   }
-
 
   .albums-grid {
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
-
-    gap: 11px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
-
 
   .album-card {
-    padding: 8px;
-
+    padding: 9px;
     border-radius: 14px;
   }
-
 
   .album-card-cover {
     border-radius: 10px;
   }
 
-
   .album-card-info {
-    padding:
-      11px
-      3px
-      4px;
+    padding: 12px 3px 4px;
   }
-
 
   .album-card-info h3 {
-    font-size: 9.5px;
+    font-size: 12px;
   }
-
 
   .album-card-info p {
-    margin-top: 4px;
-
-    font-size: 7.5px;
+    margin-top: 5px;
+    font-size: 10px;
   }
-
 
   .album-card-info span {
-    margin-top: 8px;
-
-    padding:
-      4px
-      7px;
-
-    font-size: 6.5px;
+    margin-top: 9px;
+    padding: 4px 7px;
+    font-size: 9px;
   }
-
 
   .albums-empty {
-    min-height: 330px;
-
-    padding:
-      30px
-      15px;
+    min-height: 300px;
+    padding: 30px 16px;
   }
 
+  .albums-empty h2 {
+    font-size: 23px;
+  }
 }
-
 
 /* =========================================================
    SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 360px) {
+  .albums-page {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
 
   .albums-grid {
-    grid-template-columns: 1fr;
+    gap: 9px;
   }
-
 
   .album-card {
-    max-width: 280px;
-
-    margin:
-      0
-      auto;
-
-    width: 100%;
+    padding: 7px;
   }
 
+  .album-card-info h3 {
+    font-size: 11px;
+  }
+
+  .album-card-info p {
+    font-size: 9px;
+  }
 }
 
-
 /* =========================================================
-   ACCESSIBILITY
+   REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
   .album-card,
   .album-card-cover img,
   .album-placeholder svg {
     transition: none;
   }
+}
 
+/* =========================================================
+   KEERTHANA — ALBUMS TYPOGRAPHY CONSISTENCY
+   Professional typography across all screen sizes
+========================================================= */
+
+.albums-page {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    "Noto Serif Telugu",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.albums-page h1,
+.albums-page h2,
+.albums-page h3,
+.albums-page p,
+.albums-page span {
+  overflow-wrap: anywhere;
+}
+
+.albums-header h1 {
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.album-card-info h3 {
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.album-card-info p,
+.albums-header > span,
+.albums-empty p {
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.album-card-info span {
+  font-weight: 600;
+  letter-spacing: 0.15px;
+}
+
+/* Accessible keyboard focus */
+.albums-page button:focus-visible,
+.albums-page a:focus-visible {
+  outline: 2px solid var(--album-blue-light);
+  outline-offset: 3px;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .albums-page *,
+  .albums-page *::before,
+  .albums-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

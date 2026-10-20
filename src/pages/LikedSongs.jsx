@@ -1,25 +1,18 @@
+
 import {
   FaHeart,
   FaPlay,
   FaPause,
   FaTrash,
+  FaMusic,
+  FaArrowLeft,
 } from "react-icons/fa";
 
-import {
-  Navigate,
-} from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
-import {
-  useAuth,
-} from "../context/AuthContext";
-
-import {
-  useLikedSongs,
-} from "../context/LikedSongsContext";
-
-import {
-  usePlayer,
-} from "../context/usePlayer";
+import { useAuth } from "../context/AuthContext";
+import { useLikedSongs } from "../context/LikedSongsContext";
+import { usePlayer } from "../context/usePlayer";
 
 import {
   getSongCover,
@@ -28,21 +21,19 @@ import {
 
 import "../assets/css/likedSongs.css";
 
-
 function LikedSongs() {
+  const navigate = useNavigate();
 
   const {
     user,
     loading: authLoading,
   } = useAuth();
 
-
   const {
     likedSongs,
     loading,
     unlikeSong,
   } = useLikedSongs();
-
 
   const {
     playSong,
@@ -51,389 +42,232 @@ function LikedSongs() {
     isPlaying,
   } = usePlayer();
 
-
-  /* =====================================================
-     CHECK CURRENT SONG
-  ===================================================== */
-
-  const isCurrentSong = (song) => {
-
-    return (
-      currentSong &&
-      Number(currentSong.id) ===
-        Number(song?.id)
-    );
-
-  };
-
-
-  /* =====================================================
-     PLAY / PAUSE SONG
-  ===================================================== */
+  const isCurrentSong = (song) =>
+    currentSong &&
+    Number(currentSong.id) === Number(song?.id);
 
   const handlePlayPause = async (song) => {
-
     if (!song?.audio_url) {
-
-      console.warn(
-        "Song does not have an audio URL:",
-        song
-      );
-
+      console.warn("Song does not have an audio URL:", song);
       return;
-
     }
 
-
-    /*
-      SAME SONG
-
-      Playing → Pause
-      Paused  → Play
-    */
-
-    if (
-      currentSong &&
-      Number(currentSong.id) ===
-        Number(song.id)
-    ) {
-
+    if (isCurrentSong(song)) {
       await togglePlay();
-
       return;
-
     }
 
-
-    /*
-      DIFFERENT SONG
-
-      Start selected song.
-
-      All liked songs become
-      the player queue.
-    */
-
-    await playSong(
-      song,
-      likedSongs
-    );
-
+    // Preserve the existing liked songs queue.
+    await playSong(song, likedSongs);
   };
 
+  const handlePlayAll = async () => {
+    if (!likedSongs.length) return;
 
-  /* =====================================================
-     AUTH LOADING
-  ===================================================== */
+    const firstPlayableSong = likedSongs.find(
+      (song) => song?.audio_url
+    );
+
+    if (!firstPlayableSong) return;
+
+    await playSong(firstPlayableSong, likedSongs);
+  };
 
   if (authLoading) {
-
     return (
-
       <div className="liked-page">
-
-        Loading...
-
+        <div className="liked-status">Loading...</div>
       </div>
-
     );
-
   }
-
-
-  /* =====================================================
-     LOGIN REQUIRED
-  ===================================================== */
 
   if (!user) {
-
-    return (
-
-      <Navigate
-        to="/login"
-        replace
-      />
-
-    );
-
+    return <Navigate to="/login" replace />;
   }
 
-
-  /* =====================================================
-     RENDER
-  ===================================================== */
-
   return (
+    <main className="liked-page">
 
-    <div className="liked-page">
+      {/* Back navigation */}
+      <button
+        type="button"
+        className="liked-back-btn"
+        onClick={() => navigate(-1)}
+      >
+        <FaArrowLeft />
+        <span>Back</span>
+      </button>
 
-
-      {/* =================================================
-         HERO
-      ================================================= */}
-
+      {/* Premium hero */}
       <section className="liked-hero">
-
-        <div className="liked-hero-icon">
-
+        <div className="liked-hero-art">
           <FaHeart />
-
+          <span className="liked-art-note note-one">♪</span>
+          <span className="liked-art-note note-two">♫</span>
         </div>
 
-
-        <div>
-
-          <p>
-            PLAYLIST
-          </p>
-
-          <h1>
-            Liked Songs
-          </h1>
-
-          <span>
-
-            {likedSongs.length}
-
-            {" "}
-
-            {
-              likedSongs.length === 1
-                ? "song"
-                : "songs"
-            }
-
+        <div className="liked-hero-content">
+          <span className="liked-eyebrow">
+            YOUR PERSONAL COLLECTION
           </span>
 
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-         LOADING
-      ================================================= */}
-
-      {loading ? (
-
-        <div className="liked-status">
-
-          Loading liked songs...
-
-        </div>
-
-      ) : likedSongs.length === 0 ? (
-
-        /* =================================================
-           EMPTY
-        ================================================= */
-
-        <div className="liked-empty">
-
-          <FaHeart />
-
-          <h2>
-            Songs you like will
-            appear here
-          </h2>
+          <h1>Liked Songs</h1>
 
           <p>
-            Tap the heart on any
-            song to save it.
+            Your favourite worship songs, together in one place.
           </p>
 
+          <div className="liked-hero-meta">
+            <span className="liked-count">
+              <FaMusic />
+              {likedSongs.length}{" "}
+              {likedSongs.length === 1 ? "song" : "songs"}
+            </span>
+
+            {likedSongs.length > 0 && (
+              <button
+                type="button"
+                className="liked-play-all"
+                onClick={handlePlayAll}
+                disabled={
+                  !likedSongs.some((song) => song?.audio_url)
+                }
+              >
+                <FaPlay />
+                Play all
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Section heading */}
+      <section className="liked-collection">
+        <div className="liked-section-heading">
+          <div>
+            <span className="liked-section-label">
+              YOUR MUSIC
+            </span>
+            <h2>Saved favourites</h2>
+          </div>
+
+          <span className="liked-section-count">
+            {likedSongs.length} tracks
+          </span>
         </div>
 
-      ) : (
+        {loading ? (
+          <div className="liked-status">
+            <span className="liked-spinner" />
+            Loading your liked songs...
+          </div>
+        ) : likedSongs.length === 0 ? (
+          <div className="liked-empty">
+            <div className="liked-empty-icon">
+              <FaHeart />
+            </div>
 
-        /* =================================================
-           SONG LIST
-        ================================================= */
+            <h2>Your collection starts here</h2>
 
-        <div className="liked-list">
-
-          {likedSongs.map(
-            (song, index) => {
-
-              const songIsCurrent =
-                isCurrentSong(song);
-
-              const songIsPlaying =
-                songIsCurrent &&
-                isPlaying;
-
+            <p>
+              Tap the heart on any song to save it to your
+              personal music collection.
+            </p>
+          </div>
+        ) : (
+          <div className="liked-grid">
+            {likedSongs.map((song, index) => {
+              const songIsCurrent = isCurrentSong(song);
+              const songIsPlaying = songIsCurrent && isPlaying;
 
               return (
-
-                <div
-                  className={`liked-row ${
-                    songIsCurrent
-                      ? "is-current"
-                      : ""
+                <article
+                  className={`liked-card ${
+                    songIsCurrent ? "is-current" : ""
                   }`}
                   key={song.id}
                 >
+                  {/* Square cover artwork */}
+                  <div className="liked-card-cover">
+                    <img
+                      src={getSongCover(song)}
+                      alt={song.title || "Song cover"}
+                      loading="lazy"
+                      onError={(event) => {
+                        if (
+                          !event.currentTarget.src.includes(
+                            "default-cover.png"
+                          )
+                        ) {
+                          event.currentTarget.src = DEFAULT_COVER;
+                        }
+                      }}
+                    />
 
-
-                  {/* -------------------------------------
-                     NUMBER
-                  ------------------------------------- */}
-
-                  <span
-                    className="liked-number"
-                  >
-                    {index + 1}
-                  </span>
-
-
-                  {/* -------------------------------------
-                     COVER
-                  ------------------------------------- */}
-
-                  <img
-                    src={
-                      getSongCover(song)
-                    }
-
-                    alt={
-                      song.title ||
-                      "Song cover"
-                    }
-
-                    className="liked-cover"
-
-                    onError={(event) => {
-
-                      if (
-                        !event.currentTarget.src.includes(
-                          "default-cover.png"
-                        )
-                      ) {
-
-                        event.currentTarget.src =
-                          DEFAULT_COVER;
-
-                      }
-
-                    }}
-                  />
-
-
-                  {/* -------------------------------------
-                     SONG INFORMATION
-                  ------------------------------------- */}
-
-                  <div
-                    className="liked-song-info"
-                  >
-
-                    <strong>
-                      {song.title}
-                    </strong>
-
-                    <span>
-                      {
-                        song.artist_name ||
-                        "KEERTHANA"
-                      }
+                    <span className="liked-card-number">
+                      {String(index + 1).padStart(2, "0")}
                     </span>
 
+                    {songIsPlaying && (
+                      <span className="liked-playing-label">
+                        NOW PLAYING
+                      </span>
+                    )}
+
+                    <div className="liked-cover-overlay">
+                      <button
+                        type="button"
+                        className="liked-card-play"
+                        disabled={!song?.audio_url}
+                        aria-label={
+                          songIsPlaying
+                            ? `Pause ${song.title}`
+                            : `Play ${song.title}`
+                        }
+                        onClick={() => handlePlayPause(song)}
+                      >
+                        {songIsPlaying ? <FaPause /> : <FaPlay />}
+                      </button>
+                    </div>
                   </div>
 
+                  {/* Song details */}
+                  <div className="liked-card-details">
+                    <div className="liked-card-text">
+                      <h3 title={song.title}>
+                        {song.title || "Untitled song"}
+                      </h3>
 
-                  {/* -------------------------------------
-                     CATEGORY
-                  ------------------------------------- */}
+                      <p title={song.artist_name || "KEERTHANA"}>
+                        {song.artist_name || "KEERTHANA"}
+                      </p>
+                    </div>
 
-                  <span
-                    className="liked-category"
-                  >
+                    <button
+                      type="button"
+                      className="liked-card-remove"
+                      aria-label={`Remove ${song.title} from liked songs`}
+                      title="Remove from liked songs"
+                      onClick={() => unlikeSong(song.id)}
+                    >
+                      <FaHeart />
+                    </button>
+                  </div>
 
-                    {
-                      song.category_name ||
-                      ""
-                    }
-
-                  </span>
-
-
-                  {/* -------------------------------------
-                     PLAY / PAUSE
-                  ------------------------------------- */}
-
-                  <button
-                    type="button"
-
-                    className={`liked-play ${
-                      songIsPlaying
-                        ? "is-playing"
-                        : ""
-                    }`}
-
-                    disabled={
-                      !song?.audio_url
-                    }
-
-                    aria-label={
-                      songIsPlaying
-                        ? "Pause song"
-                        : "Play song"
-                    }
-
-                    onClick={() =>
-                      handlePlayPause(
-                        song
-                      )
-                    }
-                  >
-
-                    {songIsPlaying
-                      ? <FaPause />
-                      : <FaPlay />
-                    }
-
-                  </button>
-
-
-                  {/* -------------------------------------
-                     REMOVE
-                  ------------------------------------- */}
-
-                  <button
-                    type="button"
-
-                    className="liked-remove"
-
-                    aria-label="Remove liked song"
-
-                    onClick={() =>
-                      unlikeSong(
-                        song.id
-                      )
-                    }
-                  >
-
-                    <FaTrash />
-
-                  </button>
-
-
-                </div>
-
+                  {song.category_name && (
+                    <span className="liked-card-category">
+                      {song.category_name}
+                    </span>
+                  )}
+                </article>
               );
+            })}
+          </div>
+        )}
+      </section>
 
-            }
-          )}
-
-        </div>
-
-      )}
-
-    </div>
-
+    </main>
   );
-
 }
-
 
 export default LikedSongs;

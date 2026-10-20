@@ -704,36 +704,38 @@ const handleMoodChange = (event) => {
      No language-matching validation is performed.
   ===================================================== */
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+ const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    setError("");
-    setSuccess("");
+  setError("");
+  setSuccess("");
 
-    if (!LANGUAGES.some((language) => language.value === form.language)) {
-      setError("Please select a valid song language.");
-      return;
-    }
+  if (!LANGUAGES.some((language) => language.value === form.language)) {
+    alert("Please select a valid song language.");
+    return;
+  }
 
-    if (!form.title.trim()) {
-      setError(`${selectedLanguage.titleLabel} is required.`);
-      return;
-    }
+  if (!form.title.trim()) {
+    alert(`${selectedLanguage.titleLabel} is required.`);
+    return;
+  }
 
-    if (!form.artist_id) {
-      setError("Please select or create an artist.");
-      return;
-    }
+  if (!form.artist_id) {
+    alert("Artist name is required. Please select or create an artist.");
+    return;
+  }
 
-    if (!form.category_id) {
-      setError("Please select or create a category.");
-      return;
-    }
+  if (!form.category_id) {
+    alert("Category is required. Please select or create a category.");
+    return;
+  }
 
-    if (!audioFile) {
-      setError("Please select an audio file.");
-      return;
-    }
+  if (!audioFile) {
+    alert("Audio file is required. Please select an audio file.");
+    return;
+  }
+
+  // Keep all your existing upload logic below this point unchanged.
 
     try {
       setSaving(true);

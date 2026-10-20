@@ -1,27 +1,48 @@
 
 /* =========================================================
-   MOOD SONGS PAGE
+   KEERTHANA — PREMIUM MOOD SONGS PAGE
 ========================================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+
 .mood-songs-page {
+  --ms-bg: #080d1b;
+  --ms-card: #111a2e;
+  --ms-card-hover: #182541;
+  --ms-text: #f5f7ff;
+  --ms-muted: #a0abc2;
+  --ms-blue: #4169e1;
+  --ms-gold: #e7c77b;
+  --ms-border: rgba(255, 255, 255, 0.09);
+
   min-height: 100vh;
-  background: #f7f8fc;
-  color: #1f2937;
   padding-bottom: 130px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(
+      ellipse at 80% 0%,
+      rgba(65, 105, 225, 0.12),
+      transparent 40%
+    ),
+    var(--ms-bg);
+  color: var(--ms-text);
 }
 
-
 /* =========================================================
-   MAIN CONTENT
+   MAIN CONTENT — FIT BESIDE SIDEBAR
 ========================================================= */
 
 .mood-songs-content {
-  margin-left: 280px;
-  padding: 100px 40px 50px;
-  max-width: 1400px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+
+  /* Sidebar occupies 260px; content begins beside it */
+  margin-left: 260px;
+  padding: 90px 30px 50px;
+
   box-sizing: border-box;
 }
-
 
 /* =========================================================
    BACK BUTTON
@@ -31,31 +52,27 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-
   padding: 8px 0;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 
   border: none;
   background: transparent;
-
-  color: #6b7280;
+  color: var(--ms-gold);
 
   font-size: 14px;
-  font-weight: 600;
-
+  font-weight: 650;
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .mood-back-btn:hover {
-  color: #7c3aed;
+  color: #ffe8b0;
   transform: translateX(-3px);
 }
 
-
 /* =========================================================
-   HEADER
+   MOOD HEADER
 ========================================================= */
 
 .mood-songs-header {
@@ -63,39 +80,42 @@
   align-items: center;
   gap: 22px;
 
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 30px;
-  padding: 28px;
+  padding: 26px;
 
-  background: #ffffff;
+  border: 1px solid var(--ms-border);
+  border-radius: 20px;
 
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(65, 105, 225, 0.17),
+      transparent 70%
+    ),
+    #111a2e;
 
-  box-shadow:
-    0 6px 20px rgba(17, 24, 39, 0.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
 .mood-songs-icon {
-  width: 82px;
-  height: 82px;
-
-  flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 22px;
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
 
-  background: linear-gradient(
-    135deg,
-    #7c3aed,
-    #a855f7
-  );
+  border: 1px solid rgba(231, 199, 123, 0.25);
+  border-radius: 21px;
 
-  color: #ffffff;
+  background: linear-gradient(145deg, #4169e1, #263e86);
+  color: #fff;
+  font-size: 30px;
 
-  font-size: 32px;
+  box-shadow: 0 10px 24px rgba(65, 105, 225, 0.22);
 }
 
 .mood-header-info {
@@ -104,34 +124,31 @@
 
 .mood-small-label {
   display: inline-block;
+  margin-bottom: 7px;
 
-  margin-bottom: 6px;
-
-  color: #7c3aed;
-
-  font-size: 11px;
+  color: var(--ms-gold);
+  font-size: 10px;
   font-weight: 800;
-
-  letter-spacing: 1.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
 }
 
 .mood-header-info h1 {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
+  color: var(--ms-text);
 
-  color: #111827;
-
-  font-size: 34px;
-  font-weight: 800;
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 850;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .mood-header-info p {
   margin: 0;
-
-  color: #6b7280;
-
-  font-size: 15px;
+  color: var(--ms-muted);
+  font-size: 14px;
+  line-height: 1.7;
 }
-
 
 /* =========================================================
    ACTIONS
@@ -140,9 +157,9 @@
 .mood-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
-
-  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
 }
 
 .mood-play-all-btn,
@@ -150,255 +167,303 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
 
-  min-height: 44px;
+  min-height: 43px;
+  padding: 0 19px;
 
-  padding: 0 18px;
-
-  border: none;
-  border-radius: 10px;
-
-  font-size: 14px;
-  font-weight: 700;
-
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 750;
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .mood-play-all-btn {
-  background: #7c3aed;
-  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, #4169e1, #294db5);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(65, 105, 225, 0.2);
 }
 
 .mood-play-all-btn:hover:not(:disabled) {
-  background: #6d28d9;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 9px 22px rgba(65, 105, 225, 0.3);
 }
 
 .mood-play-all-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .mood-add-songs-btn {
-  background: #ffffff;
-  color: #7c3aed;
-
-  border: 1px solid #c4b5fd;
+  border: 1px solid rgba(231, 199, 123, 0.35);
+  background: rgba(231, 199, 123, 0.07);
+  color: var(--ms-gold);
 }
 
 .mood-add-songs-btn:hover {
-  background: #f5f3ff;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  background: rgba(231, 199, 123, 0.14);
 }
 
 .mood-song-count {
-  color: #6b7280;
-  font-size: 14px;
-  font-weight: 600;
+  margin-left: auto;
+  color: var(--ms-muted);
+  font-size: 13px;
+  font-weight: 650;
 }
 
-
 /* =========================================================
-   SONG LIST
+   SQUARE SONG CARD GRID
 ========================================================= */
 
 .mood-song-list {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  align-items: stretch;
+  gap: 18px;
+
+  width: 100%;
+  min-width: 0;
 }
 
+/* Square card */
+
 .mood-song-card {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 15px;
+  flex-direction: column;
+  align-items: stretch;
 
-  min-height: 78px;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: 13px;
+  overflow: hidden;
 
-  padding: 9px 14px;
+  border: 1px solid var(--ms-border);
+  border-radius: 17px;
 
-  background: #ffffff;
+  background: linear-gradient(145deg, #151f34, #0f1729);
 
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
 
-  transition: 0.2s ease;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .mood-song-card:hover {
-  border-color: #ddd6fe;
+  transform: translateY(-5px);
+  border-color: rgba(231, 199, 123, 0.38);
 
-  box-shadow:
-    0 7px 20px rgba(17, 24, 39, 0.07);
+  background: linear-gradient(145deg, #1b2945, #111b30);
+
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.26);
 }
 
 .mood-song-card.is-current {
-  background: #f5f3ff;
-  border-color: #c4b5fd;
+  border-color: var(--ms-gold);
+
+  background: linear-gradient(145deg, #1c2a47, #111a2e);
+
+  box-shadow:
+    0 0 0 1px rgba(231, 199, 123, 0.1),
+    0 12px 28px rgba(0, 0, 0, 0.2);
 }
 
-
 /* =========================================================
-   NUMBER
+   SONG NUMBER
 ========================================================= */
 
 .mood-song-number {
-  width: 28px;
-
-  flex-shrink: 0;
-
-  color: #9ca3af;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  text-align: center;
-}
-
-
-/* =========================================================
-   COVER
-========================================================= */
-
-.mood-song-cover {
-  width: 60px;
-  height: 60px;
-
-  flex-shrink: 0;
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  z-index: 2;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+
+  background: rgba(8, 13, 27, 0.86);
+  color: #e0e7f7;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mood-song-card.is-current .mood-song-number {
+  color: var(--ms-gold);
+  border-color: rgba(231, 199, 123, 0.35);
+}
+
+/* =========================================================
+   SQUARE COVER
+========================================================= */
+
+.mood-song-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
   overflow: hidden;
+  margin-bottom: 12px;
 
-  border-radius: 10px;
-
-  background: #ede9fe;
-
-  color: #7c3aed;
+  border-radius: 11px;
+  background: #202b43;
+  color: var(--ms-gold);
 }
 
 .mood-song-cover img {
+  display: block;
   width: 100%;
   height: 100%;
-
   object-fit: cover;
+
+  transition: transform 0.35s ease;
 }
 
+.mood-song-card:hover .mood-song-cover img {
+  transform: scale(1.05);
+}
 
 /* =========================================================
    SONG INFO
 ========================================================= */
 
 .mood-song-info {
-  flex: 1;
   min-width: 0;
-
+  padding-right: 38px;
   cursor: pointer;
 }
 
 .mood-song-info h3 {
+  display: -webkit-box;
   margin: 0 0 5px;
-
-  color: #111827;
-
-  font-size: 15px;
-  font-weight: 700;
-
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+  color: var(--ms-text);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .mood-song-info p {
   margin: 0;
-
-  color: #6b7280;
-
-  font-size: 13px;
-
   overflow: hidden;
+
+  color: var(--ms-muted);
+  font-size: 11px;
+  line-height: 1.5;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.mood-song-card.is-current
-.mood-song-info h3 {
-  color: #7c3aed;
+.mood-song-card.is-current .mood-song-info h3 {
+  color: var(--ms-gold);
 }
-
 
 /* =========================================================
    PLAY BUTTON
 ========================================================= */
 
 .mood-song-play {
-  width: 42px;
-  height: 42px;
-
-  flex-shrink: 0;
+  position: absolute;
+  right: 12px;
+  bottom: 39px;
+  z-index: 3;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border: none;
+  width: 37px;
+  height: 37px;
+  flex-shrink: 0;
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 50%;
 
-  background: #f3f4f6;
-  color: #4b5563;
+  background: rgba(8, 13, 27, 0.92);
+  color: #fff;
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .mood-song-play:hover {
-  background: #ede9fe;
-  color: #7c3aed;
-
-  transform: scale(1.05);
+  transform: scale(1.08);
+  background: var(--ms-blue);
+  color: #fff;
 }
 
-.mood-song-card.is-current
-.mood-song-play {
-  background: #7c3aed;
-  color: #ffffff;
+.mood-song-card.is-current .mood-song-play {
+  background: var(--ms-gold);
+  color: #10182a;
 }
 
+.mood-song-card.is-current .mood-song-play:hover {
+  background: #f1d795;
+}
 
 /* =========================================================
    LOADING
 ========================================================= */
 
 .mood-loading {
-  min-height: 280px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   gap: 14px;
 
-  color: #6b7280;
+  min-height: 280px;
+  color: var(--ms-muted);
 }
 
 .mood-spinner {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
 
-  border: 4px solid #e5e7eb;
-  border-top-color: #7c3aed;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--ms-gold);
+  border-right-color: var(--ms-blue);
 
   border-radius: 50%;
-
-  animation:
-    moodSpin 0.8s linear infinite;
+  animation: moodSpin 0.8s linear infinite;
 }
 
 @keyframes moodSpin {
@@ -407,708 +472,143 @@
   }
 }
 
-
 /* =========================================================
    EMPTY / ERROR
 ========================================================= */
 
 .mood-empty,
 .mood-error {
-  min-height: 270px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
+  min-height: 270px;
+  box-sizing: border-box;
   padding: 40px 25px;
 
-  background: #ffffff;
-
+  border: 1px solid var(--ms-border);
   border-radius: 18px;
 
+  background: var(--ms-card);
   text-align: center;
 }
 
-.mood-empty {
-  border: 1px solid #e5e7eb;
-}
-
 .mood-error {
-  border: 1px solid #fecaca;
+  border-color: rgba(248, 113, 113, 0.28);
 }
 
 .mood-empty > svg,
 .mood-error > svg {
   margin-bottom: 15px;
-
-  font-size: 42px;
+  font-size: 40px;
 }
 
 .mood-empty > svg {
-  color: #7c3aed;
+  color: var(--ms-gold);
 }
 
 .mood-error > svg {
-  color: #dc2626;
+  color: #fb8585;
 }
 
 .mood-empty h2,
 .mood-error h2 {
   margin: 0 0 8px;
-
-  color: #111827;
-
+  color: var(--ms-text);
   font-size: 21px;
 }
 
 .mood-empty p,
 .mood-error p {
   max-width: 500px;
-
   margin: 0 0 20px;
-
-  color: #6b7280;
-
+  color: var(--ms-muted);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .mood-empty button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 
   min-height: 42px;
+  padding: 0 19px;
 
-  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 25px;
 
-  border: none;
-  border-radius: 9px;
-
-  background: #7c3aed;
-  color: #ffffff;
-
+  background: var(--ms-blue);
+  color: #fff;
   font-weight: 700;
-
   cursor: pointer;
 }
 
+.mood-empty button:hover {
+  background: #3157c9;
+}
 
 /* =========================================================
-   BROWSER OVERLAY
+   TABLET — SIDEBAR / CONTENT
 ========================================================= */
 
-.mood-browser-overlay {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 9999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 25px;
-
-  background: rgba(17, 24, 39, 0.62);
-
-  backdrop-filter: blur(4px);
-}
-
-
-/* =========================================================
-   BROWSER
-========================================================= */
-
-.mood-browser {
-  width: min(900px, 100%);
-
-  max-height: 88vh;
-
-  display: flex;
-  flex-direction: column;
-
-  overflow: hidden;
-
-  background: #ffffff;
-
-  border-radius: 20px;
-
-  box-shadow:
-    0 25px 70px rgba(0, 0, 0, 0.25);
-}
-
-
-/* =========================================================
-   BROWSER HEADER
-========================================================= */
-
-.mood-browser-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  padding: 25px 28px 20px;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.mood-browser-header span {
-  color: #7c3aed;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 1.5px;
-}
-
-.mood-browser-header h2 {
-  margin: 5px 0;
-
-  color: #111827;
-
-  font-size: 24px;
-}
-
-.mood-browser-header p {
-  margin: 0;
-
-  color: #6b7280;
-
-  font-size: 13px;
-}
-
-.mood-browser-header strong {
-  color: #7c3aed;
-}
-
-.mood-browser-close {
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border: none;
-  border-radius: 50%;
-
-  background: #f3f4f6;
-  color: #6b7280;
-
-  cursor: pointer;
-
-  transition: 0.2s ease;
-}
-
-.mood-browser-close:hover {
-  background: #ede9fe;
-  color: #7c3aed;
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-.mood-browser-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  margin: 18px 25px;
-
-  padding: 0 15px;
-
-  height: 44px;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-
-  background: #f9fafb;
-}
-
-.mood-browser-search svg {
-  color: #9ca3af;
-}
-
-.mood-browser-search input {
-  flex: 1;
-
-  width: 100%;
-
-  border: none;
-  outline: none;
-
-  background: transparent;
-
-  color: #111827;
-
-  font-size: 14px;
-}
-
-.mood-browser-search input::placeholder {
-  color: #9ca3af;
-}
-
-
-/* =========================================================
-   BROWSER LIST
-========================================================= */
-
-.mood-browser-list {
-  flex: 1;
-
-  overflow-y: auto;
-
-  padding: 0 25px 15px;
-}
-
-
-/* =========================================================
-   BROWSER SONG
-========================================================= */
-
-.mood-browser-song {
-  position: relative;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  min-height: 72px;
-
-  padding: 9px 10px;
-
-  border-bottom: 1px solid #f0f0f0;
-
-  transition: 0.2s ease;
-}
-
-.mood-browser-song:hover {
-  background: #faf9ff;
-}
-
-.mood-browser-song.already-added {
-  background: #f7f5ff;
-}
-
-
-/* =========================================================
-   BROWSER COVER
-========================================================= */
-
-.mood-browser-cover {
-  width: 54px;
-  height: 54px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  overflow: hidden;
-
-  border-radius: 8px;
-
-  background: #ede9fe;
-
-  color: #7c3aed;
-}
-
-.mood-browser-cover img {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-}
-
-
-/* =========================================================
-   BROWSER INFO
-========================================================= */
-
-.mood-browser-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.mood-browser-info h3 {
-  margin: 0 0 4px;
-
-  color: #111827;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mood-browser-info p {
-  margin: 0 0 3px;
-
-  color: #6b7280;
-
-  font-size: 12px;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mood-browser-info small {
-  color: #9ca3af;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   BROWSER ACTION
-========================================================= */
-
-.mood-browser-action {
-  flex-shrink: 0;
-}
-
-.mood-add-btn,
-.mood-remove-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-
-  min-width: 82px;
-  height: 36px;
-
-  padding: 0 12px;
-
-  border-radius: 8px;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: 0.2s ease;
-}
-
-.mood-add-btn {
-  border: none;
-
-  background: #7c3aed;
-  color: #ffffff;
-}
-
-.mood-add-btn:hover:not(:disabled) {
-  background: #6d28d9;
-}
-
-.mood-remove-btn {
-  border: 1px solid #fecaca;
-
-  background: #ffffff;
-  color: #dc2626;
-}
-
-.mood-remove-btn:hover:not(:disabled) {
-  background: #fef2f2;
-}
-
-.mood-add-btn:disabled,
-.mood-remove-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-
-/* =========================================================
-   ADDED BADGE
-========================================================= */
-
-.mood-added-badge {
-  position: absolute;
-
-  top: 6px;
-  right: 10px;
-
-  display: none;
-
-  align-items: center;
-  gap: 4px;
-
-  color: #16a34a;
-
-  font-size: 9px;
-  font-weight: 700;
-}
-
-
-/* =========================================================
-   BROWSER EMPTY
-========================================================= */
-
-.mood-browser-empty,
-.mood-browser-loading {
-  min-height: 300px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  padding: 30px;
-
-  text-align: center;
-}
-
-.mood-browser-empty svg {
-  margin-bottom: 12px;
-
-  color: #7c3aed;
-
-  font-size: 38px;
-}
-
-.mood-browser-empty h3 {
-  margin: 0 0 7px;
-
-  color: #111827;
-}
-
-.mood-browser-empty p {
-  margin: 0;
-
-  color: #6b7280;
-
-  font-size: 13px;
-}
-
-
-/* =========================================================
-   BROWSER FOOTER
-========================================================= */
-
-.mood-browser-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 15px 25px;
-
-  border-top: 1px solid #e5e7eb;
-
-  background: #fafafa;
-}
-
-.mood-browser-footer span {
-  color: #6b7280;
-
-  font-size: 12px;
-}
-
-.mood-browser-footer button {
-  min-width: 80px;
-  height: 38px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #7c3aed;
-  color: #ffffff;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-.mood-browser-footer button:hover {
-  background: #6d28d9;
-}
-
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 900px) {
-
+@media (max-width: 1100px) {
   .mood-songs-content {
-    margin-left: 0;
-
-    padding: 90px 25px 45px;
+    margin-left: 240px;
+    padding: 85px 22px 45px;
   }
 
-  .mood-songs-header {
-    padding: 24px;
-  }
-
-  .mood-songs-icon {
-    width: 70px;
-    height: 70px;
-  }
-
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 600px) {
-
-  .mood-songs-content {
-    padding: 82px 15px 35px;
-  }
-
-  .mood-songs-header {
+  .mood-song-list {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
     gap: 14px;
+  }
+}
 
-    padding: 18px;
+/* =========================================================
+   MOBILE — SIDEBAR USUALLY COLLAPSED
+========================================================= */
 
-    border-radius: 15px;
+@media (max-width: 760px) {
+  .mood-songs-content {
+    width: 100%;
+    margin-left: 0;
+    padding: 85px 18px 40px;
+  }
+
+  .mood-songs-header {
+    gap: 15px;
+    padding: 20px;
   }
 
   .mood-songs-icon {
-    width: 58px;
-    height: 58px;
-
-    border-radius: 15px;
-
-    font-size: 23px;
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    font-size: 24px;
   }
 
   .mood-header-info h1 {
-    font-size: 23px;
+    font-size: 25px;
   }
 
   .mood-header-info p {
     font-size: 12px;
   }
 
-  .mood-actions {
-    flex-wrap: wrap;
-  }
-
-  .mood-play-all-btn,
-  .mood-add-songs-btn {
-    flex: 1;
-  }
-
-  .mood-song-number {
-    display: none;
+  .mood-song-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .mood-song-card {
-    gap: 10px;
-
-    padding: 8px;
-  }
-
-  .mood-song-cover {
-    width: 52px;
-    height: 52px;
-  }
-
-  .mood-song-play {
-    width: 38px;
-    height: 38px;
-  }
-
-  .mood-browser-overlay {
     padding: 10px;
+    border-radius: 14px;
   }
 
-  .mood-browser {
-    max-height: 94vh;
-
-    border-radius: 15px;
-  }
-
-  .mood-browser-header {
-    padding: 20px;
-  }
-
-  .mood-browser-header h2 {
-    font-size: 20px;
-  }
-
-  .mood-browser-search {
-    margin: 14px 15px;
-  }
-
-  .mood-browser-list {
-    padding: 0 15px 10px;
-  }
-
-  .mood-browser-song {
-    gap: 9px;
-  }
-
-  .mood-browser-cover {
-    width: 48px;
-    height: 48px;
-  }
-
-  .mood-browser-info h3 {
-    font-size: 13px;
-  }
-
-  .mood-browser-info p {
-    font-size: 11px;
-  }
-
-  .mood-add-btn,
-  .mood-remove-btn {
-    min-width: 65px;
-
-    padding: 0 8px;
-
-    font-size: 10px;
-  }
-
-  .mood-browser-footer {
-    padding: 12px 15px;
-  }
-}
-
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 400px) {
-
-  .mood-songs-content {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  .mood-songs-icon {
-    width: 50px;
-    height: 50px;
-
-    font-size: 20px;
-  }
-
-  .mood-header-info h1 {
-    font-size: 20px;
-  }
-
-  .mood-song-cover {
-    width: 48px;
-    height: 48px;
+  .mood-song-info {
+    padding-right: 0;
   }
 
   .mood-song-info h3 {
@@ -1119,5 +619,248 @@
     font-size: 10px;
   }
 
+  .mood-song-play {
+    right: 9px;
+    bottom: 35px;
+    width: 32px;
+    height: 32px;
+  }
 }
 
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+  .mood-songs-content {
+    padding-right: 11px;
+    padding-left: 11px;
+  }
+
+  .mood-songs-header {
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .mood-songs-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .mood-header-info h1 {
+    font-size: 21px;
+  }
+
+  .mood-song-list {
+    gap: 9px;
+  }
+
+  .mood-song-card {
+    padding: 8px;
+  }
+
+  .mood-song-info h3 {
+    font-size: 11px;
+  }
+
+  .mood-song-play {
+    right: 7px;
+    bottom: 31px;
+    width: 29px;
+    height: 29px;
+  }
+}
+/* =========================================
+   MOOD SONGS — PAGE SPACING FIX
+   ========================================= */
+
+.mood-songs-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-top: 0;
+}
+
+/* Main content: closer to sidebar and top header */
+/* Main content — closer to sidebar */
+.mood-songs-content {
+  margin-left: 50px;
+  
+  width: calc(100% - 260px);
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+
+  /* Reduce the gap between sidebar and content */
+  padding: 28px 20px 48px;
+}
+
+/* Back button: tighter spacing */
+.mood-songs-back,
+.mood-songs-back-btn,
+.back-to-moods {
+  margin: 0 0 20px;
+  padding: 8px 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #f2c96d;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Worship / mood header */
+.mood-songs-header {
+  margin: 0 0 24px;
+  padding: 24px 28px;
+
+  border-radius: 22px;
+  box-sizing: border-box;
+}
+
+/* Play All and Add Songs row */
+.mood-songs-actions {
+  margin: 0 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Song grid stays aligned with the header */
+.mood-song-list {
+  margin-top: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive layout */
+@media (max-width: 1100px) {
+  .mood-songs-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    padding: 24px 22px 40px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mood-songs-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 18px 14px 32px;
+  }
+
+  .mood-songs-back,
+  .mood-songs-back-btn,
+  .back-to-moods {
+    margin-bottom: 14px;
+  }
+
+  .mood-songs-header {
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+
+  .mood-songs-actions {
+    gap: 12px;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — MOOD SONGS TYPOGRAPHY
+   Consistent Premium App-Wide Font
+========================================================= */
+
+.mood-songs-page,
+.mood-songs-page button {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+}
+
+/* Back navigation */
+.mood-back-btn,
+.mood-songs-back,
+.mood-songs-back-btn,
+.back-to-moods {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+
+/* Page heading */
+.mood-header-info h1 {
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+}
+
+/* Small gold label */
+.mood-small-label {
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+/* Description */
+.mood-header-info p {
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  line-height: 1.7;
+}
+
+/* Action buttons */
+.mood-play-all-btn,
+.mood-add-songs-btn {
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+
+/* Song titles */
+.mood-song-info h3 {
+  font-weight: 650;
+  letter-spacing: -0.15px;
+  line-height: 1.45;
+}
+
+/* Artist names and supporting text */
+.mood-song-info p,
+.mood-song-count,
+.mood-loading,
+.mood-empty p,
+.mood-error p {
+  font-weight: 400;
+  letter-spacing: 0.1px;
+}
+
+/* Song number */
+.mood-song-number {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty and error headings */
+.mood-empty h2,
+.mood-error h2 {
+  font-weight: 750;
+  letter-spacing: -0.3px;
+}
+
+/* Consistent keyboard focus */
+.mood-songs-page button:focus-visible {
+  outline: 2px solid var(--ms-gold);
+  outline-offset: 3px;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .mood-songs-page *,
+  .mood-songs-page *::before,
+  .mood-songs-page *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,665 +1,587 @@
 /* =========================================================
-   KEERTHANA HEADER
-   Premium Christian Music UI
+   KEERTHANA — PREMIUM MUSIC HEADER
+   Amazon Music-inspired layout; existing routes and handlers
+   remain in Header.jsx.
 ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
 
 .keerthana-header {
   position: sticky;
   top: 0;
   z-index: 1000;
-
-  width: 100%;
-  min-height: 76px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  gap: 24px;
-
-  padding: 12px 24px;
-
-  box-sizing: border-box;
-
+  gap: 22px;
+  width: 100%;
+  min-height: 82px;
+  padding: 13px clamp(18px, 2.6vw, 38px);
+  color: #f8fafc;
   background:
-    linear-gradient(
-      135deg,
-      rgba(11, 40, 30, 0.97),
-      rgba(18, 55, 42, 0.96)
-    );
-
-  border-bottom: 1px solid
-    rgba(201, 164, 92, 0.16);
-
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.18);
-
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+    radial-gradient(ellipse at 18% -80%, rgba(218, 171, 76, 0.16), transparent 48%),
+    linear-gradient(110deg, #09111f 0%, #0c1728 48%, #101827 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
 }
 
+.keerthana-header * {
+  box-sizing: border-box;
+}
 
-/* =========================================================
-   LEFT
-========================================================= */
-
-.keerthana-header-left {
-  min-width: 0;
-
+.keerthana-header-left,
+.keerthana-header-right {
   display: flex;
   align-items: center;
-
-  gap: 12px;
+  min-width: 0;
 }
 
+.keerthana-header-left {
+  gap: 13px;
+  flex: 1 1 auto;
+}
 
-/* =========================================================
-   MENU
-========================================================= */
+.keerthana-header-right {
+  gap: 14px;
+  flex: 0 1 620px;
+  justify-content: flex-end;
+}
 
-.header-menu-button {
-  width: 44px;
-  height: 44px;
-
-  flex-shrink: 0;
-
+.header-menu-button,
+.header-circle-button,
+.header-notification-button,
+.header-voice-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  border: 1px solid
-    rgba(201, 164, 92, 0.22);
-
-  border-radius: 13px;
-
-  background:
-    rgba(255, 255, 255, 0.045);
-
-  color: #f8f4e8;
-
-  font-size: 17px;
-
+  flex: 0 0 auto;
+  color: #dbe4f1;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
   cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
 }
 
-.header-menu-button:hover {
-  transform: translateY(-1px);
-
-  background:
-    rgba(201, 164, 92, 0.12);
-
-  border-color:
-    rgba(201, 164, 92, 0.45);
-
-  color: #c9a45c;
+.header-menu-button:hover,
+.header-circle-button:hover,
+.header-notification-button:hover,
+.header-voice-button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(224, 183, 93, 0.4);
 }
 
+.header-menu-button:focus-visible,
+.header-circle-button:focus-visible,
+.header-nav-link:focus-visible,
+.header-search-input:focus-visible,
+.header-voice-button:focus-visible,
+.header-notification-button:focus-visible,
+.header-login-button:focus-visible {
+  outline: 2px solid #e6bd68;
+  outline-offset: 3px;
+}
 
-/* =========================================================
-   BACK / FORWARD
-========================================================= */
+.header-menu-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 16px;
+}
 
 .header-history-buttons {
   display: flex;
-  align-items: center;
-  gap: 7px;
+  gap: 6px;
 }
 
 .header-circle-button {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 12px;
+}
 
+.header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  color: inherit;
+  text-decoration: none;
+  margin: 0 5px 0 2px;
+}
+
+.header-brand-mark,
+.header-mobile-logo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  border: none;
-  border-radius: 50%;
-
-  background:
-    rgba(255, 255, 255, 0.055);
-
-  color: rgba(255, 255, 255, 0.75);
-
-  font-size: 13px;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+  flex: 0 0 auto;
+  color: #101827;
+  background: linear-gradient(145deg, #ffe7a2 0%, #d6a746 56%, #a97826 100%);
+  box-shadow: 0 4px 18px rgba(214, 167, 70, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-.header-circle-button:hover {
-  background:
-    rgba(201, 164, 92, 0.13);
-
-  color: #c9a45c;
-
-  transform: translateY(-1px);
+.header-brand-mark {
+  width: 43px;
+  height: 43px;
+  border-radius: 14px;
+  font-size: 18px;
 }
 
-
-/* =========================================================
-   PAGE INFO
-========================================================= */
-
-.header-page-info {
-  min-width: 150px;
-
+.header-brand-copy,
+.header-mobile-brand-text {
   display: flex;
   flex-direction: column;
-
-  gap: 1px;
-
-  margin-left: 4px;
+  gap: 3px;
+  white-space: nowrap;
 }
 
-.header-page-info span {
-  font-size: 10px;
-  font-weight: 700;
+.header-brand-copy strong {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: 1.5px;
+  line-height: 1.1;
+}
 
-  letter-spacing: 0.22em;
+.header-brand-copy small {
+  color: #d6b66d;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+}
 
-  color:
-    rgba(201, 164, 92, 0.78);
+.header-primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 3px;
+}
 
-  text-transform: uppercase;
+.header-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 13px;
+  color: #aeb9ca;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+  border-radius: 11px;
+  transition: color 160ms ease, background 160ms ease;
+  white-space: nowrap;
+}
+
+.header-nav-link svg {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.header-nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.header-nav-link.active {
+  color: #ffe4a0;
+  background: rgba(218, 171, 76, 0.12);
+}
+
+.header-nav-link.active::after {
+  position: absolute;
+  right: 14px;
+  bottom: 2px;
+  left: 14px;
+  height: 2px;
+  content: "";
+  background: #dcb55e;
+  border-radius: 3px;
+}
+
+.header-page-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 92px;
+  margin-left: 7px;
+  padding-left: 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.header-page-info > span {
+  color: #7f8da3;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
 }
 
 .header-page-info h2 {
   margin: 0;
-
-  font-size: 20px;
-  line-height: 1.2;
-
-  font-weight: 700;
-
-  color: #fffdf6;
-
-  white-space: nowrap;
+  color: #f7f8fb;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.3;
 }
-
-
-/* =========================================================
-   MOBILE BRAND
-========================================================= */
-
-.header-mobile-brand {
-  display: none;
-
-  align-items: center;
-
-  gap: 10px;
-
-  text-decoration: none;
-
-  color: inherit;
-}
-
-.header-mobile-logo {
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 12px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #c9a45c,
-      #9f7b38
-    );
-
-  color: #102c21;
-
-  box-shadow:
-    0 5px 18px
-    rgba(201, 164, 92, 0.20);
-}
-
-.header-mobile-logo svg {
-  font-size: 16px;
-}
-
-.header-mobile-brand-text {
-  display: flex;
-  flex-direction: column;
-
-  line-height: 1.1;
-}
-
-.header-mobile-brand-text strong {
-  font-family:
-    "Cormorant Garamond",
-    serif;
-
-  font-size: 17px;
-  letter-spacing: 0.08em;
-
-  color: #fffdf6;
-}
-
-.header-mobile-brand-text span {
-  margin-top: 3px;
-
-  font-size: 9px;
-
-  color:
-    rgba(255, 255, 255, 0.55);
-
-  letter-spacing: 0.04em;
-}
-
-
-/* =========================================================
-   RIGHT
-========================================================= */
-
-.keerthana-header-right {
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
 
 .header-search-box {
-  position: relative;
-
-  width: min(430px, 32vw);
-  height: 46px;
-
   display: flex;
   align-items: center;
-
-  padding: 0 10px 0 16px;
-
-  box-sizing: border-box;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.09);
-
-  border-radius: 16px;
-
-  background:
-    rgba(255, 255, 255, 0.075);
-
-  transition:
-    border-color 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+  gap: 10px;
+  width: min(100%, 410px);
+  min-width: 180px;
+  height: 44px;
+  padding: 0 10px 0 15px;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.105);
+  border-radius: 14px;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.header-search-box:focus-within {
-  background:
-    rgba(255, 255, 255, 0.10);
-
-  border-color:
-    rgba(201, 164, 92, 0.50);
-
-  box-shadow:
-    0 0 0 3px
-    rgba(201, 164, 92, 0.08);
-}
-
+.header-search-box:focus-within,
 .header-search-listening {
-  border-color:
-    rgba(201, 164, 92, 0.65);
-
-  box-shadow:
-    0 0 0 3px
-    rgba(201, 164, 92, 0.08);
+  background: rgba(255, 255, 255, 0.105);
+  border-color: rgba(225, 184, 94, 0.65);
+  box-shadow: 0 0 0 3px rgba(225, 184, 94, 0.08);
 }
 
 .header-search-icon {
-  flex-shrink: 0;
-
-  color:
-    rgba(255, 255, 255, 0.50);
-
+  flex: 0 0 auto;
+  color: #9aa9bd;
   font-size: 14px;
 }
 
 .header-search-input {
-  min-width: 0;
   width: 100%;
-
-  height: 100%;
-
-  padding: 0 10px;
-
-  border: none;
-  outline: none;
-
+  min-width: 0;
+  padding: 0;
+  color: #f8fafc;
   background: transparent;
-
-  color: #fffdf6;
-
-  font-size: 13px;
-
-  font-family: inherit;
+  border: 0;
+  outline: none;
+  font: inherit;
+  font-size: 12px;
 }
 
 .header-search-input::placeholder {
-  color:
-    rgba(255, 255, 255, 0.45);
+  color: #8997aa;
+  opacity: 1;
 }
-
-
-/* =========================================================
-   VOICE
-========================================================= */
 
 .header-voice-button {
-  width: 32px;
-  height: 32px;
-
-  flex-shrink: 0;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-  border-radius: 10px;
-
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  color: #b8c3d2;
   background: transparent;
-
-  color:
-    rgba(255, 255, 255, 0.55);
-
-  font-size: 14px;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.header-voice-button:hover {
-  background:
-    rgba(201, 164, 92, 0.12);
-
-  color: #c9a45c;
+  font-size: 13px;
 }
 
 .header-voice-button-active {
-  background:
-    rgba(201, 164, 92, 0.16);
-
-  color: #c9a45c;
-
-  animation:
-    header-pulse 1.4s ease-in-out infinite;
+  color: #fff;
+  background: #b84a50;
+  animation: keerthana-voice-pulse 1.2s ease-in-out infinite;
 }
-
-@keyframes header-pulse {
-  0% {
-    box-shadow:
-      0 0 0 0
-      rgba(201, 164, 92, 0.30);
-  }
-
-  70% {
-    box-shadow:
-      0 0 0 7px
-      rgba(201, 164, 92, 0);
-  }
-
-  100% {
-    box-shadow:
-      0 0 0 0
-      rgba(201, 164, 92, 0);
-  }
-}
-
-
-/* =========================================================
-   KEYBOARD SHORTCUT
-========================================================= */
 
 .header-search-box kbd {
-  flex-shrink: 0;
-
-  min-width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
   height: 22px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-left: 2px;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.10);
-
-  border-radius: 6px;
-
-  background:
-    rgba(0, 0, 0, 0.12);
-
-  color:
-    rgba(255, 255, 255, 0.38);
-
-  font-family: inherit;
-
-  font-size: 11px;
-}
-
-
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-.header-notification-button {
-  position: relative;
-
-  width: 44px;
-  height: 44px;
-
-  flex-shrink: 0;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.08);
-
-  border-radius: 13px;
-
-  background:
-    rgba(255, 255, 255, 0.045);
-
-  color:
-    rgba(255, 255, 255, 0.76);
-
-  text-decoration: none;
-
-  font-size: 16px;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.header-notification-button:hover {
-  transform: translateY(-1px);
-
-  background:
-    rgba(201, 164, 92, 0.11);
-
-  border-color:
-    rgba(201, 164, 92, 0.40);
-
-  color: #c9a45c;
-}
-
-
-/* =========================================================
-   NOTIFICATION BADGE
-========================================================= */
-
-.header-notification-badge {
-  position: absolute;
-
-  top: -4px;
-  right: -4px;
-
-  min-width: 18px;
-  height: 18px;
-
   padding: 0 5px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-sizing: border-box;
-
-  border: 2px solid #12372a;
-
-  border-radius: 999px;
-
-  background: #c9a45c;
-
-  color: #102c21;
-
-  font-size: 9px;
-  font-weight: 800;
-
+  color: #7f8da1;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 11px;
   line-height: 1;
 }
 
+.header-notification-button {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  color: #c8d2df;
+  text-decoration: none;
+  font-size: 16px;
+}
 
-/* =========================================================
-   LOGIN
-========================================================= */
+.header-notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  color: #fff;
+  background: #d84d56;
+  border: 2px solid #0c1728;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+}
 
 .header-login-button {
-  height: 44px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
-
-  padding: 0 17px;
-
-  border: 1px solid
-    rgba(201, 164, 92, 0.35);
-
+  min-height: 42px;
+  padding: 0 16px;
+  color: #172033;
+  background: linear-gradient(135deg, #ffe7a2 0%, #dfb557 100%);
+  border: 1px solid rgba(255, 232, 170, 0.65);
   border-radius: 13px;
-
-  background:
-    rgba(201, 164, 92, 0.10);
-
-  color: #f6e7bd;
-
-  font-size: 13px;
-  font-weight: 700;
-
+  box-shadow: 0 5px 18px rgba(214, 167, 70, 0.12);
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  transition: transform 160ms ease, filter 160ms ease;
+  white-space: nowrap;
 }
 
 .header-login-button:hover {
+  filter: brightness(1.06);
   transform: translateY(-1px);
-
-  background:
-    rgba(201, 164, 92, 0.17);
-
-  border-color:
-    rgba(201, 164, 92, 0.60);
 }
 
-.header-login-button svg {
-  font-size: 13px;
+.header-mobile-brand {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-decoration: none;
 }
 
+.header-mobile-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  font-size: 15px;
+}
 
-/* =========================================================
-   TABLET
-========================================================= */
+.header-mobile-brand-text strong {
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 1.2px;
+}
 
-@media (max-width: 1000px) {
+.header-mobile-brand-text small {
+  color: #d6b66d;
+  font-size: 9px;
+}
 
+@keyframes keerthana-voice-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(216, 77, 86, 0.22); }
+  50% { box-shadow: 0 0 0 5px rgba(216, 77, 86, 0); }
+}
+
+/* Laptop */
+@media (max-width: 1450px) {
   .keerthana-header {
-    padding: 11px 16px;
     gap: 14px;
-  }
-
-  .header-page-info {
-    min-width: 100px;
-  }
-
-  .header-page-info h2 {
-    font-size: 18px;
-  }
-
-  .header-search-box {
-    width: min(360px, 35vw);
-  }
-
-  .header-login-button span {
-    display: none;
-  }
-
-  .header-login-button {
-    width: 44px;
-    padding: 0;
-  }
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 700px) {
-
-  .keerthana-header {
-    min-height: 68px;
-
-    padding: 9px 12px;
-
-    gap: 9px;
+    padding-right: 22px;
+    padding-left: 22px;
   }
 
   .keerthana-header-left {
-    gap: 7px;
+    gap: 9px;
+  }
+
+  .header-nav-link {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .header-page-info {
+    display: none;
+  }
+
+  .keerthana-header-right {
+    flex-basis: 480px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1080px) {
+  .header-history-buttons {
+    display: none;
+  }
+
+  .header-brand-copy {
+    display: none;
+  }
+
+  .header-brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-primary-nav {
+    margin-left: 0;
+  }
+
+  .header-nav-link {
+    gap: 6px;
+    padding: 0 9px;
+  }
+
+  .header-search-box {
+    min-width: 155px;
+  }
+
+  .header-search-box kbd {
+    display: none;
+  }
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .keerthana-header {
+    position: sticky;
+    min-height: 68px;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 13px;
+  }
+
+  .keerthana-header-left {
+    flex: 1 1 auto;
+    gap: 9px;
   }
 
   .header-menu-button {
-    width: 40px;
-    height: 40px;
-
+    width: 36px;
+    height: 36px;
     border-radius: 11px;
+  }
+
+  .header-brand,
+  .header-primary-nav,
+  .header-history-buttons,
+  .header-page-info {
+    display: none;
+  }
+
+  .header-mobile-brand {
+    display: inline-flex;
+  }
+
+  .keerthana-header-right {
+    display: contents;
+  }
+
+  .header-search-box {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    margin-top: 1px;
+  }
+
+  .header-notification-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    font-size: 15px;
+  }
+
+  .header-notification-badge {
+    top: -4px;
+    right: -4px;
+  }
+
+  .header-login-button {
+    min-height: 36px;
+    gap: 6px;
+    padding: 0 11px;
+    border-radius: 11px;
+  }
+
+  .header-login-button span {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .keerthana-header {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .header-mobile-brand-text strong {
+    font-size: 11px;
+  }
+
+  .header-mobile-brand-text small {
+    font-size: 8px;
+  }
+
+  .header-login-button {
+    padding: 0 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-header *,
+  .keerthana-header *::before,
+  .keerthana-header *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Clean header: sidebar owns Home, Explore and Library navigation */
+
+.keerthana-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.keerthana-header-left {
+  flex: 0 1 auto;
+  gap: 14px;
+}
+
+.keerthana-header-right {
+  flex: 1 1 420px;
+  min-width: 0;
+  gap: 12px;
+}
+
+.header-brand {
+  margin-right: 8px;
+}
+
+.header-page-info {
+  min-width: 0;
+}
+
+.header-search-box {
+  flex: 1 1 320px;
+  width: 100%;
+  max-width: 460px;
+  min-width: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 1080px) {
+  .keerthana-header {
+    gap: 12px;
   }
 
   .header-history-buttons {
@@ -670,129 +592,380 @@
     display: none;
   }
 
-  .header-mobile-brand {
-    display: flex;
-  }
-
   .keerthana-header-right {
-    flex: 1;
-
-    justify-content: flex-end;
-
-    gap: 7px;
-  }
-
-  .header-search-box {
-    flex: 1;
-
-    width: auto;
-    max-width: none;
-
-    height: 42px;
-
-    border-radius: 13px;
-
-    padding-left: 12px;
-  }
-
-  .header-search-input {
-    font-size: 12px;
-
-    padding-left: 7px;
-  }
-
-  .header-search-box kbd {
-    display: none;
-  }
-
-  .header-voice-button {
-    width: 30px;
-    height: 30px;
-  }
-
-  .header-notification-button {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 11px;
-  }
-
-  .header-login-button {
-    display: none;
+    flex-basis: 360px;
   }
 }
 
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 460px) {
-
+@media (max-width: 760px) {
   .keerthana-header {
-    padding: 8px 10px;
+    flex-wrap: wrap;
   }
 
-  .header-mobile-brand-text {
-    display: none;
+  .keerthana-header-left {
+    flex: 1 1 auto;
   }
 
-  .header-mobile-logo {
-    width: 38px;
-    height: 38px;
+  .keerthana-header-right {
+    display: contents;
   }
 
   .header-search-box {
-    height: 40px;
+    order: 3;
+    flex: 1 0 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
+/* =========================================================
+   KEERTHANA — PREMIUM MIDNIGHT NAVY HEADER
+   Matches the homepage theme
+   CSS ONLY — keep Header.jsx logic unchanged
+========================================================= */
+
+.keerthana-header {
+  background:
+    radial-gradient(
+      ellipse at 15% -80%,
+      rgba(57, 120, 246, 0.16),
+      transparent 50%
+    ),
+    linear-gradient(
+      110deg,
+      #080D1A 0%,
+      #111B30 48%,
+      #0B1426 100%
+    ) !important;
+
+  color: #F6F8FF;
+  border-bottom: 1px solid rgba(177, 198, 235, 0.14);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.24);
+}
+
+/* Menu, history and notification buttons */
+.keerthana-header .header-menu-button,
+.keerthana-header .header-circle-button,
+.keerthana-header .header-notification-button {
+  color: #D5DEEF;
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(177, 198, 235, 0.13);
+}
+
+.keerthana-header .header-menu-button:hover,
+.keerthana-header .header-circle-button:hover,
+.keerthana-header .header-notification-button:hover {
+  color: #FFFFFF;
+  background: rgba(57, 120, 246, 0.15);
+  border-color: rgba(110, 157, 255, 0.42);
+}
+
+/* KEERTHANA logo: preserve premium champagne gold */
+.keerthana-header .header-brand-mark,
+.keerthana-header .header-mobile-logo {
+  color: #10182A;
+  background: linear-gradient(
+    145deg,
+    #FFE6B0 0%,
+    #E8C98A 56%,
+    #C49A4C 100%
+  );
+  box-shadow:
+    0 4px 18px rgba(232, 201, 138, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* Brand typography */
+.keerthana-header .header-brand-copy strong,
+.keerthana-header .header-mobile-brand-text strong {
+  color: #F8FAFF;
+}
+
+.keerthana-header .header-brand-copy small,
+.keerthana-header .header-mobile-brand-text small {
+  color: #E8C98A;
+}
+
+/* Search bar */
+.keerthana-header .header-search-box {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(177, 198, 235, 0.14);
+}
+
+.keerthana-header .header-search-box:focus-within,
+.keerthana-header .header-search-listening {
+  background: rgba(255, 255, 255, 0.085);
+  border-color: #6195FF;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.13);
+}
+
+.keerthana-header .header-search-icon {
+  color: #9EB5DE;
+}
+
+.keerthana-header .header-search-input {
+  color: #F6F8FF;
+}
+
+.keerthana-header .header-search-input::placeholder {
+  color: #8998B2;
+}
+
+/* Keyboard shortcut */
+.keerthana-header .header-search-box kbd {
+  color: #A7B3C9;
+  background: rgba(0, 0, 0, 0.18);
+  border-color: rgba(177, 198, 235, 0.15);
+}
+
+/* Page title */
+.keerthana-header .header-page-info {
+  border-left-color: rgba(177, 198, 235, 0.16);
+}
+
+.keerthana-header .header-page-info > span {
+  color: #8EAFFF;
+}
+
+.keerthana-header .header-page-info h2 {
+  color: #F6F8FF;
+}
+
+/* Login button */
+.keerthana-header .header-login-button {
+  color: #10182A;
+  background: linear-gradient(
+    135deg,
+    #FFE6B0 0%,
+    #E8C98A 100%
+  );
+  border-color: rgba(255, 230, 176, 0.55);
+  box-shadow: 0 5px 18px rgba(232, 201, 138, 0.12);
+}
+
+.keerthana-header .header-login-button:hover {
+  filter: brightness(1.06);
+}
+
+/* Accessible keyboard focus */
+.keerthana-header .header-menu-button:focus-visible,
+.keerthana-header .header-circle-button:focus-visible,
+.keerthana-header .header-nav-link:focus-visible,
+.keerthana-header .header-search-input:focus-visible,
+.keerthana-header .header-voice-button:focus-visible,
+.keerthana-header .header-notification-button:focus-visible,
+.keerthana-header .header-login-button:focus-visible {
+  outline-color: #8EB5FF;
+}
+
+/* Notification badge remains clearly visible */
+.keerthana-header .header-notification-badge {
+  color: #FFFFFF;
+  background: #D84D56;
+  border-color: #0B1426;
+}
+
+/* Voice search active state */
+.keerthana-header .header-voice-button-active {
+  color: #FFFFFF;
+  background: #B94350;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-header *,
+  .keerthana-header *::before,
+  .keerthana-header *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — PREMIUM HEADER TYPOGRAPHY
+   Outfit + Inter + Noto Sans Telugu
+   Midnight Navy • Ocean Blue • Champagne Gold
+   CSS ONLY — preserve existing Header.jsx functionality
+========================================================= */
+
+/* Apply professional fonts throughout the header */
+.keerthana-header,
+.keerthana-header button,
+.keerthana-header input,
+.keerthana-header a,
+.keerthana-header span,
+.keerthana-header small,
+.keerthana-header strong,
+.keerthana-header h2,
+.keerthana-header kbd {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    system-ui,
+    sans-serif;
+}
+
+/* Brand name — premium music identity */
+.keerthana-header .header-brand-copy strong,
+.keerthana-header .header-mobile-brand-text strong {
+  font-family:
+    "Outfit",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  line-height: 1.2;
+  color: #F8FAFF;
+}
+
+/* Brand subtitle */
+.keerthana-header .header-brand-copy small,
+.keerthana-header .header-mobile-brand-text small {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 1.35px;
+  line-height: 1.5;
+  color: #E8C98A;
+}
+
+/* Navigation labels, if displayed */
+.keerthana-header .header-nav-link {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+}
+
+/* Current page label */
+.keerthana-header .header-page-info > span {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1.6px;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+/* Current page title */
+.keerthana-header .header-page-info h2 {
+  font-family:
+    "Outfit",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.35px;
+  line-height: 1.3;
+}
+
+/* Search input */
+.keerthana-header .header-search-input {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 12px;
+  font-weight: 450;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+.keerthana-header .header-search-input::placeholder {
+  font-weight: 400;
+}
+
+/* Keyboard shortcut */
+.keerthana-header .header-search-box kbd {
+  font-family: "Inter", monospace;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Login button */
+.keerthana-header .header-login-button {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+/* Accessible, consistent icon-button sizing */
+.keerthana-header .header-menu-button,
+.keerthana-header .header-circle-button,
+.keerthana-header .header-notification-button,
+.keerthana-header .header-voice-button {
+  line-height: 1;
+}
+
+/* Clear, readable mobile branding */
+@media (max-width: 760px) {
+  .keerthana-header .header-mobile-brand-text strong {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.25px;
   }
 
-  .header-search-input::placeholder {
+  .keerthana-header .header-mobile-brand-text small {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.65px;
+  }
+
+  .keerthana-header .header-search-input {
+    font-size: 13px;
+  }
+
+  .keerthana-header .header-login-button {
     font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+/* Small phones */
+@media (max-width: 390px) {
+  .keerthana-header .header-mobile-brand-text strong {
+    font-size: 11px;
+    letter-spacing: 1px;
   }
 
-  .header-notification-button {
-    width: 38px;
-    height: 38px;
-  }
-
-  .header-notification-badge {
-    min-width: 16px;
-    height: 16px;
-
+  .keerthana-header .header-mobile-brand-text small {
     font-size: 8px;
   }
 }
 
-
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-.header-menu-button:focus-visible,
-.header-circle-button:focus-visible,
-.header-voice-button:focus-visible,
-.header-notification-button:focus-visible,
-.header-login-button:focus-visible {
-  outline: 2px solid #c9a45c;
-  outline-offset: 3px;
+/* Keyboard focus remains visible */
+.keerthana-header :focus-visible {
+  outline-color: #8EB5FF;
 }
 
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
+/* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
-
-  .header-menu-button,
-  .header-circle-button,
-  .header-voice-button,
-  .header-notification-button,
-  .header-login-button {
-    transition: none;
-  }
-
-  .header-voice-button-active {
-    animation: none;
+  .keerthana-header *,
+  .keerthana-header *::before,
+  .keerthana-header *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

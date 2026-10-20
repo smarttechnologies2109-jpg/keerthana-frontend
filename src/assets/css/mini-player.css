@@ -449,3 +449,977 @@
   }
 
 }
+
+/* =====================================================
+   KEERTHANA — MINI PLAYER LYRICS
+   Premium navy, royal blue and soft gold
+===================================================== */
+
+.mini-player-lyrics-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.mini-player-lyrics-button.active,
+.mini-player-lyrics-button:hover {
+  color: #f1cc82;
+  background: rgba(201, 161, 82, 0.12);
+}
+
+.mini-player-lyrics-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mini-player-lyrics-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 7, 18, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.mini-player-lyrics-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  max-height: min(80vh, 760px);
+  overflow: hidden;
+  color: #f4f6fc;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(48, 78, 139, 0.25),
+      transparent 45%
+    ),
+    #0b1222;
+  border: 1px solid rgba(222, 190, 125, 0.24);
+  border-radius: 22px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+}
+
+.mini-player-lyrics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 26px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.mini-player-lyrics-eyebrow {
+  color: #e0bc76;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.mini-player-lyrics-header h2 {
+  margin: 8px 0 5px;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 750;
+}
+
+.mini-player-lyrics-header p {
+  margin: 0;
+  color: #aab6ce;
+  font-size: 13px;
+}
+
+.mini-player-lyrics-close {
+  display: grid;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: #dce4f4;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.mini-player-lyrics-close:hover {
+  color: #f1cc82;
+  background: rgba(201, 161, 82, 0.15);
+}
+
+.mini-player-lyrics-content {
+  overflow-y: auto;
+  padding: 26px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #465578 transparent;
+}
+
+.mini-player-lyrics-text {
+  color: #edf1fa;
+  font-family:
+    "Noto Sans Telugu",
+    "Noto Sans",
+    "Nirmala UI",
+    sans-serif;
+  font-size: 19px;
+  font-weight: 450;
+  line-height: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mini-player-lyrics-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 20px;
+  text-align: center;
+}
+
+.mini-player-lyrics-empty > svg {
+  margin-bottom: 14px;
+  color: #dfbd7a;
+  font-size: 30px;
+}
+
+.mini-player-lyrics-empty h3 {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 19px;
+}
+
+.mini-player-lyrics-empty p {
+  max-width: 380px;
+  margin: 0;
+  color: #aab6ce;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .mini-player-lyrics-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .mini-player-lyrics-modal {
+    width: 100%;
+    max-height: 82dvh;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .mini-player-lyrics-header {
+    padding: 20px 18px 16px;
+  }
+
+  .mini-player-lyrics-header h2 {
+    font-size: 22px;
+  }
+
+  .mini-player-lyrics-content {
+    padding: 20px 18px 30px;
+  }
+
+  .mini-player-lyrics-text {
+    font-size: 17px;
+    line-height: 1.9;
+  }
+
+  .mini-player-lyrics-label {
+    display: none;
+  }
+}
+
+/* =========================================
+   MINI PLAYER OPEN BUTTONS
+========================================= */
+
+.mini-player-open-button {
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mini-player-cover.mini-player-open-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mini-player-cover.mini-player-open-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-player-info.mini-player-open-button {
+  min-width: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* =========================================
+   FULL-SCREEN PLAYER
+========================================= */
+
+.full-player-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  overflow-y: auto;
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(43, 83, 160, 0.28),
+      transparent 38%
+    ),
+    #070c19;
+  color: #f4f6ff;
+  animation: fullPlayerFadeIn 0.22s ease-out;
+}
+
+.full-player {
+  width: 100%;
+  max-width: 720px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 22px 30px 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.full-player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.full-player-header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.full-player-header-title span {
+  color: #e6bd70;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+}
+
+.full-player-header-title strong {
+  color: #f4f6ff;
+  font-size: 13px;
+  letter-spacing: 1.4px;
+}
+
+.full-player-icon-button {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(190, 204, 235, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.055);
+  color: #f4f6ff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.full-player-icon-button:hover {
+  background: rgba(64, 108, 204, 0.25);
+  border-color: rgba(230, 189, 112, 0.55);
+}
+
+.full-player-artwork {
+  width: 100%;
+  max-width: 390px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 30px;
+  overflow: hidden;
+  border: 1px solid rgba(230, 189, 112, 0.2);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #152747, #0c1325);
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.42);
+}
+
+.full-player-artwork img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.full-player-default-artwork {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #e6bd70;
+  font-size: 76px;
+}
+
+.full-player-song-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 24px;
+}
+
+.full-player-song-text {
+  min-width: 0;
+}
+
+.full-player-song-text h1 {
+  margin: 0;
+  color: #f7f8ff;
+  font-size: clamp(21px, 4vw, 29px);
+  font-weight: 750;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.full-player-song-text p {
+  margin: 8px 0 0;
+  color: #a9b6d0;
+  font-size: 15px;
+}
+
+.full-player-lyrics-toggle {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(230, 189, 112, 0.35);
+  border-radius: 14px;
+  background: rgba(230, 189, 112, 0.07);
+  color: #e6bd70;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.full-player-lyrics-toggle:hover,
+.full-player-lyrics-toggle.active {
+  background: rgba(230, 189, 112, 0.18);
+}
+
+.full-player-progress-area {
+  width: 100%;
+}
+
+.full-player-progress-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(179, 194, 223, 0.2);
+}
+
+.full-player-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4778e8, #e6bd70);
+  transition: width 0.15s linear;
+}
+
+.full-player-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 9px;
+  color: #8f9bb4;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.full-player-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(30px, 9vw, 58px);
+  margin: 28px 0 32px;
+}
+
+.full-player-control-button {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #e5eaf8;
+  font-size: 22px;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.full-player-control-button:hover {
+  color: #e6bd70;
+  transform: scale(1.08);
+}
+
+.full-player-play-button {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f0d18c, #d9aa52);
+  color: #11182a;
+  font-size: 25px;
+  box-shadow: 0 8px 28px rgba(230, 189, 112, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.full-player-play-button:hover {
+  transform: scale(1.06);
+  box-shadow: 0 10px 35px rgba(230, 189, 112, 0.32);
+}
+
+/* =========================================
+   FULL PLAYER LYRICS
+========================================= */
+
+.full-player-lyrics {
+  padding: 22px;
+  border: 1px solid rgba(155, 177, 220, 0.15);
+  border-radius: 18px;
+  background: rgba(17, 29, 52, 0.78);
+  animation: fullPlayerFadeIn 0.2s ease-out;
+}
+
+.full-player-lyrics-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(155, 177, 220, 0.13);
+  color: #e6bd70;
+}
+
+.full-player-lyrics-heading h2 {
+  margin: 0;
+  color: #f4f6ff;
+  font-size: 17px;
+}
+
+.full-player-lyrics-text {
+  padding-top: 18px;
+  color: #e0e7f5;
+  font-size: 16px;
+  line-height: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.full-player-lyrics-empty {
+  padding: 30px 10px;
+  text-align: center;
+  color: #a9b6d0;
+}
+
+.full-player-lyrics-empty > svg {
+  color: #e6bd70;
+  font-size: 28px;
+}
+
+.full-player-lyrics-empty h3 {
+  margin: 14px 0 8px;
+  color: #f4f6ff;
+  font-size: 17px;
+}
+
+.full-player-lyrics-empty p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@keyframes fullPlayerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   MOBILE PLAYER
+========================================= */
+
+@media (max-width: 600px) {
+  .full-player {
+    padding: 16px 20px 30px;
+  }
+
+  .full-player-header {
+    margin-bottom: 22px;
+  }
+
+  .full-player-artwork {
+    width: min(100%, 340px);
+    margin-bottom: 24px;
+    border-radius: 16px;
+  }
+
+  .full-player-song-text h1 {
+    font-size: 22px;
+  }
+
+  .full-player-song-text p {
+    font-size: 14px;
+  }
+
+  .full-player-controls {
+    margin: 24px 0 28px;
+  }
+
+  .full-player-play-button {
+    width: 64px;
+    height: 64px;
+  }
+
+  .full-player-lyrics {
+    padding: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .full-player-overlay,
+  .full-player-lyrics {
+    animation: none;
+  }
+}
+/* Lyrics and additional player options below controls */
+.full-player-lyrics {
+  position: static;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 24px;
+}
+
+/* Keep the full player content in normal page flow */
+.full-player {
+  position: relative;
+  overflow: visible;
+}
+
+/* Additional options, such as Sleep Mode */
+.full-player-extra-options {
+  position: static;
+  width: 100%;
+  margin-top: 20px;
+}
+.full-player-lyrics {
+  position: static;
+  display: block;
+  width: 100%;
+  margin: 0 0 24px;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid rgba(155, 177, 220, 0.18);
+  border-radius: 16px;
+  background: #101b30;
+}
+
+.full-player-lyrics-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.full-player-lyrics-heading h2 {
+  flex: 1;
+  margin: 0;
+  color: #f5f7fc;
+  font-size: 17px;
+}
+
+.full-player-lyrics-heading > svg {
+  color: #e8c778;
+}
+
+.full-player-lyrics-heading .full-player-lyrics-toggle {
+  width: auto;
+  height: auto;
+  padding: 7px 13px;
+  border: 1px solid rgba(232, 199, 120, 0.4);
+  border-radius: 20px;
+  background: #192b49;
+  color: #e8c778;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.full-player-lyrics-text {
+  margin-top: 18px;
+  color: #e0e7f5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 2;
+}
+
+.full-player-lyrics-empty {
+  padding: 20px 0 5px;
+  color: #a9b6d0;
+  text-align: center;
+}
+
+.full-player-lyrics-empty h3 {
+  color: #f5f7fc;
+}
+
+/* =========================================
+   FULL PLAYER — INLINE LYRICS
+========================================= */
+
+.full-player-lyrics {
+  width: 100%;
+  max-width: 620px;
+  margin: 24px auto 0;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid rgba(150, 175, 220, 0.18);
+  border-radius: 18px;
+  background: rgba(14, 24, 45, 0.88);
+  color: #f4f6fc;
+}
+
+.full-player-lyrics-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: #e6c77a;
+}
+
+.full-player-lyrics-heading h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.full-player-lyrics-hide {
+  padding: 7px 12px;
+  border: 1px solid rgba(230, 199, 122, 0.35);
+  border-radius: 9px;
+  background: transparent;
+  color: #e6c77a;
+  cursor: pointer;
+}
+
+.full-player-lyrics-text {
+  max-height: 240px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.9;
+  font-size: 15px;
+  color: #e0e7f5;
+  scrollbar-width: thin;
+  scrollbar-color: #526b9b transparent;
+}
+
+.full-player-lyrics-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: #aebbd2;
+}
+
+.full-player-lyrics-empty > svg {
+  margin-bottom: 10px;
+  color: #e6c77a;
+  font-size: 25px;
+}
+
+.full-player-lyrics-empty h3 {
+  margin: 0 0 8px;
+  color: #f4f6fc;
+}
+
+.full-player-lyrics-empty p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.full-player {
+  max-height: 92vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 600px) {
+  .full-player-lyrics {
+    margin-top: 18px;
+    padding: 16px;
+  }
+
+  .full-player-lyrics-text {
+    max-height: 200px;
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   KEERTHANA MUSIC — CLEAN MINI PLAYER
+   Compact layout • Navy • Royal blue • Soft gold
+========================================================= */
+
+.music-player:not(.music-player-fullscreen) {
+  box-sizing: border-box;
+}
+
+/* Song information */
+.music-player:not(.music-player-fullscreen) .player-song-info {
+  min-width: 0;
+  overflow: hidden;
+  gap: 10px;
+}
+
+.music-player:not(.music-player-fullscreen) .player-song-info img,
+.music-player:not(.music-player-fullscreen) .player-cover {
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.music-player:not(.music-player-fullscreen) .player-song-info h4,
+.music-player:not(.music-player-fullscreen) .player-song-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-player:not(.music-player-fullscreen) .player-song-info p,
+.music-player:not(.music-player-fullscreen) .player-song-artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Keep the main playback controls compact */
+.music-player:not(.music-player-fullscreen) .player-main {
+  min-width: 0;
+  gap: 8px;
+}
+
+.music-player:not(.music-player-fullscreen) .player-progress,
+.music-player:not(.music-player-fullscreen) .player-progress-container {
+  min-width: 0;
+}
+
+/* Right-side actions */
+.music-player:not(.music-player-fullscreen) .player-right-controls {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Hide the volume slider in mini-player mode */
+.music-player:not(.music-player-fullscreen) .player-volume-control input[type="range"],
+.music-player:not(.music-player-fullscreen) .player-volume-slider,
+.music-player:not(.music-player-fullscreen) .player-volume-range {
+  display: none !important;
+}
+
+/* Make the volume control icon-only */
+.music-player:not(.music-player-fullscreen) .player-volume-control {
+  flex: 0 0 auto;
+  width: 34px;
+  min-width: 34px;
+  justify-content: center;
+}
+
+/* Compact queue button */
+.music-player:not(.music-player-fullscreen) .player-queue-button {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 9px;
+  border-radius: 10px;
+}
+
+/* Hide Queue text on small screens */
+@media (max-width: 600px) {
+  .music-player:not(.music-player-fullscreen) .player-queue-button span {
+    display: none;
+  }
+}
+
+/* One clear expand/minimize button */
+.music-player:not(.music-player-fullscreen) .player-expand-button,
+.music-player:not(.music-player-fullscreen) .player-fullscreen-button {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(180, 195, 225, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #e7edff;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.music-player:not(.music-player-fullscreen) .player-expand-button:hover,
+.music-player:not(.music-player-fullscreen) .player-fullscreen-button:hover {
+  background: rgba(73, 115, 230, 0.2);
+  border-color: rgba(120, 155, 255, 0.5);
+  color: #f2cf82;
+}
+
+/* =========================================================
+   MOBILE MINI PLAYER
+========================================================= */
+
+@media (max-width: 600px) {
+  .music-player:not(.music-player-fullscreen) {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-song-info {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-main {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-right-controls {
+    grid-column: 3;
+    grid-row: 1;
+    gap: 5px;
+  }
+
+  /* Mini-player: hide secondary controls to prevent crowding */
+  .music-player:not(.music-player-fullscreen) .player-volume-control,
+  .music-player:not(.music-player-fullscreen) .player-sleep-button,
+  .music-player:not(.music-player-fullscreen) .player-lyrics-button {
+    display: none !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-queue-button {
+    width: 32px;
+    min-width: 32px;
+    height: 34px;
+    padding: 0;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-expand-button,
+  .music-player:not(.music-player-fullscreen) .player-fullscreen-button {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-play-button {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-progress,
+  .music-player:not(.music-player-fullscreen) .player-progress-container {
+    display: none;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+  .music-player:not(.music-player-fullscreen) {
+    gap: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-song-info {
+    gap: 7px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-song-info img,
+  .music-player:not(.music-player-fullscreen) .player-cover {
+    width: 38px;
+    height: 38px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-main {
+    gap: 5px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-right-controls {
+    gap: 3px;
+  }
+}

@@ -16,8 +16,7 @@ import {
   useParams,
 } from "react-router-dom";
 
-import API
-  from "../services/api";
+import API from "../services/api";
 
 import {
   usePlayer,
@@ -30,14 +29,9 @@ import {
 
 import "../assets/css/albumDetails.css";
 
-
 function AlbumDetails() {
-
-  const { id } =
-    useParams();
-
-  const navigate =
-    useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   const {
     playSong,
@@ -46,508 +40,265 @@ function AlbumDetails() {
     isPlaying,
   } = usePlayer();
 
+  const [album, setAlbum] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [album, setAlbum] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-
-  /* =========================================================
-     LOAD ALBUM
-  ========================================================= */
+  /* LOAD ALBUM */
 
   useEffect(() => {
+    const loadAlbum = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-    const loadAlbum =
-      async () => {
+        const response = await API.get(`/albums/${id}`);
 
-        try {
+        setAlbum(response.data.album);
+      } catch (error) {
+        console.error("Album error:", error);
 
-          setLoading(true);
-          setError("");
-
-          const response =
-            await API.get(
-              `/albums/${id}`
-            );
-
-          setAlbum(
-            response.data.album
-          );
-
-        } catch (error) {
-
-          console.error(
-            "Album error:",
-            error
-          );
-
-          setError(
-            error.response?.data?.message ||
-            "Unable to load album"
-          );
-
-        } finally {
-
-          setLoading(false);
-
-        }
-
-      };
-
+        setError(
+          error.response?.data?.message ||
+          "Unable to load album"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
     loadAlbum();
-
   }, [id]);
 
-
-  /* =========================================================
-     LOADING
-  ========================================================= */
+  /* LOADING */
 
   if (loading) {
-
     return (
-      <div className="album-page">
-        Loading album...
+      <div className="album-details-page album-details-loading">
+        <div className="album-details-loader" />
+        <p>Loading album...</p>
       </div>
     );
-
   }
 
+  /* ERROR */
 
-  /* =========================================================
-     ERROR
-  ========================================================= */
-
-  if (
-    error ||
-    !album
-  ) {
-
+  if (error || !album) {
     return (
-      <div className="album-page">
-
+      <div className="album-details-page album-details-error">
         <button
           type="button"
-          className="album-back"
-          onClick={() =>
-            navigate("/albums")
-          }
+          className="album-details-back"
+          onClick={() => navigate("/albums")}
         >
           <FaArrowLeft />
-          Back
+          Back to Albums
         </button>
 
-        <p>
-          {error}
-        </p>
-
+        <p>{error || "Album not found"}</p>
       </div>
     );
-
   }
 
+  /* ALBUM COVER */
 
-  /* =========================================================
-     ALBUM COVER
-  ========================================================= */
+  const cover = getAlbumCover(album);
 
-  const cover =
-    getAlbumCover(album);
+  /* CHECK WHETHER SONG BELONGS TO ALBUM */
 
-
-  /* =========================================================
-     CHECK WHETHER CURRENT SONG
-     BELONGS TO THIS ALBUM
-  ========================================================= */
-
-  const isAlbumSong =
-    (song) =>
-      album.songs?.some(
-        (albumSong) =>
-          albumSong.id ===
-          song?.id
-      );
-
-
-  /* =========================================================
-     ALBUM PLAY / PAUSE
-  ========================================================= */
-
-  const handleAlbumPlayPause =
-    async () => {
-
-      if (
-        !album.songs?.length
-      ) {
-        return;
-      }
-
-
-      /*
-        Check whether the global
-        current song belongs to
-        this album.
-      */
-
-      const currentBelongsToAlbum =
-        currentSong &&
-        isAlbumSong(
-          currentSong
-        );
-
-
-      /*
-        Same album is currently
-        playing -> pause.
-      */
-
-      if (
-        currentBelongsToAlbum
-      ) {
-
-        await togglePlay();
-
-        return;
-      }
-
-
-      /*
-        Another song is playing,
-        or nothing is playing.
-
-        Start the first song
-        from this album.
-      */
-
-      await playSong(
-        album.songs[0],
-        album.songs
-      );
-
-    };
-
-
-  /* =========================================================
-     SONG PLAY / PAUSE
-  ========================================================= */
-
-  const handleSongPlayPause =
-    async (
-      song
-    ) => {
-
-      /*
-        If this exact song is
-        currently loaded, toggle
-        play/pause.
-      */
-
-      if (
-        currentSong?.id ===
-        song.id
-      ) {
-
-        await togglePlay();
-
-        return;
-      }
-
-
-      /*
-        Different song -> play it.
-      */
-
-      await playSong(
-        song,
-        album.songs
-      );
-
-    };
-
-
-  /* =========================================================
-     ALBUM BUTTON STATE
-  ========================================================= */
-
-  const albumIsPlaying =
-    Boolean(
-      currentSong &&
-      isPlaying &&
-      isAlbumSong(
-        currentSong
-      )
+  const isAlbumSong = (song) =>
+    album.songs?.some(
+      (albumSong) => albumSong.id === song?.id
     );
 
+  /* ALBUM PLAY / PAUSE */
+
+  const handleAlbumPlayPause = async () => {
+    if (!album.songs?.length) {
+      return;
+    }
+
+    const currentBelongsToAlbum =
+      currentSong && isAlbumSong(currentSong);
+
+    if (currentBelongsToAlbum) {
+      await togglePlay();
+      return;
+    }
+
+    await playSong(
+      album.songs[0],
+      album.songs
+    );
+  };
+
+  /* SONG PLAY / PAUSE */
+
+  const handleSongPlayPause = async (song) => {
+    if (currentSong?.id === song.id) {
+      await togglePlay();
+      return;
+    }
+
+    await playSong(
+      song,
+      album.songs
+    );
+  };
+
+  /* ALBUM BUTTON STATE */
+
+  const albumIsPlaying = Boolean(
+    currentSong &&
+    isPlaying &&
+    isAlbumSong(currentSong)
+  );
 
   return (
+    <div className="album-details-page">
 
-    <div className="album-page">
-
-
-      {/* =====================================================
-          BACK
-      ===================================================== */}
+      {/* BACK BUTTON */}
 
       <button
         type="button"
-        className="album-back"
-        onClick={() =>
-          navigate(-1)
-        }
+        className="album-details-back"
+        onClick={() => navigate(-1)}
       >
-
         <FaArrowLeft />
-
         Back
-
       </button>
 
+      {/* ALBUM HERO */}
 
-      {/* =====================================================
-          HERO
-      ===================================================== */}
+      <section className="album-details-hero">
 
-      <section className="album-hero">
-
-        <div className="album-cover">
-
+        <div className="album-details-cover">
           {cover ? (
-
             <img
               src={cover}
-              alt={
-                album.title ||
-                "Album cover"
-              }
+              alt={album.title || "Album cover"}
               onError={(event) => {
-
                 if (
                   !event.currentTarget.src.includes(
                     "default-cover.png"
                   )
                 ) {
-
-                  event.currentTarget.src =
-                    DEFAULT_COVER;
-
+                  event.currentTarget.src = DEFAULT_COVER;
                 }
-
               }}
             />
-
           ) : (
-
             <FaCompactDisc />
-
           )}
-
         </div>
 
+        <div className="album-details-info">
 
-        <div className="album-info">
-
-          <span>
+          <span className="album-details-label">
             ALBUM
           </span>
 
-
-          <h1>
-            {album.title}
-          </h1>
-
+          <h1>{album.title}</h1>
 
           <button
             type="button"
-            className="album-artist-link"
+            className="album-details-artist"
             onClick={() => {
-
-              if (
-                album.artist_id
-              ) {
-
-                navigate(
-                  `/artists/${album.artist_id}`
-                );
-
+              if (album.artist_id) {
+                navigate(`/artists/${album.artist_id}`);
               }
-
             }}
           >
-
-            {album.artist_name ||
-              "KEERTHANA"}
-
+            {album.artist_name || "KEERTHANA"}
           </button>
 
-
           <p>
-
-            {album.song_count}
-
-            {" "}
-
-            {
-              album.song_count === 1
-                ? "song"
-                : "songs"
-            }
-
+            {album.song_count ?? album.songs?.length ?? 0}{" "}
+            {(album.song_count ?? album.songs?.length ?? 0) === 1
+              ? "song"
+              : "songs"}
           </p>
 
         </div>
 
       </section>
 
+      {/* ALBUM PLAY / PAUSE */}
 
-      {/* =====================================================
-          ALBUM PLAY / PAUSE
-      ===================================================== */}
-
-      <div className="album-actions">
-
+      {/* <div className="album-details-actions">
         <button
           type="button"
-          onClick={
-            handleAlbumPlayPause
-          }
-          disabled={
-            !album.songs?.length
-          }
+          onClick={handleAlbumPlayPause}
+          disabled={!album.songs?.length}
           aria-label={
-            albumIsPlaying
-              ? "Pause album"
-              : "Play album"
+            albumIsPlaying ? "Pause album" : "Play album"
           }
         >
-
-          {albumIsPlaying ? (
-            <FaPause />
-          ) : (
-            <FaPlay />
-          )}
-
+          {albumIsPlaying ? <FaPause /> : <FaPlay />}
         </button>
+      </div> */}
 
-      </div>
+      {/* SQUARE SONG CARDS */}
 
+      <section
+        className="album-details-song-grid"
+        aria-label="Album songs"
+      >
+        {album.songs?.map((song, index) => {
+          const songIsCurrent =
+            currentSong?.id === song.id;
 
-      {/* =====================================================
-          SONG LIST
-      ===================================================== */}
+          const songIsPlaying =
+            songIsCurrent && isPlaying;
 
-      <div className="album-song-list">
+          return (
+            <article
+              className={`album-details-song-card ${
+                songIsCurrent ? "is-current" : ""
+              }`}
+              key={song.id}
+            >
+              <span className="album-details-track-number">
+                {String(index + 1).padStart(2, "0")}
+              </span>
 
-        {album.songs?.map(
-          (
-            song,
-            index
-          ) => {
-
-            const songIsCurrent =
-              currentSong?.id ===
-              song.id;
-
-
-            const songIsPlaying =
-              songIsCurrent &&
-              isPlaying;
-
-
-            return (
-
-              <div
-                className={
-                  `album-song-row ${
-                    songIsCurrent
-                      ? "is-current"
-                      : ""
-                  }`
-                }
-                key={song.id}
-              >
-
-                {/* NUMBER */}
+              <div className="album-details-song-info">
+                <strong>{song.title}</strong>
 
                 <span>
-                  {index + 1}
+                  {song.artist_name || album.artist_name || "KEERTHANA"}
                 </span>
-
-
-                {/* SONG INFORMATION */}
-
-                <div>
-
-                  <strong>
-                    {song.title}
-                  </strong>
-
-                  <span>
-                    {song.artist_name ||
-                      album.artist_name}
-                  </span>
-
-                </div>
-
-
-                {/* CATEGORY */}
-
-                <span
-                  className="album-category"
-                >
-
-                  {song.category_name ||
-                    "Christian Music"}
-
-                </span>
-
-
-                {/* PLAY / PAUSE */}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleSongPlayPause(
-                      song
-                    )
-                  }
-                  aria-label={
-                    songIsPlaying
-                      ? "Pause song"
-                      : "Play song"
-                  }
-                >
-
-                  {songIsPlaying ? (
-                    <FaPause />
-                  ) : (
-                    <FaPlay />
-                  )}
-
-                </button>
-
               </div>
 
-            );
+              <span className="album-details-category">
+                {song.category_name || "Christian Music"}
+              </span>
 
-          }
-        )}
+              <button
+                type="button"
+                className="album-details-song-play"
+                onClick={() => handleSongPlayPause(song)}
+                aria-label={
+                  songIsPlaying ? "Pause song" : "Play song"
+                }
+              >
+                {songIsPlaying ? <FaPause /> : <FaPlay />}
+              </button>
+            </article>
+          );
+        })}
+      </section>
 
-      </div>
-
+      {!album.songs?.length && (
+        <div className="album-details-empty">
+          <FaCompactDisc />
+          <h2>No songs yet</h2>
+          <p>Songs added to this album will appear here.</p>
+        </div>
+      )}
 
     </div>
-
   );
-
 }
 
-
 export default AlbumDetails;
-
