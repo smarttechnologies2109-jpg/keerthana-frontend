@@ -1,288 +1,362 @@
+
+/* =========================================================
+   KEERTHANA MUSIC — BUSINESS OWNER LOGIN
+   Premium Navy • Royal Blue • Soft Gold
+========================================================= */
+
 .owner-login-page {
+  --owner-bg: #080d1a;
+  --owner-surface: #101a2e;
+  --owner-input: #0a1426;
+  --owner-border: rgba(170, 190, 225, 0.17);
+  --owner-text: #f4f6fc;
+  --owner-muted: #9aa9c2;
+  --owner-blue: #789aff;
+  --owner-blue-strong: #5278ed;
+  --owner-gold: #e3c47b;
+
   min-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 30px;
+  justify-content: center; 
+  padding: 36px 20px;
+  box-sizing: border-box;
+
   background:
     radial-gradient(
-      circle at top left,
-      rgba(124, 58, 237, 0.25),
-      transparent 35%
+      ellipse at 14% 14%,
+      rgba(82, 120, 237, 0.19),
+      transparent 36%
     ),
     radial-gradient(
-      circle at bottom right,
-      rgba(37, 99, 235, 0.2),
-      transparent 35%
+      ellipse at 90% 88%,
+      rgba(227, 196, 123, 0.09),
+      transparent 32%
     ),
-    #09090f;
-  box-sizing: border-box;
+    linear-gradient(
+      135deg,
+      #070b16 0%,
+      #0b1324 52%,
+      #111b32 100%
+    );
+
+  color: var(--owner-text);
 }
+
+
+/* =========================================================
+   LOGIN CARD
+========================================================= */
 
 .owner-login-card {
-  width: 100%;
-  max-width: 440px;
-  padding: 42px;
-  border-radius: 24px;
-  background: rgba(20, 20, 31, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.5);
-  box-sizing: border-box;
-}
-
-.owner-login-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.owner-logo {
-  width: 68px;
-  height: 68px;
-  margin: 0 auto 18px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    #7c3aed,
-    #2563eb
-  );
-  color: #ffffff;
-  font-size: 26px;
-  box-shadow:
-    0 10px 30px rgba(124, 58, 237, 0.35);
-}
-
-.owner-login-header h1 {
-  margin: 0;
-  color: #ffffff;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.owner-login-header p {
-  margin: 8px 0 0;
-  color: #9ca3af;
-  font-size: 14px;
-}
-
-.owner-login-error {
-  padding: 12px 14px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
-  font-size: 14px;
-}
-
-.owner-input-group {
-  margin-bottom: 20px;
-}
-
-.owner-input-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #e5e7eb;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.owner-input-wrapper {
-  height: 52px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 15px;
-  border-radius: 12px;
-  background: #11111b;
-  border: 1px solid #292936;
-  transition: 0.2s ease;
-  box-sizing: border-box;
-}
-
-.owner-input-wrapper:focus-within {
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
-}
-
-.owner-input-wrapper > svg {
-  flex-shrink: 0;
-  color: #8b5cf6;
-  font-size: 16px;
-}
-
-.owner-input-wrapper input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #ffffff;
-  font-size: 15px;
-}
-
-.owner-input-wrapper input::placeholder {
-  color: #6b7280;
-}
-
-.owner-password-toggle {
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.owner-password-toggle:hover {
-  color: #ffffff;
-}
-
-.owner-login-button {
-  width: 100%;
-  height: 52px;
-  margin-top: 8px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(
-    135deg,
-    #7c3aed,
-    #2563eb
-  );
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.owner-login-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow:
-    0 10px 25px rgba(124, 58, 237, 0.3);
-}
-
-.owner-login-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.owner-login-footer {
-  margin-top: 30px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.owner-login-footer span {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.owner-login-footer small {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-@media (max-width: 520px) {
-  .owner-login-page {
-    padding: 20px;
-  }
-
-  .owner-login-card {
-    padding: 30px 22px;
-    border-radius: 20px;
-  }
-
-  .owner-login-header h1 {
-    font-size: 24px;
-  }
-}
-/* =========================================================
-   FORGOT PASSWORD
-========================================================= */
-
-.owner-forgot-password {
-  width: 100%;
-  margin-top: -8px;
-  margin-bottom: 18px;
-  text-align: right;
-}
-
-.owner-forgot-password a {
-  color: #4f46e5;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.owner-forgot-password a:hover {
-  color: #3730a3;
-  text-decoration: underline;
-}
-/* =========================================================
-   PASSWORD INPUT
-========================================================= */
-
-.owner-input-wrapper {
   position: relative;
+  isolation: isolate;
+
   width: 100%;
-  display: flex;
-  align-items: center;
+  max-width: 450px;
+  padding: 42px 40px 32px;
+
+  overflow: hidden;
+
+  background: linear-gradient(
+    150deg,
+    rgba(20, 32, 54, 0.98),
+    rgba(12, 21, 38, 0.99)
+  );
+
+  border: 1px solid var(--owner-border);
+  border-radius: 25px;
+
+  box-shadow:
+    0 30px 85px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(120, 154, 255, 0.025),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  box-sizing: border-box;
+
+  animation: ownerLoginAppear 0.5s ease both;
 }
 
-.owner-input-wrapper > svg {
-  position: absolute;
-  left: 15px;
-  z-index: 2;
 
-  color: #6b7280;
-  font-size: 15px;
+/* Subtle decorative light */
+
+.owner-login-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+
+  width: 220px;
+  height: 220px;
+
+  top: -145px;
+  right: -90px;
+
+  border-radius: 50%;
+
+  background: rgba(82, 120, 237, 0.13);
+  filter: blur(10px);
 
   pointer-events: none;
 }
 
-/* Password input */
-.owner-input-wrapper input {
+
+.owner-login-card::after {
+  content: "";
+  position: absolute;
+
+  top: 0;
+  left: 12%;
+
+  width: 76%;
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(227, 196, 123, 0.38),
+    transparent
+  );
+
+  pointer-events: none;
+}
+
+
+@keyframes ownerLoginAppear {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.owner-login-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+
+.owner-logo {
+  position: relative;
+
+  width: 70px;
+  height: 70px;
+
+  margin: 0 auto 21px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(227, 196, 123, 0.35);
+  border-radius: 21px;
+
+  background: linear-gradient(
+    145deg,
+    #29477f 0%,
+    #1a3159 58%,
+    #14223d 100%
+  );
+
+  color: var(--owner-gold);
+  font-size: 27px;
+
+  box-shadow:
+    0 13px 28px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+
+.owner-login-header h1 {
+  margin: 0;
+
+  color: var(--owner-text);
+
+  font-size: 29px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.7px;
+}
+
+
+.owner-login-header p {
+  margin: 10px 0 0;
+
+  color: var(--owner-muted);
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+========================================================= */
+
+.owner-login-error {
+  display: block;
+
+  padding: 13px 15px;
+  margin-bottom: 22px;
+
+  border: 1px solid rgba(248, 113, 113, 0.30);
+  border-radius: 12px;
+
+  background: rgba(127, 29, 29, 0.20);
+  color: #fca5a5;
+
+  font-size: 13px;
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   FORM GROUP
+========================================================= */
+
+.owner-input-group {
+  margin-bottom: 21px;
+}
+
+
+.owner-input-group label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #dce5f5;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+}
+
+
+/* =========================================================
+   INPUT WRAPPER
+========================================================= */
+
+.owner-input-wrapper {
+  position: relative;
+
   width: 100%;
-  height: 50px;
+  height: 53px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 14px;
 
   box-sizing: border-box;
 
-  padding: 0 48px 0 44px;
+  border: 1px solid rgba(170, 190, 225, 0.19);
+  border-radius: 13px;
 
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
+  background: var(--owner-input);
 
-  outline: none;
-
-  background: #ffffff;
-  color: #111827;
-
-  font-size: 14px;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
 }
 
-/* Eye button */
+
+.owner-input-wrapper:hover {
+  border-color: rgba(120, 154, 255, 0.40);
+}
+
+
+.owner-input-wrapper:focus-within {
+  border-color: var(--owner-blue);
+
+  background: #0d192e;
+
+  box-shadow:
+    0 0 0 4px rgba(120, 154, 255, 0.11),
+    0 5px 16px rgba(0, 0, 0, 0.10);
+}
+
+
+/* Leading input icon */
+
+.owner-input-wrapper > svg {
+  position: static;
+  flex: 0 0 auto;
+
+  color: #91a8d5;
+  font-size: 16px;
+
+  pointer-events: none;
+}
+
+
+/* Input field */
+
+.owner-input-wrapper input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--owner-text);
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: none;
+}
+
+
+.owner-input-wrapper input::placeholder {
+  color: #7787a2;
+  font-weight: 400;
+}
+
+
+.owner-input-wrapper input:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+
+.owner-input-wrapper input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   PASSWORD VISIBILITY TOGGLE
+========================================================= */
+
 .owner-password-toggle {
-  position: absolute;
+  position: static;
+  flex: 0 0 36px;
 
-  right: 7px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
 
   display: flex;
   align-items: center;
@@ -290,33 +364,300 @@
 
   padding: 0;
 
-  border: none;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
 
   background: transparent;
+  color: #93a3bd;
 
-  color: #6b7280;
-
-  font-size: 16px;
+  font-size: 15px;
 
   cursor: pointer;
 
-  z-index: 5;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.owner-password-toggle:hover {
-  background: #f3f4f6;
-  color: #4f46e5;
+
+.owner-password-toggle:hover:not(:disabled) {
+  border-color: rgba(120, 154, 255, 0.16);
+  background: rgba(120, 154, 255, 0.10);
+  color: var(--owner-blue);
 }
 
-.owner-password-toggle:focus {
-  outline: none;
 
-  background: #f3f4f6;
-  color: #4f46e5;
+.owner-password-toggle:focus-visible {
+  outline: 2px solid var(--owner-blue);
+  outline-offset: 2px;
 }
+
 
 .owner-password-toggle:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
+
+
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+.owner-forgot-password {
+  width: 100%;
+
+  margin-top: -5px;
+  margin-bottom: 22px;
+
+  text-align: right;
+}
+
+
+.owner-forgot-password a {
+  color: var(--owner-blue);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+
+.owner-forgot-password a:hover {
+  color: var(--owner-gold);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+
+.owner-forgot-password a:focus-visible {
+  outline: 2px solid var(--owner-blue);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+========================================================= */
+
+.owner-login-button {
+  position: relative;
+  overflow: hidden;
+
+  width: 100%;
+  min-height: 53px;
+
+  margin-top: 5px;
+  padding: 13px 18px;
+
+  border: 1px solid rgba(170, 190, 255, 0.25);
+  border-radius: 13px;
+
+  background: linear-gradient(
+    115deg,
+    #456de0 0%,
+    #5278ed 48%,
+    #6488f3 100%
+  );
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 24px rgba(57, 91, 195, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease,
+    opacity 0.22s ease;
+}
+
+
+.owner-login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+
+  box-shadow:
+    0 14px 30px rgba(57, 91, 195, 0.33),
+    inset 0 1px 0 rgba(255, 255, 255, 0.17);
+}
+
+
+.owner-login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+
+.owner-login-button:focus-visible {
+  outline: 2px solid var(--owner-gold);
+  outline-offset: 4px;
+}
+
+
+.owner-login-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.owner-login-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: 29px;
+  padding-top: 22px;
+
+  border-top: 1px solid rgba(170, 190, 225, 0.13);
+
+  text-align: center;
+}
+
+
+.owner-login-footer span {
+  color: #e9d5a0;
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.35px;
+}
+
+
+.owner-login-footer small {
+  color: #8796af;
+
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   TABLET AND MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+  .owner-login-page {
+    padding: 24px 16px;
+  }
+
+  .owner-login-card {
+    max-width: 430px;
+    padding: 33px 25px 27px;
+    border-radius: 22px;
+  }
+
+  .owner-login-header {
+    margin-bottom: 28px;
+  }
+
+  .owner-login-header h1 {
+    font-size: 25px;
+  }
+
+  .owner-logo {
+    width: 62px;
+    height: 62px;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    font-size: 24px;
+  }
+
+  .owner-input-wrapper {
+    height: 51px;
+  }
+
+  .owner-login-button {
+    min-height: 51px;
+  }
+
+  .owner-login-footer {
+    margin-top: 25px;
+    padding-top: 19px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+  .owner-login-page {
+    padding: 16px 10px;
+  }
+
+  .owner-login-card {
+    padding: 27px 17px 23px;
+    border-radius: 18px;
+  }
+
+  .owner-login-header h1 {
+    font-size: 23px;
+  }
+
+  .owner-login-header p {
+    font-size: 13px;
+  }
+
+  .owner-input-group label {
+    font-size: 12px;
+  }
+
+  .owner-input-wrapper {
+    gap: 9px;
+    padding: 0 11px;
+  }
+
+  .owner-input-wrapper input {
+    font-size: 13px;
+  }
+
+  .owner-password-toggle {
+    flex-basis: 32px;
+    width: 32px;
+    height: 34px;
+  }
+
+  .owner-forgot-password a {
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-login-card {
+    animation: none;
+  }
+
+  .owner-login-page *,
+  .owner-login-page *::before,
+  .owner-login-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

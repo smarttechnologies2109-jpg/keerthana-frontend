@@ -1,137 +1,174 @@
+
 /* =========================================================
-   BUSINESS OWNER ALBUMS PAGE
+   KEERTHANA — BUSINESS OWNER ALBUMS
+   Premium Dark Navy + Royal Blue + Soft Gold
 ========================================================= */
 
 .owner-albums-page {
-  min-height: 100vh;
-  padding: 24px;
-  background: #f5f7fb;
-}
+  --owner-bg: #080d1a;
+  --owner-surface: #0e1628;
+  --owner-card: #111c31;
+  --owner-card-hover: #172641;
+  --owner-border: rgba(160, 183, 222, 0.13);
+  --owner-text: #f4f5fb;
+  --owner-muted: #94a2bd;
+  --owner-blue: #789aff;
+  --owner-gold: #e3c47b;
 
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28px clamp(16px, 3vw, 36px) 80px;
+
+  color: var(--owner-text);
+
+  background:
+    radial-gradient(ellipse at 90% 0%, rgba(75, 111, 216, 0.12), transparent 32%),
+    radial-gradient(ellipse at 5% 85%, rgba(227, 196, 123, 0.035), transparent 28%),
+    var(--owner-bg);
+
+  font-family: Inter, "Segoe UI", "Noto Sans Telugu", Arial, sans-serif;
+}
 
 /* =========================================================
    HEADER
 ========================================================= */
 
 .owner-albums-header {
+  position: relative;
+  isolation: isolate;
   width: 100%;
   max-width: 1500px;
-
+  box-sizing: border-box;
   margin: 0 auto 24px;
 
   display: flex;
   align-items: center;
-
   gap: 24px;
 
-  padding: 20px 24px;
+  padding: 25px 28px;
+  overflow: hidden;
 
-  background: #ffffff;
+  border: 1px solid var(--owner-border);
+  border-radius: 19px;
 
-  border: 1px solid #e5e7eb;
-
-  border-radius: 18px;
+  background:
+    linear-gradient(120deg, #19294a 0%, #101d36 58%, #0c1528 100%);
 
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.05);
+    0 18px 42px rgba(0, 0, 0, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.owner-albums-header::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 220px;
+  height: 220px;
+  right: -90px;
+  bottom: -150px;
+  border-radius: 50%;
+  background: rgba(113, 153, 255, 0.13);
+  filter: blur(32px);
+  pointer-events: none;
+}
 
 /* =========================================================
-   BACK
+   BACK BUTTON
 ========================================================= */
 
 .owner-albums-back-button {
-  border: none;
-
-  background: #f1f5f9;
-
-  color: #334155;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
 
   padding: 11px 16px;
 
+  border: 1px solid var(--owner-border);
   border-radius: 10px;
 
-  display: inline-flex;
+  background: rgba(255, 255, 255, 0.045);
+  color: #d5def2;
 
-  align-items: center;
-
-  gap: 8px;
-
-  font-size: 14px;
-
-  font-weight: 600;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 650;
 
   cursor: pointer;
-
   white-space: nowrap;
 
   transition:
     background 0.2s ease,
+    border-color 0.2s ease,
     transform 0.2s ease;
 }
 
-
 .owner-albums-back-button:hover {
-  background: #e2e8f0;
-
   transform: translateX(-2px);
+  border-color: rgba(113, 153, 255, 0.35);
+  background: rgba(113, 153, 255, 0.1);
+  color: #ffffff;
 }
 
+.owner-albums-back-button:focus-visible {
+  outline: 2px solid var(--owner-blue);
+  outline-offset: 3px;
+}
 
 /* =========================================================
    TITLE
 ========================================================= */
 
 .owner-albums-title-area {
+  min-width: 0;
   display: flex;
-
   align-items: center;
-
-  gap: 15px;
+  gap: 16px;
 }
-
 
 .owner-albums-title-icon {
-  width: 54px;
-
-  height: 54px;
-
-  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
-  background: #eef2ff;
+  border: 1px solid rgba(227, 196, 123, 0.23);
+  border-radius: 15px;
 
-  color: #4f46e5;
+  background: linear-gradient(
+    145deg,
+    rgba(227, 196, 123, 0.14),
+    rgba(113, 153, 255, 0.12)
+  );
 
+  color: var(--owner-gold);
   font-size: 23px;
-}
 
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
 
 .owner-albums-title-area h1 {
   margin: 0;
+  color: #f7f6ff;
 
-  font-size: 25px;
-
-  color: #111827;
-
+  font-family: "Cormorant Garamond", "Noto Serif Telugu", Georgia, serif;
+  font-size: clamp(27px, 3vw, 36px);
   font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
 }
-
 
 .owner-albums-title-area p {
-  margin: 5px 0 0;
-
-  font-size: 14px;
-
-  color: #64748b;
+  margin: 7px 0 0;
+  color: #a3b0cb;
+  font-size: 13px;
+  line-height: 1.6;
 }
-
 
 /* =========================================================
    CONTENT
@@ -139,119 +176,132 @@
 
 .owner-albums-content {
   width: 100%;
-
   max-width: 1500px;
-
   margin: 0 auto;
 }
 
-
 /* =========================================================
-   SUMMARY
+   SUMMARY CARDS
 ========================================================= */
 
 .owner-albums-summary {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
-
 
 .owner-albums-summary-card {
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 15px;
-
-  padding: 18px 20px;
+  position: relative;
+  min-width: 0;
+  min-height: 90px;
+  box-sizing: border-box;
 
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
+  gap: 14px;
 
-  box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.04);
+  padding: 21px 22px;
+  overflow: hidden;
+
+  border: 1px solid var(--owner-border);
+  border-radius: 16px;
+
+  background:
+    linear-gradient(145deg, rgba(19, 31, 54, 0.98), rgba(12, 21, 39, 0.98));
+
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
+.owner-albums-summary-card::after {
+  content: "";
+  position: absolute;
+  width: 105px;
+  height: 105px;
+  top: -68px;
+  right: -45px;
+  border-radius: 50%;
+  background: rgba(113, 153, 255, 0.07);
+  pointer-events: none;
+}
+
+.owner-albums-summary-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(113, 153, 255, 0.3);
+  box-shadow: 0 15px 32px rgba(0, 0, 0, 0.2);
+}
 
 .owner-albums-summary-card span {
-  color: #64748b;
-
-  font-size: 14px;
-
-  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  color: var(--owner-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
 }
-
 
 .owner-albums-summary-card strong {
-  color: #111827;
-
-  font-size: 24px;
-
+  position: relative;
+  z-index: 1;
+  color: #f4f5ff;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 31px;
   font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
-
 
 .owner-albums-language-value {
-  font-size: 17px !important;
-
-  color: #4f46e5 !important;
+  color: var(--owner-blue) !important;
+  font-family: Inter, "Segoe UI", sans-serif !important;
+  font-size: 18px !important;
+  overflow-wrap: anywhere;
 }
 
-
 /* =========================================================
-   FILTER
+   FILTER CARD
 ========================================================= */
 
 .owner-albums-filter-card {
-  background: #ffffff;
+  box-sizing: border-box;
+  margin-bottom: 22px;
+  padding: 22px;
 
-  border: 1px solid #e5e7eb;
-
+  border: 1px solid var(--owner-border);
   border-radius: 17px;
 
-  padding: 20px;
-
-  margin-bottom: 20px;
-
-  box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.04);
+  background: linear-gradient(145deg, #111c31, #0c1526);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
 }
-
 
 .owner-albums-filter-title {
   display: flex;
-
   align-items: center;
+  gap: 10px;
 
-  gap: 8px;
+  margin-bottom: 17px;
 
-  margin-bottom: 15px;
-
-  color: #334155;
-
-  font-size: 15px;
-
-  font-weight: 700;
+  color: #e8edf9;
+  font-size: 14px;
+  font-weight: 750;
 }
 
+.owner-albums-filter-title svg {
+  color: var(--owner-gold);
+  font-size: 16px;
+}
 
 .owner-albums-filter-row {
   display: flex;
-
   align-items: center;
-
   gap: 12px;
 }
-
 
 /* =========================================================
    SEARCH
@@ -259,175 +309,201 @@
 
 .owner-albums-search {
   position: relative;
-
   flex: 1;
-
   min-width: 250px;
 }
 
-
 .owner-albums-search > svg {
   position: absolute;
-
-  left: 14px;
-
+  left: 15px;
   top: 50%;
-
   transform: translateY(-50%);
 
-  color: #94a3b8;
-
+  color: #91a3c5;
   font-size: 15px;
+  pointer-events: none;
+
+  transition: color 0.2s ease;
 }
 
+.owner-albums-search:focus-within > svg {
+  color: var(--owner-blue);
+}
 
 .owner-albums-search input {
+  display: block;
   width: 100%;
+  height: 46px;
+  box-sizing: border-box;
 
-  height: 44px;
+  padding: 0 42px 0 42px;
 
-  padding:
-    0 42px
-    0 40px;
-
-  border: 1px solid #dbe1ea;
-
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  color: #111827;
-
-  font-size: 14px;
-
+  border: 1px solid var(--owner-border);
+  border-radius: 11px;
   outline: none;
 
-  box-sizing: border-box;
+  background: #0b1426;
+  color: #f0f3ff;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
+.owner-albums-search input::placeholder {
+  color: #7c8aa7;
+}
 
 .owner-albums-search input:focus {
-  border-color: #818cf8;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(99, 102, 241, 0.10);
+  border-color: rgba(113, 153, 255, 0.65);
+  background: #0e192e;
+  box-shadow: 0 0 0 3px rgba(113, 153, 255, 0.11);
 }
-
 
 .owner-albums-clear-search {
   position: absolute;
-
   right: 10px;
-
   top: 50%;
-
   transform: translateY(-50%);
 
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   border: none;
+  border-radius: 7px;
 
   background: transparent;
-
-  color: #94a3b8;
+  color: #a0aec7;
 
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
+.owner-albums-clear-search:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.owner-albums-clear-search:focus-visible {
+  outline: 2px solid var(--owner-blue);
+  outline-offset: 2px;
+}
 
 /* =========================================================
-   LANGUAGE
+   LANGUAGE SELECT
 ========================================================= */
 
 .owner-albums-language-select {
-  height: 44px;
-
   min-width: 180px;
+  height: 46px;
+  box-sizing: border-box;
+  padding: 0 35px 0 14px;
 
-  padding: 0 14px;
-
-  border: 1px solid #dbe1ea;
-
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  color: #334155;
-
-  font-size: 14px;
-
+  border: 1px solid var(--owner-border);
+  border-radius: 11px;
   outline: none;
 
+  background-color: #0e192d;
+  color: #d9e1f2;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 550;
+
   cursor: pointer;
+  color-scheme: dark;
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-
-.owner-albums-language-select:focus {
-  border-color: #818cf8;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(99, 102, 241, 0.10);
+.owner-albums-language-select:hover {
+  border-color: rgba(160, 183, 222, 0.28);
 }
 
+.owner-albums-language-select:focus,
+.owner-albums-language-select:focus-visible {
+  border-color: var(--owner-blue);
+  box-shadow: 0 0 0 3px rgba(113, 153, 255, 0.1);
+}
+
+.owner-albums-language-select option {
+  background: #0e1628;
+  color: #f4f5fb;
+}
 
 /* =========================================================
-   CLEAR
+   CLEAR FILTERS BUTTON
 ========================================================= */
 
 .owner-albums-clear-button {
-  height: 44px;
-
-  padding: 0 15px;
-
-  border: none;
-
-  border-radius: 10px;
-
-  background: #fef2f2;
-
-  color: #dc2626;
+  min-height: 46px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 
   display: inline-flex;
-
   align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  gap: 7px;
+  padding: 0 16px;
 
-  font-size: 13px;
+  border: 1px solid rgba(248, 113, 123, 0.2);
+  border-radius: 11px;
 
-  font-weight: 600;
+  background: rgba(248, 113, 123, 0.07);
+  color: #ff9ba3;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
 
   cursor: pointer;
-
   white-space: nowrap;
-}
 
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
 
 .owner-albums-clear-button:hover {
-  background: #fee2e2;
+  transform: translateY(-1px);
+  border-color: rgba(248, 113, 123, 0.35);
+  background: rgba(248, 113, 123, 0.13);
 }
 
+.owner-albums-clear-button:focus-visible,
+.owner-albums-empty-button:focus-visible {
+  outline: 2px solid var(--owner-blue);
+  outline-offset: 3px;
+}
 
 /* =========================================================
    ERROR
 ========================================================= */
 
 .owner-albums-error {
-  padding: 14px 16px;
-
+  box-sizing: border-box;
   margin-bottom: 20px;
+  padding: 14px 17px;
 
-  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 123, 0.25);
+  border-radius: 11px;
 
-  background: #fef2f2;
+  background: rgba(248, 113, 123, 0.075);
+  color: #ff9ba3;
 
-  border: 1px solid #fecaca;
-
-  color: #b91c1c;
-
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.6;
 }
-
 
 /* =========================================================
    LOADING
@@ -436,192 +512,174 @@
 .owner-albums-loading {
   min-height: 300px;
 
-  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
 
-  border: 1px solid #e5e7eb;
-
+  border: 1px solid var(--owner-border);
   border-radius: 17px;
 
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 12px;
+  background: linear-gradient(145deg, #111c31, #0c1526);
 }
-
 
 .owner-albums-spinner {
-  width: 36px;
+  width: 38px;
+  height: 38px;
+  box-sizing: border-box;
 
-  height: 36px;
-
-  border: 4px solid #e5e7eb;
-
-  border-top-color: #4f46e5;
-
+  border: 3px solid rgba(160, 183, 222, 0.15);
+  border-top-color: var(--owner-gold);
+  border-right-color: var(--owner-blue);
   border-radius: 50%;
 
-  animation:
-    ownerAlbumsSpin
-    0.8s linear infinite;
+  animation: ownerAlbumsSpin 0.8s linear infinite;
 }
 
-
 @keyframes ownerAlbumsSpin {
-
   to {
     transform: rotate(360deg);
   }
-
 }
-
 
 .owner-albums-loading p {
   margin: 0;
-
-  color: #64748b;
-
-  font-size: 14px;
+  color: var(--owner-muted);
+  font-size: 13px;
 }
 
-
 /* =========================================================
-   EMPTY
+   EMPTY STATE
 ========================================================= */
 
 .owner-albums-empty {
   min-height: 320px;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 17px;
+  box-sizing: border-box;
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
 
+  padding: 32px 22px;
+
+  border: 1px solid var(--owner-border);
+  border-radius: 18px;
+
+  background: linear-gradient(145deg, #111c31, #0c1526);
   text-align: center;
-
-  padding: 30px;
 }
-
 
 .owner-albums-empty-icon {
-  width: 65px;
-
-  height: 65px;
-
-  border-radius: 50%;
-
-  background: #eef2ff;
-
-  color: #4f46e5;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
+  margin-bottom: 18px;
+
+  border: 1px solid rgba(227, 196, 123, 0.24);
+  border-radius: 20px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(227, 196, 123, 0.12),
+    rgba(113, 153, 255, 0.11)
+  );
+
+  color: var(--owner-gold);
   font-size: 27px;
-
-  margin-bottom: 15px;
 }
-
 
 .owner-albums-empty h2 {
-  margin: 0 0 7px;
+  margin: 0 0 9px;
+  color: #f2f4fc;
 
-  color: #111827;
-
-  font-size: 20px;
+  font-family: "Cormorant Garamond", "Noto Serif Telugu", Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
 }
-
 
 .owner-albums-empty p {
+  max-width: 500px;
   margin: 0;
 
-  max-width: 500px;
-
-  color: #64748b;
-
-  font-size: 14px;
-
-  line-height: 1.6;
+  color: var(--owner-muted);
+  font-size: 13px;
+  line-height: 1.8;
 }
-
 
 .owner-albums-empty-button {
-  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  border: none;
+  margin-top: 20px;
+  padding: 11px 19px;
 
-  background: #4f46e5;
+  border: 1px solid rgba(113, 153, 255, 0.3);
+  border-radius: 10px;
 
+  background: linear-gradient(135deg, #587fe5, #4265c4);
   color: #ffffff;
 
-  padding: 10px 18px;
-
-  border-radius: 9px;
-
+  font-family: inherit;
   font-size: 13px;
-
-  font-weight: 600;
+  font-weight: 700;
 
   cursor: pointer;
+
+  box-shadow: 0 7px 18px rgba(57, 91, 182, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
 
+.owner-albums-empty-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 10px 24px rgba(57, 91, 182, 0.3);
+}
 
 /* =========================================================
    ALBUM LIST CARD
 ========================================================= */
 
 .owner-albums-list-card {
-  background: #ffffff;
+  box-sizing: border-box;
+  padding: 24px;
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--owner-border);
+  border-radius: 18px;
 
-  border-radius: 17px;
-
-  padding: 22px;
-
-  box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.04);
+  background: linear-gradient(145deg, #111c31, #0c1526);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
 }
-
 
 .owner-albums-list-header {
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 }
-
 
 .owner-albums-list-header h2 {
   margin: 0;
-
-  color: #111827;
-
-  font-size: 18px;
+  color: #f0f3fc;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
 }
-
 
 .owner-albums-list-header p {
-  margin: 5px 0 0;
-
-  color: #64748b;
-
+  margin: 7px 0 0;
+  color: var(--owner-muted);
   font-size: 13px;
+  line-height: 1.6;
 }
-
 
 /* =========================================================
    ALBUM GRID
@@ -629,227 +687,382 @@
 
 .owner-albums-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
+  align-items: stretch;
 }
-
 
 /* =========================================================
    ALBUM CARD
 ========================================================= */
 
 .owner-album-card {
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 14px;
-
+  min-width: 0;
   overflow: hidden;
 
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
-}
+  border: 1px solid var(--owner-border);
+  border-radius: 15px;
 
+  background: linear-gradient(160deg, #15213a, #0d172a);
+
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    border-color 0.24s ease;
+}
 
 .owner-album-card:hover {
   transform: translateY(-4px);
-
-  border-color: #c7d2fe;
-
-  box-shadow:
-    0 10px 25px
-    rgba(0, 0, 0, 0.08);
+  border-color: rgba(113, 153, 255, 0.36);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.27);
 }
 
-
 /* =========================================================
-   COVER
+   ALBUM COVER
 ========================================================= */
 
 .owner-album-cover-wrapper {
+  position: relative;
   width: 100%;
-
   aspect-ratio: 1 / 1;
-
-  background: #f1f5f9;
-
   overflow: hidden;
+
+  background:
+    linear-gradient(145deg, #1b2a48, #10192c);
 }
 
+.owner-album-cover-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 55% 0 0;
+
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(7, 13, 26, 0.2)
+  );
+
+  pointer-events: none;
+}
 
 .owner-album-cover {
+  display: block;
   width: 100%;
-
   height: 100%;
-
   object-fit: cover;
 
-  display: block;
-
-  transition:
-    transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
-
-.owner-album-card:hover
-.owner-album-cover {
-  transform: scale(1.04);
+.owner-album-card:hover .owner-album-cover {
+  transform: scale(1.045);
 }
-
 
 /* =========================================================
-   DETAILS
+   ALBUM DETAILS
 ========================================================= */
 
 .owner-album-details {
-  padding: 15px;
+  min-width: 0;
+  padding: 16px;
 }
-
 
 .owner-album-details h3 {
   margin: 0;
 
-  color: #111827;
-
-  font-size: 16px;
-
-  font-weight: 700;
-
-  white-space: nowrap;
+  color: #f2f4fc;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.5;
 
   overflow: hidden;
-
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
-
 
 .owner-album-artist {
-  margin: 6px 0 12px;
+  margin: 7px 0 13px;
 
-  color: #64748b;
-
-  font-size: 13px;
-
-  white-space: nowrap;
+  color: #9ba9c3;
+  font-size: 12px;
+  line-height: 1.6;
 
   overflow: hidden;
-
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-
 /* =========================================================
-   META
+   ALBUM META
 ========================================================= */
 
 .owner-album-meta {
   display: flex;
-
   align-items: center;
-
   flex-wrap: wrap;
-
-  gap: 6px;
+  gap: 7px;
 }
-
 
 .owner-album-meta span {
+  max-width: 100%;
   display: inline-flex;
-
   align-items: center;
 
-  padding: 4px 7px;
+  padding: 5px 8px;
 
-  border-radius: 6px;
+  border: 1px solid rgba(160, 183, 222, 0.12);
+  border-radius: 7px;
 
-  background: #f1f5f9;
-
-  color: #475569;
+  background: rgba(160, 183, 222, 0.07);
+  color: #c1cce0;
 
   font-size: 10px;
+  font-weight: 650;
+  line-height: 1.4;
 
-  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
-
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — LAPTOP
 ========================================================= */
 
 @media (max-width: 1200px) {
-
   .owner-albums-grid {
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
   }
 
+  .owner-albums-summary {
+    gap: 13px;
+  }
+
+  .owner-albums-summary-card {
+    padding: 19px;
+  }
 }
 
+/* =========================================================
+   RESPONSIVE — TABLET
+========================================================= */
 
 @media (max-width: 900px) {
-
   .owner-albums-page {
-    padding: 15px;
+    padding: 20px 18px 65px;
   }
-
 
   .owner-albums-header {
-    flex-direction: column;
-
     align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 23px;
   }
 
+  .owner-albums-title-area {
+    flex: 1;
+  }
 
   .owner-albums-summary {
     grid-template-columns: 1fr;
+    gap: 11px;
   }
 
+  .owner-albums-summary-card {
+    min-height: 78px;
+    padding: 17px 19px;
+  }
+
+  .owner-albums-summary-card strong {
+    font-size: 28px;
+  }
 
   .owner-albums-filter-row {
-    flex-direction: column;
-
     align-items: stretch;
+    flex-direction: column;
+    gap: 11px;
   }
-
 
   .owner-albums-search {
     min-width: 0;
+    width: 100%;
   }
-
 
   .owner-albums-language-select {
     width: 100%;
   }
 
-
-  .owner-albums-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+  .owner-albums-clear-button {
+    width: 100%;
   }
 
+  .owner-albums-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
 }
 
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
 
 @media (max-width: 550px) {
+  .owner-albums-page {
+    padding: 14px 12px 50px;
+  }
+
+  .owner-albums-header {
+    flex-direction: column;
+    gap: 17px;
+    padding: 20px 17px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+  }
+
+  .owner-albums-back-button {
+    padding: 10px 13px;
+    font-size: 12px;
+  }
+
+  .owner-albums-title-area {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .owner-albums-title-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 20px;
+  }
+
+  .owner-albums-title-area h1 {
+    font-size: 25px;
+  }
+
+  .owner-albums-title-area p {
+    font-size: 12px;
+  }
+
+  .owner-albums-filter-card {
+    padding: 16px;
+    border-radius: 15px;
+  }
+
+  .owner-albums-filter-title {
+    font-size: 13px;
+  }
 
   .owner-albums-list-card {
     padding: 15px;
+    border-radius: 15px;
   }
 
+  .owner-albums-list-header {
+    margin-bottom: 17px;
+  }
+
+  .owner-albums-list-header h2 {
+    font-size: 17px;
+  }
 
   .owner-albums-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
+  .owner-album-card {
+    border-radius: 12px;
+  }
+
+  .owner-album-details {
+    padding: 11px;
+  }
+
+  .owner-album-details h3 {
+    font-size: 13px;
+  }
+
+  .owner-album-artist {
+    margin: 5px 0 10px;
+    font-size: 11px;
+  }
+
+  .owner-album-meta {
+    gap: 5px;
+  }
+
+  .owner-album-meta span {
+    padding: 4px 6px;
+    font-size: 9px;
+  }
+
+  .owner-albums-empty {
+    min-height: 270px;
+    padding: 25px 17px;
+  }
+
+  .owner-albums-empty h2 {
+    font-size: 25px;
+  }
+
+  .owner-albums-empty p {
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+  .owner-albums-page {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
 
   .owner-albums-title-area h1 {
-    font-size: 21px;
+    font-size: 22px;
   }
 
+  .owner-albums-title-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .owner-albums-grid {
+    gap: 9px;
+  }
+
+  .owner-album-details {
+    padding: 9px;
+  }
+
+  .owner-album-details h3 {
+    font-size: 12px;
+  }
+
+  .owner-album-meta span {
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-albums-back-button,
+  .owner-albums-summary-card,
+  .owner-albums-search input,
+  .owner-albums-clear-search,
+  .owner-albums-clear-button,
+  .owner-albums-empty-button,
+  .owner-album-card,
+  .owner-album-cover {
+    transition: none;
+  }
+
+  .owner-albums-spinner {
+    animation-duration: 2s;
+  }
 }

@@ -1,13 +1,44 @@
+
 /* =========================================================
-   BUSINESS OWNER SONGS PAGE
+   KEERTHANA MUSIC — BUSINESS OWNER SONGS PAGE
+   Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
 .owner-songs-page {
+  --songs-bg: #080d1a;
+  --songs-surface: #101a2e;
+  --songs-card: #111e34;
+  --songs-card-hover: #172844;
+  --songs-border: rgba(158, 181, 222, 0.15);
+  --songs-text: #f4f7ff;
+  --songs-muted: #a1aec5;
+  --songs-blue: #527cff;
+  --songs-gold: #e8c879;
+
   min-height: 100vh;
-  padding: 24px;
-  background: #f5f7fb;
+  padding: 28px;
+  padding-bottom: 110px;
+  color: var(--songs-text);
+  background:
+    radial-gradient(
+      ellipse at 5% 0%,
+      rgba(61, 100, 190, 0.14),
+      transparent 36%
+    ),
+    radial-gradient(
+      ellipse at 100% 18%,
+      rgba(232, 200, 121, 0.055),
+      transparent 30%
+    ),
+    var(--songs-bg);
+  box-sizing: border-box;
 }
 
+.owner-songs-page *,
+.owner-songs-page *::before,
+.owner-songs-page *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
    HEADER
@@ -16,62 +47,89 @@
 .owner-songs-header {
   width: 100%;
   max-width: 1500px;
-  margin: 0 auto 24px;
+  margin: 0 auto 25px;
+  padding: 23px 27px;
 
   display: flex;
   align-items: center;
   gap: 24px;
 
-  padding: 20px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 34, 59, 0.98),
+    rgba(13, 23, 42, 0.98)
+  );
 
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 18px;
+  border: 1px solid var(--songs-border);
+  border-radius: 21px;
 
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.05);
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  position: relative;
+  overflow: hidden;
 }
 
+.owner-songs-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+
+  background: linear-gradient(
+    180deg,
+    var(--songs-gold),
+    var(--songs-blue)
+  );
+}
 
 /* =========================================================
    BACK BUTTON
 ========================================================= */
 
 .owner-songs-back-button {
-  border: none;
+  flex-shrink: 0;
 
-  background: #f1f5f9;
-
-  color: #334155;
+  border: 1px solid rgba(172, 190, 222, 0.17);
+  background: rgba(255, 255, 255, 0.045);
+  color: #dbe5f8;
 
   padding: 11px 16px;
-
-  border-radius: 10px;
+  border-radius: 11px;
 
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 
+  font-family: inherit;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
 
   cursor: pointer;
 
-  white-space: nowrap;
-
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.22s ease;
 }
 
 .owner-songs-back-button:hover {
-  background: #e2e8f0;
-
-  transform: translateX(-2px);
+  background: rgba(82, 124, 255, 0.14);
+  border-color: rgba(82, 124, 255, 0.45);
+  color: #ffffff;
+  transform: translateX(-3px);
 }
 
+.owner-songs-back-button:focus-visible {
+  outline: 3px solid var(--songs-gold);
+  outline-offset: 3px;
+}
 
 /* =========================================================
    TITLE
@@ -79,814 +137,1074 @@
 
 .owner-songs-title-area {
   display: flex;
-
   align-items: center;
-
-  gap: 15px;
+  gap: 16px;
+  min-width: 0;
 }
 
-
 .owner-songs-title-icon {
-  width: 54px;
-  height: 54px;
+  width: 58px;
+  min-width: 58px;
+  height: 58px;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #eef2ff;
+  background: linear-gradient(
+    145deg,
+    rgba(82, 124, 255, 0.2),
+    rgba(82, 124, 255, 0.07)
+  );
 
-  color: #4f46e5;
-
-  font-size: 23px;
+  border: 1px solid rgba(104, 143, 255, 0.25);
+  color: var(--songs-gold);
+  font-size: 25px;
 }
-
 
 .owner-songs-title-area h1 {
   margin: 0;
+  color: var(--songs-text);
 
-  font-size: 25px;
-
-  color: #111827;
-
-  font-weight: 700;
+  font-size: clamp(23px, 2vw, 28px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
 }
-
 
 .owner-songs-title-area p {
-  margin: 5px 0 0;
+  margin: 6px 0 0;
+  color: var(--songs-muted);
 
   font-size: 14px;
-
-  color: #64748b;
+  line-height: 1.6;
 }
 
-
 /* =========================================================
-   CONTENT
+   MAIN CONTENT
 ========================================================= */
 
 .owner-songs-content {
   width: 100%;
   max-width: 1500px;
-
   margin: 0 auto;
 }
 
-
 /* =========================================================
-   SUMMARY
+   SUMMARY CARDS
 ========================================================= */
 
 .owner-songs-summary {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 16px;
-
-  margin-bottom: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 23px;
 }
-
 
 .owner-songs-summary-card {
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 15px;
-
-  padding: 18px 20px;
+  min-width: 0;
+  min-height: 105px;
+  padding: 22px 23px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
+  gap: 14px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(20, 33, 57, 0.98),
+    rgba(14, 24, 43, 0.98)
+  );
+
+  border: 1px solid var(--songs-border);
+  border-radius: 17px;
 
   box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.04);
+    0 7px 22px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  transition:
+    border-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
+.owner-songs-summary-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(82, 124, 255, 0.35);
+
+  box-shadow:
+    0 12px 27px rgba(0, 0, 0, 0.2),
+    0 0 18px rgba(82, 124, 255, 0.04);
+}
 
 .owner-songs-summary-card span {
-  color: #64748b;
-
+  color: var(--songs-muted);
   font-size: 14px;
-
   font-weight: 600;
+  line-height: 1.5;
 }
-
 
 .owner-songs-summary-card strong {
-  color: #111827;
-
-  font-size: 24px;
-
-  font-weight: 700;
+  color: #f5f7ff;
+  font-size: 27px;
+  font-weight: 750;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
-
 
 .owner-songs-language-value {
   font-size: 17px !important;
-
-  color: #4f46e5 !important;
+  color: var(--songs-gold) !important;
 }
-
 
 /* =========================================================
    FILTER CARD
 ========================================================= */
 
 .owner-songs-filter-card {
-  background: #ffffff;
+  padding: 22px;
+  margin-bottom: 23px;
 
-  border: 1px solid #e5e7eb;
+  background: linear-gradient(
+    145deg,
+    rgba(17, 30, 52, 0.98),
+    rgba(13, 23, 41, 0.98)
+  );
 
-  border-radius: 17px;
+  border: 1px solid var(--songs-border);
+  border-radius: 18px;
 
-  padding: 20px;
-
-  margin-bottom: 20px;
-
-  box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 7px 22px rgba(0, 0, 0, 0.13);
 }
-
 
 .owner-songs-filter-title {
   display: flex;
-
   align-items: center;
+  gap: 9px;
 
-  gap: 8px;
+  margin-bottom: 17px;
 
-  margin-bottom: 15px;
-
-  color: #334155;
-
+  color: #e7edfa;
   font-size: 15px;
-
   font-weight: 700;
 }
 
+.owner-songs-filter-title svg {
+  color: var(--songs-gold);
+  font-size: 16px;
+}
 
 .owner-songs-filter-row {
   display: flex;
-
   align-items: center;
-
-  gap: 12px;
+  gap: 13px;
 }
 
-
 /* =========================================================
-   SEARCH
+   SEARCH INPUT
 ========================================================= */
 
 .owner-songs-search {
   position: relative;
-
   flex: 1;
-
   min-width: 250px;
 }
 
-
 .owner-songs-search > svg {
   position: absolute;
-
-  left: 14px;
-
+  left: 15px;
   top: 50%;
-
   transform: translateY(-50%);
 
-  color: #94a3b8;
-
+  color: #8fa4c8;
   font-size: 15px;
+
+  pointer-events: none;
 }
 
-
 .owner-songs-search input {
+  display: block;
   width: 100%;
+  height: 46px;
 
-  height: 44px;
+  padding: 0 42px 0 42px;
 
-  padding:
-    0 42px
-    0 40px;
+  border: 1px solid rgba(158, 181, 222, 0.19);
+  border-radius: 11px;
 
-  border: 1px solid #dbe1ea;
+  background: #0b1425;
+  color: #f4f7ff;
 
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  color: #111827;
-
+  font-family: inherit;
   font-size: 14px;
 
   outline: none;
 
-  box-sizing: border-box;
-
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
+.owner-songs-search input::placeholder {
+  color: #7788a5;
+  opacity: 1;
+}
+
+.owner-songs-search input:hover {
+  border-color: rgba(158, 181, 222, 0.32);
+}
 
 .owner-songs-search input:focus {
-  border-color: #818cf8;
+  border-color: var(--songs-blue);
+  background: #0e192d;
 
   box-shadow:
-    0 0 0 3px
-    rgba(99, 102, 241, 0.10);
+    0 0 0 3px rgba(82, 124, 255, 0.14),
+    0 4px 14px rgba(0, 0, 0, 0.12);
 }
-
 
 .owner-songs-clear-search {
   position: absolute;
-
-  right: 10px;
-
+  right: 11px;
   top: 50%;
-
   transform: translateY(-50%);
 
-  border: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
 
   background: transparent;
-
-  color: #94a3b8;
+  color: #9aabc5;
 
   cursor: pointer;
 
-  font-size: 13px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
+.owner-songs-clear-search:hover {
+  background: rgba(82, 124, 255, 0.13);
+  border-color: rgba(82, 124, 255, 0.22);
+  color: #ffffff;
+}
+
+.owner-songs-clear-search:focus-visible {
+  outline: 2px solid var(--songs-gold);
+  outline-offset: 2px;
+}
 
 /* =========================================================
    LANGUAGE SELECT
 ========================================================= */
 
 .owner-songs-language-select {
-  height: 44px;
-
+  height: 46px;
   min-width: 180px;
+  max-width: 100%;
+  padding: 0 35px 0 14px;
 
-  padding: 0 14px;
+  border: 1px solid rgba(158, 181, 222, 0.19);
+  border-radius: 11px;
 
-  border: 1px solid #dbe1ea;
+  background-color: #0b1425;
+  color: #e5ecfa;
 
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  color: #334155;
-
+  font-family: inherit;
   font-size: 14px;
 
   outline: none;
-
   cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
+.owner-songs-language-select:hover {
+  border-color: rgba(158, 181, 222, 0.32);
+}
 
 .owner-songs-language-select:focus {
-  border-color: #818cf8;
+  border-color: var(--songs-blue);
 
-  box-shadow:
-    0 0 0 3px
-    rgba(99, 102, 241, 0.10);
+  box-shadow: 0 0 0 3px rgba(82, 124, 255, 0.14);
 }
 
+.owner-songs-language-select option {
+  background: #101a2e;
+  color: #f4f7ff;
+}
 
 /* =========================================================
-   CLEAR BUTTON
+   CLEAR FILTERS BUTTON
 ========================================================= */
 
 .owner-songs-clear-button {
-  height: 44px;
+  min-height: 46px;
+  padding: 0 16px;
 
-  padding: 0 15px;
+  border: 1px solid rgba(232, 200, 121, 0.2);
+  border-radius: 11px;
 
-  border: none;
-
-  border-radius: 10px;
-
-  background: #fef2f2;
-
-  color: #dc2626;
+  background: rgba(232, 200, 121, 0.075);
+  color: #e8c879;
 
   display: inline-flex;
-
   align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  gap: 7px;
-
+  font-family: inherit;
   font-size: 13px;
-
-  font-weight: 600;
+  font-weight: 650;
+  white-space: nowrap;
 
   cursor: pointer;
 
-  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
-
 
 .owner-songs-clear-button:hover {
-  background: #fee2e2;
+  background: rgba(232, 200, 121, 0.14);
+  border-color: rgba(232, 200, 121, 0.4);
+  transform: translateY(-1px);
 }
 
+.owner-songs-clear-button:focus-visible {
+  outline: 2px solid var(--songs-gold);
+  outline-offset: 3px;
+}
 
 /* =========================================================
-   ERROR
+   ERROR MESSAGE
 ========================================================= */
 
 .owner-songs-error {
-  padding: 14px 16px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
 
-  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
 
-  border-radius: 10px;
+  border: 1px solid rgba(255, 111, 126, 0.28);
+  border-radius: 12px;
 
-  background: #fef2f2;
-
-  border: 1px solid #fecaca;
-
-  color: #b91c1c;
+  background: rgba(145, 38, 57, 0.13);
+  color: #ffb5bd;
 
   font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
-
 /* =========================================================
-   LOADING
+   LOADING STATE
 ========================================================= */
 
 .owner-songs-loading {
   min-height: 300px;
+  padding: 30px;
 
-  background: #ffffff;
+  background: linear-gradient(
+    145deg,
+    rgba(17, 30, 52, 0.98),
+    rgba(13, 23, 41, 0.98)
+  );
 
-  border: 1px solid #e5e7eb;
-
-  border-radius: 17px;
+  border: 1px solid var(--songs-border);
+  border-radius: 18px;
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
-
-  gap: 12px;
+  gap: 15px;
 }
 
-
 .owner-songs-spinner {
-  width: 36px;
-  height: 36px;
+  width: 39px;
+  height: 39px;
 
-  border: 4px solid #e5e7eb;
-
-  border-top-color: #4f46e5;
+  border: 3px solid rgba(158, 181, 222, 0.17);
+  border-top-color: var(--songs-gold);
+  border-right-color: var(--songs-blue);
 
   border-radius: 50%;
 
-  animation:
-    ownerSongsSpin
-    0.8s linear infinite;
+  animation: ownerSongsSpin 0.8s linear infinite;
 }
 
-
 @keyframes ownerSongsSpin {
-
   to {
     transform: rotate(360deg);
   }
-
 }
-
 
 .owner-songs-loading p {
   margin: 0;
-
-  color: #64748b;
-
+  color: var(--songs-muted);
   font-size: 14px;
+  text-align: center;
 }
 
-
 /* =========================================================
-   EMPTY
+   EMPTY STATE
 ========================================================= */
 
 .owner-songs-empty {
   min-height: 320px;
+  padding: 35px 25px;
 
-  background: #ffffff;
+  background: linear-gradient(
+    145deg,
+    rgba(17, 30, 52, 0.98),
+    rgba(13, 23, 41, 0.98)
+  );
 
-  border: 1px solid #e5e7eb;
-
-  border-radius: 17px;
+  border: 1px solid var(--songs-border);
+  border-radius: 18px;
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
 
   text-align: center;
-
-  padding: 30px;
 }
-
 
 .owner-songs-empty-icon {
-  width: 65px;
-  height: 65px;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 18px;
 
-  border-radius: 50%;
+  border-radius: 21px;
 
-  background: #eef2ff;
+  background: linear-gradient(
+    145deg,
+    rgba(82, 124, 255, 0.2),
+    rgba(82, 124, 255, 0.07)
+  );
 
-  color: #4f46e5;
+  border: 1px solid rgba(104, 143, 255, 0.23);
+  color: var(--songs-gold);
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
-  font-size: 27px;
-
-  margin-bottom: 15px;
+  font-size: 28px;
 }
-
 
 .owner-songs-empty h2 {
-  margin: 0 0 7px;
-
-  color: #111827;
-
-  font-size: 20px;
+  margin: 0 0 9px;
+  color: var(--songs-text);
+  font-size: 21px;
+  font-weight: 700;
 }
-
 
 .owner-songs-empty p {
+  max-width: 500px;
   margin: 0;
 
-  max-width: 500px;
-
-  color: #64748b;
-
+  color: var(--songs-muted);
   font-size: 14px;
-
-  line-height: 1.6;
+  line-height: 1.8;
 }
 
-
 .owner-songs-empty-button {
-  margin-top: 18px;
+  margin-top: 20px;
+  padding: 11px 19px;
 
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
 
-  background: #4f46e5;
+  background: linear-gradient(
+    135deg,
+    #527cff,
+    #365fd6
+  );
 
   color: #ffffff;
 
-  padding: 10px 18px;
-
-  border-radius: 9px;
-
+  font-family: inherit;
   font-size: 13px;
-
-  font-weight: 600;
+  font-weight: 650;
 
   cursor: pointer;
+
+  box-shadow: 0 6px 16px rgba(52, 91, 204, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
 
+.owner-songs-empty-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 9px 22px rgba(52, 91, 204, 0.3);
+}
+
+.owner-songs-empty-button:focus-visible {
+  outline: 3px solid var(--songs-gold);
+  outline-offset: 3px;
+}
 
 /* =========================================================
    TABLE CARD
 ========================================================= */
 
 .owner-songs-table-card {
-  background: #ffffff;
+  width: 100%;
+  min-width: 0;
 
-  border: 1px solid #e5e7eb;
+  background: #101a2e;
 
-  border-radius: 17px;
+  border: 1px solid var(--songs-border);
+  border-radius: 18px;
 
   overflow: hidden;
 
   box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.04);
+    0 8px 25px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
-
 
 .owner-songs-table-header {
-  padding: 20px 22px;
+  padding: 22px 24px;
 
-  border-bottom: 1px solid #eef0f4;
+  border-bottom: 1px solid rgba(158, 181, 222, 0.12);
+
+  background: linear-gradient(
+    110deg,
+    rgba(21, 36, 62, 0.8),
+    rgba(16, 26, 46, 0.7)
+  );
 }
-
 
 .owner-songs-table-header h2 {
   margin: 0;
+  color: #f4f7ff;
 
-  color: #111827;
-
-  font-size: 18px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.25px;
 }
-
 
 .owner-songs-table-header p {
-  margin: 5px 0 0;
-
-  color: #64748b;
+  margin: 6px 0 0;
+  color: var(--songs-muted);
 
   font-size: 13px;
+  line-height: 1.6;
 }
 
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.owner-songs-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #344766 #101a2e;
+}
+
+.owner-songs-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.owner-songs-table-wrapper::-webkit-scrollbar-track {
+  background: #101a2e;
+}
+
+.owner-songs-table-wrapper::-webkit-scrollbar-thumb {
+  background: #344766;
+  border-radius: 10px;
+}
+
+.owner-songs-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #526a91;
+}
 
 /* =========================================================
    TABLE
 ========================================================= */
 
-.owner-songs-table-wrapper {
-  width: 100%;
-
-  overflow-x: auto;
-}
-
-
 .owner-songs-table {
   width: 100%;
-
-  border-collapse: collapse;
-
   min-width: 1000px;
-}
 
+  border-collapse: separate;
+  border-spacing: 0;
+
+  color: #dbe5f8;
+  text-align: left;
+}
 
 .owner-songs-table th {
-  padding: 14px 16px;
+  padding: 15px 17px;
 
-  background: #f8fafc;
+  background: #14213a;
+  color: #aab8d0;
 
-  color: #64748b;
-
-  font-size: 12px;
-
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.65px;
+  text-transform: uppercase;
 
   text-align: left;
-
   white-space: nowrap;
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(158, 181, 222, 0.15);
 }
-
 
 .owner-songs-table td {
-  padding: 14px 16px;
+  padding: 15px 17px;
 
-  color: #334155;
-
+  color: #c4cfe2;
   font-size: 13px;
-
-  border-bottom: 1px solid #f1f5f9;
+  line-height: 1.6;
 
   vertical-align: middle;
+
+  border-bottom: 1px solid rgba(158, 181, 222, 0.09);
 }
 
+.owner-songs-table tbody tr {
+  background: rgba(255, 255, 255, 0.005);
+
+  transition: background 0.18s ease;
+}
 
 .owner-songs-table tbody tr:hover {
-  background: #fafbff;
+  background: rgba(82, 124, 255, 0.075);
 }
 
+.owner-songs-table tbody tr:last-child td {
+  border-bottom: none;
+}
 
 .owner-songs-number {
-  width: 50px;
+  width: 55px;
 
-  color: #94a3b8 !important;
-
-  font-weight: 600;
+  color: #8495b2 !important;
+  font-size: 12px !important;
+  font-weight: 650;
 }
 
-
 /* =========================================================
-   SONG INFO
+   SONG INFORMATION
 ========================================================= */
 
 .owner-song-info {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-
   min-width: 240px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
 }
 
-
 .owner-song-cover {
-  width: 48px;
-  height: 48px;
-
-  border-radius: 9px;
-
-  object-fit: cover;
+  width: 49px;
+  height: 49px;
 
   flex-shrink: 0;
 
-  background: #f1f5f9;
-}
+  object-fit: cover;
+  border-radius: 10px;
 
+  background: #1a2943;
+  border: 1px solid rgba(158, 181, 222, 0.15);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
 
 .owner-song-info > div {
   min-width: 0;
 
   display: flex;
-
   flex-direction: column;
-
   gap: 4px;
 }
 
-
 .owner-song-info strong {
-  color: #111827;
+  display: block;
+  max-width: 240px;
 
-  font-size: 14px;
-
+  color: #f1f5ff;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.5;
 
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
-  max-width: 240px;
 }
-
 
 .owner-song-info span {
-  color: #94a3b8;
+  display: block;
+  max-width: 240px;
 
+  color: #8fa0bd;
   font-size: 12px;
+  line-height: 1.5;
 
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
-  max-width: 240px;
 }
 
-
 /* =========================================================
-   LANGUAGE BADGE
+   LANGUAGE BADGES
 ========================================================= */
 
 .owner-song-language {
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
 
-  padding: 5px 9px;
+  padding: 5px 10px;
 
-  border-radius: 7px;
+  border: 1px solid rgba(158, 181, 222, 0.15);
+  border-radius: 8px;
 
-  background: #f1f5f9;
-
-  color: #475569;
+  background: rgba(158, 181, 222, 0.08);
+  color: #c7d3e9;
 
   font-size: 11px;
-
   font-weight: 700;
-
+  line-height: 1.4;
   white-space: nowrap;
 }
 
-
 .owner-song-language-telugu {
-  background: #fff7ed;
-
-  color: #c2410c;
+  background: rgba(232, 200, 121, 0.1);
+  border-color: rgba(232, 200, 121, 0.22);
+  color: #f0d99d;
 }
-
 
 .owner-song-language-hindi {
-  background: #fef2f2;
-
-  color: #b91c1c;
+  background: rgba(255, 119, 137, 0.09);
+  border-color: rgba(255, 119, 137, 0.19);
+  color: #ffb0bb;
 }
-
 
 .owner-song-language-english {
-  background: #eff6ff;
-
-  color: #1d4ed8;
+  background: rgba(82, 124, 255, 0.12);
+  border-color: rgba(82, 124, 255, 0.24);
+  color: #a9c0ff;
 }
-
 
 .owner-song-language-malayalam {
-  background: #f0fdf4;
-
-  color: #15803d;
+  background: rgba(72, 166, 210, 0.1);
+  border-color: rgba(72, 166, 210, 0.22);
+  color: #9edcf4;
 }
-
 
 .owner-song-language-kannada {
-  background: #fefce8;
-
-  color: #a16207;
+  background: rgba(190, 153, 255, 0.1);
+  border-color: rgba(190, 153, 255, 0.22);
+  color: #d2b9ff;
 }
-
 
 .owner-song-language-tamil {
-  background: #faf5ff;
-
-  color: #7e22ce;
+  background: rgba(232, 154, 195, 0.1);
+  border-color: rgba(232, 154, 195, 0.22);
+  color: #f0b8d8;
 }
 
-
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
 ========================================================= */
 
-@media (max-width: 900px) {
-
+@media (max-width: 1100px) {
   .owner-songs-page {
-    padding: 15px;
+    padding: 22px;
+    padding-bottom: 100px;
   }
-
-
-  .owner-songs-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
 
   .owner-songs-summary {
-    grid-template-columns: 1fr;
+    gap: 13px;
   }
 
+  .owner-songs-summary-card {
+    padding: 19px;
+  }
 
   .owner-songs-filter-row {
-    flex-direction: column;
-
-    align-items: stretch;
+    flex-wrap: wrap;
   }
-
 
   .owner-songs-search {
-    min-width: 0;
+    min-width: 220px;
   }
 
+  .owner-songs-language-select {
+    min-width: 160px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL TABLET
+========================================================= */
+
+@media (max-width: 800px) {
+  .owner-songs-page {
+    padding: 18px;
+    padding-bottom: 100px;
+  }
+
+  .owner-songs-header {
+    align-items: flex-start;
+    gap: 18px;
+    padding: 21px;
+  }
+
+  .owner-songs-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .owner-songs-summary-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .owner-songs-filter-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .owner-songs-search {
+    width: 100%;
+    min-width: 0;
+  }
 
   .owner-songs-language-select {
     width: 100%;
   }
 
+  .owner-songs-clear-button {
+    align-self: flex-start;
+  }
 }
 
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
 
 @media (max-width: 600px) {
+  .owner-songs-page {
+    padding: 13px;
+    padding-bottom: 95px;
+  }
 
   .owner-songs-header {
-    padding: 18px;
+    margin-bottom: 19px;
+    padding: 19px 16px;
+
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 17px;
+
+    border-radius: 17px;
   }
 
-
-  .owner-songs-title-area h1 {
-    font-size: 21px;
-  }
-
-
-  .owner-songs-title-area p {
+  .owner-songs-back-button {
+    padding: 10px 13px;
     font-size: 13px;
   }
 
+  .owner-songs-title-area {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .owner-songs-title-icon {
+    width: 49px;
+    min-width: 49px;
+    height: 49px;
+
+    border-radius: 14px;
+    font-size: 21px;
+  }
+
+  .owner-songs-title-area h1 {
+    font-size: 21px;
+    letter-spacing: -0.35px;
+  }
+
+  .owner-songs-title-area p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .owner-songs-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .owner-songs-summary-card,
+  .owner-songs-summary-card:last-child {
+    grid-column: auto;
+    min-height: 86px;
+    padding: 17px 18px;
+    border-radius: 14px;
+  }
+
+  .owner-songs-summary-card span {
+    font-size: 13px;
+  }
+
+  .owner-songs-summary-card strong {
+    font-size: 24px;
+  }
+
+  .owner-songs-language-value {
+    font-size: 15px !important;
+  }
 
   .owner-songs-filter-card {
     padding: 16px;
+    margin-bottom: 18px;
+    border-radius: 15px;
   }
 
+  .owner-songs-filter-title {
+    margin-bottom: 13px;
+    font-size: 14px;
+  }
+
+  .owner-songs-search input,
+  .owner-songs-language-select {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .owner-songs-clear-button {
+    min-height: 43px;
+  }
+
+  .owner-songs-table-card {
+    border-radius: 15px;
+  }
+
+  .owner-songs-table-header {
+    padding: 18px 16px;
+  }
+
+  .owner-songs-table-header h2 {
+    font-size: 17px;
+  }
+
+  .owner-songs-table-header p {
+    font-size: 12px;
+  }
+
+  .owner-songs-empty {
+    min-height: 280px;
+    padding: 27px 18px;
+  }
+
+  .owner-songs-empty-icon {
+    width: 59px;
+    height: 59px;
+    margin-bottom: 15px;
+    border-radius: 18px;
+    font-size: 24px;
+  }
+
+  .owner-songs-empty h2 {
+    font-size: 19px;
+  }
+
+  .owner-songs-empty p {
+    font-size: 13px;
+  }
+
+  .owner-songs-loading {
+    min-height: 250px;
+  }
+
+  .owner-songs-error {
+    padding: 13px;
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+  .owner-songs-page {
+    padding: 10px;
+    padding-bottom: 90px;
+  }
+
+  .owner-songs-header {
+    padding: 16px 13px;
+  }
+
+  .owner-songs-title-icon {
+    width: 43px;
+    min-width: 43px;
+    height: 43px;
+    font-size: 19px;
+  }
+
+  .owner-songs-title-area h1 {
+    font-size: 19px;
+  }
+
+  .owner-songs-title-area p {
+    font-size: 11px;
+  }
+
+  .owner-songs-summary-card {
+    padding: 15px;
+  }
+
+  .owner-songs-filter-card {
+    padding: 13px;
+  }
+
+  .owner-songs-clear-button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-songs-page *,
+  .owner-songs-page *::before,
+  .owner-songs-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

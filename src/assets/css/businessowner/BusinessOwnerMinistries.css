@@ -1,11 +1,40 @@
+
 /* =========================================================
-   BUSINESS OWNER MINISTRIES
+   KEERTHANA MUSIC — BUSINESS OWNER MINISTRIES
+   Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
 .owner-ministries-page {
+  --ministry-bg: #080d1a;
+  --ministry-surface: #101a2e;
+  --ministry-card: #111c31;
+  --ministry-card-hover: #172641;
+  --ministry-border: rgba(160, 183, 222, 0.14);
+  --ministry-text: #f4f6fc;
+  --ministry-muted: #9aa9c2;
+  --ministry-blue: #789aff;
+  --ministry-blue-strong: #5278ed;
+  --ministry-gold: #e3c47b;
+
   min-height: 100vh;
-  padding: 28px;
-  background: #f5f6fa;
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      ellipse at 12% 0%,
+      rgba(82, 120, 237, 0.12),
+      transparent 32%
+    ),
+    linear-gradient(
+      145deg,
+      #080d1a 0%,
+      #0b1324 52%,
+      #0d172a 100%
+    );
+
+  color: var(--ministry-text);
 }
 
 
@@ -14,13 +43,14 @@
 ========================================================= */
 
 .owner-ministries-header {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
+
 
 .owner-ministries-header-left {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 23px;
 }
 
 
@@ -31,68 +61,91 @@
   align-items: center;
   gap: 9px;
 
+  padding: 8px 0;
+
   border: none;
   background: transparent;
 
-  color: #5b3cc4;
+  color: var(--ministry-blue);
 
-  font-size: 14px;
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 700;
 
   cursor: pointer;
 
-  padding: 0;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
 .owner-ministries-back-btn:hover {
-  color: #4325a0;
+  color: var(--ministry-gold);
+  transform: translateX(-3px);
+}
+
+
+.owner-ministries-back-btn:focus-visible {
+  outline: 2px solid var(--ministry-blue);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 
 .owner-ministries-title {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 17px;
 }
 
 
 .owner-ministries-title-icon {
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 16px;
+  border: 1px solid rgba(227, 196, 123, 0.26);
+  border-radius: 18px;
 
-  background: #ede7ff;
+  background: linear-gradient(
+    145deg,
+    #203966,
+    #152744
+  );
 
-  color: #5b3cc4;
-
+  color: var(--ministry-gold);
   font-size: 25px;
 
-  flex-shrink: 0;
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 
 .owner-ministries-title h1 {
   margin: 0;
 
-  color: #202124;
+  color: var(--ministry-text);
 
-  font-size: 28px;
+  font-size: 29px;
   font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.65px;
 }
 
 
 .owner-ministries-title p {
-  margin: 5px 0 0;
+  margin: 7px 0 0;
 
-  color: #777;
+  color: var(--ministry-muted);
 
   font-size: 14px;
+  line-height: 1.6;
 }
 
 
@@ -102,73 +155,93 @@
 
 .owner-ministries-summary {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 18px;
-
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 
 .owner-ministry-summary-card {
+  position: relative;
+  overflow: hidden;
+
   display: flex;
   align-items: center;
+  gap: 16px;
 
-  gap: 14px;
+  min-width: 0;
+  padding: 22px;
 
-  padding: 20px;
+  background: linear-gradient(
+    145deg,
+    rgba(18, 30, 52, 0.98),
+    rgba(14, 24, 42, 0.98)
+  );
 
-  background: #ffffff;
+  border: 1px solid var(--ministry-border);
+  border-radius: 17px;
 
-  border: 1px solid #eeeeee;
+  box-shadow: 0 7px 24px rgba(0, 0, 0, 0.12);
 
-  border-radius: 16px;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+}
 
-  box-shadow:
-    0 4px 15px
-    rgba(0, 0, 0, 0.05);
+
+.owner-ministry-summary-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(120, 154, 255, 0.30);
+  background: linear-gradient(
+    145deg,
+    #172641,
+    #111d32
+  );
 }
 
 
 .owner-ministry-summary-icon {
-  width: 46px;
-  height: 46px;
+  width: 49px;
+  height: 49px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 13px;
+  border: 1px solid rgba(120, 154, 255, 0.19);
+  border-radius: 15px;
 
-  background: #ede7ff;
+  background: rgba(82, 120, 237, 0.13);
+  color: var(--ministry-blue);
 
-  color: #5b3cc4;
-
-  font-size: 19px;
-
-  flex-shrink: 0;
+  font-size: 20px;
 }
 
 
 .owner-ministry-summary-card span {
   display: block;
+  margin-bottom: 6px;
 
-  margin-bottom: 4px;
+  color: var(--ministry-muted);
 
-  color: #777;
-
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 
 .owner-ministry-summary-card strong {
   display: block;
 
-  color: #202124;
+  color: var(--ministry-text);
 
-  font-size: 21px;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 
@@ -179,43 +252,42 @@
 .owner-ministries-filter-card {
   display: flex;
   align-items: center;
+  gap: 13px;
 
-  gap: 14px;
-
-  margin-bottom: 22px;
-
+  margin-bottom: 25px;
   padding: 18px;
 
-  background: #ffffff;
+  background: rgba(16, 26, 46, 0.94);
 
-  border: 1px solid #eeeeee;
+  border: 1px solid var(--ministry-border);
+  border-radius: 17px;
 
-  border-radius: 16px;
-
-  box-shadow:
-    0 4px 15px
-    rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
 }
 
 
 .owner-ministries-search,
 .owner-ministries-language {
-  height: 44px;
+  height: 47px;
+  min-width: 0;
 
   display: flex;
   align-items: center;
+  gap: 11px;
 
-  gap: 10px;
+  padding: 0 14px;
+  box-sizing: border-box;
 
-  border: 1px solid #dddddd;
+  border: 1px solid rgba(160, 183, 222, 0.17);
+  border-radius: 12px;
 
-  border-radius: 10px;
+  background: #0a1426;
+  color: #91a5c7;
 
-  background: #ffffff;
-
-  color: #777;
-
-  padding: 0 13px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 
@@ -224,76 +296,135 @@
 }
 
 
+.owner-ministries-search:focus-within,
+.owner-ministries-language:focus-within {
+  border-color: var(--ministry-blue);
+  background: #0d192e;
+
+  box-shadow: 0 0 0 3px rgba(120, 154, 255, 0.10);
+}
+
+
+.owner-ministries-search > svg,
+.owner-ministries-language > svg {
+  flex-shrink: 0;
+  color: var(--ministry-blue);
+  font-size: 15px;
+}
+
+
 .owner-ministries-search input {
   width: 100%;
+  min-width: 0;
+  height: 100%;
+
+  padding: 0;
 
   border: none;
   outline: none;
 
   background: transparent;
+  color: var(--ministry-text);
 
-  color: #222;
-
-  font-size: 14px;
+  font-family: inherit;
+  font-size: 13px;
 }
 
 
 .owner-ministries-search input::placeholder {
-  color: #999;
+  color: #7787a2;
+}
+
+
+.owner-ministries-search input:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 
 .owner-ministries-language {
-  min-width: 190px;
+  flex: 0 0 205px;
 }
 
 
 .owner-ministries-language select {
   width: 100%;
+  min-width: 0;
+  height: 100%;
+
+  padding: 0;
 
   border: none;
   outline: none;
 
   background: transparent;
+  color: var(--ministry-text);
 
-  color: #333;
-
-  font-size: 14px;
+  font-family: inherit;
+  font-size: 13px;
 
   cursor: pointer;
+}
+
+
+.owner-ministries-language select option {
+  background: #101a2e;
+  color: #f4f6fc;
+}
+
+
+.owner-ministries-language select:focus-visible {
+  outline: none;
 }
 
 
 .owner-ministries-clear-btn {
-  height: 44px;
+  min-height: 47px;
+  flex-shrink: 0;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 9px;
 
-  gap: 8px;
+  padding: 0 17px;
 
-  padding: 0 15px;
+  border: 1px solid rgba(120, 154, 255, 0.23);
+  border-radius: 12px;
 
-  border: none;
+  background: rgba(82, 120, 237, 0.11);
+  color: var(--ministry-blue);
 
-  border-radius: 10px;
-
-  background: #f1efff;
-
-  color: #5b3cc4;
-
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 700;
 
   cursor: pointer;
-
   white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
 .owner-ministries-clear-btn:hover {
-  background: #e5dfff;
+  background: rgba(82, 120, 237, 0.20);
+  border-color: rgba(120, 154, 255, 0.42);
+  color: #a9bdff;
+}
+
+
+.owner-ministries-clear-btn:active {
+  transform: scale(0.98);
+}
+
+
+.owner-ministries-clear-btn:focus-visible {
+  outline: 2px solid var(--ministry-blue);
+  outline-offset: 3px;
 }
 
 
@@ -303,6 +434,7 @@
 
 .owner-ministries-content {
   width: 100%;
+  min-width: 0;
 }
 
 
@@ -312,43 +444,57 @@
 
 .owner-ministries-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 20px;
+  align-items: stretch;
 }
 
 
 /* =========================================================
-   CARD
+   MINISTRY CARD
 ========================================================= */
 
 .owner-ministry-card {
+  min-width: 0;
   overflow: hidden;
 
-  background: #ffffff;
+  display: flex;
+  flex-direction: column;
 
-  border: 1px solid #eeeeee;
+  background: linear-gradient(
+    155deg,
+    rgba(18, 30, 52, 0.98),
+    rgba(13, 23, 40, 0.98)
+  );
 
+  border: 1px solid var(--ministry-border);
   border-radius: 18px;
 
-  box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.13);
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.23s ease,
+    border-color 0.23s ease,
+    box-shadow 0.23s ease,
+    background 0.23s ease;
 }
 
 
 .owner-ministry-card:hover {
   transform: translateY(-4px);
 
+  border-color: rgba(120, 154, 255, 0.33);
+
+  background: linear-gradient(
+    155deg,
+    #172641,
+    #111d32
+  );
+
   box-shadow:
-    0 10px 28px
-    rgba(0, 0, 0, 0.09);
+    0 16px 35px rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(120, 154, 255, 0.035);
 }
 
 
@@ -360,12 +506,27 @@
   position: relative;
 
   width: 100%;
-
   height: 190px;
+  flex-shrink: 0;
 
   overflow: hidden;
 
-  background: #f0edff;
+  background: #14223a;
+}
+
+
+.owner-ministry-image-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 35% 0 0;
+
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(5, 10, 20, 0.36)
+  );
+
+  pointer-events: none;
 }
 
 
@@ -378,38 +539,40 @@
   object-fit: cover;
 
   transition:
-    transform 0.3s ease;
+    transform 0.4s ease,
+    filter 0.4s ease;
 }
 
 
-.owner-ministry-card:hover
-.owner-ministry-image {
-  transform: scale(1.04);
+.owner-ministry-card:hover .owner-ministry-image {
+  transform: scale(1.055);
+  filter: saturate(1.08);
 }
 
 
 .owner-ministry-image-icon {
   position: absolute;
+  z-index: 1;
 
-  left: 12px;
-  bottom: 12px;
+  left: 13px;
+  bottom: 13px;
 
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 11px;
+  border: 1px solid rgba(227, 196, 123, 0.30);
+  border-radius: 12px;
 
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(13, 24, 42, 0.91);
+  color: var(--ministry-gold);
 
-  color: #5b3cc4;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 
-  box-shadow:
-    0 3px 10px
-    rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
 }
 
 
@@ -418,7 +581,12 @@
 ========================================================= */
 
 .owner-ministry-card-content {
-  padding: 17px;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 18px;
 }
 
 
@@ -426,20 +594,21 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 10px;
 }
 
 
 .owner-ministry-card-top h2 {
+  min-width: 0;
   margin: 0;
 
-  color: #202124;
+  color: var(--ministry-text);
 
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
+  line-height: 1.45;
 
-  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 
@@ -448,16 +617,19 @@
   align-items: center;
   justify-content: center;
 
-  padding: 5px 9px;
+  flex-shrink: 0;
 
+  padding: 6px 10px;
+
+  border: 1px solid rgba(120, 154, 255, 0.20);
   border-radius: 20px;
 
-  background: #ede7ff;
+  background: rgba(82, 120, 237, 0.12);
+  color: #a9bdff;
 
-  color: #5b3cc4;
-
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 
   white-space: nowrap;
 }
@@ -470,16 +642,14 @@
 .owner-ministry-description {
   min-height: 42px;
 
-  margin: 11px 0 14px;
+  margin: 12px 0 17px;
 
-  color: #777;
+  color: var(--ministry-muted);
 
-  font-size: 13px;
-
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.7;
 
   display: -webkit-box;
-
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 
@@ -488,44 +658,49 @@
 
 
 /* =========================================================
-   FOOTER
+   CARD FOOTER
 ========================================================= */
 
 .owner-ministry-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 
   gap: 10px;
 
-  padding-top: 13px;
+  margin-top: auto;
+  padding-top: 14px;
 
-  border-top: 1px solid #eeeeee;
+  border-top: 1px solid rgba(160, 183, 222, 0.13);
 }
 
 
 .owner-ministry-song-count {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
 
-  gap: 7px;
+  color: var(--ministry-blue);
 
-  color: #5b3cc4;
-
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 
 .owner-ministry-song-count svg {
+  color: var(--ministry-gold);
   font-size: 13px;
 }
 
 
 .owner-ministry-id {
-  color: #999;
+  color: #7f8da6;
 
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -538,11 +713,12 @@
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
-  gap: 14px;
+  gap: 16px;
+
+  color: var(--ministry-muted);
 }
 
 
@@ -550,29 +726,27 @@
   width: 40px;
   height: 40px;
 
-  border: 4px solid #e7e2ff;
-
-  border-top-color: #5b3cc4;
+  border: 3px solid rgba(120, 154, 255, 0.16);
+  border-top-color: var(--ministry-blue);
+  border-right-color: var(--ministry-gold);
 
   border-radius: 50%;
 
-  animation:
-    ownerMinistrySpin
-    0.8s linear infinite;
+  animation: ownerMinistrySpin 0.8s linear infinite;
 }
 
 
 .owner-ministries-loading p {
   margin: 0;
 
-  color: #777;
+  color: var(--ministry-muted);
 
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 
 @keyframes ownerMinistrySpin {
-
   from {
     transform: rotate(0deg);
   }
@@ -580,7 +754,6 @@
   to {
     transform: rotate(360deg);
   }
-
 }
 
 
@@ -593,45 +766,51 @@
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
-  text-align: center;
-
   padding: 30px;
+
+  border: 1px solid rgba(248, 113, 113, 0.16);
+  border-radius: 18px;
+
+  background: rgba(127, 29, 29, 0.07);
+
+  text-align: center;
 }
 
 
 .owner-ministries-error > svg {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 
-  color: #d9534f;
-
+  color: #f87171;
   font-size: 38px;
 }
 
 
 .owner-ministries-error h3 {
-  margin: 0 0 7px;
+  margin: 0 0 8px;
 
-  color: #333;
+  color: var(--ministry-text);
 
   font-size: 18px;
+  font-weight: 800;
 }
 
 
 .owner-ministries-error p {
+  max-width: 440px;
   margin: 0;
 
-  color: #777;
+  color: var(--ministry-muted);
 
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 
 /* =========================================================
-   EMPTY
+   EMPTY STATE
 ========================================================= */
 
 .owner-ministries-empty {
@@ -639,176 +818,275 @@
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
-  text-align: center;
-
   padding: 30px;
+
+  border: 1px dashed rgba(160, 183, 222, 0.20);
+  border-radius: 18px;
+
+  background: rgba(16, 26, 46, 0.50);
+
+  text-align: center;
 }
 
 
 .owner-ministries-empty-icon {
-  width: 70px;
-  height: 70px;
+  width: 72px;
+  height: 72px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 15px;
+  margin-bottom: 17px;
 
-  border-radius: 20px;
+  border: 1px solid rgba(227, 196, 123, 0.22);
+  border-radius: 21px;
 
-  background: #ede7ff;
+  background: linear-gradient(
+    145deg,
+    #203966,
+    #142541
+  );
 
-  color: #5b3cc4;
-
+  color: var(--ministry-gold);
   font-size: 28px;
 }
 
 
 .owner-ministries-empty h3 {
-  margin: 0 0 7px;
+  margin: 0 0 9px;
 
-  color: #333;
+  color: var(--ministry-text);
 
   font-size: 19px;
+  font-weight: 800;
 }
 
 
 .owner-ministries-empty p {
+  max-width: 450px;
   margin: 0;
 
-  max-width: 450px;
+  color: var(--ministry-muted);
 
-  color: #777;
-
-  font-size: 14px;
-
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.8;
 }
 
 
 /* =========================================================
-   RESPONSIVE
+   LARGE SCREENS
 ========================================================= */
 
-@media (max-width: 1200px) {
-
-  .owner-ministries-grid {
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+@media (min-width: 1500px) {
+  .owner-ministries-page {
+    padding: 36px 40px;
   }
 
+  .owner-ministries-grid {
+    gap: 23px;
+  }
+
+  .owner-ministry-image-wrapper {
+    height: 205px;
+  }
 }
 
 
-@media (max-width: 900px) {
+/* =========================================================
+   LAPTOP
+========================================================= */
 
-  .owner-ministries-page {
-    padding: 20px;
+@media (max-width: 1200px) {
+  .owner-ministries-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
   }
 
+  .owner-ministry-summary-card {
+    padding: 19px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .owner-ministries-page {
+    padding: 23px 20px;
+  }
 
   .owner-ministries-summary {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
 
   .owner-ministries-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
 
   .owner-ministries-filter-card {
     flex-wrap: wrap;
   }
 
-
   .owner-ministries-search {
-    width: 100%;
-    flex-basis: 100%;
+    flex: 1 1 100%;
   }
-
 
   .owner-ministries-language {
-    flex: 1;
+    flex: 1 1 0;
   }
-
 }
 
 
-@media (max-width: 600px) {
+/* =========================================================
+   MOBILE
+========================================================= */
 
+@media (max-width: 600px) {
   .owner-ministries-page {
-    padding: 15px;
+    padding: 19px 15px;
   }
 
+  .owner-ministries-header {
+    margin-bottom: 23px;
+  }
+
+  .owner-ministries-header-left {
+    gap: 17px;
+  }
+
+  .owner-ministries-title {
+    gap: 13px;
+  }
 
   .owner-ministries-title h1 {
     font-size: 23px;
+    letter-spacing: -0.4px;
   }
-
 
   .owner-ministries-title p {
     font-size: 12px;
   }
 
-
   .owner-ministries-title-icon {
-    width: 48px;
-    height: 48px;
-
+    width: 49px;
+    height: 49px;
+    border-radius: 15px;
     font-size: 21px;
   }
 
-
   .owner-ministries-summary {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
   }
 
-
-  .owner-ministries-grid {
-    grid-template-columns: 1fr;
+  .owner-ministry-summary-card {
+    padding: 17px;
+    border-radius: 15px;
   }
 
+  .owner-ministry-summary-icon {
+    width: 44px;
+    height: 44px;
+  }
 
-  .owner-ministries-language {
-    width: 100%;
+  .owner-ministry-summary-card strong {
+    font-size: 22px;
+  }
+
+  .owner-ministries-filter-card {
+    gap: 11px;
+    margin-bottom: 20px;
+    padding: 13px;
+    border-radius: 15px;
+  }
+
+  .owner-ministries-search {
     flex-basis: 100%;
   }
 
+  .owner-ministries-language {
+    flex: 1 1 100%;
+  }
 
   .owner-ministries-clear-btn {
     width: 100%;
   }
 
-
-  .owner-ministry-image-wrapper {
-    height: 210px;
+  .owner-ministries-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 17px;
   }
 
+  .owner-ministry-image-wrapper {
+    height: 215px;
+  }
+
+  .owner-ministry-card-content {
+    padding: 17px;
+  }
+
+  .owner-ministry-card-top h2 {
+    font-size: 16px;
+  }
 }
 
 
-@media (max-width: 400px) {
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+  .owner-ministries-page {
+    padding: 15px 11px;
+  }
 
   .owner-ministries-title {
     align-items: flex-start;
   }
 
-
-  .owner-ministries-back-btn {
-    font-size: 13px;
+  .owner-ministries-title h1 {
+    font-size: 21px;
   }
 
+  .owner-ministries-title-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 19px;
+  }
 
   .owner-ministry-card-top {
     flex-direction: column;
+    align-items: flex-start;
   }
 
+  .owner-ministry-image-wrapper {
+    height: 185px;
+  }
+
+  .owner-ministry-card-footer {
+    align-items: flex-start;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-ministries-page *,
+  .owner-ministries-page *::before,
+  .owner-ministries-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

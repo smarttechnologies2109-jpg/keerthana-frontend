@@ -1,13 +1,44 @@
+
 /* =========================================================
-   BUSINESS OWNER MUSIC PAGE
+   KEERTHANA MUSIC — BUSINESS OWNER MUSIC PAGE
+   Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
 .owner-music-page {
+  --owner-bg: #080d1a;
+  --owner-surface: #101a2e;
+  --owner-card: #111e34;
+  --owner-card-hover: #172844;
+  --owner-border: rgba(158, 181, 222, 0.15);
+  --owner-text: #f4f7ff;
+  --owner-muted: #a1aec5;
+  --owner-blue: #527cff;
+  --owner-gold: #e8c879;
+
   min-height: 100vh;
-  padding: 24px;
-  background: #f5f7fb;
+  padding: 28px;
+  padding-bottom: 100px;
+  background:
+    radial-gradient(
+      ellipse at 8% 0%,
+      rgba(61, 100, 190, 0.14),
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse at 100% 20%,
+      rgba(232, 200, 121, 0.06),
+      transparent 30%
+    ),
+    var(--owner-bg);
+  color: var(--owner-text);
+  box-sizing: border-box;
 }
 
+.owner-music-page *,
+.owner-music-page *::before,
+.owner-music-page *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
    HEADER
@@ -16,63 +47,87 @@
 .owner-music-header {
   width: 100%;
   max-width: 1400px;
-  margin: 0 auto 28px;
+  margin: 0 auto 30px;
+  padding: 24px 28px;
 
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 25px;
 
-  background: #ffffff;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 34, 59, 0.97),
+    rgba(13, 23, 42, 0.97)
+  );
 
-  border: 1px solid #e5e7eb;
-
-  border-radius: 18px;
-
-  padding: 22px 24px;
+  border: 1px solid var(--owner-border);
+  border-radius: 22px;
 
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.05);
+    0 14px 36px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  position: relative;
+  overflow: hidden;
 }
 
+.owner-music-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--owner-gold),
+    var(--owner-blue)
+  );
+}
 
 /* =========================================================
    BACK BUTTON
 ========================================================= */
 
 .owner-music-back-button {
-  border: none;
+  flex-shrink: 0;
+  border: 1px solid rgba(172, 190, 222, 0.16);
 
-  background: #f1f5f9;
-
-  color: #334155;
+  background: rgba(255, 255, 255, 0.045);
+  color: #dbe5f8;
 
   padding: 11px 16px;
-
-  border-radius: 10px;
+  border-radius: 12px;
 
   display: inline-flex;
-
   align-items: center;
+  justify-content: center;
+  gap: 9px;
 
-  gap: 8px;
-
+  font-family: inherit;
   font-size: 14px;
-
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.22s ease;
 }
 
 .owner-music-back-button:hover {
-  background: #e2e8f0;
-
-  transform: translateX(-2px);
+  background: rgba(82, 124, 255, 0.14);
+  border-color: rgba(82, 124, 255, 0.45);
+  color: #ffffff;
+  transform: translateX(-3px);
 }
 
+.owner-music-back-button:focus-visible {
+  outline: 3px solid rgba(232, 200, 121, 0.8);
+  outline-offset: 4px;
+}
 
 /* =========================================================
    HEADING
@@ -80,66 +135,63 @@
 
 .owner-music-heading {
   display: flex;
-
   align-items: center;
-
-  gap: 16px;
+  gap: 17px;
+  min-width: 0;
 }
-
 
 .owner-music-heading-icon {
-  width: 54px;
-
-  height: 54px;
-
-  border-radius: 14px;
+  width: 62px;
+  min-width: 62px;
+  height: 62px;
+  border-radius: 18px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
-  background: #eef2ff;
+  background: linear-gradient(
+    145deg,
+    rgba(82, 124, 255, 0.2),
+    rgba(82, 124, 255, 0.07)
+  );
 
-  color: #4f46e5;
+  border: 1px solid rgba(104, 143, 255, 0.25);
+  color: var(--owner-gold);
+  font-size: 26px;
 
-  font-size: 24px;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
-
 
 .owner-music-heading h1 {
   margin: 0;
+  color: var(--owner-text);
 
-  font-size: 25px;
-
-  font-weight: 700;
-
-  color: #111827;
+  font-size: clamp(23px, 2vw, 29px);
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.7px;
 }
-
 
 .owner-music-heading p {
-  margin: 5px 0 0;
-
-  color: #64748b;
+  margin: 7px 0 0;
+  color: var(--owner-muted);
 
   font-size: 14px;
+  line-height: 1.65;
 }
 
-
 /* =========================================================
-   CONTENT
+   MAIN CONTENT
 ========================================================= */
 
 .owner-music-content {
   width: 100%;
-
   max-width: 1400px;
-
   margin: 0 auto;
 }
-
 
 /* =========================================================
    GRID
@@ -147,13 +199,10 @@
 
 .owner-music-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: stretch;
 }
-
 
 /* =========================================================
    SECTION CARD
@@ -161,84 +210,158 @@
 
 .owner-music-section-card {
   width: 100%;
-
-  min-height: 180px;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 18px;
-
-  background: #ffffff;
-
-  padding: 24px;
+  min-width: 0;
+  min-height: 190px;
+  padding: 25px;
 
   display: flex;
-
   align-items: flex-start;
+  gap: 19px;
 
-  gap: 18px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
 
   text-align: left;
+  font-family: inherit;
+
+  background: linear-gradient(
+    145deg,
+    rgba(20, 33, 57, 0.98),
+    rgba(14, 24, 43, 0.98)
+  );
+
+  border: 1px solid var(--owner-border);
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
   cursor: pointer;
 
-  position: relative;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
 
-  overflow: hidden;
+.owner-music-section-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 175px;
+  height: 175px;
+  right: -85px;
+  top: -95px;
 
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.04);
+  border-radius: 50%;
+  background: rgba(82, 124, 255, 0.07);
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform 0.3s ease,
+    background 0.3s ease;
 }
 
+.owner-music-section-card::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 0;
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(82, 124, 255, 0.65),
+    rgba(232, 200, 121, 0.65),
+    transparent
+  );
+
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
 
 .owner-music-section-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
 
-  border-color: #c7d2fe;
+  background: linear-gradient(
+    145deg,
+    rgba(25, 42, 72, 0.99),
+    rgba(17, 30, 53, 0.99)
+  );
+
+  border-color: rgba(100, 139, 255, 0.42);
 
   box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.09);
+    0 18px 38px rgba(0, 0, 0, 0.25),
+    0 0 24px rgba(82, 124, 255, 0.06);
 }
 
+.owner-music-section-card:hover::before {
+  transform: scale(1.25);
+  background: rgba(82, 124, 255, 0.12);
+}
+
+.owner-music-section-card:hover::after {
+  opacity: 1;
+}
 
 .owner-music-section-card:focus-visible {
-  outline: 3px solid #c7d2fe;
-
-  outline-offset: 3px;
+  outline: 3px solid var(--owner-gold);
+  outline-offset: 4px;
 }
 
+.owner-music-section-card:active {
+  transform: translateY(-1px);
+}
 
 /* =========================================================
-   ICON
+   SECTION ICON
 ========================================================= */
 
 .owner-music-section-icon {
-  width: 58px;
-
-  min-width: 58px;
-
-  height: 58px;
-
-  border-radius: 15px;
+  width: 61px;
+  min-width: 61px;
+  height: 61px;
+  border-radius: 17px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
-  background: #f1f5f9;
+  background: linear-gradient(
+    145deg,
+    rgba(82, 124, 255, 0.2),
+    rgba(82, 124, 255, 0.075)
+  );
 
-  color: #334155;
+  border: 1px solid rgba(103, 142, 255, 0.23);
 
-  font-size: 24px;
+  color: var(--owner-gold);
+  font-size: 25px;
+
+  box-shadow:
+    0 7px 18px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
 }
 
+.owner-music-section-card:hover .owner-music-section-icon {
+  transform: scale(1.06);
+  background: linear-gradient(
+    145deg,
+    rgba(82, 124, 255, 0.3),
+    rgba(82, 124, 255, 0.12)
+  );
+  border-color: rgba(232, 200, 121, 0.3);
+}
 
 /* =========================================================
    CARD CONTENT
@@ -246,32 +369,37 @@
 
 .owner-music-section-content {
   flex: 1;
-
   min-width: 0;
+  padding-right: 12px;
 }
-
 
 .owner-music-section-content h2 {
-  margin: 2px 0 8px;
+  margin: 3px 0 10px;
 
+  color: #f5f7ff;
   font-size: 19px;
-
   font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.25px;
 
-  color: #111827;
+  transition: color 0.2s ease;
 }
 
+.owner-music-section-card:hover
+.owner-music-section-content h2 {
+  color: #ffffff;
+}
 
 .owner-music-section-content p {
   margin: 0;
 
-  color: #64748b;
-
+  color: #a6b3ca;
   font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
 
-  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
-
 
 /* =========================================================
    ARROW
@@ -279,78 +407,237 @@
 
 .owner-music-section-arrow {
   position: absolute;
-
-  right: 20px;
-
+  right: 21px;
   bottom: 18px;
 
-  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  color: #94a3b8;
+  font-size: 21px;
+  color: #7184a7;
 
   transition:
-    transform 0.2s ease,
-    color 0.2s ease;
+    transform 0.22s ease,
+    color 0.22s ease;
 }
-
 
 .owner-music-section-card:hover
 .owner-music-section-arrow {
-  color: #4f46e5;
-
+  color: var(--owner-gold);
   transform: translateX(4px);
 }
 
-
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — LARGE TABLETS
 ========================================================= */
 
-@media (max-width: 1100px) {
-
-  .owner-music-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-}
-
-
-@media (max-width: 700px) {
-
+@media (max-width: 1200px) {
   .owner-music-page {
-    padding: 15px;
+    padding: 24px;
   }
-
-
-  .owner-music-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    padding: 18px;
-  }
-
-
-  .owner-music-heading {
-    width: 100%;
-  }
-
-
-  .owner-music-heading h1 {
-    font-size: 21px;
-  }
-
 
   .owner-music-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 19px;
   }
-
 
   .owner-music-section-card {
-    min-height: 150px;
+    min-height: 180px;
+    padding: 23px;
+  }
+}
 
+/* =========================================================
+   RESPONSIVE — TABLETS
+========================================================= */
+
+@media (max-width: 850px) {
+  .owner-music-page {
     padding: 20px;
   }
 
+  .owner-music-header {
+    padding: 22px;
+    gap: 19px;
+  }
+
+  .owner-music-heading-icon {
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 23px;
+  }
+
+  .owner-music-heading h1 {
+    font-size: 24px;
+  }
+
+  .owner-music-section-icon {
+    width: 55px;
+    min-width: 55px;
+    height: 55px;
+    font-size: 23px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .owner-music-page {
+    padding: 14px;
+    padding-bottom: 100px;
+  }
+
+  .owner-music-header {
+    margin-bottom: 22px;
+    padding: 19px 17px;
+
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 19px;
+
+    border-radius: 18px;
+  }
+
+  .owner-music-back-button {
+    padding: 10px 13px;
+    font-size: 13px;
+  }
+
+  .owner-music-heading {
+    width: 100%;
+    gap: 13px;
+  }
+
+  .owner-music-heading-icon {
+    width: 51px;
+    min-width: 51px;
+    height: 51px;
+    border-radius: 15px;
+    font-size: 21px;
+  }
+
+  .owner-music-heading h1 {
+    font-size: 22px;
+    letter-spacing: -0.45px;
+  }
+
+  .owner-music-heading p {
+    margin-top: 5px;
+    font-size: 13px;
+  }
+
+  .owner-music-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .owner-music-section-card {
+    min-height: 155px;
+    padding: 20px 18px;
+    gap: 15px;
+    border-radius: 17px;
+  }
+
+  .owner-music-section-card::after {
+    left: 18px;
+    right: 18px;
+  }
+
+  .owner-music-section-icon {
+    width: 51px;
+    min-width: 51px;
+    height: 51px;
+    border-radius: 14px;
+    font-size: 21px;
+  }
+
+  .owner-music-section-content {
+    padding-right: 9px;
+  }
+
+  .owner-music-section-content h2 {
+    margin-top: 2px;
+    margin-bottom: 7px;
+    font-size: 17px;
+  }
+
+  .owner-music-section-content p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .owner-music-section-arrow {
+    right: 16px;
+    bottom: 13px;
+    font-size: 18px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+  .owner-music-page {
+    padding: 11px;
+  }
+
+  .owner-music-header {
+    padding: 16px 13px;
+  }
+
+  .owner-music-heading {
+    gap: 10px;
+  }
+
+  .owner-music-heading-icon {
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
+    font-size: 19px;
+  }
+
+  .owner-music-heading h1 {
+    font-size: 19px;
+  }
+
+  .owner-music-section-card {
+    padding: 17px 14px;
+    gap: 12px;
+  }
+
+  .owner-music-section-icon {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    font-size: 19px;
+  }
+
+  .owner-music-section-content h2 {
+    font-size: 16px;
+  }
+
+  .owner-music-section-content p {
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-music-page *,
+  .owner-music-page *::before,
+  .owner-music-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
