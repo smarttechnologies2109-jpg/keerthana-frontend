@@ -1712,3 +1712,324 @@ button.queue-song-row {
     flex-basis: 29px !important;
   }
 }
+
+/* =========================================================
+   KEERTHANA — MINI PLAYER CONTROL FIX
+   Keep volume slider and large controls in full player only
+========================================================= */
+
+/* Compact desktop/tablet mini player */
+.music-player:not(.music-player-fullscreen) {
+  min-height: 76px;
+  padding: 9px 14px;
+  gap: 12px;
+  grid-template-columns:
+    minmax(150px, 240px)
+    minmax(180px, 1fr)
+    minmax(0, 260px);
+}
+
+/* Remove the crowded volume slider from every mini player */
+.music-player:not(.music-player-fullscreen) .player-volume {
+  display: none !important;
+}
+
+/* Keep right-side controls aligned and compact */
+.music-player:not(.music-player-fullscreen) .player-right-controls {
+  min-width: 0;
+  gap: 5px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+/* Lyrics and queue buttons */
+.music-player:not(.music-player-fullscreen) .player-lyrics-button,
+.music-player:not(.music-player-fullscreen) .player-queue-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 6px 8px;
+  gap: 6px;
+  font-size: 11px;
+  border-radius: 8px !important;
+}
+
+/* Simple, balanced expand button — no oversized gold outline */
+.music-player:not(.music-player-fullscreen) .player-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  flex: 0 0 34px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid rgba(151, 177, 220, 0.18) !important;
+  border-radius: 9px !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: #e8c778 !important;
+  box-shadow: none !important;
+}
+
+/* Subtle hover instead of a strong glowing border */
+.music-player:not(.music-player-fullscreen) .player-expand-btn:hover {
+  background: rgba(232, 199, 120, 0.11) !important;
+  border-color: rgba(232, 199, 120, 0.35) !important;
+}
+
+/* Keep close button visually separate */
+.music-player:not(.music-player-fullscreen) .player-close-button {
+  width: 30px;
+  height: 34px;
+  min-width: 30px;
+  flex: 0 0 30px;
+  border-radius: 8px !important;
+  color: #aab6cc;
+}
+
+.music-player:not(.music-player-fullscreen) .player-close-button:hover {
+  color: #f07891;
+  background: rgba(240, 120, 145, 0.08);
+}
+
+/* Prevent nested controls from stretching */
+.music-player:not(.music-player-fullscreen) .player-right-controls button {
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   SMALLER DESKTOP / TABLET
+========================================================= */
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .music-player:not(.music-player-fullscreen) {
+    grid-template-columns:
+      minmax(130px, 190px)
+      minmax(150px, 1fr)
+      minmax(0, 220px);
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-lyrics-button,
+  .music-player:not(.music-player-fullscreen) .player-queue-button {
+    padding: 6px;
+  }
+}
+
+/* =========================================================
+   MOBILE MINI PLAYER
+========================================================= */
+
+@media (max-width: 768px) {
+  .music-player:not(.music-player-fullscreen) {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 62px !important;
+    padding: 7px 9px !important;
+    grid-template-columns: minmax(0, 1fr) 38px 34px !important;
+    gap: 5px !important;
+    border-radius: 13px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-main {
+    grid-column: 2 !important;
+    width: 38px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-buttons .player-play {
+    width: 36px !important;
+    height: 36px !important;
+    flex-basis: 36px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-right-controls {
+    grid-column: 3 !important;
+    width: 34px !important;
+    min-width: 34px !important;
+    gap: 0 !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-lyrics-button,
+  .music-player:not(.music-player-fullscreen) .player-queue-button,
+  .music-player:not(.music-player-fullscreen) .player-close-button {
+    display: none !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-expand-btn {
+    display: inline-flex !important;
+    width: 32px !important;
+    height: 34px !important;
+    min-width: 32px !important;
+    flex-basis: 32px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Extra-small mobile screens */
+@media (max-width: 380px) {
+  .music-player:not(.music-player-fullscreen) {
+    grid-template-columns: minmax(0, 1fr) 34px 30px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-expand-btn {
+    width: 29px !important;
+    height: 31px !important;
+    min-width: 29px !important;
+    flex-basis: 29px !important;
+  }
+}
+
+/* Full player keeps its volume slider */
+.music-player.music-player-fullscreen .player-volume {
+  display: flex !important;
+}
+
+/* =========================================================
+   FIX: MINI PLAYER VOLUME BUTTON
+   Show mute/unmute button; hide only the slider
+========================================================= */
+
+@media (max-width: 768px) {
+  .music-player:not(.music-player-fullscreen) {
+    grid-template-columns: minmax(0, 1fr) 38px auto !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-right-controls {
+    grid-column: 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 3px !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  /* Keep the volume icon visible */
+  .music-player:not(.music-player-fullscreen) .player-volume {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    gap: 0 !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-volume-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 30px !important;
+    height: 34px !important;
+    min-width: 30px !important;
+    flex: 0 0 30px !important;
+    padding: 0 !important;
+    color: #e8c778 !important;
+    border-radius: 8px !important;
+  }
+
+  /* Hide only the range slider in mini mode */
+  .music-player:not(.music-player-fullscreen) .player-volume input {
+    display: none !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-expand-btn {
+    display: inline-flex !important;
+    width: 30px !important;
+    height: 34px !important;
+    min-width: 30px !important;
+    flex: 0 0 30px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-lyrics-button,
+  .music-player:not(.music-player-fullscreen) .player-queue-button,
+  .music-player:not(.music-player-fullscreen) .player-close-button {
+    display: none !important;
+  }
+}
+
+/* Keep volume adjustment available in the expanded player */
+.music-player.music-player-fullscreen .player-volume {
+  display: flex !important;
+}
+
+.music-player.music-player-fullscreen .player-volume input {
+  display: block !important;
+}
+
+/* =========================================================
+   KEERTHANA — RESTORE DESKTOP MINI-PLAYER VOLUME
+========================================================= */
+
+/* Desktop and tablet */
+@media (min-width: 769px) {
+  .music-player:not(.music-player-fullscreen) .player-right-controls {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-volume {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    width: 105px !important;
+    min-width: 105px !important;
+    flex: 0 0 105px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-volume-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 30px !important;
+    height: 34px !important;
+    flex: 0 0 30px !important;
+    color: #e8c778 !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-volume input {
+    display: block !important;
+    width: 65px !important;
+    min-width: 0 !important;
+    accent-color: #e8c778 !important;
+  }
+}
+
+/* Full player: always show adjustable volume */
+.music-player.music-player-fullscreen .player-volume {
+  display: flex !important;
+}
+
+.music-player.music-player-fullscreen .player-volume-button {
+  display: inline-flex !important;
+}
+
+.music-player.music-player-fullscreen .player-volume input {
+  display: block !important;
+}
+
+/* Mobile: show the volume icon, keep slider hidden */
+@media (max-width: 768px) {
+  .music-player:not(.music-player-fullscreen) .player-volume {
+    display: flex !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    flex: 0 0 30px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-volume-button {
+    display: inline-flex !important;
+    width: 30px !important;
+    height: 34px !important;
+    flex: 0 0 30px !important;
+    color: #e8c778 !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-volume input {
+    display: none !important;
+  }
+}
