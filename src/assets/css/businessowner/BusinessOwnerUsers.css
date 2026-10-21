@@ -4,6 +4,8 @@
    Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+
 .owner-users-page {
   --users-bg: #080d1a;
   --users-surface: #0e1628;
@@ -2003,4 +2005,23 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+.search-page {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+}
+
+.search-page h1,
+.search-page h2,
+.search-page h3,
+.search-page button,
+.search-page input,
+.search-page select {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+}
+
+.search-song-info h3 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  line-height: 1.5;
 }

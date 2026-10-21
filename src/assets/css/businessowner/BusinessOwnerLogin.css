@@ -4,6 +4,8 @@
    Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 .owner-login-page {
   --owner-bg: #080d1a;
   --owner-surface: #101a2e;
@@ -664,7 +666,7 @@
 
 /* KEERTHANA Business Owner — typography */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 
 .owner-login-page,
 .owner-forgot-password-page,
@@ -719,4 +721,279 @@
 .owner-auth-page button {
   font-size: 0.95rem;
   font-weight: 600;
+}
+/* =========================================================
+   KEERTHANA — PREMIUM GOLD & NAVY LOGIN TYPOGRAPHY
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+/* Main typography */
+.owner-login-page {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Premium login card */
+.owner-login-card {
+  border-color: rgba(227, 196, 123, 0.24);
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(227, 196, 123, 0.055),
+      transparent 40%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(20, 32, 54, 0.99),
+      rgba(9, 17, 32, 0.99)
+    );
+
+  box-shadow:
+    0 30px 85px rgba(0, 0, 0, 0.44),
+    0 0 35px rgba(227, 196, 123, 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+/* Gold top accent */
+.owner-login-card::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(227, 196, 123, 0.85),
+    rgba(255, 229, 166, 0.95),
+    rgba(227, 196, 123, 0.85),
+    transparent
+  );
+}
+
+/* Logo — gold and royal blue */
+.owner-logo {
+  color: #f2d899;
+  border-color: rgba(242, 216, 153, 0.58);
+
+  background: linear-gradient(
+    145deg,
+    #35558d 0%,
+    #1b3157 52%,
+    #101d34 100%
+  );
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.28),
+    0 0 24px rgba(227, 196, 123, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Heading */
+.owner-login-header h1 {
+  font-family: inherit;
+  font-size: clamp(26px, 3vw, 30px);
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.85px;
+  color: #fffaf0;
+}
+
+.owner-login-header p {
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.05px;
+  color: #aab8d0;
+}
+
+/* Labels */
+.owner-input-group label {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+  color: #e7dfcc;
+}
+
+/* Input fields */
+.owner-input-wrapper {
+  border-color: rgba(178, 194, 222, 0.17);
+  background: rgba(6, 13, 26, 0.82);
+}
+
+.owner-input-wrapper:hover {
+  border-color: rgba(227, 196, 123, 0.42);
+}
+
+.owner-input-wrapper:focus-within {
+  border-color: #d9b96e;
+  background: #0b1629;
+
+  box-shadow:
+    0 0 0 3px rgba(227, 196, 123, 0.10),
+    0 0 18px rgba(227, 196, 123, 0.045);
+}
+
+.owner-input-wrapper > svg {
+  color: #c8ad70;
+}
+
+.owner-input-wrapper input {
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 450;
+  letter-spacing: 0.05px;
+  color: #f7f8fc;
+}
+
+.owner-input-wrapper input::placeholder {
+  color: #7888a2;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* Password visibility button */
+.owner-password-toggle {
+  color: #b5bfd1;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.owner-password-toggle:hover:not(:disabled) {
+  color: #f0d596;
+  border-color: rgba(227, 196, 123, 0.20);
+  background: rgba(227, 196, 123, 0.09);
+}
+
+/* Forgot password link */
+.owner-forgot-password a {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.05px;
+  color: #d9bd7c;
+}
+
+.owner-forgot-password a:hover {
+  color: #ffedbd;
+}
+
+/* Premium gold login button */
+.owner-login-button {
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.35px;
+  color: #111a2b;
+
+  border: 1px solid rgba(255, 237, 189, 0.65);
+
+  background: linear-gradient(
+    110deg,
+    #c6a45c 0%,
+    #ead49a 46%,
+    #d4b36d 100%
+  );
+
+  box-shadow:
+    0 9px 25px rgba(180, 142, 61, 0.19),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.owner-login-button:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 13px 30px rgba(190, 153, 72, 0.28),
+    0 0 22px rgba(227, 196, 123, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.owner-login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.owner-login-button:focus-visible {
+  outline: 2px solid #f1d99b;
+  outline-offset: 4px;
+}
+
+.owner-login-button:disabled {
+  color: #5c523c;
+  filter: saturate(0.65);
+}
+
+/* Error message typography */
+.owner-login-error {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 450;
+  line-height: 1.75;
+}
+
+/* Footer */
+.owner-login-footer {
+  border-top-color: rgba(227, 196, 123, 0.17);
+}
+
+.owner-login-footer span {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.8px;
+  color: #efd69a;
+}
+
+.owner-login-footer small {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: #95a3bb;
+}
+
+/* Small screens */
+@media (max-width: 520px) {
+  .owner-login-header h1 {
+    font-size: 25px;
+    letter-spacing: -0.6px;
+  }
+
+  .owner-login-header p {
+    font-size: 13px;
+  }
+
+  .owner-input-group label {
+    font-size: 12px;
+  }
+
+  .owner-input-wrapper input {
+    font-size: 13px;
+  }
+
+  .owner-login-button {
+    font-size: 13px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .owner-login-card,
+  .owner-login-page *,
+  .owner-login-page *::before,
+  .owner-login-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

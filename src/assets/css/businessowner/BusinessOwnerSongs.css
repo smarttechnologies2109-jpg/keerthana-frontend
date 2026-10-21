@@ -4,6 +4,13 @@
    Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
+/* =========================================================
+   KEERTHANA MUSIC — PROFESSIONAL TYPOGRAPHY
+   Inter + Noto Sans Telugu
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+
 .owner-songs-page {
   --songs-bg: #080d1a;
   --songs-surface: #101a2e;
@@ -1207,4 +1214,74 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+/* =========================================================
+   GLOBAL FONT — BUSINESS OWNER SONGS
+========================================================= */
+
+.owner-songs-page {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Page title */
+.owner-songs-title-area h1 {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+}
+
+/* Section headings */
+.owner-songs-filter-title,
+.owner-songs-table-header h2 {
+  font-weight: 700;
+  letter-spacing: -0.25px;
+}
+
+/* Summary values */
+.owner-songs-summary-card strong {
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+/* Song titles */
+.owner-song-info strong {
+  font-weight: 650;
+  letter-spacing: -0.15px;
+}
+
+/* Table headings */
+.owner-songs-table th {
+  font-weight: 700;
+  letter-spacing: 0.7px;
+}
+
+/* Table content */
+.owner-songs-table td {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inputs and buttons */
+.owner-songs-page button,
+.owner-songs-page input,
+.owner-songs-page select {
+  font-family: inherit;
+}
+
+/* Telugu text readability */
+.owner-songs-page [lang="te"] {
+  font-family: "Noto Sans Telugu", "Inter", sans-serif;
+  line-height: 1.7;
 }

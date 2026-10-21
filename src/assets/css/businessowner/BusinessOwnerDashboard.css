@@ -4,6 +4,8 @@
    Premium Navy, Royal Blue & Soft Gold Theme
 ========================================================= */
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 .owner-dashboard-page {
   --owner-bg: #080d1a;
   --owner-surface: #0e1628;
@@ -694,5 +696,212 @@
   .owner-dashboard-card:hover,
   .owner-business-info:hover {
     transform: none;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — BUSINESS OWNER DASHBOARD
+   Premium Professional Typography
+   Inter • Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+/* Global dashboard typography */
+.owner-dashboard-page {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Header title */
+.owner-dashboard-title h1 {
+  font-family: inherit;
+  font-size: clamp(21px, 2vw, 24px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.75px;
+}
+
+.owner-dashboard-title p {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: 0.05px;
+}
+
+/* Logout button */
+.owner-logout-btn {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* Business information */
+.business-info-content h2 {
+  font-family: inherit;
+  font-size: clamp(17px, 1.6vw, 20px);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.45px;
+  color: #fffaf0;
+}
+
+.business-info-content p {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.05px;
+}
+
+/* Dashboard card headings */
+.dashboard-card-content h3 {
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.4px;
+  color: #f6f7fc;
+}
+
+/* Dashboard card descriptions */
+.dashboard-card-content p {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.05px;
+  color: #a2afc7;
+}
+
+/* Card action buttons */
+.dashboard-card-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+}
+
+/* Improve button icon alignment */
+.dashboard-card-btn svg {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+/* Consistent icon rendering */
+.owner-dashboard-title-icon,
+.business-info-icon,
+.dashboard-card-icon {
+  line-height: 1;
+}
+
+/* Professional keyboard focus */
+.owner-dashboard-card:focus-visible,
+.owner-logout-btn:focus-visible,
+.dashboard-card-btn:focus-visible {
+  outline: 2px solid #e3c47b;
+  outline-offset: 4px;
+}
+
+/* Tablet typography */
+@media (max-width: 1050px) {
+  .owner-dashboard-title h1 {
+    font-size: 22px;
+    letter-spacing: -0.6px;
+  }
+
+  .dashboard-card-content h3 {
+    font-size: 18px;
+  }
+
+  .dashboard-card-content p {
+    font-size: 12.5px;
+  }
+}
+
+/* Mobile typography */
+@media (max-width: 700px) {
+  .owner-dashboard-title h1 {
+    font-size: 20px;
+    letter-spacing: -0.45px;
+  }
+
+  .owner-dashboard-title p {
+    font-size: 12px;
+  }
+
+  .owner-logout-btn {
+    font-size: 12.5px;
+  }
+
+  .business-info-content h2 {
+    font-size: 16.5px;
+    letter-spacing: -0.25px;
+  }
+
+  .business-info-content p {
+    font-size: 12px;
+    line-height: 1.75;
+  }
+
+  .dashboard-card-content h3 {
+    font-size: 17px;
+    letter-spacing: -0.3px;
+  }
+
+  .dashboard-card-content p {
+    font-size: 12.5px;
+    line-height: 1.8;
+  }
+
+  .dashboard-card-btn {
+    font-size: 12px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 420px) {
+  .owner-dashboard-title h1 {
+    font-size: 19px;
+  }
+
+  .owner-dashboard-title p {
+    font-size: 11.5px;
+  }
+
+  .business-info-content h2 {
+    font-size: 15.5px;
+  }
+
+  .business-info-content p {
+    font-size: 11.5px;
+  }
+
+  .dashboard-card-content h3 {
+    font-size: 16.5px;
+  }
+
+  .dashboard-card-content p {
+    font-size: 12px;
+  }
+
+  .dashboard-card-btn {
+    font-size: 12px;
+    letter-spacing: 0.15px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .owner-dashboard-page *,
+  .owner-dashboard-page *::before,
+  .owner-dashboard-page *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

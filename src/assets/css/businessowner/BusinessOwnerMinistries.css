@@ -4,6 +4,8 @@
    Premium Navy • Royal Blue • Soft Gold
 ========================================================= */
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700;750;800&display=swap");
+
 .owner-ministries-page {
   --ministry-bg: #080d1a;
   --ministry-surface: #101a2e;
@@ -1088,5 +1090,196 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   KEERTHANA MUSIC — PROFESSIONAL MINISTRIES TYPOGRAPHY
+   Font: Inter • Premium Business Dashboard
+========================================================= */
+
+.owner-ministries-page {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Main page heading */
+.owner-ministries-title h1 {
+  font-family: inherit;
+  font-size: clamp(25px, 2vw, 30px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.9px;
+}
+
+/* Page subtitle */
+.owner-ministries-title p {
+  font-size: 13.5px;
+  font-weight: 450;
+  line-height: 1.7;
+  letter-spacing: 0.05px;
+}
+
+/* Back navigation */
+.owner-ministries-back-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+/* Summary labels */
+.owner-ministry-summary-card span {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+}
+
+/* Summary numbers */
+.owner-ministry-summary-card strong {
+  font-family: inherit;
+  font-size: 25px;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Search input and language filter */
+.owner-ministries-search input,
+.owner-ministries-language select {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0;
+}
+
+/* Clear filters button */
+.owner-ministries-clear-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.05px;
+}
+
+/* Ministry card titles */
+.owner-ministry-card-top h2 {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.5;
+  letter-spacing: -0.35px;
+}
+
+/* Language badge */
+.owner-ministry-language-badge {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+}
+
+/* Ministry descriptions */
+.owner-ministry-description {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.05px;
+}
+
+/* Song count */
+.owner-ministry-song-count {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05px;
+}
+
+/* Ministry ID */
+.owner-ministry-id {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+
+/* Loading message */
+.owner-ministries-loading p {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 450;
+}
+
+/* Error and empty-state headings */
+.owner-ministries-error h3,
+.owner-ministries-empty h3 {
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.35px;
+  line-height: 1.4;
+}
+
+/* Error and empty-state descriptions */
+.owner-ministries-error p,
+.owner-ministries-empty p {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+/* Consistent rendering across dashboard components */
+.owner-ministries-page *,
+.owner-ministries-page *::before,
+.owner-ministries-page *::after {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================
+   MOBILE TYPOGRAPHY
+========================================================= */
+
+@media (max-width: 600px) {
+  .owner-ministries-title h1 {
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.6px;
+  }
+
+  .owner-ministries-title p {
+    font-size: 12.5px;
+  }
+
+  .owner-ministry-summary-card strong {
+    font-size: 22px;
+  }
+
+  .owner-ministry-card-top h2 {
+    font-size: 16px;
+    font-weight: 650;
+    letter-spacing: -0.25px;
+  }
+
+  .owner-ministry-description {
+    font-size: 12.5px;
+    line-height: 1.75;
+  }
+}
+
+@media (max-width: 360px) {
+  .owner-ministries-title h1 {
+    font-size: 20px;
+  }
+
+  .owner-ministry-card-top h2 {
+    font-size: 15px;
   }
 }

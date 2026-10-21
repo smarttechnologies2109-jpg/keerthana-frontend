@@ -2033,3 +2033,421 @@ button.queue-song-row {
     display: none !important;
   }
 }
+
+/* =====================================================
+   KEERTHANA PLAYER — VERTICAL VOLUME ON MOBILE
+   Desktop: horizontal volume slider
+   Mobile: vertical slider above volume button
+===================================================== */
+
+/* Volume control wrapper */
+.volume-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Volume slider — desktop */
+.volume-control input[type="range"] {
+  width: 90px;
+  height: 4px;
+  accent-color: #edca79;
+  cursor: pointer;
+}
+
+/* Volume button */
+.volume-control button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Android/mobile layout */
+@media (max-width: 768px) {
+  .volume-control {
+    position: relative;
+  }
+
+  .volume-control input[type="range"] {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 14px);
+    z-index: 1000;
+
+    width: 120px;
+    height: 32px;
+    padding: 0;
+
+    transform: translateX(-50%) rotate(-90deg);
+    transform-origin: center;
+
+    accent-color: #edca79;
+    cursor: pointer;
+
+    background: #111e33;
+    border: 1px solid rgba(151, 177, 220, 0.22);
+    border-radius: 10px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* =========================================
+   VOLUME CONTROL — DESKTOP
+========================================= */
+
+.music-player .player-volume {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.music-player .player-volume-button {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #b9c7e0;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.music-player .player-volume-button:hover {
+  color: #e8c779;
+}
+
+.music-player .player-volume-slider {
+  --volume-progress: 100%;
+
+  display: block;
+  width: 80px;
+  min-width: 55px;
+  height: 5px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 99px;
+  cursor: pointer;
+
+  background: linear-gradient(
+    to right,
+    #e8c779 0%,
+    #e8c779 var(--volume-progress),
+    #34435e var(--volume-progress),
+    #34435e 100%
+  );
+}
+
+.music-player .player-volume-slider::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #fff0c5;
+  border-radius: 50%;
+  background: #e8c779;
+}
+
+.music-player .player-volume-slider::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: 2px solid #fff0c5;
+  border-radius: 50%;
+  background: #e8c779;
+}
+
+/* =========================================
+   ANDROID / MOBILE — VERTICAL VOLUME
+========================================= */
+
+@media (max-width: 768px) {
+  .music-player .player-volume {
+    position: relative;
+    overflow: visible;
+  }
+
+  .music-player .player-volume-mobile .player-volume-slider {
+    position: absolute;
+    z-index: 11020;
+    left: 50%;
+    bottom: calc(100% + 12px);
+    transform: translateX(-50%);
+
+    width: 5px;
+    min-width: 5px;
+    height: 100px;
+    margin: 0;
+    padding: 0;
+
+    appearance: none;
+    -webkit-appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+
+    background: linear-gradient(
+      to top,
+      #e8c779 0%,
+      #e8c779 var(--volume-progress),
+      #34435e var(--volume-progress),
+      #34435e 100%
+    );
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .music-player .player-volume-mobile:focus-within
+    .player-volume-slider,
+  .music-player .player-volume-mobile:active
+    .player-volume-slider {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .music-player .player-volume-mobile .player-volume-slider::-webkit-slider-thumb {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — ANDROID MINI-PLAYER SONG PROGRESS
+   Thin gold seek bar beneath the player controls
+========================================================= */
+
+@media (max-width: 768px) {
+  .music-player:not(.music-player-fullscreen) {
+    grid-template-columns: minmax(0, 1fr) 38px auto !important;
+    grid-template-rows: auto 12px !important;
+    column-gap: 5px !important;
+    row-gap: 2px !important;
+
+    min-height: 76px !important;
+    padding: 7px 10px 8px !important;
+
+    overflow: visible !important;
+  }
+
+  /* Keep song information on the first row */
+  .music-player:not(.music-player-fullscreen) .player-song-info {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+  }
+
+  /* Keep play/pause in the first row */
+  .music-player:not(.music-player-fullscreen) .player-main {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 38px !important;
+  }
+
+  /* Right-side volume and expand controls */
+  .music-player:not(.music-player-fullscreen) .player-right-controls {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+  }
+
+  /* Show the song progress bar on mobile */
+  .music-player:not(.music-player-fullscreen) .player-progress {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) 30px !important;
+    align-items: center !important;
+    gap: 6px !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Elapsed and remaining time */
+  .music-player:not(.music-player-fullscreen) .player-progress span {
+    display: block !important;
+    color: #aab8d0 !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    line-height: 12px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Slim, touch-friendly seek slider */
+  .music-player:not(.music-player-fullscreen) .player-progress input {
+    display: block !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    accent-color: #e8c778;
+    cursor: pointer;
+    touch-action: pan-x;
+  }
+
+  /* Keep the slider thumb visible on Android Chrome */
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-webkit-slider-thumb {
+    width: 10px;
+    height: 10px;
+  }
+
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Extra-small Android phones */
+@media (max-width: 380px) {
+  .music-player:not(.music-player-fullscreen) {
+    grid-template-columns: minmax(0, 1fr) 34px auto !important;
+    min-height: 74px !important;
+    padding: 6px 7px 7px !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-progress {
+    grid-template-columns: 27px minmax(0, 1fr) 27px !important;
+    gap: 4px !important;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — ANDROID MINI-PLAYER PROGRESS BAR FIX
+   More visible, wider and easier to touch
+========================================================= */
+
+@media (max-width: 768px) {
+  .music-player:not(.music-player-fullscreen) .player-progress {
+    display: grid !important;
+    grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+    align-items: center !important;
+    gap: 6px !important;
+
+    width: 100% !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    margin: 0 !important;
+    padding: 0 2px !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-progress span {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 16px !important;
+    color: #c3cee2 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  .music-player:not(.music-player-fullscreen) .player-progress input {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 24px !important;
+    min-height: 24px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    cursor: pointer !important;
+    touch-action: pan-x !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Visible track on Android Chrome */
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-webkit-slider-runnable-track {
+    height: 6px !important;
+    border-radius: 999px !important;
+    background: #43516d !important;
+  }
+
+  /* Gold slider thumb */
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+
+    width: 15px !important;
+    height: 15px !important;
+    margin-top: -4.5px !important;
+
+    border: 2px solid #fff0c5 !important;
+    border-radius: 50% !important;
+    background: #e8c778 !important;
+    box-shadow: 0 0 7px rgba(232, 199, 120, 0.45) !important;
+  }
+
+  /* Firefox / Android browsers using the Mozilla slider */
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-moz-range-track {
+    height: 6px !important;
+    border-radius: 999px !important;
+    background: #43516d !important;
+  }
+
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-moz-range-progress {
+    height: 6px !important;
+    border-radius: 999px !important;
+    background: #e8c778 !important;
+  }
+
+  .music-player:not(.music-player-fullscreen)
+    .player-progress input::-moz-range-thumb {
+    width: 12px !important;
+    height: 12px !important;
+    border: 2px solid #fff0c5 !important;
+    border-radius: 50% !important;
+    background: #e8c778 !important;
+  }
+
+  /* Allow enough room for the progress row */
+  .music-player:not(.music-player-fullscreen) {
+    grid-template-rows: auto 24px !important;
+    row-gap: 3px !important;
+    min-height: 86px !important;
+    padding-bottom: 8px !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .music-player:not(.music-player-fullscreen) .player-progress {
+    grid-template-columns: 29px minmax(0, 1fr) 29px !important;
+    gap: 4px !important;
+  }
+}

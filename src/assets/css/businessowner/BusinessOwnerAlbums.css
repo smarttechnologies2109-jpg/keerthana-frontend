@@ -4,6 +4,12 @@
    Premium Dark Navy + Royal Blue + Soft Gold
 ========================================================= */
 
+
+
+/* Import professional fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
+
+
 .owner-albums-page {
   --owner-bg: #080d1a;
   --owner-surface: #0e1628;
@@ -1064,5 +1070,255 @@
 
   .owner-albums-spinner {
     animation-duration: 2s;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — BUSINESS OWNER ALBUMS
+   PROFESSIONAL TYPOGRAPHY SYSTEM
+   Font: Inter
+   Telugu Support: Noto Sans Telugu
+========================================================= */
+
+/* Global typography */
+.owner-albums-page {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  text-rendering: optimizeLegibility;
+}
+
+/* Main page heading */
+.owner-albums-title-area h1 {
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+}
+
+/* Header description */
+.owner-albums-title-area p {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: 0.1px;
+}
+
+/* Back button */
+.owner-albums-back-button {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* Summary labels */
+.owner-albums-summary-card span {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  line-height: 1.6;
+}
+
+/* Summary numbers */
+.owner-albums-summary-card strong {
+  font-family: inherit;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Language summary */
+.owner-albums-language-value {
+  font-family: inherit !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Filter section heading */
+.owner-albums-filter-title {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.15px;
+}
+
+/* Search input */
+.owner-albums-search input {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1px;
+}
+
+/* Language selector */
+.owner-albums-language-select {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Clear filters button */
+.owner-albums-clear-button,
+.owner-albums-empty-button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+}
+
+/* Album list heading */
+.owner-albums-list-header h2 {
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.45px;
+}
+
+/* Album list description */
+.owner-albums-list-header p {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* Album titles */
+.owner-album-details h3 {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+/* Artist names */
+.owner-album-artist {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+/* Album metadata */
+.owner-album-meta span {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* Empty-state heading */
+.owner-albums-empty h2 {
+  font-family: inherit;
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  line-height: 1.3;
+}
+
+/* Empty-state description */
+.owner-albums-empty p {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+/* Loading message and error text */
+.owner-albums-loading p,
+.owner-albums-error {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+/* Consistent form control typography */
+.owner-albums-page button,
+.owner-albums-page input,
+.owner-albums-page select {
+  font-family: inherit;
+}
+
+/* Keyboard accessibility */
+.owner-albums-page button:focus-visible,
+.owner-albums-page input:focus-visible,
+.owner-albums-page select:focus-visible {
+  outline-offset: 3px;
+}
+
+/* Tablet typography */
+@media (max-width: 900px) {
+  .owner-albums-title-area h1 {
+    font-size: 28px;
+    letter-spacing: -0.6px;
+  }
+
+  .owner-albums-summary-card strong {
+    font-size: 27px;
+  }
+}
+
+/* Mobile typography */
+@media (max-width: 550px) {
+  .owner-albums-title-area h1 {
+    font-size: 24px;
+    letter-spacing: -0.45px;
+  }
+
+  .owner-albums-summary-card span {
+    font-size: 11px;
+  }
+
+  .owner-albums-summary-card strong {
+    font-size: 25px;
+  }
+
+  .owner-albums-list-header h2 {
+    font-size: 17px;
+  }
+
+  .owner-album-details h3 {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .owner-album-artist {
+    font-size: 11px;
+  }
+
+  .owner-albums-empty h2 {
+    font-size: 23px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 360px) {
+  .owner-albums-title-area h1 {
+    font-size: 22px;
+  }
+
+  .owner-albums-summary-card strong {
+    font-size: 23px;
+  }
+
+  .owner-album-details h3 {
+    font-size: 11px;
   }
 }

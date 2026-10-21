@@ -432,13 +432,20 @@ function MusicPlayer() {
   };
 
   const toggleMute = () => {
-    if (Number(volume) > 0) {
-      previousVolumeRef.current = Number(volume);
-      changeVolume(0);
-    } else {
-      changeVolume(previousVolumeRef.current || 1);
-    }
-  };
+  const currentVolume = Math.max(
+    0,
+    Math.min(1, Number(volume) || 0)
+  );
+
+  if (currentVolume > 0) {
+    previousVolumeRef.current = currentVolume;
+    changeVolume(0);
+  } else {
+    changeVolume(
+      Math.max(0.01, Math.min(1, previousVolumeRef.current || 1))
+    );
+  }
+};
 
   const VolumeIcon =
     Number(volume) <= 0
@@ -560,7 +567,7 @@ function MusicPlayer() {
           isFullScreen ? "music-player-fullscreen" : ""
         }`}
         onClick={handlePlayerClick}
-      >
+       >
         {/* SONG INFORMATION */}
 
         <div className="player-song-info">
@@ -699,91 +706,102 @@ function MusicPlayer() {
 
         {/* RIGHT-SIDE CONTROLS */}
 
-        <div className="player-right-controls">
-          <button
-            type="button"
-            className={
-              lyricsOpen
-                ? "player-lyrics-button active"
-                : "player-lyrics-button"
-            }
-            onClick={
-              lyricsOpen ? () => setLyricsOpen(false) : openLyrics
-            }
-            disabled={!hasLyrics}
-            title={hasLyrics ? "Lyrics" : "Lyrics unavailable"}
-            aria-label="Toggle lyrics"
-          >
-            <FaMicrophone />
-            <span>Lyrics</span>
-          </button>
+        
+<div className="player-right-controls">
+  {/* LYRICS */}
+  <button
+    type="button"
+    className={
+      lyricsOpen
+        ? "player-lyrics-button active"
+        : "player-lyrics-button"
+    }
+    onClick={lyricsOpen ? () => setLyricsOpen(false) : openLyrics}
+    disabled={!hasLyrics}
+    title={hasLyrics ? "Lyrics" : "Lyrics unavailable"}
+    aria-label="Toggle lyrics"
+    aria-pressed={lyricsOpen}
+  >
+    <FaMicrophone />
+    <span>Lyrics</span>
+  </button>
 
-          <button
-            ref={queueButtonRef}
-            type="button"
-            className={
-              queueOpen
-                ? "player-queue-button active"
-                : "player-queue-button"
-            }
-            onClick={() => {
-              setLyricsOpen(false);
-              setQueueOpen((value) => !value);
-            }}
-            title="Queue / Up Next"
-            aria-label="Open music queue"
-            aria-expanded={queueOpen}
-          >
-            <FaListUl />
-            <span>Queue</span>
-          </button>
+  {/* QUEUE / UP NEXT */}
+  <button
+    ref={queueButtonRef}
+    type="button"
+    className={
+      queueOpen
+        ? "player-queue-button active"
+        : "player-queue-button"
+    }
+    onClick={() => {
+      setLyricsOpen(false);
+      setQueueOpen((value) => !value);
+    }}
+    title="Queue / Up Next"
+    aria-label="Open music queue"
+    aria-expanded={queueOpen}
+  >
+    <FaListUl />
+    <span>Queue</span>
+  </button>
 
-          <SleepTimer />
+  {/* SLEEP TIMER */}
+  <div className="player-sleep-timer-control">
+    <SleepTimer />
+  </div>
 
-          <div className="player-volume">
-            <button
-              type="button"
-              onClick={toggleMute}
-              className="player-volume-button"
-              title={Number(volume) > 0 ? "Mute" : "Unmute"}
-              aria-label={Number(volume) > 0 ? "Mute" : "Unmute"}
-            >
-              <VolumeIcon />
-            </button>
+  {/* VOLUME CONTROL */}
+  <div className="player-volume">
+    <button
+      type="button"
+      onClick={toggleMute}
+      className="player-volume-button"
+      title={Number(volume) > 0 ? "Mute" : "Unmute"}
+      aria-label={Number(volume) > 0 ? "Mute" : "Unmute"}
+    >
+      <VolumeIcon />
+    </button>
 
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={Number(volume) || 0}
-              onChange={handleVolumeChange}
-              aria-label="Volume"
-            />
-          </div>
+    <input
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value={Number(volume) || 0}
+      onChange={handleVolumeChange}
+      aria-label="Volume"
+      title={`Volume: ${Math.round((Number(volume) || 0) * 100)}%`}
+    />
+  </div>
 
-          <button
-            type="button"
-            className="player-expand-btn"
-            onClick={toggleFullScreen}
-            aria-label={
-              isFullScreen ? "Collapse player" : "Expand player"
-            }
-            title={isFullScreen ? "Collapse player" : "Expand player"}
-          >
-            {isFullScreen ? <FaCompress /> : <FaExpand />}
-          </button>
+  {/* EXPAND / COLLAPSE PLAYER */}
+  <button
+    type="button"
+    className="player-expand-btn"
+    onClick={toggleFullScreen}
+    aria-label={
+      isFullScreen ? "Collapse player" : "Expand player"
+    }
+    title={isFullScreen ? "Collapse player" : "Expand player"}
+    aria-pressed={isFullScreen}
+  >
+    {isFullScreen ? <FaCompress /> : <FaExpand />}
+  </button>
 
-          <button
-            type="button"
-            className="player-close-button"
-            onClick={handleClosePlayer}
-            title="Close player"
-            aria-label="Close player"
-          >
-            <FaTimes />
-          </button>
-        </div>
+  {/* CLOSE PLAYER */}
+  <button
+    type="button"
+    className="player-close-button"
+    onClick={handleClosePlayer}
+    title="Close player"
+    aria-label="Close player"
+  >
+    <FaTimes />
+  </button>
+</div>
+
       </div>
 
       {/* QUEUE PANEL — RENDERED OUTSIDE THE PLAYER LAYOUT */}

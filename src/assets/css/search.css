@@ -1,21 +1,26 @@
 
 /* =========================================================
    KEERTHANA MUSIC — SEARCH PAGE
-   Professional Midnight Navy • Electric Blue • Champagne Gold
-   Square Song Cards • Responsive • Production-Style UI
+   Premium Midnight Navy • Royal Blue • Champagne Gold
+   Square Song Cards • Responsive • Production Ready
 ========================================================= */
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+/* =========================================================
+   THEME
+========================================================= */
+
 .search-page {
   --search-blue: #3978f6;
   --search-blue-light: #8eb5ff;
   --search-gold: #e8c98a;
+
   --search-text: #f6f8ff;
   --search-muted: #a7b3c9;
   --search-border: rgba(177, 198, 235, 0.14);
+
   --search-surface: #111b30;
-  --search-bg: #080d1a;
   --search-raised: #0d1424;
   --search-card-hover: #182641;
 
@@ -25,12 +30,12 @@
   min-height: 100vh;
   margin: 0;
   padding: 30px;
-  overflow-x: clip;
 
+  overflow-x: clip;
   background: transparent;
   color: var(--search-text);
 
-  font-family: "DM Sans", "Manrope", sans-serif;
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.6;
@@ -49,18 +54,20 @@
    HEADER
 ========================================================= */
 
-.search-page-header {
+.search-page .search-page-header {
   display: flex;
   align-items: center;
   gap: 18px;
+
   width: 100%;
   min-width: 0;
   margin-bottom: 30px;
 }
 
-.search-brand-icon {
+.search-page .search-brand-icon {
   display: grid;
   flex: 0 0 60px;
+
   width: 60px;
   height: 60px;
   place-items: center;
@@ -69,20 +76,21 @@
   border-radius: 17px;
 
   background: linear-gradient(145deg, #223657, #0d1424);
-  color: #ffffff;
+  color: #fff;
 
   font-size: 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.search-page-heading {
+.search-page .search-page-heading {
   flex: 1;
   min-width: 0;
 }
 
-.search-page-label,
-.search-section-label {
+.search-page .search-page-label,
+.search-page .search-section-label {
   display: block;
+
   color: var(--search-gold);
   font-size: 11px;
   font-weight: 750;
@@ -90,19 +98,20 @@
   line-height: 1.5;
 }
 
-.search-page-heading h1 {
+.search-page .search-page-heading h1 {
   margin: 7px 0;
-  color: var(--search-text);
 
-  font-family: "Manrope", sans-serif;
+  color: var(--search-text);
+  font-family: "Manrope", "Noto Sans Telugu", sans-serif;
   font-size: clamp(26px, 2.2vw, 35px);
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.7px;
 }
 
-.search-page-heading p {
+.search-page .search-page-heading p {
   margin: 0;
+
   color: var(--search-muted);
   font-size: 14px;
   line-height: 1.7;
@@ -112,20 +121,20 @@
    SEARCH PANEL
 ========================================================= */
 
-.search-main-area {
+.search-page .search-main-area {
   width: 100%;
   min-width: 0;
   margin-bottom: 32px;
   padding: 18px;
 
-  border: 1px solid var(--search-border);
-  border-radius: 18px;
+  border: 1px solid rgba(142, 181, 255, 0.15);
+  border-radius: 20px;
 
-  background: var(--search-raised);
+  background: linear-gradient(145deg, #101a2e, #0b1221);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
 }
 
-.search-input-wrapper {
+.search-page .search-input-wrapper {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -135,10 +144,10 @@
   min-height: 60px;
   padding: 8px 10px 8px 17px;
 
-  border: 1px solid rgba(177, 198, 235, 0.18);
-  border-radius: 14px;
+  border: 1px solid rgba(142, 181, 255, 0.25);
+  border-radius: 15px;
 
-  background: var(--search-surface);
+  background: #141f34;
 
   transition:
     border-color 180ms ease,
@@ -146,13 +155,13 @@
     box-shadow 180ms ease;
 }
 
-.search-input-wrapper:focus-within {
-  border-color: var(--search-blue);
-  background: #131f37;
-  box-shadow: 0 0 0 4px rgba(57, 120, 246, 0.12);
+.search-page .search-input-wrapper:focus-within {
+  border-color: var(--search-gold);
+  background: #17243b;
+  box-shadow: 0 0 0 3px rgba(232, 199, 120, 0.12);
 }
 
-.search-input-icon {
+.search-page .search-input-icon {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -162,16 +171,17 @@
   font-size: 18px;
 }
 
-.search-input-wrapper input,
-.search-input-wrapper input[type="text"],
-.search-input-wrapper input[type="search"] {
+/* Fallback for a regular input */
+.search-page .search-input-wrapper > input,
+.search-page .search-input-wrapper input[type="text"],
+.search-page .search-input-wrapper input[type="search"] {
   display: block;
-  flex: 1 1 auto;
+  flex: 1 1 0%;
 
-  width: 100%;
+  width: 0;
   min-width: 0;
-  min-height: 42px;
-  padding: 0;
+  min-height: 44px;
+  padding: 0 4px;
 
   border: 0;
   outline: none;
@@ -179,10 +189,9 @@
   background: transparent;
   color: var(--search-text);
   caret-color: var(--search-blue-light);
-  opacity: 1;
 
-  font-family: "DM Sans", sans-serif;
-  font-size: 15px;
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
 
@@ -190,20 +199,20 @@
   -webkit-text-fill-color: var(--search-text);
 }
 
-.search-input-wrapper input::placeholder,
-.search-input-wrapper input[type="search"]::placeholder {
+.search-page .search-input-wrapper input::placeholder {
   color: #8999b4;
   opacity: 1;
   -webkit-text-fill-color: #8999b4;
 }
 
-.search-input-wrapper input::-webkit-search-cancel-button {
+.search-page .search-input-wrapper input::-webkit-search-cancel-button {
   display: none;
 }
 
-.search-clear-button {
+.search-page .search-clear-button {
   display: grid;
   flex: 0 0 38px;
+
   width: 38px;
   height: 38px;
   place-items: center;
@@ -222,14 +231,16 @@
     color 180ms ease;
 }
 
-.search-clear-button:hover {
+.search-page .search-clear-button:hover {
   background: #30476c;
-  color: #ffffff;
+  color: #fff;
 }
 
-/* Search toolbar */
+/* =========================================================
+   SEARCH TOOLBAR
+========================================================= */
 
-.search-toolbar {
+.search-page .search-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -239,12 +250,12 @@
   margin-top: 14px;
 }
 
-.search-live-hint {
+.search-page .search-live-hint {
   color: var(--search-muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
-.voice-language-selector {
+.search-page .voice-language-selector {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -255,9 +266,9 @@
   font-weight: 600;
 }
 
-.voice-language-selector select {
+.search-page .voice-language-selector select {
   max-width: 170px;
-  min-height: 36px;
+  min-height: 38px;
   padding: 0 28px 0 10px;
 
   border: 1px solid var(--search-border);
@@ -275,7 +286,7 @@
    DISCOVERY INTRO
 ========================================================= */
 
-.search-discovery-intro {
+.search-page .search-discovery-intro {
   width: 100%;
   padding: 42px 24px;
 
@@ -286,9 +297,10 @@
   text-align: center;
 }
 
-.search-discovery-icon,
-.search-empty-icon {
+.search-page .search-discovery-icon,
+.search-page .search-empty-icon {
   display: grid;
+
   width: 58px;
   height: 58px;
   margin: 0 auto 18px;
@@ -303,19 +315,19 @@
   font-size: 23px;
 }
 
-.search-discovery-intro h2,
-.search-state-card h2 {
+.search-page .search-discovery-intro h2,
+.search-page .search-state-card h2 {
   margin: 0 0 10px;
 
   color: var(--search-text);
-  font-family: "Manrope", sans-serif;
+  font-family: "Manrope", "Noto Sans Telugu", sans-serif;
   font-size: 22px;
   font-weight: 800;
   line-height: 1.4;
 }
 
-.search-discovery-intro p,
-.search-state-card p {
+.search-page .search-discovery-intro p,
+.search-page .search-state-card p {
   max-width: 560px;
   margin: 0 auto;
 
@@ -328,13 +340,13 @@
    SEARCH RESULTS HEADER
 ========================================================= */
 
-.search-results {
+.search-page .search-results {
   width: 100%;
   min-width: 0;
   margin-top: 30px;
 }
 
-.search-results-header {
+.search-page .search-results-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -343,11 +355,11 @@
   margin-bottom: 20px;
 }
 
-.search-results-header h2 {
+.search-page .search-results-header h2 {
   margin: 6px 0 0;
-  color: var(--search-text);
 
-  font-family: "Manrope", sans-serif;
+  color: var(--search-text);
+  font-family: "Manrope", "Noto Sans Telugu", sans-serif;
   font-size: 23px;
   font-weight: 750;
   line-height: 1.4;
@@ -356,7 +368,7 @@
   overflow-wrap: anywhere;
 }
 
-.search-results-count {
+.search-page .search-results-count {
   flex: 0 0 auto;
   padding: 7px 12px;
 
@@ -374,9 +386,8 @@
    SQUARE SONG CARD GRID
 ========================================================= */
 
-.search-song-list {
+.search-page .search-song-list {
   display: grid;
-
   grid-template-columns: repeat(
     auto-fill,
     minmax(min(100%, 175px), 1fr)
@@ -392,10 +403,11 @@
 }
 
 /* =========================================================
-   SQUARE SONG CARD
+   SONG CARD
+   Square artwork with a separate title area underneath
 ========================================================= */
 
-.search-song-card {
+.search-page .search-song-card {
   position: relative;
 
   display: flex;
@@ -404,21 +416,20 @@
 
   width: 100%;
   min-width: 0;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-
-  padding: 12px;
+  height: auto;
+  aspect-ratio: auto;
+  overflow: visible;
+  padding: 10px;
 
   border: 1px solid var(--search-border);
   border-radius: 16px;
 
-  background:
-    linear-gradient(
-      150deg,
-      rgba(24, 38, 65, 0.98) 0%,
-      rgba(17, 27, 48, 0.99) 60%,
-      rgba(13, 20, 36, 1) 100%
-    );
+  background: linear-gradient(
+    150deg,
+    rgba(24, 38, 65, 0.98),
+    rgba(17, 27, 48, 0.99) 60%,
+    #0d1424
+  );
 
   color: var(--search-text);
   box-shadow: 0 7px 22px rgba(0, 0, 0, 0.14);
@@ -432,8 +443,8 @@
     box-shadow 200ms ease;
 }
 
-.search-song-card:hover {
-  transform: translateY(-4px);
+.search-page .search-song-card:hover {
+  transform: translateY(-3px);
 
   border-color: rgba(110, 157, 255, 0.45);
   background: var(--search-card-hover);
@@ -441,9 +452,10 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
 }
 
-.search-song-card-active {
+.search-page .search-song-card-active {
   border-color: var(--search-blue);
   background: #1b2b49;
+
   box-shadow:
     inset 0 0 0 1px rgba(57, 120, 246, 0.25),
     0 8px 25px rgba(0, 0, 0, 0.18);
@@ -453,14 +465,14 @@
    SQUARE COVER IMAGE
 ========================================================= */
 
-.search-song-cover {
+.search-page .search-song-cover {
   display: block;
   flex: 0 0 auto;
 
   width: 100%;
-  max-width: 100%;
-  aspect-ratio: 1 / 1;
+  max-width: none;
   height: auto;
+  aspect-ratio: 1 / 1;
 
   margin: 0 0 10px;
   overflow: hidden;
@@ -477,66 +489,74 @@
   transition: transform 250ms ease;
 }
 
-.search-song-card:hover .search-song-cover {
-  transform: scale(1.025);
+.search-page .search-song-card:hover .search-song-cover {
+  transform: scale(1.015);
 }
 
 /* =========================================================
    SONG INFORMATION
+   Title can occupy two lines without being cut off by the card
 ========================================================= */
 
-.search-song-info {
+.search-page .search-song-info {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   align-items: stretch;
-  gap: 4px;
+  gap: 5px;
 
   width: 100%;
   min-width: 0;
-  overflow: hidden;
+  min-height: 58px;
+  overflow: visible;
 
-  padding: 0 2px;
+  padding: 0 2px 4px;
 }
 
-.search-song-info h3 {
+.search-page .search-song-info h3 {
   display: -webkit-box;
-  overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 
+  width: 100%;
+  min-width: 0;
   margin: 0;
-
-  color: var(--search-text);
-  font-family: "Manrope", sans-serif;
-  font-size: 13px;
-  font-weight: 750;
-  line-height: 1.45;
-  letter-spacing: -0.15px;
-
-  overflow-wrap: anywhere;
-}
-
-.search-song-secondary {
-  display: block;
   overflow: hidden;
 
+  color: var(--search-text);
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.1px;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.search-page .search-song-secondary {
+  display: block;
+  width: 100%;
+  min-width: 0;
   margin: 0;
+  overflow: hidden;
 
   color: #c0cee6;
   font-size: 11px;
   font-weight: 450;
-  line-height: 1.45;
+  line-height: 1.5;
 
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.search-song-artist {
+.search-page .search-song-artist {
   display: block;
-  overflow: hidden;
-
+  width: 100%;
+  min-width: 0;
   margin: 0;
+  overflow: hidden;
 
   color: var(--search-muted);
   font-size: 11px;
@@ -551,17 +571,16 @@
    SONG METADATA
 ========================================================= */
 
-.search-song-meta {
+.search-page .search-song-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
 
   max-width: 100%;
-  margin-top: 6px;
-  overflow: hidden;
+  margin-top: 5px;
 }
 
-.search-song-meta span {
+.search-page .search-song-meta span {
   display: inline-block;
   max-width: 100%;
   overflow: hidden;
@@ -582,7 +601,7 @@
   white-space: nowrap;
 }
 
-.search-playing-indicator {
+.search-page .search-playing-indicator {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -598,14 +617,15 @@
    PLAY BUTTON
 ========================================================= */
 
-.search-song-play {
+.search-page .search-song-play {
   position: absolute;
-  right: 17px;
-  bottom: 17px;
+  top: 18px;
+  right: 18px;
   z-index: 3;
 
   display: grid;
   flex: 0 0 38px;
+
   width: 38px;
   height: 38px;
   place-items: center;
@@ -616,7 +636,7 @@
   border-radius: 50%;
 
   background: linear-gradient(145deg, #6596ff, #3978f6);
-  color: #ffffff;
+  color: #fff;
 
   box-shadow: 0 5px 16px rgba(57, 120, 246, 0.35);
 
@@ -624,7 +644,7 @@
   cursor: pointer;
 
   opacity: 0;
-  transform: translateY(5px) scale(0.94);
+  transform: scale(0.94);
 
   transition:
     opacity 180ms ease,
@@ -632,26 +652,26 @@
     box-shadow 180ms ease;
 }
 
-.search-song-card:hover .search-song-play,
-.search-song-card:focus-within .search-song-play,
-.search-song-play.playing {
+.search-page .search-song-card:hover .search-song-play,
+.search-page .search-song-card:focus-within .search-song-play,
+.search-page .search-song-play.playing {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: scale(1);
 }
 
-.search-song-play:hover {
+.search-page .search-song-play:hover {
   box-shadow: 0 7px 20px rgba(57, 120, 246, 0.5);
 }
 
-.search-song-play.playing {
+.search-page .search-song-play.playing {
   background: #285cc7;
-  color: #ffffff;
+  color: #fff;
 }
 
-/* Make the play button visible on mobile and touch devices */
+/* Touch devices must not require hover */
 
 @media (hover: none) {
-  .search-song-play {
+  .search-page .search-song-play {
     opacity: 1;
     transform: none;
   }
@@ -661,7 +681,7 @@
    LOADING / EMPTY / ERROR STATES
 ========================================================= */
 
-.search-state-card {
+.search-page .search-state-card {
   width: 100%;
   padding: 42px 20px;
 
@@ -672,7 +692,7 @@
   text-align: center;
 }
 
-.search-loading-spinner {
+.search-page .search-loading-spinner {
   display: block;
 
   width: 38px;
@@ -692,12 +712,12 @@
   }
 }
 
-.search-empty .search-empty-icon {
+.search-page .search-empty .search-empty-icon {
   margin-bottom: 18px;
 }
 
-.search-show-all-button,
-.search-error button {
+.search-page .search-show-all-button,
+.search-page .search-error button {
   min-height: 42px;
   margin-top: 20px;
   padding: 0 18px;
@@ -706,7 +726,7 @@
   border-radius: 10px;
 
   background: var(--search-blue);
-  color: #ffffff;
+  color: #fff;
 
   font-family: inherit;
   font-size: 13px;
@@ -716,20 +736,20 @@
   transition: background 180ms ease;
 }
 
-.search-show-all-button:hover,
-.search-error button:hover {
+.search-page .search-show-all-button:hover,
+.search-page .search-error button:hover {
   background: #285cc7;
 }
 
-.search-error {
+.search-page .search-error {
   border-color: rgba(255, 130, 130, 0.24);
 }
 
-.search-error h2 {
+.search-page .search-error h2 {
   color: #ffb7bd;
 }
 
-.search-play-error {
+.search-page .search-play-error {
   margin: 16px 0;
   padding: 12px 14px;
 
@@ -751,34 +771,34 @@
     padding: 25px 20px 120px;
   }
 
-  .search-song-list {
+  .search-page .search-song-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
 
-  .search-song-card {
-    padding: 10px;
+  .search-page .search-song-card {
+    padding: 9px;
     border-radius: 14px;
   }
 
-  .search-song-cover {
+  .search-page .search-song-cover {
     border-radius: 9px;
   }
 
-  .search-song-info h3 {
-    font-size: 12px;
+  .search-page .search-song-info h3 {
+    font-size: 13px;
   }
 
-  .search-song-play {
+  .search-page .search-song-play {
+    top: 14px;
     right: 14px;
-    bottom: 14px;
     width: 34px;
     height: 34px;
   }
 }
 
 /* =========================================================
-   MOBILE
+   MOBILE / ANDROID
 ========================================================= */
 
 @media (max-width: 640px) {
@@ -786,13 +806,13 @@
     padding: 20px 13px 125px;
   }
 
-  .search-page-header {
+  .search-page .search-page-header {
     align-items: flex-start;
     gap: 12px;
     margin-bottom: 24px;
   }
 
-  .search-brand-icon {
+  .search-page .search-brand-icon {
     flex-basis: 48px;
     width: 48px;
     height: 48px;
@@ -800,115 +820,121 @@
     font-size: 20px;
   }
 
-  .search-page-heading h1 {
+  .search-page .search-page-heading h1 {
     font-size: 25px;
     letter-spacing: -0.45px;
   }
 
-  .search-page-heading p {
+  .search-page .search-page-heading p {
     font-size: 12px;
   }
 
-  .search-main-area {
+  .search-page .search-main-area {
     margin-bottom: 24px;
     padding: 12px;
     border-radius: 15px;
   }
 
-  .search-input-wrapper {
+  .search-page .search-input-wrapper {
     gap: 9px;
     min-height: 54px;
     padding: 6px 7px 6px 12px;
     border-radius: 13px;
   }
 
-  .search-input-icon {
+  .search-page .search-input-icon {
     font-size: 15px;
   }
 
-  .search-input-wrapper input,
-  .search-input-wrapper input[type="text"],
-  .search-input-wrapper input[type="search"] {
-    min-height: 40px;
-    font-size: 13px;
+  .search-page .search-input-wrapper > input,
+  .search-page .search-input-wrapper input[type="text"],
+  .search-page .search-input-wrapper input[type="search"] {
+    min-height: 42px;
+    font-size: 16px;
   }
 
-  .search-clear-button {
+  .search-page .search-clear-button {
     flex-basis: 34px;
     width: 34px;
     height: 34px;
     border-radius: 9px;
   }
 
-  .search-toolbar {
+  .search-page .search-toolbar {
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
   }
 
-  .search-results {
+  .search-page .voice-language-selector select {
+    min-height: 40px;
+  }
+
+  .search-page .search-results {
     margin-top: 24px;
   }
 
-  .search-results-header {
+  .search-page .search-results-header {
     gap: 10px;
     margin-bottom: 15px;
   }
 
-  .search-results-header h2 {
+  .search-page .search-results-header h2 {
     font-size: 19px;
   }
 
-  .search-results-count {
+  .search-page .search-results-count {
     padding: 6px 9px;
     font-size: 11px;
   }
 
-  /* Two columns of square song cards */
+  /* Two columns of square artwork cards */
 
-  .search-song-list {
+  .search-page .search-song-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 11px;
   }
 
-  .search-song-card {
+  .search-page .search-song-card {
     padding: 8px;
     border-radius: 12px;
   }
 
-  .search-song-cover {
+  .search-page .search-song-cover {
     margin-bottom: 8px;
     border-radius: 8px;
   }
 
-  .search-song-info {
-    gap: 3px;
-    padding: 0 1px;
+  .search-page .search-song-info {
+    gap: 4px;
+    min-height: 54px;
+    padding: 0 1px 3px;
   }
 
-  .search-song-info h3 {
-    font-size: 11px;
-    line-height: 1.4;
+  .search-page .search-song-info h3 {
+    font-size: 12px;
+    line-height: 1.45;
   }
 
-  .search-song-secondary,
-  .search-song-artist {
+  .search-page .search-song-secondary,
+  .search-page .search-song-artist {
     font-size: 10px;
   }
 
-  .search-song-meta {
+  .search-page .search-song-meta {
     gap: 4px;
     margin-top: 4px;
   }
 
-  .search-song-meta span {
+  .search-page .search-song-meta span {
     padding: 3px 5px;
     font-size: 9px;
   }
 
-  .search-song-play {
+  .search-page .search-song-play {
+    top: 11px;
     right: 11px;
-    bottom: 11px;
+
     width: 30px;
     height: 30px;
 
@@ -917,21 +943,21 @@
     transform: none;
   }
 
-  .search-discovery-intro {
+  .search-page .search-discovery-intro {
     padding: 32px 17px;
   }
 
-  .search-discovery-intro h2,
-  .search-state-card h2 {
+  .search-page .search-discovery-intro h2,
+  .search-page .search-state-card h2 {
     font-size: 19px;
   }
 
-  .search-discovery-intro p,
-  .search-state-card p {
+  .search-page .search-discovery-intro p,
+  .search-page .search-state-card p {
     font-size: 13px;
   }
 
-  .search-state-card {
+  .search-page .search-state-card {
     padding: 32px 15px;
   }
 }
@@ -946,27 +972,27 @@
     padding-left: 10px;
   }
 
-  .search-song-list {
+  .search-page .search-song-list {
     gap: 8px;
   }
 
-  .search-song-card {
+  .search-page .search-song-card {
     padding: 7px;
     border-radius: 10px;
   }
 
-  .search-song-info h3 {
-    font-size: 10px;
+  .search-page .search-song-info h3 {
+    font-size: 11px;
   }
 
-  .search-song-secondary,
-  .search-song-artist {
+  .search-page .search-song-secondary,
+  .search-page .search-song-artist {
     font-size: 9px;
   }
 
-  .search-song-play {
+  .search-page .search-song-play {
+    top: 9px;
     right: 9px;
-    bottom: 9px;
     width: 27px;
     height: 27px;
     font-size: 10px;
@@ -980,7 +1006,7 @@
 .search-page button:focus-visible,
 .search-page input:focus-visible,
 .search-page select:focus-visible,
-.search-song-card:focus-visible {
+.search-page .search-song-card:focus-visible {
   outline: 2px solid var(--search-blue-light);
   outline-offset: 3px;
 }
