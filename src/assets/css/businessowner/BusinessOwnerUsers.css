@@ -2025,3 +2025,159 @@
   letter-spacing: -0.2px;
   line-height: 1.5;
 }
+
+/* =========================================================
+   KEERTHANA — BUSINESS OWNER USERS
+   PROFESSIONAL TYPOGRAPHY OVERRIDE
+========================================================= */
+
+
+
+.owner-users-page {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+}
+
+/* Consistent typography across the entire users page */
+.owner-users-page,
+.owner-users-page button,
+.owner-users-page input,
+.owner-users-page select,
+.owner-users-page textarea {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+}
+
+/* Page headings */
+.owner-users-page .owner-page-heading h1 {
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+}
+
+.owner-users-page .owner-page-heading p {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+/* Statistics */
+.owner-users-page .user-stat-content span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.owner-users-page .user-stat-content strong {
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Buttons */
+.owner-users-page .owner-back-btn,
+.owner-users-page .create-user-btn,
+.owner-users-page .clear-filters-btn,
+.owner-users-page .empty-clear-btn,
+.owner-users-page .modal-cancel-btn,
+.owner-users-page .modal-submit-btn {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: -0.1px;
+}
+
+/* Search and filters */
+.owner-users-page .users-search-control label,
+.owner-users-page .users-role-control label,
+.owner-users-page .form-group label {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.owner-users-page .users-search-box input,
+.owner-users-page .users-filter-box select,
+.owner-users-page .form-input-wrapper input,
+.owner-users-page .form-input-wrapper select {
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0;
+}
+
+/* Table headings */
+.owner-users-page .users-table th {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.65px;
+}
+
+/* Table content */
+.owner-users-page .users-table td {
+  font-size: 12px;
+  font-weight: 450;
+  line-height: 1.55;
+}
+
+.owner-users-page .table-user-details strong {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.15px;
+}
+
+.owner-users-page .table-user-details span {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.owner-users-page .user-id,
+.owner-users-page .created-date {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Role badges */
+.owner-users-page .user-role-badge {
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+/* Modal typography */
+.owner-users-page .owner-modal-heading h2 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.35px;
+}
+
+.owner-users-page .owner-modal-heading p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.owner-users-page .optional-label {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* Mobile typography */
+@media (max-width: 700px) {
+  .owner-users-page .owner-page-heading h1 {
+    font-size: 22px;
+  }
+
+  .owner-users-page .user-stat-content span {
+    font-size: 10px;
+  }
+
+  .owner-users-page .user-stat-content strong {
+    font-size: 22px;
+  }
+
+  .owner-users-page .table-user-details strong {
+    font-size: 12px;
+  }
+}
