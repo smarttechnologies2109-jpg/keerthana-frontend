@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -5,13 +6,11 @@ import {
   FaChurch,
   FaMusic,
   FaArrowRight,
-  FaSearch,
 } from "react-icons/fa";
 
 import API from "../services/api";
-
 import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/ministries.css";
 
@@ -22,6 +21,7 @@ function Ministries() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   /* =========================================================
      LOAD MINISTRIES
@@ -37,7 +37,6 @@ function Ministries() {
       setError("");
 
       const response = await API.get("/ministries");
-
       const data = response.data;
 
       const ministryData = Array.isArray(data)
@@ -62,7 +61,15 @@ function Ministries() {
   };
 
   /* =========================================================
-     SEARCH
+     VOICE SEARCH
+  ========================================================= */
+
+  const handleVoiceSearch = (recognizedText) => {
+    setSearch(recognizedText);
+  };
+
+  /* =========================================================
+     SEARCH MINISTRIES
   ========================================================= */
 
   const searchText = search.trim().toLowerCase();
@@ -102,65 +109,33 @@ function Ministries() {
 
   return (
     <div className="ministries-page">
-
-      {/* =====================================================
-          SIDEBAR
-      ===================================================== */}
+      {/* SIDEBAR */}
 
       <Sidebar />
 
-      {/* =====================================================
-          MAIN AREA
-      ===================================================== */}
+      {/* MAIN AREA */}
 
       <div className="ministries-main">
-
-        {/* ===================================================
-            HEADER
-        =================================================== */}
-
-     {/* //   <Header /> */}
-
-        {/* ===================================================
-            PAGE BODY
-        =================================================== */}
-
         <div className="ministries-body">
-
-          {/* =================================================
-              LOADING
-          ================================================= */}
+          {/* LOADING */}
 
           {loading && (
             <div className="ministries-loading">
-
               <div className="ministries-spinner"></div>
-
-              <p>
-                Loading ministries...
-              </p>
-
+              <p>Loading ministries...</p>
             </div>
           )}
 
-          {/* =================================================
-              ERROR
-          ================================================= */}
+          {/* ERROR */}
 
           {!loading && error && (
             <div className="ministries-error">
-
               <div className="ministries-error-icon">
                 <FaChurch />
               </div>
 
-              <h2>
-                Unable to load ministries
-              </h2>
-
-              <p>
-                {error}
-              </p>
+              <h2>Unable to load ministries</h2>
+              <p>{error}</p>
 
               <button
                 type="button"
@@ -168,87 +143,61 @@ function Ministries() {
               >
                 Try Again
               </button>
-
             </div>
           )}
 
-          {/* =================================================
-              CONTENT
-          ================================================= */}
+          {/* CONTENT */}
 
           {!loading && !error && (
             <>
-
-              {/* =============================================
-                  HERO
-              ============================================= */}
+              {/* HERO */}
 
               <section className="ministries-hero">
-
                 <div className="ministries-hero-content">
-
                   <div className="ministries-hero-icon">
                     <FaChurch />
                   </div>
 
                   <div className="ministries-hero-text">
-
                     <span className="ministries-eyebrow">
                       KEERTHANA
                     </span>
 
-                    <h1>
-                      Ministries
-                    </h1>
+                    <h1>Ministries</h1>
 
                     <p>
-                      Explore Christian music from
-                      different ministries and worship
-                      communities.
+                      Explore Christian music from different
+                      ministries and worship communities.
                     </p>
-
                   </div>
-
                 </div>
-
-                {/* =========================================
-                    SEARCH
-                ========================================= */}
-
-                <div className="ministries-search">
-
-                  <FaSearch />
-
-                  <input
-                    type="text"
-                    placeholder="Search ministries..."
-                    value={search}
-                    onChange={(e) =>
-                      setSearch(e.target.value)
-                    }
-                    aria-label="Search ministries"
-                  />
-
-                </div>
-
               </section>
 
-              {/* =============================================
-                  MINISTRIES CONTENT
-              ============================================= */}
+              {/* MINISTRIES CONTENT */}
 
               <section className="ministries-content">
+                {/* VOICE SEARCH */}
 
-                {/* =========================================
-                    HEADING
-                ========================================= */}
+                <div
+                  className="ministries-voice-search-section"
+                  aria-label="Search ministries"
+                >
+                  <VoiceSearch
+                    value={search}
+                    onChange={setSearch}
+                    onSearch={handleVoiceSearch}
+                    language={voiceLanguage}
+                    onLanguageChange={setVoiceLanguage}
+                    placeholder="Search ministries..."
+                    ariaLabel="Search ministries"
+                  />
+                </div>
+
+                {/* HEADING AND RESULT COUNT */}
 
                 <div className="ministries-heading">
-
                   <div>
-                    <h2>
-                      Discover Ministries
-                    </h2>
+                    <h2>Discover Ministries</h2>
 
                     <p>
                       {filteredMinistries.length}{" "}
@@ -257,32 +206,25 @@ function Ministries() {
                         : "ministries"}
                     </p>
                   </div>
-
                 </div>
 
-                {/* =========================================
-                    EMPTY
-                ========================================= */}
+                {/* EMPTY STATE */}
 
                 {filteredMinistries.length === 0 ? (
-
                   <div className="ministries-empty">
-
                     <div className="ministries-empty-icon">
                       <FaChurch />
                     </div>
 
-                    <h3>
-                      No ministries found
-                    </h3>
+                    <h3>No ministries found</h3>
 
                     <p>
-                      {search
+                      {search.trim()
                         ? "Try a different search."
                         : "No ministries have been added yet."}
                     </p>
 
-                    {search && (
+                    {search.trim() && (
                       <button
                         type="button"
                         onClick={() => setSearch("")}
@@ -290,19 +232,12 @@ function Ministries() {
                         Clear Search
                       </button>
                     )}
-
                   </div>
-
                 ) : (
-
-                  /* =========================================
-                     GRID
-                  ========================================= */
+                  /* MINISTRIES GRID */
 
                   <div className="ministries-grid">
-
                     {filteredMinistries.map((ministry) => {
-
                       const image =
                         ministry?.image_url ||
                         ministry?.image ||
@@ -314,9 +249,7 @@ function Ministries() {
                         <article
                           key={ministry.id}
                           className="ministry-card"
-                          onClick={() =>
-                            openMinistry(ministry)
-                          }
+                          onClick={() => openMinistry(ministry)}
                           role="button"
                           tabIndex={0}
                           onKeyDown={(e) => {
@@ -324,24 +257,18 @@ function Ministries() {
                               e.key === "Enter" ||
                               e.key === " "
                             ) {
+                              e.preventDefault();
                               openMinistry(ministry);
                             }
                           }}
                         >
-
-                          {/* =================================
-                              CARD IMAGE
-                          ================================= */}
+                          {/* CARD IMAGE */}
 
                           <div className="ministry-card-image">
-
                             {image && (
                               <img
                                 src={image}
-                                alt={
-                                  ministry?.name ||
-                                  "Ministry"
-                                }
+                                alt={ministry?.name || "Ministry"}
                                 loading="lazy"
                                 onError={(e) => {
                                   e.currentTarget.style.display =
@@ -363,60 +290,39 @@ function Ministries() {
                             </div>
 
                             <div className="ministry-card-overlay">
-
                               <span>
                                 <FaMusic />
                               </span>
-
                             </div>
-
                           </div>
 
-                          {/* =================================
-                              CARD INFO
-                          ================================= */}
+                          {/* CARD INFORMATION */}
 
                           <div className="ministry-card-info">
-
                             <h3>
                               {ministry?.name ||
                                 "Unnamed Ministry"}
                             </h3>
 
                             {ministry?.description && (
-                              <p>
-                                {ministry.description}
-                              </p>
+                              <p>{ministry.description}</p>
                             )}
 
                             <div className="ministry-card-footer">
-
-                              <span>
-                                Explore music
-                              </span>
-
+                              <span>Explore music</span>
                               <FaArrowRight />
-
                             </div>
-
                           </div>
-
                         </article>
                       );
                     })}
-
                   </div>
                 )}
-
               </section>
-
             </>
           )}
-
         </div>
-
       </div>
-
     </div>
   );
 }

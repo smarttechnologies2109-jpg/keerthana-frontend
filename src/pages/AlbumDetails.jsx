@@ -1,31 +1,27 @@
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import {
   FaArrowLeft,
   FaCompactDisc,
+  FaEllipsisV,
   FaPause,
   FaPlay,
+  FaPlus,
+  FaTimes,
 } from "react-icons/fa";
 
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import API from "../services/api";
-
-import {
-  usePlayer,
-} from "../context/usePlayer";
+import { usePlayer } from "../context/usePlayer";
 
 import {
   getAlbumCover,
   DEFAULT_COVER,
 } from "../utils/media";
+
+import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/albumDetails.css";
 
@@ -38,15 +34,31 @@ function AlbumDetails() {
     togglePlay,
     currentSong,
     isPlaying,
+    addToQueue,
   } = usePlayer();
 
   const [album, setAlbum] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
-  /* LOAD ALBUM */
+  /* =====================================================
+     VOICE SEARCH
+  ===================================================== */
+
+  const handleVoiceSearch = (recognizedText) => {
+    setSearchQuery(recognizedText);
+  };
+
+  /* =====================================================
+     LOAD ALBUM
+  ===================================================== */
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadAlbum = async () => {
       try {
         setLoading(true);
@@ -54,23 +66,41 @@ function AlbumDetails() {
 
         const response = await API.get(`/albums/${id}`);
 
-        setAlbum(response.data.album);
-      } catch (error) {
-        console.error("Album error:", error);
+        if (!cancelled) {
+          setAlbum(response.data.album);
+        }
+      } catch (err) {
+        console.error("Album error:", err);
 
-        setError(
-          error.response?.data?.message ||
-          "Unable to load album"
-        );
+        if (!cancelled) {
+          setError(
+            err.response?.data?.message ||
+              "Unable to load album"
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
+    if (!id) {
+      setError("Album ID is missing.");
+      setLoading(false);
+      return;
+    }
+
     loadAlbum();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  /* LOADING */
+  /* =====================================================
+     LOADING STATE
+  ===================================================== */
 
   if (loading) {
     return (
@@ -81,7 +111,9 @@ function AlbumDetails() {
     );
   }
 
-  /* ERROR */
+  /* =====================================================
+     ERROR STATE
+  ===================================================== */
 
   if (error || !album) {
     return (
@@ -100,64 +132,164 @@ function AlbumDetails() {
     );
   }
 
-  /* ALBUM COVER */
+  /* =====================================================
+     ALBUM DATA & SEARCH
+  ===================================================== */
+
+  const songs = Array.isArray(album.songs)
+    ? album.songs
+    : [];
 
   const cover = getAlbumCover(album);
 
-  /* CHECK WHETHER SONG BELONGS TO ALBUM */
+  const query = searchQuery.trim().toLowerCase();
+
+  const filteredSongs = songs.filter((song) => {
+    if (!query) return true;
+
+    const title = (song.title || "").toLowerCase();
+
+    const englishTitle = (
+      song.title_english || ""
+    ).toLowerCase();
+
+    const artist = (
+      song.artist_name || album.artist_name || ""
+    ).toLowerCase();
+
+    const language = (
+      song.language || "Telugu"
+    ).toLowerCase();
+
+    const category = (
+      song.category_name || "Christian Music"
+    ).toLowerCase();
+
+    return (
+      title.includes(query) ||
+      englishTitle.includes(query) ||
+      artist.includes(query) ||
+      language.includes(query) ||
+      category.includes(query)
+    );
+  });
 
   const isAlbumSong = (song) =>
-    album.songs?.some(
-      (albumSong) => albumSong.id === song?.id
+    songs.some(
+      (albumSong) =>
+        String(albumSong.id) === String(song?.id)
     );
 
-  /* ALBUM PLAY / PAUSE */
+  /* =====================================================
+     FORMAT DURATION
+  ===================================================== */
+
+  const formatDuration = (value) => {
+    if (value == null || value === "") return "";
+
+    if (typeof value === "string" && value.includes(":")) {
+      return value;
+    }
+
+    const seconds = Number(value);
+
+    if (!Number.isFinite(seconds) || seconds < 0) {
+      return "";
+    }
+
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+
+    return `${mins}:${String(secs).padStart(2, "0")}`;
+  };
+
+  /* =====================================================
+     PLAY ALL — COMPLETE ALBUM
+  ===================================================== */
 
   const handleAlbumPlayPause = async () => {
-    if (!album.songs?.length) {
-      return;
+    if (!songs.length) return;
+
+    try {
+      if (currentSong && isAlbumSong(currentSong)) {
+        await togglePlay();
+        return;
+      }
+
+      await playSong(songs[0], songs);
+    } catch (err) {
+      console.error("Album playback error:", err);
     }
-
-    const currentBelongsToAlbum =
-      currentSong && isAlbumSong(currentSong);
-
-    if (currentBelongsToAlbum) {
-      await togglePlay();
-      return;
-    }
-
-    await playSong(
-      album.songs[0],
-      album.songs
-    );
   };
 
-  /* SONG PLAY / PAUSE */
+  /* =====================================================
+     PLAY / PAUSE TRACK
+  ===================================================== */
 
   const handleSongPlayPause = async (song) => {
-    if (currentSong?.id === song.id) {
-      await togglePlay();
+    setOpenMenuId(null);
+
+    try {
+      if (String(currentSong?.id) === String(song.id)) {
+        await togglePlay();
+        return;
+      }
+
+      await playSong(song, songs);
+    } catch (err) {
+      console.error("Song playback error:", err);
+    }
+  };
+
+  /* =====================================================
+     ADD TO QUEUE
+  ===================================================== */
+
+  const handleAddToQueue = async (song) => {
+    setOpenMenuId(null);
+
+    if (typeof addToQueue !== "function") {
+      console.warn(
+        "addToQueue is not available in usePlayer()."
+      );
       return;
     }
 
-    await playSong(
-      song,
-      album.songs
-    );
+    try {
+      await addToQueue(song);
+    } catch (err) {
+      console.error("Add to queue error:", err);
+    }
   };
 
-  /* ALBUM BUTTON STATE */
+  /* =====================================================
+     ADD TO PLAYLIST
+  ===================================================== */
+
+  const handleAddToPlaylist = (song) => {
+    setOpenMenuId(null);
+
+    navigate("/playlists", {
+      state: {
+        selectedSong: song,
+        action: "add-song",
+      },
+    });
+  };
 
   const albumIsPlaying = Boolean(
     currentSong &&
-    isPlaying &&
-    isAlbumSong(currentSong)
+      isPlaying &&
+      isAlbumSong(currentSong)
   );
+
+  /* =====================================================
+     PAGE
+  ===================================================== */
 
   return (
     <div className="album-details-page">
-
-      {/* BACK BUTTON */}
+      {/* BACK NAVIGATION */}
 
       <button
         type="button"
@@ -168,23 +300,17 @@ function AlbumDetails() {
         Back
       </button>
 
-      {/* ALBUM HERO */}
+      {/* ALBUM HEADER */}
 
       <section className="album-details-hero">
-
         <div className="album-details-cover">
           {cover ? (
             <img
               src={cover}
               alt={album.title || "Album cover"}
               onError={(event) => {
-                if (
-                  !event.currentTarget.src.includes(
-                    "default-cover.png"
-                  )
-                ) {
-                  event.currentTarget.src = DEFAULT_COVER;
-                }
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = DEFAULT_COVER;
               }}
             />
           ) : (
@@ -193,7 +319,6 @@ function AlbumDetails() {
         </div>
 
         <div className="album-details-info">
-
           <span className="album-details-label">
             ALBUM
           </span>
@@ -211,92 +336,306 @@ function AlbumDetails() {
           >
             {album.artist_name || "KEERTHANA"}
           </button>
-
-          <p>
-            {album.song_count ?? album.songs?.length ?? 0}{" "}
-            {(album.song_count ?? album.songs?.length ?? 0) === 1
-              ? "song"
-              : "songs"}
-          </p>
-
         </div>
-
       </section>
 
-      {/* ALBUM PLAY / PAUSE */}
+      {/* PLAY ALL — ALWAYS USES FULL ALBUM */}
 
-      {/* <div className="album-details-actions">
+      <div className="album-details-actions">
         <button
           type="button"
+          className="album-details-play-all"
           onClick={handleAlbumPlayPause}
-          disabled={!album.songs?.length}
-          aria-label={
-            albumIsPlaying ? "Pause album" : "Play album"
-          }
+          disabled={!songs.length}
         >
           {albumIsPlaying ? <FaPause /> : <FaPlay />}
+
+          <span>
+            {albumIsPlaying ? "Pause Album" : "Play All"}
+          </span>
         </button>
-      </div> */}
+      </div>
 
-      {/* SQUARE SONG CARDS */}
+      {/* SONG LIST */}
 
-      <section
-        className="album-details-song-grid"
-        aria-label="Album songs"
-      >
-        {album.songs?.map((song, index) => {
-          const songIsCurrent =
-            currentSong?.id === song.id;
+      <section className="album-details-song-section">
+        <div className="album-details-list-heading">
+          <div>
+            <span className="album-details-list-eyebrow">
+              YOUR WORSHIP COLLECTION
+            </span>
 
-          const songIsPlaying =
-            songIsCurrent && isPlaying;
+            <h2>
+              {query ? "Search Results" : "Tracks"}
+            </h2>
+          </div>
 
-          return (
-            <article
-              className={`album-details-song-card ${
-                songIsCurrent ? "is-current" : ""
-              }`}
-              key={song.id}
-            >
-              <span className="album-details-track-number">
-                {String(index + 1).padStart(2, "0")}
-              </span>
+          <span className="album-details-track-count">
+            {query
+              ? filteredSongs.length
+              : songs.length}{" "}
+            {query
+              ? filteredSongs.length === 1
+                ? "MATCH"
+                : "MATCHES"
+              : songs.length === 1
+                ? "TRACK"
+                : "TRACKS"}
+          </span>
+        </div>
 
-              <div className="album-details-song-info">
-                <strong>{song.title}</strong>
+        {/* VOICE SEARCH */}
 
-                <span>
-                  {song.artist_name || album.artist_name || "KEERTHANA"}
-                </span>
-              </div>
+        <section
+          className="album-details-voice-search-section"
+          aria-label="Search tracks in this album"
+        >
+          <VoiceSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSearch={handleVoiceSearch}
+            language={voiceLanguage}
+            onLanguageChange={setVoiceLanguage}
+            placeholder="Search songs, artists, language..."
+            ariaLabel="Search tracks in this album"
+          />
+        </section>
 
-              <span className="album-details-category">
-                {song.category_name || "Christian Music"}
-              </span>
+        {/* SEARCH SUMMARY */}
 
+        {query && (
+          <p
+            className="album-details-search-summary"
+            aria-live="polite"
+          >
+            {filteredSongs.length}{" "}
+            {filteredSongs.length === 1
+              ? "song"
+              : "songs"}{" "}
+            found
+          </p>
+        )}
+
+        {/* FILTERED TRACK LIST */}
+
+        {filteredSongs.length > 0 && (
+          <div
+            className="album-details-song-list"
+            id="album-details-song-list"
+          >
+            {filteredSongs.map((song, index) => {
+              const isCurrent =
+                String(currentSong?.id) === String(song.id);
+
+              const isCurrentlyPlaying =
+                isCurrent && isPlaying;
+
+              const duration = formatDuration(song.duration);
+
+              return (
+                <article
+                  className={`album-details-song-row ${
+                    isCurrent ? "is-current" : ""
+                  }`}
+                  key={song.id}
+                >
+                  {/* PLAY / PAUSE */}
+
+                  <button
+                    type="button"
+                    className="album-details-track-number"
+                    onClick={() => handleSongPlayPause(song)}
+                    aria-label={
+                      isCurrentlyPlaying
+                        ? `Pause ${song.title || "song"}`
+                        : `Play ${song.title || "song"}`
+                    }
+                    title={
+                      isCurrentlyPlaying
+                        ? "Pause song"
+                        : "Play song"
+                    }
+                  >
+                    {isCurrentlyPlaying ? (
+                      <FaPause />
+                    ) : (
+                      <FaPlay />
+                    )}
+                  </button>
+
+                  {/* TRACK COVER */}
+
+                  <button
+                    type="button"
+                    className="album-details-track-art"
+                    onClick={() => handleSongPlayPause(song)}
+                    aria-label={`Play ${
+                      song.title || "song"
+                    }`}
+                  >
+                    <img
+                      src={
+                        song.cover_url
+                          ? song.cover_url
+                          : cover || DEFAULT_COVER
+                      }
+                      alt=""
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = DEFAULT_COVER;
+                      }}
+                    />
+                  </button>
+
+                  {/* TRACK DETAILS */}
+
+                  <button
+                    type="button"
+                    className="album-details-track-main"
+                    onClick={() => handleSongPlayPause(song)}
+                  >
+                    <strong title={song.title}>
+                      {song.title ||
+                        song.title_english ||
+                        "Untitled song"}
+                    </strong>
+
+                    <span>
+                      {song.artist_name ||
+                        album.artist_name ||
+                        "KEERTHANA"}
+                    </span>
+                  </button>
+
+                  {/* LANGUAGE */}
+
+                  <span className="album-details-track-language">
+                    {song.language || "Telugu"}
+                  </span>
+
+                  {/* CATEGORY */}
+
+                  <span className="album-details-track-category">
+                    {song.category_name || "Christian Music"}
+                  </span>
+
+                  {/* DURATION */}
+
+                  <span className="album-details-track-duration">
+                    {duration}
+                  </span>
+
+                  {/* THREE-DOT MENU */}
+
+                  <div className="album-details-track-menu-wrap">
+                    <button
+                      type="button"
+                      className="album-details-more-button"
+                      aria-label={`More options for ${
+                        song.title || "song"
+                      }`}
+                      aria-haspopup="true"
+                      aria-expanded={openMenuId === song.id}
+                      onClick={() =>
+                        setOpenMenuId((previous) =>
+                          previous === song.id
+                            ? null
+                            : song.id
+                        )
+                      }
+                    >
+                      <FaEllipsisV />
+                    </button>
+
+                    {openMenuId === song.id && (
+                      <>
+                        <button
+                          type="button"
+                          className="album-details-menu-backdrop"
+                          aria-label="Close song menu"
+                          onClick={() => setOpenMenuId(null)}
+                        />
+
+                        <div className="album-details-song-menu">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleSongPlayPause(song)
+                            }
+                          >
+                            {isCurrentlyPlaying ? (
+                              <FaPause />
+                            ) : (
+                              <FaPlay />
+                            )}
+
+                            <span>
+                              {isCurrentlyPlaying
+                                ? "Pause"
+                                : "Play"}
+                            </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleAddToQueue(song)
+                            }
+                          >
+                            <FaPlus />
+                            <span>Add to queue</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleAddToPlaylist(song)
+                            }
+                          >
+                            <FaCompactDisc />
+                            <span>Add to playlist</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {/* EMPTY / NO MATCHES */}
+
+        {!filteredSongs.length && (
+          <div className="album-details-empty">
+            <FaCompactDisc />
+
+            <h2>
+              {query
+                ? "No Matching Songs"
+                : "No Songs Yet"}
+            </h2>
+
+            <p>
+              {query
+                ? "Try another song title, artist, language, or category."
+                : "Songs added to this album will appear here."}
+            </p>
+
+            {query && (
               <button
                 type="button"
-                className="album-details-song-play"
-                onClick={() => handleSongPlayPause(song)}
-                aria-label={
-                  songIsPlaying ? "Pause song" : "Play song"
-                }
+                className="album-details-reset-search"
+                onClick={() => setSearchQuery("")}
               >
-                {songIsPlaying ? <FaPause /> : <FaPlay />}
+                <FaTimes />
+                Clear Search
               </button>
-            </article>
-          );
-        })}
+            )}
+          </div>
+        )}
       </section>
-
-      {!album.songs?.length && (
-        <div className="album-details-empty">
-          <FaCompactDisc />
-          <h2>No songs yet</h2>
-          <p>Songs added to this album will appear here.</p>
-        </div>
-      )}
-
     </div>
   );
 }

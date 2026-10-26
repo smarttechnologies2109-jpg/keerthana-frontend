@@ -42,9 +42,8 @@
 .artists-page *::after {
   box-sizing: border-box;
 }
-
 /* =========================================================
-   HEADER
+   COMPACT ARTISTS HEADER
 ========================================================= */
 
 .artists-header {
@@ -53,17 +52,17 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  min-height: 220px;
-  margin-bottom: 32px;
-  padding: 34px 38px;
+  min-height: 140px;
+  margin-bottom: 22px;
+  padding: 22px 28px;
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--artist-border);
-  border-radius: 24px;
+  border-radius: 18px;
   background:
     radial-gradient(
       circle at 85% 25%,
-      rgba(77, 133, 255, 0.2),
+      rgba(77, 133, 255, 0.16),
       transparent 32%
     ),
     linear-gradient(
@@ -72,21 +71,21 @@
       #14223c 55%,
       #192e50 100%
     );
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
 }
 
 .artists-header::before {
   position: absolute;
   z-index: -1;
-  top: -160px;
+  top: -120px;
   right: 8%;
-  width: 340px;
-  height: 340px;
-  border: 1px solid rgba(232, 202, 145, 0.13);
+  width: 250px;
+  height: 250px;
+  border: 1px solid rgba(232, 202, 145, 0.12);
   border-radius: 50%;
   box-shadow:
-    0 0 0 28px rgba(232, 202, 145, 0.025),
-    0 0 0 58px rgba(145, 184, 255, 0.025);
+    0 0 0 20px rgba(232, 202, 145, 0.025),
+    0 0 0 42px rgba(145, 184, 255, 0.025);
   content: "";
   pointer-events: none;
 }
@@ -94,17 +93,102 @@
 .artists-header::after {
   position: absolute;
   z-index: -1;
-  right: -70px;
-  bottom: -160px;
-  width: 270px;
-  height: 270px;
+  right: -55px;
+  bottom: -120px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  background: rgba(77, 133, 255, 0.12);
-  filter: blur(45px);
+  background: rgba(77, 133, 255, 0.1);
+  filter: blur(35px);
   content: "";
   pointer-events: none;
 }
 
+/* Brand label */
+
+.artists-header > p {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 7px;
+  color: var(--artist-blue-light);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Page title */
+
+.artists-header h1 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: var(--artist-text);
+  font-family: "Cormorant Garamond", "Noto Serif Telugu", Georgia, serif;
+  font-size: clamp(28px, 3.2vw, 38px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+/* Subtitle */
+
+.artists-header > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: 450px;
+  margin-top: 7px;
+  color: var(--artist-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Tablet */
+
+@media (max-width: 768px) {
+  .artists-header {
+    min-height: 125px;
+    margin-bottom: 18px;
+    padding: 20px 22px;
+    border-radius: 16px;
+  }
+
+  .artists-header h1 {
+    font-size: 30px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+  .artists-header {
+    min-height: 108px;
+    margin-bottom: 16px;
+    padding: 17px 18px;
+    border-radius: 14px;
+  }
+
+  .artists-header::before {
+    width: 190px;
+    height: 190px;
+  }
+
+  .artists-header h1 {
+    font-size: 26px;
+  }
+
+  .artists-header > p {
+    margin-bottom: 5px;
+    font-size: 8px;
+    letter-spacing: 1.8px;
+  }
+
+  .artists-header > span {
+    margin-top: 5px;
+    font-size: 10px;
+  }
+}
 /* Brand label */
 
 .artists-header > p {
@@ -310,7 +394,7 @@
   overflow-wrap: anywhere;
   white-space: normal;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  
   transition: color 180ms ease;
 }
 
@@ -592,5 +676,423 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   KEERTHANA MUSIC — ARTISTS SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.artists-page .artists-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 460px;
+  min-height: 46px;
+  margin: 24px 0 12px;
+  padding: 0 15px;
+
+  background: rgba(15, 25, 45, 0.88);
+  border: 1px solid rgba(130, 153, 190, 0.2);
+  border-radius: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.artists-page .artists-search:focus-within {
+  background: #101b30;
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.13);
+}
+
+.artists-page .artists-search-icon {
+  flex-shrink: 0;
+  color: #e8c98a;
+  font-size: 15px;
+}
+
+.artists-page .artists-search input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0;
+
+  color: #f4f6fb;
+  background: transparent;
+  border: 0;
+  outline: none;
+
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.artists-page .artists-search input::placeholder {
+  color: #8491a8;
+}
+
+.artists-page .artists-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.artists-page .artists-search-clear {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+
+  width: 30px;
+  height: 30px;
+
+  color: #b9c5d8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.artists-page .artists-search-clear:hover {
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.18);
+}
+
+.artists-page .artists-search-clear:focus-visible,
+.artists-page .artists-reset-search:focus-visible {
+  outline: 2px solid #3978f6;
+  outline-offset: 3px;
+}
+
+.artists-page .artists-search-summary {
+  margin: 0 0 18px;
+  color: #aab7cc;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+}
+
+/* =========================================================
+   EMPTY & NO-RESULTS STATES
+========================================================= */
+
+.artists-page .artists-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 220px;
+  padding: 32px 20px;
+  text-align: center;
+
+  background: rgba(15, 25, 45, 0.5);
+  border: 1px solid rgba(130, 153, 190, 0.12);
+  border-radius: 18px;
+}
+
+.artists-page .artists-empty-icon {
+  margin-bottom: 16px;
+  color: #e8c98a;
+  font-size: 30px;
+  opacity: 0.85;
+}
+
+.artists-page .artists-empty h2 {
+  margin: 0 0 8px;
+  color: #f4f6fb;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.artists-page .artists-empty p {
+  margin: 0;
+  color: #98a7bd;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.artists-page .artists-reset-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  margin-top: 18px;
+  padding: 11px 17px;
+
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.12);
+  border: 1px solid rgba(57, 120, 246, 0.3);
+  border-radius: 999px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.artists-page .artists-reset-search:hover {
+  background: rgba(57, 120, 246, 0.2);
+  border-color: #3978f6;
+}
+
+/* =========================================================
+   LOADING STATE
+========================================================= */
+
+.artists-page .artists-loading {
+  color: #aab7cc;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+  .artists-page .artists-search {
+    max-width: none;
+    min-height: 44px;
+    margin: 18px 0 12px;
+    border-radius: 12px;
+  }
+
+  .artists-page .artists-search input {
+    font-size: 12.5px;
+  }
+
+  .artists-page .artists-empty {
+    min-height: 190px;
+    padding: 26px 16px;
+  }
+
+  .artists-page .artists-empty h2 {
+    font-size: 16px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .artists-page .artists-search,
+  .artists-page .artists-search-clear,
+  .artists-page .artists-reset-search {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — ARTISTS VOICE SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.artists-search-section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 24px 0;
+  box-sizing: border-box;
+}
+
+.artists-search-section .keerthana-voice-search {
+  width: 100%;
+  min-width: 0;
+}
+
+/* One unified search bar */
+
+.artists-search-section .voice-search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  gap: 12px;
+  padding: 6px 14px;
+  box-sizing: border-box;
+
+  background: #10182a;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.artists-search-section .voice-search-bar:focus-within,
+.artists-search-section .voice-search-bar.is-listening {
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+}
+
+.artists-search-section .voice-search-leading-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  color: #9aa9c2;
+}
+
+.artists-search-section .voice-search-bar input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+
+  color: #f4f7ff;
+  background: transparent;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+}
+
+.artists-search-section .voice-search-bar input::placeholder {
+  color: #8996ad;
+}
+
+.artists-search-section .voice-search-clear,
+.artists-search-section .voice-search-mic {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.artists-search-section .voice-search-clear {
+  color: #aab7cc;
+  background: transparent;
+}
+
+.artists-search-section .voice-search-mic {
+  color: #ffffff;
+  background: #3978f6;
+}
+
+.artists-search-section .voice-search-clear:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.artists-search-section .voice-search-mic:hover {
+  background: #2865df;
+}
+
+.artists-search-section .voice-search-mic.is-active {
+  color: #080d1a;
+  background: #e8c98a;
+}
+
+/* Language selector below the search bar */
+
+.artists-search-section .voice-search-options {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+  margin-top: 12px;
+  padding-top: 12px;
+  gap: 10px;
+
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  box-sizing: border-box;
+}
+
+.artists-search-section .voice-search-options label {
+  color: #aab7cc;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+}
+
+.artists-search-section .voice-search-options select {
+  max-width: 100%;
+  min-height: 36px;
+  padding: 7px 30px 7px 10px;
+
+  color: #f4f7ff;
+  background: #10182a;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 9px;
+
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.artists-search-section .voice-search-options select:focus-visible,
+.artists-search-section .voice-search-bar button:focus-visible {
+  outline: 2px solid #3978f6;
+  outline-offset: 3px;
+}
+
+.artists-search-section .voice-search-options option {
+  color: #f4f7ff;
+  background: #10182a;
+}
+
+/* Voice recognition status and errors */
+
+.artists-search-section .voice-search-feedback {
+  min-height: 0;
+  margin-top: 6px;
+  color: #aab7cc;
+  font-size: 12px;
+}
+
+.artists-search-section .voice-search-error {
+  color: #ff9a9a;
+}
+
+/* Responsive layout */
+
+@media (max-width: 600px) {
+  .artists-search-section {
+    margin: 18px 0;
+  }
+
+  .artists-search-section .voice-search-bar {
+    min-height: 50px;
+    gap: 8px;
+    padding: 5px 9px;
+  }
+
+  .artists-search-section .voice-search-options {
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artists-search-section .voice-search-bar,
+  .artists-search-section .voice-search-bar button {
+    transition: none;
   }
 }

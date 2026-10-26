@@ -1,66 +1,145 @@
+
 /* =========================================================
-   KEERTHANA — PREMIUM DOWNLOAD MANAGER
-   Theme: Navy + Royal Blue + Muted Gold
+   KEERTHANA MUSIC
+   DOWNLOAD MANAGER
+   Midnight Navy • Royal Blue • Champagne Gold
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+/* =========================================================
+   ROOT PAGE
+========================================================= */
 
 .download-manager {
+  --dm-bg: #0b1220;
+  --dm-panel: #111c30;
+  --dm-panel-soft: #15233b;
+  --dm-border: rgba(137, 163, 207, 0.16);
+  --dm-text: #f4f6fc;
+  --dm-muted: #9baac3;
+  --dm-gold: #e8c778;
+  --dm-gold-light: #ffe9ad;
+  --dm-blue: #75a8f0;
+  --dm-danger: #ff9da6;
+
+  display: flex;
+  min-height: 100vh;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 28px 24px 120px;
+  overflow-x: clip;
+
+  background:
+    radial-gradient(
+      ellipse at 80% 0%,
+      rgba(43, 79, 137, 0.15),
+      transparent 36%
+    ),
+    var(--dm-bg);
+
+  color: var(--dm-text);
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.download-manager,
+.download-manager * {
   box-sizing: border-box;
-  color: #f5f7ff;
+}
+
+.download-manager button {
+  font: inherit;
+}
+
+.download-manager button:focus-visible {
+  outline: 2px solid var(--dm-gold);
+  outline-offset: 4px;
 }
 
 /* =========================================================
-   HEADER
+   MAIN CONTENT
+========================================================= */
+
+.download-manager-main {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  min-height: 100vh;
+
+  padding: 34px clamp(20px, 4vw, 58px) 48px;
+
+  background: transparent;
+}
+
+/* =========================================================
+   PAGE HEADER
 ========================================================= */
 
 .download-manager-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 28px;
+  gap: 22px;
+
+  margin-bottom: 30px;
 }
 
 .download-manager-title {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 17px;
   min-width: 0;
 }
 
 .download-manager-title-icon {
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, #1c2d52, #111a2e);
-  border: 1px solid rgba(231, 199, 123, 0.22);
-  color: #e7c77b;
-  font-size: 21px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  display: grid;
+  flex: 0 0 56px;
+  place-items: center;
+
+  width: 56px;
+  height: 56px;
+
+  border: 1px solid rgba(232, 199, 120, 0.3);
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(232, 199, 120, 0.16),
+      rgba(232, 199, 120, 0.035)
+    );
+
+  color: var(--dm-gold);
+  font-size: 22px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.download-manager-eyebrow,
+.download-section-eyebrow,
+.download-empty-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+
+  color: var(--dm-gold);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 2px;
 }
 
 .download-manager-title h1 {
   margin: 0;
-  color: #f5f7ff;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.6px;
+
+  color: var(--dm-text);
+  font-size: clamp(23px, 2.6vw, 31px);
+  font-weight: 750;
+  letter-spacing: -0.9px;
+  line-height: 1.25;
 }
 
 .download-manager-title p {
-  margin: 6px 0 0;
-  color: #a0abc2;
+  margin: 7px 0 0;
+
+  color: var(--dm-muted);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* =========================================================
@@ -68,27 +147,36 @@
 ========================================================= */
 
 .download-refresh-button {
-  min-height: 42px;
-  padding: 0 16px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 11px;
-  background: #111a2e;
-  color: #e2e8f8;
-  display: flex;
+  display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
+
+  min-height: 42px;
+  padding: 10px 16px;
+
+  border: 1px solid var(--dm-border);
+  border-radius: 11px;
+
+  background: rgba(25, 43, 72, 0.72);
+  color: #dbe6fa;
+
+  font-size: 12px;
+  font-weight: 650;
+
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  transition: background 0.2s ease, border-color 0.2s ease,
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
     transform 0.2s ease;
 }
 
 .download-refresh-button:hover:not(:disabled) {
-  background: #1a2948;
-  border-color: rgba(65, 105, 225, 0.6);
   transform: translateY(-1px);
+  border-color: rgba(232, 199, 120, 0.45);
+  background: #1b2d4b;
 }
 
 .download-refresh-button:disabled {
@@ -97,362 +185,730 @@
 }
 
 /* =========================================================
+   REFRESH ANIMATION
+========================================================= */
+
+.download-refresh-spin {
+  animation: dm-spin 1s linear infinite;
+}
+
+@keyframes dm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
    STORAGE SUMMARY CARD
 ========================================================= */
 
 .download-storage-card {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 22px;
-  margin-bottom: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 20px;
+  gap: 21px;
+
+  width: 100%;
+  min-height: 116px;
+  margin-bottom: 35px;
+  padding: 22px 25px;
+
+  border: 1px solid var(--dm-border);
+  border-radius: 19px;
+
   background:
-    radial-gradient(
-      circle at 100% 0%,
-      rgba(65, 105, 225, 0.2),
-      transparent 43%
-    ),
-    linear-gradient(135deg, #151f38, #0f1729);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+    linear-gradient(
+      120deg,
+      rgba(26, 44, 74, 0.92),
+      rgba(16, 28, 48, 0.96)
+    );
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
 }
 
 .download-storage-icon {
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  flex: 0 0 49px;
+  place-items: center;
+
+  width: 49px;
+  height: 49px;
+
+  border: 1px solid rgba(117, 168, 240, 0.25);
   border-radius: 15px;
-  background: rgba(231, 199, 123, 0.12);
-  border: 1px solid rgba(231, 199, 123, 0.18);
-  color: #e7c77b;
-  font-size: 21px;
+
+  background: rgba(74, 119, 189, 0.13);
+  color: var(--dm-blue);
+  font-size: 20px;
 }
 
 .download-storage-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 7px;
   min-width: 0;
 }
 
 .download-storage-info span {
-  color: #a0abc2;
+  color: var(--dm-muted);
   font-size: 12px;
+  font-weight: 500;
 }
 
 .download-storage-info strong {
-  color: #f5f7ff;
-  font-size: 21px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
+  color: var(--dm-text);
+  font-size: 23px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
 }
 
 .download-storage-divider {
+  align-self: stretch;
   width: 1px;
-  height: 42px;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.13);
-  margin: 0 10px;
+  min-height: 45px;
+  margin: 0 5px;
+
+  background: var(--dm-border);
 }
 
 .download-remove-all {
-  min-height: 40px;
-  margin-left: auto;
-  padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #dce4f7;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 12px;
+  gap: 9px;
+
+  min-height: 39px;
+  margin-left: auto;
+  padding: 9px 13px;
+
+  border: 1px solid rgba(255, 157, 166, 0.25);
+  border-radius: 10px;
+
+  background: rgba(150, 45, 60, 0.11);
+  color: var(--dm-danger);
+
+  font-size: 11px;
   font-weight: 700;
-  transition: background 0.2s ease, border-color 0.2s ease,
-    color 0.2s ease;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .download-remove-all:hover:not(:disabled) {
-  background: rgba(209, 88, 105, 0.13);
-  border-color: rgba(209, 88, 105, 0.4);
-  color: #ffb6c0;
+  border-color: rgba(255, 157, 166, 0.55);
+  background: rgba(150, 45, 60, 0.22);
 }
 
 .download-remove-all:disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 /* =========================================================
-   DOWNLOAD LIST
+   DOWNLOADED SONGS SECTION
 ========================================================= */
 
 .download-list {
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 18px;
-  background: #0e1628;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  min-width: 0;
 }
 
 .download-list-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 20px 22px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.015);
+  gap: 18px;
+
+  margin-bottom: 0;
 }
 
 .download-list-header h2 {
   margin: 0;
-  color: #f5f7ff;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.25px;
+
+  color: var(--dm-text);
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+  line-height: 1.4;
 }
 
 .download-list-header p {
-  margin: 5px 0 0;
-  color: #929fb9;
+  margin: 6px 0 0;
+
+  color: var(--dm-muted);
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.download-list-header > span {
-  min-width: 34px;
-  height: 34px;
-  padding: 0 9px;
-  box-sizing: border-box;
-  border: 1px solid rgba(231, 199, 123, 0.2);
-  border-radius: 50px;
-  background: rgba(231, 199, 123, 0.1);
-  color: #e7c77b;
+.download-song-count {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
+  gap: 3px;
+
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+
+  border: 1px solid rgba(232, 199, 120, 0.23);
+  border-radius: 15px;
+
+  background: rgba(232, 199, 120, 0.07);
+  color: var(--dm-gold);
+
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.download-song-count small {
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 1px;
 }
 
 /* =========================================================
-   DOWNLOADED SONG ROW
+   PLAY ALL — PREMIUM BUTTON ROW
+========================================================= */
+
+.download-play-all-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  width: 100%;
+  margin: 20px 0 17px;
+  padding: 15px 17px;
+
+  border: 1px solid rgba(117, 150, 199, 0.17);
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(25, 43, 72, 0.83),
+      rgba(17, 29, 49, 0.86)
+    );
+
+  box-shadow: 0 8px 23px rgba(0, 0, 0, 0.1);
+}
+
+.download-play-all-button {
+  position: relative;
+
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 44px;
+  min-width: 135px;
+  padding: 7px 18px 7px 8px;
+
+  border: 1px solid rgba(255, 232, 175, 0.95);
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff0bd 0%,
+      #e8c778 53%,
+      #c79a46 100%
+    );
+
+  color: #111b30;
+
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.15px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 17px rgba(201, 155, 70, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.download-play-all-icon {
+  display: grid;
+  flex: 0 0 28px;
+  place-items: center;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background: rgba(17, 27, 48, 0.11);
+  color: #111b30;
+
+  font-size: 11px;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.download-play-all-label {
+  line-height: 1.3;
+}
+
+.download-play-all-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff5d7,
+      #f1d58b 53%,
+      #dcb15d
+    );
+
+  box-shadow:
+    0 8px 23px rgba(201, 155, 70, 0.27),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.download-play-all-button:hover:not(:disabled)
+.download-play-all-icon {
+  transform: scale(1.06);
+  background: rgba(17, 27, 48, 0.17);
+}
+
+.download-play-all-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Active playback */
+.download-play-all-button.is-playing {
+  border-color: #a7ceff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d5e7ff,
+      #91baf4 55%,
+      #6e9ce2
+    );
+
+  color: #101d35;
+
+  box-shadow:
+    0 5px 18px rgba(92, 148, 224, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.download-play-all-button.is-playing:hover:not(:disabled) {
+  background:
+    linear-gradient(
+      135deg,
+      #e2efff,
+      #a8cbfa 55%,
+      #80a9ed
+    );
+}
+
+.download-play-all-button.is-paused {
+  border-color: rgba(232, 199, 120, 0.65);
+}
+
+.download-play-all-button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.download-play-all-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  min-width: 0;
+
+  color: #aebed8;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.download-play-all-caption-icon {
+  display: grid;
+  flex: 0 0 29px;
+  place-items: center;
+
+  width: 29px;
+  height: 29px;
+
+  border: 1px solid rgba(232, 199, 120, 0.15);
+  border-radius: 9px;
+
+  background: rgba(232, 199, 120, 0.07);
+  color: var(--dm-gold);
+}
+
+/* =========================================================
+   SONG LIST CONTAINER
+========================================================= */
+
+.download-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   INDIVIDUAL SONG ROW
 ========================================================= */
 
 .download-song {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 15px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
-  background: transparent;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
 
-.download-song:last-child {
-  border-bottom: none;
+  width: 100%;
+  min-width: 0;
+  min-height: 91px;
+  padding: 13px 15px;
+
+  border: 1px solid rgba(133, 157, 196, 0.13);
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(21, 34, 56, 0.94),
+      rgba(16, 28, 46, 0.96)
+    );
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .download-song:hover {
-  background: #131e34;
+  border-color: rgba(125, 157, 211, 0.3);
+  background: #172640;
+}
+
+.download-song.current {
+  border-color: rgba(232, 199, 120, 0.38);
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(42, 49, 64, 0.97),
+      rgba(20, 35, 58, 0.98)
+    );
+
+  box-shadow: inset 3px 0 0 var(--dm-gold);
+}
+
+.download-song.is-playing {
+  border-color: rgba(232, 199, 120, 0.46);
 }
 
 /* =========================================================
-   SQUARE ALBUM COVER
+   SONG PLAY BUTTON
+========================================================= */
+
+.download-play-button {
+  display: grid;
+  flex: 0 0 37px;
+  place-items: center;
+
+  width: 37px;
+  height: 37px;
+
+  border: 1px solid rgba(133, 163, 211, 0.24);
+  border-radius: 50%;
+
+  background: rgba(76, 112, 168, 0.12);
+  color: #dce7fa;
+
+  font-size: 12px;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.download-play-button:hover:not(:disabled) {
+  transform: scale(1.06);
+  border-color: var(--dm-gold);
+  background: rgba(232, 199, 120, 0.15);
+  color: var(--dm-gold-light);
+}
+
+.download-play-button.playing {
+  border-color: rgba(232, 199, 120, 0.55);
+  background: var(--dm-gold);
+  color: #111b30;
+}
+
+.download-play-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SONG COVER
 ========================================================= */
 
 .download-song-cover {
-  width: 58px;
-  height: 58px;
-  flex: 0 0 58px;
-  aspect-ratio: 1 / 1;
+  position: relative;
+
+  display: grid;
+  flex: 0 0 57px;
+  place-items: center;
+
+  width: 57px;
+  height: 57px;
+  padding: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, #1c2d52, #10182b);
-  color: #e7c77b;
-  font-size: 19px;
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+
+  border: 1px solid rgba(140, 166, 207, 0.2);
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #263e63,
+      #13223a
+    );
+
+  color: var(--dm-gold);
+  font-size: 20px;
+
+  cursor: pointer;
 }
 
 .download-song-cover img {
   display: block;
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: inherit;
+}
+
+.download-cover-play {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(5, 12, 24, 0.64);
+  color: #fff0bd;
+  font-size: 15px;
+
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.download-song-cover:hover .download-cover-play,
+.download-song.current .download-cover-play {
+  opacity: 1;
+}
+
+.download-song-cover:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 /* =========================================================
-   SONG INFORMATION
+   SONG DETAILS
 ========================================================= */
 
 .download-song-info {
-  min-width: 0;
-  flex: 1;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  justify-content: center;
   gap: 4px;
+
+  min-width: 0;
+  padding: 1px 0;
 }
 
-.download-song-info strong {
-  overflow: hidden;
-  color: #f5f7ff;
-  font-size: 14px;
-  font-weight: 750;
-  line-height: 1.45;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+.download-song-title {
+  display: block;
+  align-self: flex-start;
 
-.download-song-info span {
-  overflow: hidden;
-  color: #a0abc2;
-  font-size: 12px;
-  line-height: 1.4;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.download-song-info small {
-  color: #7786a4;
-  font-size: 10px;
-  line-height: 1.4;
-}
-
-/* =========================================================
-   DOWNLOAD STATUS
-========================================================= */
-
-.download-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #e7c77b;
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.download-status svg {
-  font-size: 11px;
-}
-
-/* =========================================================
-   PLAY / PAUSE BUTTON
-========================================================= */
-
-.download-play-button {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
   padding: 0;
-  border: 1px solid rgba(65, 105, 225, 0.3);
-  border-radius: 50%;
-  background: #4169e1;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease,
-    box-shadow 0.2s ease;
-}
+  overflow: hidden;
 
-.download-play-button:hover:not(:disabled) {
-  transform: scale(1.06);
-  background: #5278ed;
-  box-shadow: 0 6px 18px rgba(65, 105, 225, 0.28);
-}
-
-.download-play-button.playing {
-  background: #e7c77b;
-  border-color: rgba(231, 199, 123, 0.5);
-  color: #10182b;
-}
-
-.download-play-button.playing:hover:not(:disabled) {
-  background: #f0d696;
-  color: #10182b;
-}
-
-.download-play-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* =========================================================
-   DELETE BUTTON
-========================================================= */
-
-.download-delete-button {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 10px;
+  border: 0;
   background: transparent;
-  color: #a0abc2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #f1f4fc;
+
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease,
-    border-color 0.2s ease;
+
+  transition: color 0.18s ease;
 }
 
-.download-delete-button:hover:not(:disabled) {
-  background: rgba(209, 88, 105, 0.12);
-  border-color: rgba(209, 88, 105, 0.18);
-  color: #ff9eac;
+.download-song-title:hover:not(:disabled) {
+  color: var(--dm-gold-light);
 }
 
-.download-delete-button:disabled {
+.download-song-title:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* =========================================================
-   CURRENTLY PLAYING SONG
-========================================================= */
-
-.download-song.current {
-  background: rgba(65, 105, 225, 0.09);
-  border-bottom-color: rgba(65, 105, 225, 0.18);
-  box-shadow: inset 3px 0 0 #4169e1;
+.download-song.current .download-song-title {
+  color: var(--dm-gold-light);
 }
 
-.download-song.current:hover {
-  background: rgba(65, 105, 225, 0.14);
+.download-song-artist {
+  display: block;
+
+  overflow: hidden;
+
+  color: var(--dm-muted);
+  font-size: 11px;
+  font-weight: 450;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.download-song.current .download-song-info strong {
-  color: #ffffff;
+.download-song-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+
+  margin-top: 1px;
+
+  color: #8295b2;
+  font-size: 10px;
 }
 
 .download-playing-status {
-  display: block;
-  margin-top: 3px;
-  color: #e7c77b;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  color: var(--dm-gold);
+  font-size: 10px;
   font-style: normal;
   font-weight: 700;
+}
+
+.download-playing-status::before {
+  content: "";
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* =========================================================
+   OFFLINE STATUS
+========================================================= */
+
+.download-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 7px 10px;
+
+  border: 1px solid rgba(89, 190, 151, 0.17);
+  border-radius: 999px;
+
+  background: rgba(53, 152, 115, 0.08);
+  color: #8cd9b7;
+
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.download-status > svg {
+  font-size: 10px;
+}
+
+.download-status-dot {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+  background: #78d8ad;
+
+  box-shadow: 0 0 7px rgba(120, 216, 173, 0.3);
+}
+
+/* =========================================================
+   REMOVE DOWNLOAD BUTTON
+========================================================= */
+
+.download-delete-button {
+  display: grid;
+  flex: 0 0 35px;
+  place-items: center;
+
+  width: 35px;
+  height: 35px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #8797b0;
+
+  font-size: 12px;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.download-delete-button:hover:not(:disabled) {
+  border-color: rgba(255, 157, 166, 0.23);
+  background: rgba(175, 54, 70, 0.15);
+  color: var(--dm-danger);
+}
+
+.download-delete-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* =========================================================
@@ -460,46 +916,67 @@
 ========================================================= */
 
 .download-empty {
-  padding: 60px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+
+  min-height: 340px;
+  margin-top: 15px;
+  padding: 45px 25px;
+
+  border: 1px dashed rgba(137, 163, 207, 0.22);
+  border-radius: 21px;
+
   background:
     radial-gradient(
       circle at 50% 0%,
-      rgba(65, 105, 225, 0.1),
+      rgba(51, 88, 145, 0.12),
       transparent 55%
     ),
-    #0e1628;
+    rgba(17, 28, 47, 0.52);
+
   text-align: center;
 }
 
 .download-empty-icon {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 18px;
-  border: 1px solid rgba(231, 199, 123, 0.19);
-  border-radius: 21px;
-  background: rgba(231, 199, 123, 0.08);
-  color: #e7c77b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
+  display: grid;
+  place-items: center;
+
+  width: 78px;
+  height: 78px;
+  margin-bottom: 24px;
+
+  border: 1px solid rgba(232, 199, 120, 0.24);
+  border-radius: 24px;
+
+  background: rgba(232, 199, 120, 0.07);
+  color: var(--dm-gold);
+
+  font-size: 29px;
+}
+
+.download-empty-eyebrow {
+  margin-bottom: 10px;
+  font-size: 9px;
 }
 
 .download-empty h2 {
   margin: 0;
-  color: #f5f7ff;
-  font-size: 20px;
-  font-weight: 800;
+
+  color: var(--dm-text);
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
 }
 
 .download-empty p {
-  max-width: 400px;
-  margin: 9px auto 0;
-  color: #a0abc2;
+  max-width: 390px;
+  margin: 11px 0 0;
+
+  color: var(--dm-muted);
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.9;
 }
 
 /* =========================================================
@@ -509,176 +986,155 @@
 .download-manager-note {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  margin-top: 18px;
-  padding: 15px 16px;
-  border: 1px solid rgba(231, 199, 123, 0.13);
+  gap: 12px;
+
+  margin-top: 29px;
+  padding: 15px 17px;
+
+  border: 1px solid rgba(117, 150, 199, 0.14);
   border-radius: 13px;
-  background: rgba(231, 199, 123, 0.045);
-  color: #b2bbcf;
+
+  background: rgba(23, 39, 64, 0.45);
 }
 
-.download-manager-note svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: #e7c77b;
-}
+.download-note-icon {
+  display: grid;
+  flex: 0 0 30px;
+  place-items: center;
 
-.download-manager-note p {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.7;
-}
+  width: 30px;
+  height: 30px;
 
-/* =========================================================
-   LOADING
-========================================================= */
+  border-radius: 9px;
 
-.download-manager-loading {
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 13px;
-  color: #f5f7ff;
-}
+  background: rgba(232, 199, 120, 0.09);
+  color: var(--dm-gold);
 
-.download-manager-loading svg {
-  color: #e7c77b;
-  font-size: 30px;
-  animation: download-spin 1s linear infinite;
-}
-
-.download-manager-loading p {
-  margin: 0;
-  color: #a0abc2;
   font-size: 13px;
 }
 
-/* =========================================================
-   ANIMATION
-========================================================= */
+.download-manager-note p {
+  margin: 3px 0 0;
 
-.download-refresh-spin {
-  animation: download-spin 1s linear infinite;
+  color: #9cacc4;
+  font-size: 11px;
+  line-height: 1.8;
 }
 
-@keyframes download-spin {
-  from {
-    transform: rotate(0deg);
-  }
+/* =========================================================
+   LOADING STATE
+========================================================= */
 
-  to {
-    transform: rotate(360deg);
-  }
+.download-manager-loading {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+
+  min-height: 65vh;
+  padding: 30px;
+  text-align: center;
+}
+
+.download-loading-icon {
+  display: grid;
+  place-items: center;
+
+  width: 68px;
+  height: 68px;
+  margin-bottom: 22px;
+
+  border: 1px solid rgba(232, 199, 120, 0.28);
+  border-radius: 21px;
+
+  background: rgba(232, 199, 120, 0.08);
+  color: var(--dm-gold);
+
+  font-size: 25px;
+}
+
+.download-manager-loading h2 {
+  margin: 0;
+
+  color: var(--dm-text);
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.download-manager-loading p {
+  margin: 9px 0 20px;
+
+  color: var(--dm-muted);
+  font-size: 13px;
+}
+
+.download-loading-spinner {
+  width: 25px;
+  height: 25px;
+
+  border: 2px solid rgba(232, 199, 120, 0.16);
+  border-top-color: var(--dm-gold);
+  border-radius: 50%;
+
+  animation: dm-spin 0.8s linear infinite;
 }
 
 /* =========================================================
    TABLET
 ========================================================= */
 
-@media (max-width: 768px) {
-  .download-manager {
-    padding: 22px 16px 110px;
-  }
-
-  .download-manager-title h1 {
-    font-size: 25px;
+@media (max-width: 1000px) {
+  .download-manager-main {
+    padding: 28px 25px 40px;
   }
 
   .download-storage-card {
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  .download-remove-all {
-    margin-left: auto;
+    gap: 16px;
+    padding: 19px;
   }
 
   .download-song {
     gap: 12px;
-    padding: 14px;
   }
 
-  .download-song-cover {
-    width: 54px;
-    height: 54px;
-    flex-basis: 54px;
+  .download-status {
+    gap: 6px;
+    padding: 7px 8px;
   }
 }
 
 /* =========================================================
-   MOBILE
+   SMALL TABLET
 ========================================================= */
 
-@media (max-width: 600px) {
-  .download-manager {
-    padding: 18px 12px 100px;
+@media (max-width: 760px) {
+  .download-manager-main {
+    padding: 25px 19px 35px;
   }
 
   .download-manager-header {
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 22px;
+    align-items: flex-start;
   }
 
   .download-manager-title {
-    gap: 11px;
+    gap: 12px;
   }
 
   .download-manager-title-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    font-size: 18px;
-  }
-
-  .download-manager-title h1 {
-    font-size: 21px;
-  }
-
-  .download-manager-title p {
-    margin-top: 4px;
-    font-size: 11px;
-  }
-
-  .download-refresh-button {
-    width: 42px;
-    min-width: 42px;
-    min-height: 42px;
-    padding: 0;
-    flex-shrink: 0;
-  }
-
-  .download-refresh-button span {
-    display: none;
+    flex-basis: 47px;
+    width: 47px;
+    height: 47px;
+    border-radius: 14px;
+    font-size: 19px;
   }
 
   .download-storage-card {
-    gap: 12px;
-    padding: 16px;
-    margin-bottom: 22px;
-    border-radius: 16px;
-  }
-
-  .download-storage-icon {
-    width: 43px;
-    height: 43px;
-    border-radius: 12px;
-    font-size: 18px;
+    flex-wrap: wrap;
+    gap: 15px;
   }
 
   .download-storage-info {
-    flex: 1;
-  }
-
-  .download-storage-info span {
-    font-size: 11px;
-  }
-
-  .download-storage-info strong {
-    font-size: 18px;
+    flex: 1 1 120px;
   }
 
   .download-storage-divider {
@@ -686,88 +1142,268 @@
   }
 
   .download-remove-all {
-    width: 100%;
-    min-height: 40px;
-    margin: 4px 0 0;
+    margin-left: 0;
   }
 
-  .download-list {
+  .download-song {
+    gap: 11px;
+    padding: 12px;
+  }
+
+  .download-song-cover {
+    flex-basis: 49px;
+    width: 49px;
+    height: 49px;
+  }
+
+  .download-play-button {
+    flex-basis: 33px;
+    width: 33px;
+    height: 33px;
+    font-size: 10px;
+  }
+
+  .download-status {
+    font-size: 9px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 560px) {
+  .download-manager-main {
+    padding: 21px 13px 28px;
+  }
+
+  .download-manager-header {
+    gap: 12px;
+    margin-bottom: 23px;
+  }
+
+  .download-manager-title {
+    gap: 11px;
+  }
+
+  .download-manager-title-icon {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 17px;
+  }
+
+  .download-manager-eyebrow {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+  }
+
+  .download-manager-title h1 {
+    font-size: 21px;
+    letter-spacing: -0.5px;
+  }
+
+  .download-manager-title p {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+
+  .download-refresh-button {
+    min-height: 37px;
+    gap: 7px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    font-size: 10px;
+  }
+
+  .download-storage-card {
+    gap: 12px;
+    min-height: auto;
+    margin-bottom: 27px;
+    padding: 15px;
     border-radius: 15px;
   }
 
-  .download-list-header {
-    padding: 16px 14px;
+  .download-storage-icon {
+    flex-basis: 39px;
+    width: 39px;
+    height: 39px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  .download-storage-info {
+    flex-basis: calc(50% - 35px);
+    gap: 5px;
+  }
+
+  .download-storage-info span {
+    font-size: 10px;
+  }
+
+  .download-storage-info strong {
+    font-size: 19px;
+  }
+
+  .download-remove-all {
+    min-height: 34px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 10px;
   }
 
   .download-list-header h2 {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .download-list-header p {
     font-size: 11px;
   }
 
-  .download-list-header > span {
-    min-width: 31px;
-    height: 31px;
+  .download-section-eyebrow {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+  }
+
+  .download-song-count {
+    flex-basis: 47px;
+    width: 47px;
+    height: 47px;
+    border-radius: 13px;
+    font-size: 17px;
+  }
+
+  .download-play-all-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 11px;
+    margin: 16px 0 13px;
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .download-play-all-button {
+    min-width: 128px;
+    min-height: 41px;
+    gap: 9px;
+    padding: 6px 15px 6px 7px;
+    font-size: 12px;
+  }
+
+  .download-play-all-icon {
+    flex-basis: 27px;
+    width: 27px;
+    height: 27px;
+  }
+
+  .download-play-all-caption {
+    gap: 8px;
+    font-size: 10px;
+  }
+
+  .download-play-all-caption-icon {
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .download-song-list {
+    gap: 8px;
   }
 
   .download-song {
-    gap: 10px;
-    padding: 12px 10px;
+    display: flex;
+    gap: 9px;
+    min-height: 78px;
+    padding: 10px 9px;
+    border-radius: 12px;
+  }
+
+  .download-play-button {
+    flex-basis: 29px;
+    width: 29px;
+    height: 29px;
+    font-size: 9px;
   }
 
   .download-song-cover {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-    border-radius: 8px;
+    flex-basis: 43px;
+    width: 43px;
+    height: 43px;
+    border-radius: 9px;
     font-size: 16px;
+  }
+
+  .download-cover-play {
+    font-size: 12px;
   }
 
   .download-song-info {
     gap: 3px;
   }
 
-  .download-song-info strong {
-    font-size: 12px;
-  }
-
-  .download-song-info span {
+  .download-song-title {
     font-size: 11px;
   }
 
-  .download-song-info small {
+  .download-song-artist {
     font-size: 10px;
   }
 
-  .download-status {
-    display: none;
+  .download-song-meta {
+    gap: 6px;
+    font-size: 9px;
   }
 
-  .download-play-button {
-    width: 36px;
-    height: 36px;
-    flex-basis: 36px;
-    font-size: 11px;
+  .download-playing-status {
+    font-size: 9px;
+  }
+
+  .download-status {
+    gap: 5px;
+    padding: 6px 7px;
+    font-size: 0;
+  }
+
+  .download-status > svg {
+    font-size: 10px;
+  }
+
+  .download-status-dot {
+    width: 5px;
+    height: 5px;
   }
 
   .download-delete-button {
-    width: 32px;
-    height: 34px;
-    flex-basis: 32px;
+    flex-basis: 28px;
+    width: 28px;
+    height: 30px;
     border-radius: 8px;
+    font-size: 10px;
+  }
+
+  .download-manager-note {
+    gap: 9px;
+    margin-top: 22px;
+    padding: 12px;
+  }
+
+  .download-manager-note p {
+    font-size: 10px;
   }
 
   .download-empty {
-    padding: 46px 18px;
-    border-radius: 15px;
+    min-height: 290px;
+    padding: 35px 18px;
+    border-radius: 17px;
   }
 
   .download-empty-icon {
-    width: 62px;
-    height: 62px;
-    border-radius: 18px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    border-radius: 19px;
     font-size: 24px;
   }
 
@@ -776,406 +1412,575 @@
   }
 
   .download-empty p {
-    font-size: 12px;
-  }
-
-  .download-manager-note {
-    padding: 12px;
-  }
-
-  .download-manager-note p {
     font-size: 11px;
   }
 }
 
 /* =========================================================
-   SMALL MOBILE
+   VERY SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 380px) {
-  .download-manager {
-    padding-right: 9px;
-    padding-left: 9px;
+  .download-manager-main {
+    padding-right: 10px;
+    padding-left: 10px;
   }
 
   .download-manager-title h1 {
-    font-size: 19px;
+    font-size: 18px;
   }
 
   .download-manager-title p {
     font-size: 10px;
   }
 
-  .download-song {
-    gap: 8px;
-    padding: 11px 8px;
+  .download-refresh-button {
+    padding: 8px;
   }
 
-  .download-song-cover {
-    width: 43px;
-    height: 43px;
-    flex-basis: 43px;
+  .download-refresh-button span {
+    display: none;
+  }
+
+  .download-song {
+    gap: 7px;
+    padding: 9px 7px;
   }
 
   .download-play-button {
-    width: 32px;
-    height: 32px;
-    flex-basis: 32px;
-  }
-
-  .download-delete-button {
-    width: 29px;
-    flex-basis: 29px;
-  }
-}
-/* =========================================================
-   SQUARE DOWNLOADED SONG CARDS
-========================================================= */
-
-.download-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 16px;
-  padding: 18px;
-  border-radius: 18px;
-  background: #0e1628;
-}
-
-/* List heading spans the full width */
-.download-list-header {
-  grid-column: 1 / -1;
-  margin: -18px -18px 0;
-}
-
-/* Each song becomes a vertical card */
-.download-song {
-  min-width: 0;
-  min-height: 235px;
-  box-sizing: border-box;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 16px;
-  background: linear-gradient(145deg, #151f38, #0f1729);
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.download-song:last-child {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-}
-
-.download-song:hover {
-  transform: translateY(-3px);
-  background: #182541;
-  border-color: rgba(65, 105, 225, 0.45);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
-}
-
-/* Square artwork */
-.download-song-cover {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  flex: 0 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  font-size: 26px;
-}
-
-.download-song-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Song title and artist below the artwork */
-.download-song-info {
-  width: 100%;
-  min-width: 0;
-  flex: 1;
-  gap: 5px;
-}
-
-.download-song-info strong {
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.download-song-info span {
-  font-size: 12px;
-}
-
-.download-song-info small {
-  font-size: 11px;
-}
-
-/* Card controls */
-.download-play-button {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  margin-top: auto;
-}
-
-.download-delete-button {
-  width: 36px;
-  height: 36px;
-  flex: 0 0 36px;
-}
-
-/* Place controls along the bottom */
-.download-song {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 38px 36px;
-  grid-template-rows: auto auto auto;
-  align-content: start;
-  align-items: center;
-}
-
-.download-song-cover {
-  grid-column: 1 / -1;
-  grid-row: 1;
-}
-
-.download-song-info {
-  grid-column: 1 / -1;
-  grid-row: 2;
-}
-
-.download-play-button {
-  grid-column: 2;
-  grid-row: 3;
-}
-
-.download-delete-button {
-  grid-column: 3;
-  grid-row: 3;
-}
-
-.download-status {
-  grid-column: 1;
-  grid-row: 3;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Highlight the currently playing card */
-.download-song.current {
-  background: linear-gradient(
-    145deg,
-    rgba(65, 105, 225, 0.2),
-    #101a30
-  );
-  border: 1px solid rgba(231, 199, 123, 0.4);
-  box-shadow: inset 0 0 0 1px rgba(231, 199, 123, 0.06);
-}
-
-/* Tablet */
-@media (max-width: 768px) {
-  .download-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .download-list-header {
-    margin: -12px -12px 0;
-  }
-
-  .download-song {
-    min-height: 0;
-    padding: 12px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .download-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .download-list-header {
-    margin: -10px -10px 0;
-    padding: 15px 12px;
-  }
-
-  .download-song {
-    padding: 9px;
-    gap: 9px;
-    border-radius: 12px;
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
   }
 
   .download-song-cover {
-    border-radius: 9px;
+    flex-basis: 37px;
+    width: 37px;
+    height: 37px;
   }
 
-  .download-song-info strong {
-    font-size: 12px;
+  .download-song-title {
+    font-size: 10px;
   }
 
-  .download-song-info span {
-    font-size: 11px;
-  }
-
-  .download-play-button {
-    width: 32px;
-    height: 32px;
-    flex-basis: 32px;
-  }
-
-  .download-delete-button {
-    width: 30px;
-    height: 32px;
-    flex-basis: 30px;
+  .download-song-artist {
+    font-size: 9px;
   }
 
   .download-status {
-    font-size: 10px;
+    padding: 5px;
+  }
+
+  .download-delete-button {
+    flex-basis: 24px;
+    width: 24px;
   }
 }
 
 /* =========================================================
-   KEERTHANA — CONSISTENT PREMIUM TYPOGRAPHY
-   Matches the previous pages
+   REDUCED MOTION ACCESSIBILITY
 ========================================================= */
 
-.download-manager {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #f5f7ff;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+@media (prefers-reduced-motion: reduce) {
+  .download-manager *,
+  .download-manager *::before,
+  .download-manager *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.download-manager h1,
-.download-manager h2,
-.download-manager h3,
-.download-manager strong {
-  font-family: inherit;
-  letter-spacing: -0.3px;
-}
+/* =========================================
+   PLAY ALL + REMOVE ALL ACTIONS
+========================================= */
 
-.download-manager-title h1 {
-  font-size: 28px;
-  font-weight: 750;
-  line-height: 1.25;
-  letter-spacing: -0.7px;
-}
-
-.download-manager-title p,
-.download-list-header p,
-.download-empty p,
-.download-manager-note p {
-  font-size: 13px;
-  line-height: 1.65;
-}
-
-.download-list-header h2,
-.download-empty h2 {
-  font-size: 18px;
-  font-weight: 750;
-  line-height: 1.4;
-}
-
-.download-song-info strong {
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.45;
-  letter-spacing: -0.15px;
-}
-
-.download-song-info span {
-  font-size: 12px;
-  font-weight: 450;
-  line-height: 1.5;
-}
-
-.download-song-info small {
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.download-status,
-.download-playing-status {
-  font-size: 11px;
-  font-weight: 650;
-  line-height: 1.4;
-}
-
-/* Keep square album artwork consistent */
-.download-song-cover {
+.download-play-all-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  min-width: 0;
+  margin: 0 0 22px;
+}
+
+.download-play-all-button {
+  flex-shrink: 0;
+}
+
+.download-remove-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 105, 105, 0.3);
   border-radius: 12px;
-  overflow: hidden;
+  background: rgba(220, 55, 65, 0.09);
+  color: #ff9299;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.download-song-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.download-remove-all:hover:not(:disabled) {
+  background: rgba(220, 55, 65, 0.17);
+  border-color: rgba(255, 105, 105, 0.55);
+  transform: translateY(-1px);
 }
 
-/* Premium card consistency */
-.download-song {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: linear-gradient(145deg, #151f38, #0f1729);
+.download-remove-all:focus-visible {
+  outline: 2px solid #e8c779;
+  outline-offset: 3px;
 }
 
-.download-song:hover {
-  border-color: rgba(65, 105, 225, 0.4);
-}
-
-.download-song.current {
-  border-color: rgba(231, 199, 123, 0.4);
-  box-shadow: inset 0 0 0 1px rgba(231, 199, 123, 0.06);
-}
-
-/* Responsive typography */
-@media (max-width: 768px) {
-  .download-manager-title h1 {
-    font-size: 24px;
-  }
-
-  .download-list-header h2,
-  .download-empty h2 {
-    font-size: 17px;
-  }
+.download-remove-all:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {
-  .download-manager-title h1 {
-    font-size: 21px;
+  .download-play-all-row {
+    gap: 10px;
   }
 
-  .download-manager-title p,
-  .download-list-header p,
-  .download-empty p,
-  .download-manager-note p {
+  .download-play-all-button,
+  .download-remove-all {
+    min-height: 42px;
+    padding: 0 12px;
     font-size: 12px;
   }
 
-  .download-song-info strong {
+  .download-play-all-button {
+    gap: 7px;
+  }
+
+  .download-remove-all {
+    gap: 6px;
+  }
+}
+
+/* =========================================
+   KEERTHANA — DOWNLOAD MANAGER SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================= */
+
+.download-search-section {
+  width: 100%;
+  margin-bottom: 22px;
+}
+
+.download-search-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.download-search-heading h2 {
+  margin: 0;
+  color: #f4f6fb;
+  font-family: "Inter", sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.35px;
+}
+
+.download-search-heading p {
+  margin: 5px 0 0;
+  color: #97a5bd;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* SEARCH INPUT */
+
+.download-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+  min-height: 50px;
+  padding: 0 15px;
+  box-sizing: border-box;
+  background: rgba(13, 22, 42, 0.88);
+  border: 1px solid rgba(120, 145, 190, 0.24);
+  border-radius: 14px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.download-search-bar:focus-within {
+  background: rgba(16, 28, 52, 0.98);
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+}
+
+.download-search-icon {
+  flex-shrink: 0;
+  color: #e8c98a;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.download-search-bar input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 0;
+  color: #f4f6fb;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.download-search-bar input::placeholder {
+  color: #8995ac;
+  opacity: 1;
+}
+
+.download-search-bar input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* CLEAR SEARCH BUTTON */
+
+.download-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #b7c2d7;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.download-search-clear:hover {
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.15);
+  border-color: rgba(57, 120, 246, 0.45);
+}
+
+.download-search-clear:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   SEARCH EMPTY STATE
+========================================= */
+
+.download-search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 230px;
+  margin-top: 8px;
+  padding: 32px 20px;
+  text-align: center;
+  background: rgba(13, 22, 42, 0.55);
+  border: 1px dashed rgba(120, 145, 190, 0.25);
+  border-radius: 18px;
+  box-sizing: border-box;
+}
+
+.download-search-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 18px;
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.12);
+  border: 1px solid rgba(57, 120, 246, 0.24);
+  border-radius: 50%;
+  font-size: 20px;
+}
+
+.download-search-empty h3 {
+  margin: 0 0 8px;
+  color: #f4f6fb;
+  font-family: "Inter", sans-serif;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.download-search-empty p {
+  max-width: 420px;
+  margin: 0;
+  color: #9aa8c0;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.download-search-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin-top: 20px;
+  padding: 0 20px;
+  color: #f4f6fb;
+  background: linear-gradient(135deg, #3978f6, #285bd0);
+  border: 1px solid rgba(120, 165, 255, 0.35);
+  border-radius: 10px;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.download-search-reset:hover {
+  background: linear-gradient(135deg, #4b88ff, #3268e2);
+  box-shadow: 0 5px 18px rgba(57, 120, 246, 0.2);
+  transform: translateY(-1px);
+}
+
+.download-search-reset:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   RESPONSIVE — TABLET
+========================================= */
+
+@media (max-width: 768px) {
+  .download-search-section {
+    margin-bottom: 18px;
+  }
+
+  .download-search-heading h2 {
+    font-size: 19px;
+  }
+
+  .download-search-bar {
+    max-width: 100%;
+    min-height: 48px;
+    padding: 0 13px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .download-search-bar input {
+    padding: 13px 0;
+    font-size: 13px;
+  }
+
+  .download-search-empty {
+    min-height: 210px;
+    padding: 28px 18px;
+  }
+}
+
+/* =========================================
+   RESPONSIVE — MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+  .download-search-heading {
+    margin-bottom: 12px;
+  }
+
+  .download-search-heading h2 {
+    font-size: 17px;
+  }
+
+  .download-search-heading p {
     font-size: 12px;
   }
 
-  .download-song-info span {
-    font-size: 11px;
+  .download-search-bar {
+    gap: 9px;
+    padding: 0 12px;
+  }
+
+  .download-search-bar input {
+    font-size: 12px;
+  }
+
+  .download-search-bar input::placeholder {
+    font-size: 12px;
+  }
+
+  .download-search-empty {
+    min-height: 190px;
+    padding: 24px 16px;
+    border-radius: 14px;
+  }
+
+  .download-search-empty-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 14px;
+    font-size: 18px;
+  }
+
+  .download-search-empty h3 {
+    font-size: 15px;
+  }
+
+  .download-search-empty p {
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .download-search-bar,
+  .download-search-clear,
+  .download-search-reset {
+    transition: none;
+  }
+
+  .download-search-reset:hover {
+    transform: none;
+  }
+}
+/* =========================================================
+   KEERTHANA — DOWNLOAD MANAGER VOICE SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.download-voice-search-section {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.download-voice-search-section .keerthana-voice-search {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.download-voice-search-section .voice-search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  padding: 5px 10px;
+  border: 1px solid rgba(160, 180, 215, 0.18);
+  border-radius: 14px;
+  background: #10182a;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.download-voice-search-section .voice-search-bar:focus-within {
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+}
+
+.download-voice-search-section .voice-search-bar input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #f5f7fc;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+
+.download-voice-search-section .voice-search-bar input::placeholder {
+  color: #8996ad;
+  opacity: 1;
+}
+
+.download-voice-search-section .voice-search-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin-top: 10px;
+}
+
+.download-voice-search-section .voice-search-feedback {
+  width: 100%;
+  max-width: none;
+  color: #a5b0c5;
+  font-size: 12px;
+}
+
+.download-voice-search-section button:focus-visible,
+.download-voice-search-section select:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .download-voice-search-section {
+    margin-top: 12px;
+    margin-bottom: 16px;
+  }
+
+  .download-voice-search-section .voice-search-options {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .download-voice-search-section .voice-search-bar input {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .download-voice-search-section *,
+  .download-voice-search-section *::before,
+  .download-voice-search-section *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

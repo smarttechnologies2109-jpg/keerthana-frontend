@@ -146,7 +146,7 @@ function AdminDashboard() {
       {/* =================================================
           HERO / HEADER
       ================================================= */}
-
+{/* 
       <section className="dashboard-hero">
 
 
@@ -227,7 +227,7 @@ function AdminDashboard() {
         </div>
 
 
-      </section>
+      </section> */}
 
 
       {/* =================================================

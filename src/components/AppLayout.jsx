@@ -17,56 +17,24 @@ function AppLayout() {
 
   return (
     <div className="app">
-
-      {/* =========================================
-          SIDEBAR
-      ========================================= */}
-
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
       />
 
-
-      {/* =========================================
-          APPLICATION AREA
-      ========================================= */}
-
       <div className="app-body">
-
-        {/* =====================================
-            HEADER
-        ===================================== */}
-
-        <Header
-          onToggleSidebar={toggleSidebar}
-        />
-
-
-        {/* =====================================
-            PAGE CONTENT
-        ===================================== */}
+        <Header onToggleSidebar={toggleSidebar} />
 
         <main className="main-content">
           <Outlet />
         </main>
-
       </div>
 
-
-      {/* =========================================
-          MUSIC PLAYER
-      ========================================= */}
-
+      {/* Persistent player across normal user pages */}
       <MusicPlayer />
 
-
-      {/* =========================================
-          MOBILE BOTTOM NAVIGATION
-      ========================================= */}
-
+      {/* Mobile navigation */}
       <BottomNav />
-
     </div>
   );
 }

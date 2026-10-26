@@ -1,925 +1,1795 @@
 
 /* =========================================================
-   KEERTHANA — LIKED SONGS
-   Premium Navy + Royal Blue + Muted Gold
+   KEERTHANA MUSIC — LIKED SONGS
+   Midnight Navy • Royal Blue • Champagne Gold
+   Professional Horizontal Song List
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+/* =========================================================
+   1. PAGE & THEME
+========================================================= */
 
 .liked-page {
-  --liked-bg: #080d1b;
-  --liked-card: #111a2e;
-  --liked-card-hover: #182541;
-  --liked-text: #f5f7ff;
-  --liked-muted: #a0abc2;
-  --liked-blue: #4169e1;
-  --liked-gold: #e7c77b;
-  --liked-border: rgba(255, 255, 255, 0.09);
+  --liked-bg: #080d1a;
+  --liked-surface: #0e1628;
+  --liked-card: #111c31;
+  --liked-card-hover: #172641;
 
-  min-height: 100vh;
+  --liked-border: rgba(160, 183, 222, 0.14);
+  --liked-border-hover: rgba(215, 184, 121, 0.38);
+
+  --liked-text: #f5f7fc;
+  --liked-secondary: #aab7ce;
+  --liked-muted: #7788a5;
+
+  --liked-blue: #527dff;
+  --liked-blue-hover: #7094ff;
+
+  --liked-gold: #d7b879;
+  --liked-gold-light: #f0d9a4;
+
+  --liked-danger: #ff7885;
+
+  --liked-radius: 16px;
+  --liked-transition: 180ms ease;
+
   width: 100%;
+  min-height: 100vh;
   box-sizing: border-box;
-  padding: 28px 30px 150px;
+
+  padding: 24px 32px 125px;
+
   color: var(--liked-text);
 
   background:
     radial-gradient(
-      ellipse at 80% 0%,
-      rgba(65, 105, 225, 0.13),
-      transparent 42%
-    ),
-    radial-gradient(
-      ellipse at 5% 35%,
-      rgba(231, 199, 123, 0.035),
-      transparent 35%
+      ellipse at 12% 0%,
+      rgba(48, 79, 151, 0.13),
+      transparent 38%
     ),
     var(--liked-bg);
+
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Back button */
-
-.liked-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0 0 22px;
-  padding: 8px 0;
-
-  border: 0;
-  background: transparent;
-  color: var(--liked-muted);
-
-  font-size: 13px;
-  font-weight: 650;
-  cursor: pointer;
-  transition: color 0.2s ease;
+.liked-page *,
+.liked-page *::before,
+.liked-page *::after {
+  box-sizing: border-box;
 }
 
-.liked-back-btn:hover {
-  color: var(--liked-gold);
+.liked-page button {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.liked-page button:focus-visible {
+  outline: 2px solid var(--liked-gold);
+  outline-offset: 3px;
 }
 
 /* =========================================================
-   HERO BANNER
+   2. BACK BUTTON
 ========================================================= */
 
-.liked-hero {
+.liked-page .liked-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 40px;
+  margin: 0 0 20px;
+  padding: 9px 14px;
+
+  border: 1px solid var(--liked-border);
+  border-radius: 10px;
+
+  color: var(--liked-secondary);
+  background: rgba(17, 28, 49, 0.7);
+
+  font-size: 12px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    color var(--liked-transition),
+    background var(--liked-transition),
+    border-color var(--liked-transition),
+    transform var(--liked-transition);
+}
+
+.liked-page .liked-back-btn:hover {
+  color: var(--liked-gold-light);
+  background: var(--liked-card);
+  border-color: var(--liked-border-hover);
+  transform: translateX(-2px);
+}
+
+.liked-page .liked-back-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* =========================================================
+   3. HERO
+========================================================= */
+
+.liked-page .liked-hero {
   position: relative;
+  isolation: isolate;
+
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 25px;
 
   width: 100%;
-  min-height: 265px;
-  box-sizing: border-box;
-  padding: 30px 36px;
+  min-width: 0;
+  margin-bottom: 35px;
+  padding: 25px;
+
   overflow: hidden;
 
   border: 1px solid var(--liked-border);
-  border-radius: 23px;
+  border-radius: var(--liked-radius);
 
   background:
     linear-gradient(
       115deg,
-      rgba(65, 105, 225, 0.21),
+      rgba(43, 62, 111, 0.86),
+      rgba(14, 22, 40, 0.97) 72%
+    );
+
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.16);
+}
+
+.liked-page .liked-hero::before {
+  position: absolute;
+  z-index: -1;
+  top: -120px;
+  right: -60px;
+
+  width: 320px;
+  height: 320px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(215, 184, 121, 0.13),
+    transparent 70%
+  );
+
+  content: "";
+  pointer-events: none;
+}
+
+.liked-page .liked-hero-art {
+  position: relative;
+
+  display: flex;
+  flex: 0 0 160px;
+  align-items: center;
+  justify-content: center;
+
+  width: 160px;
+  height: 160px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(215, 184, 121, 0.3);
+  border-radius: 15px;
+
+  color: var(--liked-gold-light);
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(215, 184, 121, 0.19),
       transparent 60%
     ),
     linear-gradient(
-      135deg,
-      #172746,
-      #111a2e 58%,
-      #0b1222
+      145deg,
+      #1c2c4c,
+      #0c1426
     );
 
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
-.liked-hero::after {
-  content: "";
+.liked-page .liked-hero-art > svg {
+  position: relative;
+  z-index: 1;
+
+  width: 55px;
+  height: 55px;
+
+  filter: drop-shadow(
+    0 5px 16px rgba(215, 184, 121, 0.22)
+  );
+}
+
+.liked-page .liked-art-note {
   position: absolute;
-  width: 280px;
-  height: 280px;
-  right: -90px;
-  top: -140px;
 
-  border: 1px solid rgba(231, 199, 123, 0.13);
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 0 30px rgba(231, 199, 123, 0.025),
-    0 0 0 60px rgba(65, 105, 225, 0.035);
+  color: rgba(240, 217, 164, 0.7);
+  font-weight: 700;
 
   pointer-events: none;
 }
 
-/* Hero artwork */
-
-.liked-hero-art {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 172px;
-  aspect-ratio: 1 / 1;
-
-  overflow: hidden;
-  border: 1px solid rgba(231, 199, 123, 0.28);
-  border-radius: 21px;
-
-  background:
-    linear-gradient(
-      145deg,
-      #4169e1,
-      #243b76 60%,
-      #111a2e
-    );
-
-  color: var(--liked-gold);
-  font-size: 59px;
-
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+.liked-page .liked-art-note.note-one {
+  top: 20px;
+  right: 25px;
+  font-size: 31px;
+  transform: rotate(12deg);
 }
 
-.liked-hero-art > svg {
-  filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.3));
+.liked-page .liked-art-note.note-two {
+  bottom: 15px;
+  left: 21px;
+  font-size: 38px;
+  transform: rotate(-12deg);
 }
 
-.liked-art-note {
-  position: absolute;
-  color: rgba(255, 255, 255, 0.20);
-  font-size: 43px;
-}
-
-.note-one {
-  top: 5px;
-  right: 16px;
-}
-
-.note-two {
-  bottom: 0;
-  left: 13px;
-}
-
-/* Hero text */
-
-.liked-hero-content {
-  position: relative;
-  z-index: 1;
+.liked-page .liked-hero-content {
+  flex: 1;
   min-width: 0;
 }
 
-.liked-eyebrow,
-.liked-section-label {
+.liked-page .liked-eyebrow {
   display: block;
+
+  margin-bottom: 9px;
+
   color: var(--liked-gold);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 2px;
+  line-height: 1.5;
 }
 
-.liked-hero h1 {
-  margin: 13px 0 12px;
+.liked-page .liked-hero h1 {
+  margin: 0 0 9px;
+
   color: var(--liked-text);
 
-  font-size: clamp(38px, 5vw, 62px);
-  font-weight: 850;
-  line-height: 1.05;
-  letter-spacing: -1.7px;
+  font-size: clamp(27px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+
+  overflow-wrap: anywhere;
 }
 
-.liked-hero-content > p {
-  max-width: 480px;
+.liked-page .liked-hero-content > p {
+  max-width: 540px;
   margin: 0;
 
-  color: var(--liked-muted);
-  font-size: 14px;
-  line-height: 1.7;
+  color: var(--liked-secondary);
+  font-size: 13px;
+  line-height: 1.8;
 }
 
-.liked-hero-meta {
+/* =========================================================
+   4. HERO META & PLAY ALL
+========================================================= */
+
+.liked-page .liked-hero-meta {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 23px;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: 18px;
 }
 
-.liked-count {
+.liked-page .liked-count {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 
-  color: #c2cbe0;
+  color: var(--liked-secondary);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 600;
 }
 
-.liked-count svg {
+.liked-page .liked-count svg {
+  width: 13px;
+  height: 13px;
   color: var(--liked-gold);
 }
 
-.liked-play-all {
+.liked-page .liked-play-all {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
 
-  min-height: 42px;
-  padding: 0 19px;
+  min-height: 40px;
+  padding: 0 17px;
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 24px;
+  border: 1px solid rgba(215, 184, 121, 0.4);
+  border-radius: 999px;
 
-  background: linear-gradient(135deg, #4169e1, #294db5);
-  color: white;
-
-  font-size: 12px;
-  font-weight: 750;
-  cursor: pointer;
-
-  box-shadow: 0 7px 20px rgba(65, 105, 225, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.liked-play-all:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(65, 105, 225, 0.32);
-}
-
-.liked-play-all:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-/* =========================================================
-   COLLECTION HEADING
-========================================================= */
-
-.liked-collection {
-  margin-top: 34px;
-}
-
-.liked-section-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-
-.liked-section-heading h2 {
-  margin: 7px 0 0;
-  color: var(--liked-text);
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.liked-section-label {
-  font-size: 9px;
-  letter-spacing: 1.8px;
-}
-
-.liked-section-count {
-  color: var(--liked-muted);
-  font-size: 12px;
-}
-
-/* =========================================================
-   SQUARE SONG CARD GRID
-========================================================= */
-
-.liked-grid {
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(180px, 1fr)
-  );
-  align-items: start;
-  gap: 22px;
-
-  width: 100%;
-  min-width: 0;
-}
-
-/* Card */
-
-.liked-card {
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 12px;
-  overflow: hidden;
-
-  border: 1px solid var(--liked-border);
-  border-radius: 17px;
-
+  color: #101729;
   background: linear-gradient(
-    145deg,
-    #131e34,
-    #0e1628
+    135deg,
+    var(--liked-gold-light),
+    var(--liked-gold)
   );
 
-  box-shadow: 0 9px 25px rgba(0, 0, 0, 0.16);
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
 
   transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+    filter var(--liked-transition),
+    transform var(--liked-transition),
+    box-shadow var(--liked-transition);
 }
 
-.liked-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(231, 199, 123, 0.32);
+.liked-page .liked-play-all svg {
+  width: 11px;
+  height: 11px;
+}
+
+.liked-page .liked-play-all:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+
+  box-shadow: 0 7px 22px rgba(215, 184, 121, 0.16);
+}
+
+.liked-page .liked-play-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
+   5. COLLECTION HEADING
+========================================================= */
+
+.liked-page .liked-collection {
+  width: 100%;
+  min-width: 0;
+}
+
+.liked-page .liked-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  margin-bottom: 16px;
+}
+
+.liked-page .liked-section-label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--liked-gold);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+}
+
+.liked-page .liked-section-heading h2 {
+  margin: 0;
+
+  color: var(--liked-text);
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+.liked-page .liked-section-subtitle {
+  margin: 5px 0 0;
+
+  color: var(--liked-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.liked-page .liked-section-count {
+  flex-shrink: 0;
+
+  color: var(--liked-gold);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+/* =========================================================
+   6. HORIZONTAL SONG LIST
+   play | number | cover | details | language | category |
+   duration | details menu | remove heart
+========================================================= */
+
+.liked-page .liked-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.liked-page .liked-song-row {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    34px
+    24px
+    48px
+    minmax(0, 1fr)
+    78px
+    100px
+    52px
+    30px
+    34px;
+
+  align-items: center;
+  gap: 11px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 74px;
+  padding: 10px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  background: rgba(17, 28, 49, 0.56);
+
+  transition:
+    background var(--liked-transition),
+    border-color var(--liked-transition);
+}
+
+.liked-page .liked-song-row:hover {
+  border-color: var(--liked-border);
+  background: var(--liked-card-hover);
+}
+
+.liked-page .liked-song-row.is-current {
+  border-color: rgba(82, 125, 255, 0.38);
 
   background: linear-gradient(
-    145deg,
-    #192744,
-    #111a2e
+    100deg,
+    rgba(50, 83, 157, 0.21),
+    rgba(17, 28, 49, 0.85)
   );
-
-  box-shadow: 0 17px 35px rgba(0, 0, 0, 0.28);
 }
 
-.liked-card.is-current {
-  border-color: rgba(231, 199, 123, 0.65);
-  box-shadow: 0 0 0 1px rgba(231, 199, 123, 0.08);
-}
+/* =========================================================
+   7. PLAY / PAUSE BUTTON
+========================================================= */
 
-/* Square cover artwork */
-
-.liked-card-cover {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-
-  overflow: hidden;
-  border-radius: 11px;
-
-  background: #202b43;
-}
-
-.liked-card-cover > img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-
-  transition: transform 0.4s ease;
-}
-
-.liked-card:hover .liked-card-cover > img {
-  transform: scale(1.055);
-}
-
-.liked-card-number {
-  position: absolute;
-  top: 9px;
-  left: 9px;
-
-  display: flex;
+.liked-page .liked-row-play {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
 
-  min-width: 29px;
-  height: 27px;
-  padding: 0 6px;
-  box-sizing: border-box;
-
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-
-  background: rgba(8, 13, 27, 0.82);
-  color: #f5f7ff;
-
-  font-size: 10px;
-  font-weight: 800;
-  backdrop-filter: blur(8px);
-}
-
-.liked-playing-label {
-  position: absolute;
-  right: 8px;
-  bottom: 9px;
-
-  padding: 6px 8px;
-  border: 1px solid rgba(231, 199, 123, 0.25);
-  border-radius: 7px;
-
-  background: rgba(8, 13, 27, 0.88);
-  color: var(--liked-gold);
-
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.7px;
-}
-
-/* Hover play overlay */
-
-.liked-cover-overlay {
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(4, 8, 18, 0.16);
-  opacity: 0;
-
-  transition: opacity 0.22s ease;
-}
-
-.liked-card:hover .liked-cover-overlay,
-.liked-card.is-current .liked-cover-overlay,
-.liked-cover-overlay:focus-within {
-  opacity: 1;
-}
-
-.liked-card-play {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 49px;
-  height: 49px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
   padding: 0;
 
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--liked-border);
   border-radius: 50%;
 
-  background: var(--liked-gold);
-  color: #10182a;
+  color: var(--liked-gold-light);
+  background: rgba(255, 255, 255, 0.035);
 
-  font-size: 15px;
   cursor: pointer;
 
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.32);
-
-  transform: translateY(5px) scale(0.92);
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition:
+    color var(--liked-transition),
+    background var(--liked-transition),
+    border-color var(--liked-transition),
+    transform var(--liked-transition);
 }
 
-.liked-card:hover .liked-card-play,
-.liked-card.is-current .liked-card-play,
-.liked-cover-overlay:focus-within .liked-card-play {
-  transform: translateY(0) scale(1);
+.liked-page .liked-row-play svg {
+  width: 12px;
+  height: 12px;
 }
 
-.liked-card-play:hover:not(:disabled) {
-  background: #f5dfa5;
+.liked-page .liked-row-play:hover:not(:disabled),
+.liked-page .liked-row-play.is-playing {
+  color: #101729;
+  background: var(--liked-gold);
+  border-color: var(--liked-gold);
 }
 
-.liked-card-play:disabled {
-  opacity: 0.45;
+.liked-page .liked-row-play:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.liked-page .liked-row-play:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 /* =========================================================
-   SONG DETAILS
+   8. TRACK NUMBER
 ========================================================= */
 
-.liked-card-details {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-
-  margin-top: 13px;
-}
-
-.liked-card-text {
-  flex: 1;
+.liked-page .liked-row-number {
   min-width: 0;
+
+  color: var(--liked-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
-.liked-card-text h3 {
-  display: -webkit-box;
-  margin: 0 0 6px;
+.liked-page .liked-song-row.is-current .liked-row-number {
+  color: var(--liked-gold);
+}
+
+/* =========================================================
+   9. COVER ART
+========================================================= */
+
+.liked-page .liked-row-cover {
+  display: block;
+
+  width: 48px;
+  height: 48px;
+  padding: 0;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(160, 183, 222, 0.1);
+  border-radius: 8px;
+
+  background: #17243a;
+
+  cursor: pointer;
+}
+
+.liked-page .liked-row-cover img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition: transform 220ms ease;
+}
+
+.liked-page .liked-song-row:hover .liked-row-cover img {
+  transform: scale(1.06);
+}
+
+/* =========================================================
+   10. SONG TITLE, ENGLISH TITLE & ARTIST
+========================================================= */
+
+.liked-page .liked-row-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+
+  overflow: hidden;
+
+  border: 0;
+  color: inherit;
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.liked-page .liked-row-info strong {
+  display: block;
+
+  width: 100%;
+  margin-bottom: 4px;
+
   overflow: hidden;
 
   color: var(--liked-text);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.45;
 
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.liked-card.is-current .liked-card-text h3 {
-  color: var(--liked-gold);
+.liked-page .liked-row-info:hover strong,
+.liked-page .liked-song-row.is-current .liked-row-info strong {
+  color: var(--liked-gold-light);
 }
 
-.liked-card-text p {
-  margin: 0;
+.liked-page .liked-row-english {
+  display: block;
+
+  width: 100%;
+  margin-bottom: 3px;
+
+  overflow: hidden;
+
+  color: var(--liked-muted);
+  font-size: 10px;
+  line-height: 1.4;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liked-page .liked-row-artist {
+  display: block;
+
+  width: 100%;
+
   overflow: hidden;
 
   color: var(--liked-muted);
   font-size: 11px;
+  font-weight: 500;
   line-height: 1.5;
 
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Unlike button */
+/* =========================================================
+   11. LANGUAGE & CATEGORY
+========================================================= */
 
-.liked-card-remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  width: 32px;
-  height: 32px;
-  margin-top: -3px;
-  padding: 0;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.035);
-  color: var(--liked-gold);
-
-  font-size: 13px;
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+.liked-page .liked-row-language,
+.liked-page .liked-row-category {
+  min-width: 0;
+  overflow: hidden;
 }
 
-.liked-card-remove:hover {
-  transform: scale(1.08);
-  background: rgba(220, 85, 99, 0.15);
-  color: #ff929b;
-}
-
-/* Category label */
-
-.liked-card-category {
+.liked-page .liked-row-language span,
+.liked-page .liked-row-category span {
   display: inline-block;
+
   max-width: 100%;
-  box-sizing: border-box;
+  padding: 5px 7px;
+
   overflow: hidden;
 
-  margin-top: 12px;
-  padding: 5px 9px;
+  border: 1px solid var(--liked-border);
+  border-radius: 6px;
 
-  border: 1px solid rgba(231, 199, 123, 0.14);
-  border-radius: 20px;
+  color: var(--liked-secondary);
+  background: rgba(255, 255, 255, 0.025);
 
-  background: rgba(231, 199, 123, 0.055);
-  color: #d4bd83;
-
-  font-size: 9px;
-  font-weight: 650;
+  font-size: 10px;
+  font-weight: 600;
 
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 /* =========================================================
-   LOADING
+   12. DURATION
 ========================================================= */
 
-.liked-status {
-  min-height: 260px;
+.liked-page .liked-row-duration {
+  color: var(--liked-muted);
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
 
+/* =========================================================
+   13. DETAILS MENU BUTTON
+========================================================= */
+
+.liked-page .liked-row-menu-wrap {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-
-  border: 1px solid var(--liked-border);
-  border-radius: 17px;
-
-  background: rgba(17, 26, 46, 0.55);
-  color: var(--liked-muted);
-
-  font-size: 13px;
 }
 
-.liked-spinner {
-  width: 32px;
-  height: 32px;
-  box-sizing: border-box;
+.liked-page .liked-row-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  border: 3px solid rgba(255, 255, 255, 0.10);
+  width: 30px;
+  height: 34px;
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--liked-muted);
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    color var(--liked-transition),
+    background var(--liked-transition),
+    border-color var(--liked-transition);
+}
+
+.liked-page .liked-row-menu-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.liked-page .liked-row-menu-btn:hover {
+  color: var(--liked-gold-light);
+  background: rgba(215, 184, 121, 0.08);
+  border-color: rgba(215, 184, 121, 0.2);
+}
+
+/* =========================================================
+   14. REMOVE FROM LIKED SONGS
+========================================================= */
+
+.liked-page .liked-row-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  color: var(--liked-danger);
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    color var(--liked-transition),
+    background var(--liked-transition),
+    border-color var(--liked-transition),
+    transform var(--liked-transition);
+}
+
+.liked-page .liked-row-remove svg {
+  width: 15px;
+  height: 15px;
+}
+
+.liked-page .liked-row-remove:hover {
+  color: #ff9ca5;
+  background: rgba(255, 120, 133, 0.1);
+  border-color: rgba(255, 120, 133, 0.2);
+  transform: scale(1.05);
+}
+
+/* =========================================================
+   15. LOADING STATE
+========================================================= */
+
+.liked-page .liked-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  min-height: 210px;
+  padding: 28px;
+
+  color: var(--liked-secondary);
+  font-size: 12px;
+  font-weight: 550;
+  text-align: center;
+}
+
+.liked-page .liked-spinner {
+  display: inline-block;
+  flex: 0 0 22px;
+
+  width: 22px;
+  height: 22px;
+
+  border: 2px solid rgba(160, 183, 222, 0.2);
   border-top-color: var(--liked-gold);
-  border-right-color: var(--liked-blue);
   border-radius: 50%;
 
-  animation: likedSpin 0.8s linear infinite;
+  animation: likedSpinner 750ms linear infinite;
 }
 
-@keyframes likedSpin {
+@keyframes likedSpinner {
   to {
     transform: rotate(360deg);
   }
 }
 
 /* =========================================================
-   EMPTY STATE
+   16. EMPTY STATE
 ========================================================= */
 
-.liked-empty {
-  min-height: 320px;
-  box-sizing: border-box;
-  padding: 35px 22px;
-
+.liked-page .liked-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  border: 1px solid var(--liked-border);
-  border-radius: 19px;
+  min-height: 270px;
+  padding: 35px 22px;
 
-  background: linear-gradient(
-    145deg,
-    rgba(17, 26, 46, 0.88),
-    rgba(8, 13, 27, 0.94)
-  );
+  border: 1px dashed rgba(160, 183, 222, 0.2);
+  border-radius: var(--liked-radius);
 
+  background: rgba(17, 28, 49, 0.32);
   text-align: center;
 }
 
-.liked-empty-icon {
-  width: 72px;
-  height: 72px;
-
+.liked-page .liked-empty-icon {
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 20px;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 17px;
 
-  border: 1px solid rgba(231, 199, 123, 0.24);
-  border-radius: 20px;
-
-  background: linear-gradient(
-    145deg,
-    rgba(65, 105, 225, 0.22),
-    rgba(231, 199, 123, 0.09)
-  );
+  border: 1px solid rgba(215, 184, 121, 0.24);
+  border-radius: 17px;
 
   color: var(--liked-gold);
-  font-size: 28px;
+  background: rgba(215, 184, 121, 0.07);
 }
 
-.liked-empty h2 {
-  margin: 0 0 10px;
+.liked-page .liked-empty-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.liked-page .liked-empty h2 {
+  margin: 0 0 9px;
+
   color: var(--liked-text);
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 750;
 }
 
-.liked-empty p {
+.liked-page .liked-empty p {
   max-width: 390px;
   margin: 0;
 
   color: var(--liked-muted);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.8;
 }
 
+.liked-page .liked-browse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 39px;
+  margin-top: 19px;
+  padding: 0 16px;
+
+  border: 1px solid rgba(215, 184, 121, 0.3);
+  border-radius: 999px;
+
+  color: var(--liked-gold-light);
+  background: rgba(215, 184, 121, 0.07);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--liked-transition),
+    border-color var(--liked-transition);
+}
+
+.liked-page .liked-browse-btn:hover {
+  background: rgba(215, 184, 121, 0.14);
+  border-color: var(--liked-gold);
+}
+
+.liked-page .liked-browse-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
 /* =========================================================
-   TABLET
+   17. TABLET — UP TO 1100px
 ========================================================= */
 
 @media (max-width: 1100px) {
   .liked-page {
-    padding: 24px 22px 140px;
+    padding-right: 24px;
+    padding-left: 24px;
   }
 
-  .liked-grid {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(155px, 1fr)
-    );
-    gap: 17px;
+  .liked-page .liked-hero {
+    gap: 22px;
+    padding: 22px;
   }
 
-  .liked-hero {
-    min-height: 230px;
-    gap: 24px;
-    padding: 27px;
+  .liked-page .liked-hero-art {
+    flex-basis: 140px;
+    width: 140px;
+    height: 140px;
   }
 
-  .liked-hero-art {
-    width: 145px;
+  .liked-page .liked-song-row {
+    grid-template-columns:
+      32px 22px 44px minmax(0, 1fr)
+      68px 82px 46px 28px 32px;
+
+    gap: 8px;
+  }
+
+  .liked-page .liked-row-cover {
+    width: 44px;
+    height: 44px;
   }
 }
 
 /* =========================================================
-   MOBILE
+   18. SMALLER DESKTOP / TABLET — UP TO 900px
+========================================================= */
+
+@media (max-width: 900px) {
+  .liked-page {
+    padding: 21px 20px 115px;
+  }
+
+  .liked-page .liked-hero {
+    gap: 19px;
+    padding: 19px;
+  }
+
+  .liked-page .liked-hero-art {
+    flex-basis: 120px;
+    width: 120px;
+    height: 120px;
+  }
+
+  .liked-page .liked-hero h1 {
+    font-size: 29px;
+  }
+
+  .liked-page .liked-song-row {
+    min-height: 68px;
+    padding: 9px;
+  }
+
+  .liked-page .liked-row-play {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+
+  .liked-page .liked-row-language span,
+  .liked-page .liked-row-category span {
+    padding: 4px 5px;
+    font-size: 9px;
+  }
+}
+
+/* =========================================================
+   19. MOBILE — UP TO 650px
+   play | number | cover | details | menu | heart
 ========================================================= */
 
 @media (max-width: 650px) {
   .liked-page {
-    padding: 17px 14px 145px;
+    padding: 16px 13px 105px;
   }
 
-  .liked-back-btn {
-    margin-bottom: 17px;
+  .liked-page .liked-back-btn {
+    min-height: 37px;
+    margin-bottom: 15px;
+    padding: 8px 11px;
+    font-size: 11px;
   }
 
-  .liked-hero {
-    min-height: auto;
+  .liked-page .liked-hero {
     align-items: center;
-    gap: 17px;
-    padding: 20px 16px;
-    border-radius: 17px;
+    gap: 15px;
+
+    margin-bottom: 28px;
+    padding: 15px;
+
+    border-radius: 13px;
   }
 
-  .liked-hero-art {
-    width: 100px;
-    border-radius: 15px;
-    font-size: 37px;
+  .liked-page .liked-hero-art {
+    flex: 0 0 95px;
+    width: 95px;
+    height: 95px;
+
+    border-radius: 10px;
   }
 
-  .liked-art-note {
-    font-size: 27px;
+  .liked-page .liked-hero-art > svg {
+    width: 35px;
+    height: 35px;
   }
 
-  .liked-eyebrow {
+  .liked-page .liked-art-note.note-one {
+    top: 9px;
+    right: 12px;
+    font-size: 22px;
+  }
+
+  .liked-page .liked-art-note.note-two {
+    bottom: 8px;
+    left: 11px;
+    font-size: 28px;
+  }
+
+  .liked-page .liked-eyebrow {
+    margin-bottom: 6px;
     font-size: 8px;
     letter-spacing: 1.2px;
+  }
+
+  .liked-page .liked-hero h1 {
+    margin-bottom: 6px;
+    font-size: clamp(20px, 5vw, 25px);
+    letter-spacing: -0.4px;
+  }
+
+  .liked-page .liked-hero-content > p {
+    font-size: 10px;
     line-height: 1.6;
   }
 
-  .liked-hero h1 {
-    margin: 8px 0;
-    font-size: clamp(25px, 6vw, 36px);
-    letter-spacing: -0.7px;
+  .liked-page .liked-hero-meta {
+    gap: 9px;
+    margin-top: 12px;
   }
 
-  .liked-hero-content > p {
-    font-size: 11px;
-    line-height: 1.6;
-  }
-
-  .liked-hero-meta {
-    gap: 11px;
-    margin-top: 15px;
-  }
-
-  .liked-count {
+  .liked-page .liked-count {
+    gap: 6px;
     font-size: 10px;
   }
 
-  .liked-play-all {
-    min-height: 35px;
+  .liked-page .liked-play-all {
+    min-height: 34px;
     padding: 0 12px;
     font-size: 10px;
   }
 
-  .liked-collection {
-    margin-top: 26px;
+  .liked-page .liked-section-heading {
+    margin-bottom: 12px;
   }
 
-  .liked-section-heading {
-    margin-bottom: 17px;
+  .liked-page .liked-section-heading h2 {
+    font-size: 18px;
   }
 
-  .liked-section-heading h2 {
-    font-size: 20px;
-  }
-
-  .liked-section-count {
+  .liked-page .liked-section-subtitle {
     font-size: 10px;
   }
 
-  .liked-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 13px;
-  }
-
-  .liked-card {
-    padding: 8px;
-    border-radius: 13px;
-  }
-
-  .liked-card-cover {
-    border-radius: 9px;
-  }
-
-  .liked-card-number {
-    top: 6px;
-    left: 6px;
-    min-width: 24px;
-    height: 23px;
+  .liked-page .liked-section-count {
     font-size: 9px;
   }
 
-  /* Keep play buttons accessible on touchscreens */
-  .liked-cover-overlay {
-    opacity: 1;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding: 8px;
-    box-sizing: border-box;
-    background: linear-gradient(
-      transparent 48%,
-      rgba(4, 8, 18, 0.38)
-    );
+  .liked-page .liked-song-list {
+    gap: 6px;
   }
 
-  .liked-card-play {
-    width: 35px;
-    height: 35px;
-    font-size: 11px;
-    transform: none;
+  .liked-page .liked-song-row {
+    grid-template-columns:
+      29px 17px 38px minmax(0, 1fr) 25px 29px;
+
+    gap: 6px;
+
+    min-height: 62px;
+    padding: 7px 6px;
+
+    border-radius: 10px;
   }
 
-  .liked-card-details {
-    gap: 4px;
-    margin-top: 10px;
+  .liked-page .liked-row-play {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
   }
 
-  .liked-card-text h3 {
-    font-size: 11px;
+  .liked-page .liked-row-play svg {
+    width: 10px;
+    height: 10px;
   }
 
-  .liked-card-text p {
-    font-size: 9px;
+  .liked-page .liked-row-number {
+    font-size: 10px;
   }
 
-  .liked-card-remove {
-    width: 27px;
-    height: 27px;
-    font-size: 11px;
+  .liked-page .liked-row-cover {
+    width: 38px;
+    height: 38px;
+    border-radius: 7px;
   }
 
-  .liked-card-category {
-    margin-top: 9px;
-    padding: 4px 7px;
-    font-size: 8px;
-  }
-
-  .liked-empty {
-    min-height: 280px;
-    padding: 28px 18px;
-  }
-
-  .liked-empty h2 {
-    font-size: 19px;
-  }
-
-  .liked-empty p {
+  .liked-page .liked-row-info strong {
+    margin-bottom: 3px;
     font-size: 12px;
+  }
+
+  .liked-page .liked-row-english,
+  .liked-page .liked-row-artist {
+    font-size: 10px;
+  }
+
+  .liked-page .liked-row-language,
+  .liked-page .liked-row-category,
+  .liked-page .liked-row-duration {
+    display: none;
+  }
+
+  .liked-page .liked-row-menu-btn {
+    width: 25px;
+    height: 31px;
+  }
+
+  .liked-page .liked-row-menu-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .liked-page .liked-row-remove {
+    width: 29px;
+    height: 31px;
+  }
+
+  .liked-page .liked-row-remove svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .liked-page .liked-empty {
+    min-height: 230px;
+    padding: 26px 16px;
   }
 }
 
 /* =========================================================
-   SMALL MOBILE
+   20. SMALL MOBILE — UP TO 420px
 ========================================================= */
 
-@media (max-width: 380px) {
+@media (max-width: 420px) {
   .liked-page {
     padding-right: 10px;
     padding-left: 10px;
   }
 
-  .liked-hero {
-    gap: 12px;
-    padding: 16px 12px;
+  .liked-page .liked-hero {
+    gap: 11px;
+    padding: 12px;
   }
 
-  .liked-hero-art {
-    width: 78px;
+  .liked-page .liked-hero-art {
+    flex-basis: 77px;
+    width: 77px;
+    height: 77px;
+  }
+
+  .liked-page .liked-hero-art > svg {
+    width: 29px;
+    height: 29px;
+  }
+
+  .liked-page .liked-hero h1 {
+    font-size: 20px;
+  }
+
+  .liked-page .liked-hero-content > p {
+    font-size: 9px;
+  }
+
+  .liked-page .liked-hero-meta {
+    gap: 7px;
+    margin-top: 10px;
+  }
+
+  .liked-page .liked-count {
+    font-size: 9px;
+  }
+
+  .liked-page .liked-play-all {
+    min-height: 31px;
+    padding: 0 10px;
+    font-size: 9px;
+  }
+
+  .liked-page .liked-song-row {
+    grid-template-columns:
+      26px 15px 33px minmax(0, 1fr) 22px 26px;
+
+    gap: 5px;
+    min-height: 59px;
+    padding: 6px 4px;
+  }
+
+  .liked-page .liked-row-play {
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+  }
+
+  .liked-page .liked-row-cover {
+    width: 33px;
+    height: 33px;
+  }
+
+  .liked-page .liked-row-info strong {
+    font-size: 11px;
+  }
+
+  .liked-page .liked-row-english,
+  .liked-page .liked-row-artist {
+    font-size: 9px;
+  }
+
+  .liked-page .liked-row-menu-btn {
+    width: 22px;
+  }
+
+  .liked-page .liked-row-remove {
+    width: 26px;
+  }
+}
+
+/* =========================================================
+   21. EXTRA SMALL MOBILE — UP TO 340px
+========================================================= */
+
+@media (max-width: 340px) {
+  .liked-page .liked-hero {
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .liked-page .liked-hero-art {
+    flex-basis: 63px;
+    width: 63px;
+    height: 63px;
+  }
+
+  .liked-page .liked-hero h1 {
+    font-size: 17px;
+  }
+
+  .liked-page .liked-hero-content > p {
+    font-size: 9px;
+  }
+
+  .liked-page .liked-song-row {
+    grid-template-columns:
+      24px 13px 30px minmax(0, 1fr) 20px 24px;
+
+    gap: 4px;
+    padding-right: 3px;
+    padding-left: 3px;
+  }
+
+  .liked-page .liked-row-play {
+    width: 23px;
+    height: 23px;
+    min-width: 23px;
+  }
+
+  .liked-page .liked-row-cover {
+    width: 30px;
+    height: 30px;
+  }
+
+  .liked-page .liked-row-info strong {
+    font-size: 10px;
+  }
+
+  .liked-page .liked-row-menu-btn {
+    width: 20px;
+  }
+
+  .liked-page .liked-row-remove {
+    width: 24px;
+  }
+}
+
+/* =========================================================
+   22. REDUCED MOTION ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .liked-page *,
+  .liked-page *::before,
+  .liked-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* =========================================================
+   PLAY ALL — ABOVE TRACK LIST
+========================================================= */
+
+.liked-page .liked-track-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 0 16px;
+}
+
+.liked-page .liked-track-actions .liked-play-all {
+  margin: 0;
+}
+
+/* =========================================================
+   LIKED SONGS — THREE-DOT CONTEXT MENU
+   Matches the All Songs menu
+========================================================= */
+
+.liked-page .liked-row-menu-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+}
+
+.liked-page .liked-row-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--liked-text-secondary, #aebbd0);
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.liked-page .liked-row-menu-btn:hover,
+.liked-page .liked-row-menu-btn[aria-expanded="true"] {
+  background: rgba(64, 112, 220, 0.16);
+  border-color: rgba(115, 153, 255, 0.25);
+  color: #f0c979;
+}
+
+.liked-page .all-song-context-menu {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 232px;
+  max-width: min(232px, calc(100vw - 32px));
+  padding: 7px;
+  border: 1px solid rgba(139, 163, 205, 0.22);
+  border-radius: 13px;
+  background: #101a2c;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.38);
+  animation: liked-menu-in 150ms ease-out;
+}
+
+.liked-page .all-song-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #e7edf8;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.liked-page .all-song-context-menu button > svg {
+  flex: 0 0 15px;
+  width: 15px;
+  color: #d7b66b;
+}
+
+.liked-page .all-song-context-menu button:hover {
+  background: rgba(65, 111, 210, 0.2);
+  color: #f3d48e;
+}
+
+.liked-page .all-song-context-menu button:focus-visible,
+.liked-page .liked-row-menu-btn:focus-visible {
+  outline: 2px solid #e3c477;
+  outline-offset: 3px;
+}
+
+.liked-page .all-song-menu-divider {
+  height: 1px;
+  margin: 6px 5px;
+  background: rgba(160, 177, 207, 0.16);
+}
+
+@keyframes liked-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .liked-page .all-song-context-menu {
+    right: 0;
+    width: 218px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liked-page .all-song-context-menu {
+    animation: none;
+  }
+
+  .liked-page .liked-row-menu-btn,
+  .liked-page .all-song-context-menu button {
+    transition: none;
+  }
+}
+
+/* =========================================
+   LIKED SONGS — SEPARATE RIGHT-ALIGNED COUNT
+========================================= */
+
+.liked-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 0 4px;
+}
+
+.liked-count-row .liked-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.liked-count-row .liked-count svg {
+  color: #e8c98a;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .liked-count-row {
+    margin-bottom: 14px;
+    padding-right: 2px;
+  }
+
+  .liked-count-row .liked-count {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liked-count-row * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================
+   KEERTHANA MUSIC — LIKED SONGS SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.liked-search-section {
+  width: 100%;
+  margin: 22px 0 18px;
+  font-family: "Inter", sans-serif;
+}
+
+.liked-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: rgba(13, 22, 42, 0.88);
+  border: 1px solid rgba(125, 151, 198, 0.2);
+  border-radius: 14px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.liked-search-bar:focus-within {
+  border-color: #3978f6;
+  background: rgba(15, 25, 48, 0.98);
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.13);
+}
+
+.liked-search-icon {
+  flex: 0 0 auto;
+  color: #e8c98a;
+  font-size: 16px;
+}
+
+.liked-search-bar input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #f5f7ff;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+
+.liked-search-bar input::placeholder {
+  color: #8490a8;
+  opacity: 1;
+}
+
+.liked-search-bar input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.liked-search-clear {
+  display: inline-flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd4e6;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.liked-search-clear:hover {
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.13);
+  border-color: rgba(57, 120, 246, 0.4);
+}
+
+.liked-search-clear:focus-visible {
+  outline: 2px solid #3978f6;
+  outline-offset: 3px;
+}
+
+.liked-search-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.liked-search-summary h2 {
+  margin: 0;
+  color: #f4f6ff;
+  font-family: "Inter", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.35px;
+}
+
+.liked-search-summary p {
+  margin: 5px 0 0;
+  color: #929db4;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.liked-search-result-count {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(232, 201, 138, 0.22);
+  border-radius: 9px;
+  background: rgba(232, 201, 138, 0.07);
+  color: #e8c98a;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   SEARCH EMPTY STATE
+========================================================= */
+
+.liked-search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 230px;
+  padding: 32px 20px;
+  box-sizing: border-box;
+  text-align: center;
+  border: 1px dashed rgba(125, 151, 198, 0.24);
+  border-radius: 16px;
+  background: rgba(13, 22, 42, 0.45);
+}
+
+.liked-search-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(57, 120, 246, 0.25);
+  border-radius: 16px;
+  background: rgba(57, 120, 246, 0.1);
+  color: #e8c98a;
+  font-size: 20px;
+}
+
+.liked-search-empty h2 {
+  margin: 0;
+  color: #f4f6ff;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.liked-search-empty p {
+  max-width: 420px;
+  margin: 9px 0 20px;
+  color: #929db4;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.liked-search-empty button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid rgba(57, 120, 246, 0.5);
+  border-radius: 10px;
+  background: rgba(57, 120, 246, 0.12);
+  color: #e9efff;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.liked-search-empty button:hover {
+  border-color: #3978f6;
+  background: rgba(57, 120, 246, 0.23);
+}
+
+.liked-search-empty button:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   RESPONSIVE SEARCH
+========================================================= */
+
+@media (max-width: 768px) {
+  .liked-search-section {
+    margin-top: 18px;
+  }
+
+  .liked-search-bar {
+    min-height: 50px;
+    padding: 0 13px;
     border-radius: 12px;
-    font-size: 30px;
   }
 
-  .liked-hero h1 {
-    font-size: 25px;
+  .liked-search-bar input {
+    height: 48px;
+    font-size: 13px;
   }
 
-  .liked-eyebrow {
-    font-size: 7px;
-    letter-spacing: 0.8px;
+  .liked-search-summary {
+    margin-top: 18px;
   }
 
-  .liked-grid {
+  .liked-search-summary h2 {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  .liked-search-bar input {
+    font-size: 12px;
+  }
+
+  .liked-search-bar input::placeholder {
+    font-size: 11px;
+  }
+
+  .liked-search-summary {
+    align-items: flex-start;
     gap: 10px;
   }
 
-  .liked-card {
-    padding: 7px;
+  .liked-search-summary h2 {
+    font-size: 16px;
   }
 
-  .liked-card-text h3 {
-    font-size: 10px;
+  .liked-search-result-count {
+    min-height: 28px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+
+  .liked-search-empty {
+    min-height: 200px;
+    padding: 26px 16px;
   }
 }
 
@@ -927,143 +1797,115 @@
    ACCESSIBILITY
 ========================================================= */
 
-.liked-page button:focus-visible {
-  outline: 2px solid var(--liked-gold);
-  outline-offset: 3px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .liked-page *,
-  .liked-page *::before,
-  .liked-page *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .liked-search-bar,
+  .liked-search-clear,
+  .liked-search-empty button {
+    transition: none;
   }
 }
 
 /* =========================================================
-   KEERTHANA — LIKED SONGS TYPOGRAPHY MATCH
-   Consistent premium font across music pages
+   KEERTHANA — LIKED SONGS VOICE SEARCH
 ========================================================= */
 
-.liked-page {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #f5f7ff;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-.liked-page h1,
-.liked-page h2,
-.liked-page h3,
-.liked-page p,
-.liked-page button,
-.liked-page span {
-  font-family: inherit;
-}
-
-/* Main hero heading */
-.liked-hero h1 {
-  font-size: clamp(32px, 4.5vw, 56px);
-  font-weight: 750;
-  line-height: 1.12;
-  letter-spacing: -1px;
-}
-
-/* Hero description */
-.liked-hero-content > p {
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.7;
-}
-
-/* Collection heading */
-.liked-section-heading h2 {
-  font-size: 23px;
-  font-weight: 750;
-  line-height: 1.4;
-  letter-spacing: -0.4px;
-}
-
-/* Song titles */
-.liked-card-text h3 {
-  font-size: 13px;
-  font-weight: 650;
-  line-height: 1.5;
-  letter-spacing: -0.15px;
-}
-
-/* Artist names and supporting information */
-.liked-card-text p {
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-/* Category labels */
-.liked-card-category {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-/* Back and playback buttons */
-.liked-back-btn,
-.liked-play-all {
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: 0;
-}
-
-/* Keep square artwork consistent */
-.liked-card-cover {
+.liked-voice-search-section {
   width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
+  min-width: 0;
+  margin: 0 0 22px;
 }
 
-.liked-card-cover > img {
-  display: block;
+.liked-voice-search-section .keerthana-voice-search {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: none;
+  min-width: 0;
 }
 
-/* Consistent keyboard focus */
-.liked-page button:focus-visible {
-  outline: 2px solid #e7c77b;
+.liked-voice-search-section .voice-search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  padding: 5px 10px;
+  border: 1px solid rgba(160, 180, 215, 0.18);
+  border-radius: 14px;
+  background: #10182a;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.liked-voice-search-section .voice-search-bar:focus-within {
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+}
+
+.liked-voice-search-section .voice-search-bar input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #f5f7fc;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+
+.liked-voice-search-section .voice-search-bar input::placeholder {
+  color: #8996ad;
+  opacity: 1;
+}
+
+.liked-voice-search-section .voice-search-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin-top: 10px;
+}
+
+.liked-voice-search-section .voice-search-feedback {
+  width: 100%;
+  max-width: none;
+  color: #a5b0c5;
+  font-size: 12px;
+}
+
+.liked-voice-search-section button:focus-visible,
+.liked-voice-search-section select:focus-visible,
+.liked-voice-search-section input:focus-visible {
+  outline: 2px solid #e8c98a;
   outline-offset: 3px;
 }
 
-/* Tablet */
-@media (max-width: 768px) {
-  .liked-hero h1 {
-    font-size: clamp(27px, 5vw, 36px);
+@media (max-width: 600px) {
+  .liked-voice-search-section {
+    margin-bottom: 18px;
   }
 
-  .liked-section-heading h2 {
-    font-size: 20px;
+  .liked-voice-search-section .voice-search-options {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .liked-voice-search-section .voice-search-bar input {
+    font-size: 13px;
   }
 }
 
-/* Mobile */
-@media (max-width: 480px) {
-  .liked-hero h1 {
-    font-size: 25px;
-  }
-
-  .liked-hero-content > p {
-    font-size: 11px;
-  }
-
-  .liked-card-text h3 {
-    font-size: 11px;
-  }
-
-  .liked-card-text p {
-    font-size: 10px;
+@media (prefers-reduced-motion: reduce) {
+  .liked-voice-search-section *,
+  .liked-voice-search-section *::before,
+  .liked-voice-search-section *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

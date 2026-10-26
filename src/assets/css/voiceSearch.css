@@ -1,34 +1,70 @@
 
-/* =========================================
-   KEERTHANA — VOICE SEARCH
-   Professional Navy & Blue Theme
-========================================= */
+/* =========================================================
+   KEERTHANA MUSIC — VOICE SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+   Typography: Inter + Noto Sans Telugu
+========================================================= */
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+/* =========================================================
+   THEME VARIABLES
+========================================================= */
 
-.voice-search-wrapper {
-  position: relative;
+.keerthana-voice-search {
+  --vs-bg: #080d1a;
+  --vs-surface: #10182a;
+  --vs-surface-hover: #151f34;
+  --vs-border: rgba(148, 163, 184, 0.2);
+  --vs-blue: #3978f6;
+  --vs-blue-hover: #2865e2;
+  --vs-blue-soft: rgba(57, 120, 246, 0.13);
+  --vs-gold: #e8c98a;
+  --vs-text: #f5f7ff;
+  --vs-muted: #98a6bd;
+  --vs-danger: #ff7b87;
+  --vs-success: #70ddb0;
+
   width: 100%;
-  max-width: 700px;
   min-width: 0;
-  margin: 0;
+  color: var(--vs-text);
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  box-sizing: border-box;
 }
 
-/* Search input container */
-.voice-search-box {
+.keerthana-voice-search *,
+.keerthana-voice-search *::before,
+.keerthana-voice-search *::after {
   box-sizing: border-box;
+}
+
+/* =========================================================
+   SEARCH BAR
+========================================================= */
+
+.keerthana-voice-search .voice-search-bar {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-width: 0;
   min-height: 54px;
-  padding: 6px 8px 6px 16px;
+  margin: 0;
+  padding: 7px 9px 7px 17px;
+  overflow: hidden;
 
-  background: #111B30;
-  border: 1px solid rgba(177, 198, 235, 0.18);
+  background: linear-gradient(
+    145deg,
+    #111b30 0%,
+    #0c1425 100%
+  );
+
+  border: 1px solid var(--vs-border);
   border-radius: 15px;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
   transition:
     border-color 180ms ease,
@@ -36,428 +72,511 @@
     background 180ms ease;
 }
 
-/* Focus and listening states */
-.voice-search-box:focus-within,
-.voice-search-is-listening .voice-search-box {
-  background: #131F37;
-  border-color: #3978F6;
-  box-shadow: 0 0 0 4px rgba(57, 120, 246, 0.12);
+.keerthana-voice-search .voice-search-bar:hover {
+  border-color: rgba(57, 120, 246, 0.45);
 }
 
-/* Search icon */
-.voice-search-icon {
-  flex-shrink: 0;
-  color: #8EB5FF;
-  font-size: 17px;
+.keerthana-voice-search .voice-search-bar:focus-within {
+  border-color: var(--vs-blue);
+  box-shadow:
+    0 0 0 3px rgba(57, 120, 246, 0.14),
+    0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Text input */
-.voice-search-input {
-  box-sizing: border-box;
+.keerthana-voice-search .voice-search-bar.is-listening {
+  border-color: var(--vs-blue);
+  box-shadow:
+    0 0 0 3px rgba(57, 120, 246, 0.12),
+    0 0 22px rgba(57, 120, 246, 0.1);
+}
+
+/* =========================================================
+   SEARCH ICON
+========================================================= */
+
+.keerthana-voice-search .voice-search-leading-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  color: var(--vs-muted);
+  font-size: 15px;
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
+
+.keerthana-voice-search .voice-search-bar input {
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  min-height: 40px;
-  padding: 0 6px;
-
-  color: #F6F8FF !important;
-  -webkit-text-fill-color: #F6F8FF !important;
-  caret-color: #8EB5FF;
-
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-
-  opacity: 1;
-  font-family: "DM Sans", sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.voice-search-input::placeholder {
-  color: #A7B3C9 !important;
-  -webkit-text-fill-color: #A7B3C9 !important;
-  opacity: 1;
-}
-
-.voice-search-input:focus {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
-  outline: none;
-}
-
-/* Microphone and submit buttons */
-.voice-search-mic,
-.voice-search-submit {
-  box-sizing: border-box;
-  display: inline-flex;
-  flex: 0 0 40px;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  height: 38px;
   padding: 0;
 
-  border: 1px solid rgba(177, 198, 235, 0.15);
-  border-radius: 12px;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+
+  color: var(--vs-text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+
+  caret-color: var(--vs-gold);
+}
+
+.keerthana-voice-search .voice-search-bar input::placeholder {
+  color: #8290a8;
+  opacity: 1;
+  font-weight: 400;
+}
+
+.keerthana-voice-search .voice-search-bar input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Hide native search decorations where supported. */
+
+.keerthana-voice-search .voice-search-bar input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* =========================================================
+   SHARED BUTTON STYLES
+========================================================= */
+
+.keerthana-voice-search .voice-search-clear,
+.keerthana-voice-search .voice-search-mic {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 11px;
 
   cursor: pointer;
+  font-size: 14px;
+
   transition:
     background 180ms ease,
     color 180ms ease,
-    border-color 180ms ease;
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
-.voice-search-mic {
-  background: #223657;
-  color: #DCE8FF;
+.keerthana-voice-search .voice-search-clear:focus-visible,
+.keerthana-voice-search .voice-search-mic:focus-visible {
+  outline: 2px solid var(--vs-gold);
+  outline-offset: 3px;
 }
 
-.voice-search-mic:hover {
-  background: #30476C;
-  color: #FFFFFF;
+/* =========================================================
+   CLEAR SEARCH BUTTON
+========================================================= */
+
+.keerthana-voice-search .voice-search-clear {
+  color: var(--vs-muted);
+  background: rgba(148, 163, 184, 0.07);
 }
 
-.voice-search-mic-active {
-  background: #3978F6;
-  border-color: #3978F6;
-  color: #FFFFFF;
-  animation: voice-search-pulse 1.5s infinite;
+.keerthana-voice-search .voice-search-clear:hover {
+  color: var(--vs-text);
+  background: rgba(148, 163, 184, 0.15);
+  border-color: var(--vs-border);
 }
 
-.voice-search-mic-active:hover {
-  background: #2D67D7;
-  color: #FFFFFF;
+/* =========================================================
+   MICROPHONE BUTTON
+========================================================= */
+
+.keerthana-voice-search .voice-search-mic {
+  color: #ffffff;
+  background: var(--vs-blue);
+  border-color: rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 3px 10px rgba(57, 120, 246, 0.2);
 }
 
-.voice-search-submit {
-  background: #3978F6;
-  border-color: #3978F6;
-  color: #FFFFFF;
+.keerthana-voice-search .voice-search-mic:hover {
+  background: var(--vs-blue-hover);
+  box-shadow: 0 4px 14px rgba(57, 120, 246, 0.28);
 }
 
-.voice-search-submit:hover {
-  background: #2D67D7;
-  border-color: #2D67D7;
-  color: #FFFFFF;
+.keerthana-voice-search .voice-search-mic:active {
+  transform: scale(0.96);
 }
 
-/* Voice recognition status */
-.voice-search-status {
+.keerthana-voice-search .voice-search-mic.is-active {
+  color: #ffffff;
+  background: #d84c65;
+  border-color: rgba(255, 123, 135, 0.45);
+
+  box-shadow: 0 0 0 4px rgba(216, 76, 101, 0.12);
+
+  animation: voice-search-mic-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes voice-search-mic-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(216, 76, 101, 0.12);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(216, 76, 101, 0.04);
+  }
+}
+
+/* =========================================================
+   VOICE LANGUAGE SELECTOR
+========================================================= */
+
+.keerthana-voice-search .voice-search-options {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: 9px;
-  padding-left: 6px;
+  justify-content: space-between;
+  gap: 10px;
 
-  color: #A7B3C9;
-  font-size: 12px;
-  font-weight: 500;
+  width: 100%;
+  margin-top: 12px;
+  padding: 0 2px;
 }
 
-.voice-search-pulse {
-  flex-shrink: 0;
+.keerthana-voice-search .voice-search-options label {
+  display: block;
+  margin: 0;
+
+  color: var(--vs-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.015em;
+}
+
+.keerthana-voice-search .voice-search-options select {
+  width: auto;
+  min-width: 150px;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 8px 34px 8px 12px;
+
+  appearance: none;
+
+  background-color: #10182a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23E8C98A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 14px;
+
+  border: 1px solid var(--vs-border);
+  border-radius: 10px;
+
+  color: var(--vs-text);
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+  outline: none;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.keerthana-voice-search .voice-search-options select:hover {
+  background-color: var(--vs-surface-hover);
+  border-color: rgba(57, 120, 246, 0.5);
+}
+
+.keerthana-voice-search .voice-search-options select:focus-visible {
+  border-color: var(--vs-blue);
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.15);
+}
+
+.keerthana-voice-search .voice-search-options select option {
+  color: var(--vs-text);
+  background: var(--vs-surface);
+}
+
+/* =========================================================
+   VOICE SEARCH FEEDBACK
+========================================================= */
+
+.keerthana-voice-search .voice-search-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  min-height: 20px;
+  margin-top: 10px;
+  padding: 0 2px;
+
+  color: var(--vs-muted);
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.keerthana-voice-search .voice-search-feedback > span:not(.voice-search-pulse) {
+  min-width: 0;
+}
+
+/* =========================================================
+   LISTENING STATUS ANIMATION
+========================================================= */
+
+.keerthana-voice-search .voice-search-pulse {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+
   width: 8px;
   height: 8px;
+  margin-top: 5px;
+
+  background: var(--vs-success);
   border-radius: 50%;
-  background: #3978F6;
-  animation: voice-status-pulse 1s infinite;
+
+  box-shadow: 0 0 0 3px rgba(112, 221, 176, 0.1);
+
+  animation: voice-search-status-pulse 1.3s ease-in-out infinite;
 }
 
-/* Browser compatibility message */
-.voice-search-not-supported {
-  padding: 13px 16px;
-  border: 1px solid rgba(232, 201, 138, 0.25);
-  border-radius: 12px;
-
-  background: #111B30;
-  color: #E8C98A;
-  font-size: 13px;
-}
-
-/* Animations */
-@keyframes voice-search-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(57, 120, 246, 0.4);
-  }
-
-  70% {
-    box-shadow: 0 0 0 10px rgba(57, 120, 246, 0);
-  }
-
+@keyframes voice-search-status-pulse {
+  0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(57, 120, 246, 0);
-  }
-}
-
-@keyframes voice-status-pulse {
-  0% {
     opacity: 1;
     transform: scale(1);
   }
 
   50% {
-    opacity: 0.4;
-    transform: scale(0.7);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* =========================================
-   SEARCH PAGE INTEGRATION
-========================================= */
-
-.search-input-wrapper .voice-search-wrapper {
-  display: block;
-  flex: 1 1 0%;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-.search-input-wrapper .voice-search-box {
-  min-height: 44px;
-  padding: 0;
-  gap: 8px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.search-input-wrapper .voice-search-box:focus-within,
-.search-input-wrapper .voice-search-is-listening .voice-search-box {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-.search-input-wrapper .voice-search-icon {
-  display: none;
-}
-
-.search-input-wrapper .voice-search-input {
-  min-height: 44px;
-  padding: 0 4px;
-  font-size: 15px;
-}
-
-.search-input-wrapper .voice-search-mic,
-.search-input-wrapper .voice-search-submit {
-  flex-basis: 38px;
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-}
-
-/* Mobile layout */
-@media (max-width: 640px) {
-  .voice-search-box {
-    min-height: 48px;
-    gap: 7px;
-    padding: 5px 6px 5px 12px;
-    border-radius: 13px;
-  }
-
-  .voice-search-input {
-    font-size: 14px;
-  }
-
-  .voice-search-mic,
-  .voice-search-submit {
-    flex-basis: 36px;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-  }
-
-  .search-input-wrapper .voice-search-box {
-    gap: 5px;
-  }
-
-  .search-input-wrapper .voice-search-input {
-    min-height: 40px;
-    font-size: 14px;
-  }
-
-  .search-input-wrapper .voice-search-mic,
-  .search-input-wrapper .voice-search-submit {
-    flex-basis: 33px;
-    width: 33px;
-    height: 33px;
-    border-radius: 9px;
+    opacity: 0.55;
+    transform: scale(0.82);
   }
 }
 
 /* =========================================================
-   KEERTHANA — SEARCH PAGE INTEGRATION
-   One clean search field, Android-friendly touch controls
+   VOICE SEARCH ERRORS
 ========================================================= */
 
-.search-page .search-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.keerthana-voice-search .voice-search-error {
+  color: var(--vs-danger);
+  font-weight: 500;
+}
 
+/* =========================================================
+   PLAYLISTS PAGE INTEGRATION
+========================================================= */
+
+.playlists-page .playlists-search-section {
   width: 100%;
   min-width: 0;
-  min-height: 64px;
-  padding: 7px 10px 7px 15px;
-
-  background: #141f34;
-  border: 1px solid rgba(142, 181, 255, 0.22);
-  border-radius: 16px;
-
-  transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
-.search-page .search-input-wrapper:focus-within {
-  border-color: #e8c778;
-  box-shadow: 0 0 0 3px rgba(232, 199, 120, 0.12);
+.playlists-page .playlists-search-row {
+  width: 100%;
+  min-width: 0;
 }
 
-/* VoiceSearch occupies the available space */
-.search-page .search-input-wrapper .voice-search-wrapper {
+.playlists-page .playlists-search.playlists-voice-search {
   display: block;
-  flex: 1 1 0%;
-  width: 0;
-  max-width: none;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-}
-
-/* Remove the duplicate inner box styling */
-.search-page .search-input-wrapper .voice-search-box,
-.search-page .search-input-wrapper .voice-search-box:focus-within,
-.search-page .search-input-wrapper .voice-search-is-listening .voice-search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
   width: 100%;
   min-width: 0;
-  min-height: 46px;
+  height: auto;
   padding: 0;
 
   background: transparent;
   border: 0;
-  border-radius: 0;
   box-shadow: none;
 }
 
-/* The search page already supplies the search icon */
-.search-page .search-input-wrapper .voice-search-icon {
-  display: none;
+.playlists-page .playlists-search.playlists-voice-search:focus-within {
+  border-color: transparent;
+  box-shadow: none;
 }
 
-/* Typing field */
-.search-page .search-input-wrapper .voice-search-input {
-  flex: 1 1 0%;
-  width: 0;
-  min-width: 0;
-  min-height: 46px;
-  padding: 0 4px;
+/* Avoid inherited input styles from playlists.css. */
 
-  color: #f6f8ff !important;
-  -webkit-text-fill-color: #f6f8ff !important;
-  caret-color: #e8c778;
-
-  font-family: "Inter", "Noto Sans Telugu", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-
-  background: transparent !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+.playlists-page .playlists-voice-search .voice-search-bar input {
+  margin: 0;
+  border: 0;
+  box-shadow: none;
 }
 
-.search-page .search-input-wrapper .voice-search-input::placeholder {
-  color: #a7b3c9 !important;
-  -webkit-text-fill-color: #a7b3c9 !important;
-  opacity: 1;
+/* =========================================================
+   RESPONSIVE — TABLETS
+========================================================= */
+
+@media (max-width: 768px) {
+  .keerthana-voice-search .voice-search-bar {
+    min-height: 51px;
+    padding-left: 13px;
+    border-radius: 13px;
+  }
+
+  .keerthana-voice-search .voice-search-bar input {
+    font-size: 13px;
+  }
+
+  .keerthana-voice-search .voice-search-clear,
+  .keerthana-voice-search .voice-search-mic {
+    width: 36px;
+    height: 36px;
+  }
+
+  .keerthana-voice-search .voice-search-options {
+    margin-top: 10px;
+  }
 }
 
-/* Large, consistent touch targets */
-.search-page .search-input-wrapper .voice-search-mic,
-.search-page .search-input-wrapper .voice-search-submit,
-.search-page .search-input-wrapper .search-clear-button {
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  padding: 0;
-  border-radius: 12px;
-}
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
 
-/* Keep voice recognition feedback visible when present */
-.search-page .search-input-wrapper .voice-search-status {
-  flex-wrap: wrap;
-}
-
-/* Android phones */
-@media (max-width: 640px) {
-  .search-page .search-input-wrapper {
+@media (max-width: 480px) {
+  .keerthana-voice-search .voice-search-bar {
     gap: 7px;
-    min-height: 60px;
-    padding: 6px 7px 6px 12px;
-    border-radius: 14px;
+    min-height: 48px;
+    padding: 5px 6px 5px 11px;
+    border-radius: 12px;
   }
 
-  .search-page .search-input-wrapper .voice-search-box {
-    gap: 5px;
-    min-height: 44px;
+  .keerthana-voice-search .voice-search-leading-icon {
+    width: 17px;
+    font-size: 13px;
   }
 
-  .search-page .search-input-wrapper .voice-search-input {
-    min-height: 44px;
-    font-size: 16px;
+  .keerthana-voice-search .voice-search-bar input {
+    height: 36px;
+    font-size: 12px;
   }
 
-  .search-page .search-input-wrapper .voice-search-mic,
-  .search-page .search-input-wrapper .voice-search-submit,
-  .search-page .search-input-wrapper .search-clear-button {
-    flex-basis: 38px;
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    border-radius: 10px;
-  }
-}
-
-/* Small Android phones */
-@media (max-width: 360px) {
-  .search-page .search-input-wrapper {
-    gap: 4px;
-    padding-right: 5px;
-    padding-left: 9px;
+  .keerthana-voice-search .voice-search-bar input::placeholder {
+    font-size: 12px;
   }
 
-  .search-page .search-input-wrapper .voice-search-box {
-    gap: 3px;
-  }
-
-  .search-page .search-input-wrapper .voice-search-mic,
-  .search-page .search-input-wrapper .voice-search-submit,
-  .search-page .search-input-wrapper .search-clear-button {
-    flex-basis: 34px;
+  .keerthana-voice-search .voice-search-clear,
+  .keerthana-voice-search .voice-search-mic {
     width: 34px;
     height: 34px;
-    min-width: 34px;
+    border-radius: 9px;
+    font-size: 12px;
+  }
+
+  .keerthana-voice-search .voice-search-options {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .keerthana-voice-search .voice-search-options select {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    font-size: 12px;
+  }
+
+  .keerthana-voice-search .voice-search-feedback {
+    margin-top: 8px;
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — VERY SMALL SCREENS
+========================================================= */
+
+@media (max-width: 340px) {
+  .keerthana-voice-search .voice-search-bar {
+    gap: 5px;
+    padding-left: 8px;
+  }
+
+  .keerthana-voice-search .voice-search-leading-icon {
+    width: 15px;
+  }
+
+  .keerthana-voice-search .voice-search-clear,
+  .keerthana-voice-search .voice-search-mic {
+    width: 31px;
+    height: 31px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-voice-search *,
+  .keerthana-voice-search *::before,
+  .keerthana-voice-search *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   VOICE LANGUAGE — RIGHT ALIGNMENT
+========================================================= */
+
+.keerthana-voice-search .voice-search-options {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.keerthana-voice-search .voice-search-options label {
+  margin: 0;
+  text-align: right;
+}
+
+.keerthana-voice-search .voice-search-options select {
+  width: auto;
+  min-width: 150px;
+}
+
+/* Mobile responsive alignment */
+
+@media (max-width: 480px) {
+  .keerthana-voice-search .voice-search-options {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .keerthana-voice-search .voice-search-options select {
+    width: auto;
+    min-width: 130px;
   }
 }

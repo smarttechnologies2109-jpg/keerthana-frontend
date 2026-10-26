@@ -1,30 +1,54 @@
 
 /* =========================================================
    KEERTHANA MUSIC — LISTENING HISTORY
-   Premium square-card layout
+   Premium Midnight Navy • Royal Blue • Champagne Gold
+   Typography: Inter
+   Responsive • Accessible • Production Ready
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+/* =========================================================
+   1. FONT & DESIGN TOKENS
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 .history-page {
   --history-bg: #080d1a;
-  --history-card: #111c31;
-  --history-hover: #192945;
-  --history-text: #f5f7ff;
-  --history-muted: #a4b1c9;
-  --history-blue: #4d85ff;
-  --history-blue-light: #91b8ff;
-  --history-gold: #e8ca91;
-  --history-border: rgba(160, 183, 222, 0.14);
+  --history-surface: #10182a;
+  --history-surface-soft: #141f34;
+  --history-surface-hover: #192741;
 
+  --history-blue: #3978f6;
+  --history-blue-hover: #528aff;
+  --history-blue-soft: rgba(57, 120, 246, 0.14);
+
+  --history-gold: #e8c98a;
+  --history-gold-soft: rgba(232, 201, 138, 0.12);
+
+  --history-text: #f5f7fc;
+  --history-text-secondary: #b4bfd2;
+  --history-text-muted: #8190a9;
+
+  --history-border: rgba(166, 186, 220, 0.12);
+  --history-border-hover: rgba(57, 120, 246, 0.48);
+
+  --history-danger: #ff737d;
+  --history-danger-soft: rgba(255, 115, 125, 0.1);
+
+  min-height: 100%;
   width: 100%;
-  min-height: 100vh;
-  padding: 30px 34px 130px;
-  box-sizing: border-box;
+  padding: 34px;
   color: var(--history-text);
   background:
-    radial-gradient(ellipse at 85% 0%, rgba(53, 96, 181, 0.12), transparent 35%),
+    radial-gradient(
+      ellipse at 85% 0%,
+      rgba(57, 120, 246, 0.09),
+      transparent 38%
+    ),
     var(--history-bg);
+
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .history-page *,
@@ -33,1253 +57,1468 @@
   box-sizing: border-box;
 }
 
-.history-page button {
+.history-page button,
+.history-page input,
+.history-page select {
   font: inherit;
 }
 
+.history-page button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.history-page button:focus-visible,
+.history-page select:focus-visible,
+.history-page input:focus-visible {
+  outline: 2px solid var(--history-gold);
+  outline-offset: 4px;
+}
+
 /* =========================================================
-   HEADER
+   2. MAIN CONTAINER
+========================================================= */
+
+.history-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   3. PAGE HEADER
 ========================================================= */
 
 .history-header {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  min-height: 190px;
-  padding: 30px 34px;
-  overflow: hidden;
-  isolation: isolate;
-  border: 1px solid var(--history-border);
-  border-radius: 23px;
-  background:
-    radial-gradient(circle at 85% 20%, rgba(77, 133, 255, 0.2), transparent 32%),
-    linear-gradient(115deg, #101a2e, #172b4b);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+  margin-bottom: 30px;
 }
 
-.history-header::after {
-  position: absolute;
-  z-index: -1;
-  top: -130px;
-  right: 8%;
-  width: 300px;
-  height: 300px;
-  border: 1px solid rgba(145, 184, 255, 0.12);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 28px rgba(145, 184, 255, 0.025),
-    0 0 0 56px rgba(145, 184, 255, 0.02);
-  content: "";
-  pointer-events: none;
-}
-
-.history-header-main {
+.history-heading {
   display: flex;
   align-items: center;
   gap: 20px;
   min-width: 0;
 }
 
-.history-header-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 76px;
-  height: 76px;
-  flex: 0 0 76px;
-  border: 1px solid rgba(232, 202, 145, 0.28);
-  border-radius: 20px;
+.history-heading-icon {
+  display: grid;
+  flex: 0 0 66px;
+  width: 66px;
+  height: 66px;
+  place-items: center;
+
   color: var(--history-gold);
-  background: rgba(232, 202, 145, 0.08);
-  font-size: 29px;
+  font-size: 25px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(57, 120, 246, 0.23),
+      rgba(232, 201, 138, 0.07)
+    );
+
+  border: 1px solid rgba(232, 201, 138, 0.2);
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.history-header-content {
+.history-heading > div {
   min-width: 0;
 }
 
 .history-eyebrow {
-  color: var(--history-blue-light);
-  font-size: 10px;
+  margin: 0 0 8px;
+
+  color: var(--history-gold);
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 2px;
+  line-height: 1.4;
 }
 
-.history-header-content h1 {
-  margin: 11px 0 0;
+.history-heading h1 {
+  margin: 0;
+
   color: var(--history-text);
-  font-size: clamp(29px, 3vw, 42px);
+  font-size: clamp(27px, 3vw, 36px);
   font-weight: 800;
+  letter-spacing: -1.15px;
   line-height: 1.2;
-  letter-spacing: -1px;
 }
 
-.history-header-content p {
-  max-width: 460px;
+.history-subtitle {
   margin: 10px 0 0;
-  color: var(--history-muted);
-  font-size: 12px;
+
+  color: var(--history-text-secondary);
+  font-size: 14px;
+  font-weight: 400;
   line-height: 1.7;
 }
 
-/* Clear history */
-
-.history-clear-button {
+.history-count {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-height: 42px;
-  flex-shrink: 0;
-  padding: 0 15px;
-  border: 1px solid rgba(255, 135, 148, 0.25);
-  border-radius: 11px;
-  color: #ffb3bb;
-  background: rgba(232, 76, 93, 0.09);
-  font-size: 11px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: background 180ms ease, transform 180ms ease;
+  gap: 10px;
+
+  padding: 12px 16px;
+
+  color: var(--history-gold);
+  font-size: 13px;
+  font-weight: 700;
+
+  background: var(--history-gold-soft);
+  border: 1px solid rgba(232, 201, 138, 0.17);
+  border-radius: 13px;
 }
 
-.history-clear-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  background: rgba(232, 76, 93, 0.18);
-}
-
-.history-clear-button:disabled {
-  opacity: 0.6;
-  cursor: wait;
+.history-count svg {
+  font-size: 14px;
 }
 
 /* =========================================================
-   ERROR
+   4. TOOLBAR
+========================================================= */
+
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 18px 20px;
+  margin-bottom: 22px;
+
+  background: linear-gradient(
+    115deg,
+    rgba(20, 31, 52, 0.94),
+    rgba(16, 24, 42, 0.96)
+  );
+
+  border: 1px solid var(--history-border);
+  border-radius: 18px;
+}
+
+.history-toolbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-width: 0;
+}
+
+.history-play-all,
+.history-clear-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 44px;
+  padding: 0 19px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.history-play-all {
+  color: #ffffff;
+  background: var(--history-blue);
+  box-shadow: 0 5px 18px rgba(57, 120, 246, 0.2);
+}
+
+.history-play-all:hover:not(:disabled) {
+  background: var(--history-blue-hover);
+  box-shadow: 0 8px 24px rgba(57, 120, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.history-play-all.is-playing {
+  color: var(--history-gold);
+  background: rgba(232, 201, 138, 0.1);
+  border-color: rgba(232, 201, 138, 0.28);
+  box-shadow: none;
+}
+
+.history-play-all.is-playing:hover:not(:disabled) {
+  background: rgba(232, 201, 138, 0.17);
+}
+
+.history-play-all svg,
+.history-clear-button svg {
+  font-size: 12px;
+}
+
+.history-toolbar-caption {
+  color: var(--history-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.history-clear-button {
+  color: var(--history-danger);
+  background: var(--history-danger-soft);
+  border-color: rgba(255, 115, 125, 0.16);
+}
+
+.history-clear-button:hover:not(:disabled) {
+  background: rgba(255, 115, 125, 0.17);
+  border-color: rgba(255, 115, 125, 0.36);
+}
+
+.history-play-all:disabled,
+.history-clear-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* =========================================================
+   5. SEARCH CONTROLS
+========================================================= */
+
+.history-search-controls {
+  width: 100%;
+  margin-bottom: 24px;
+  padding: 19px;
+
+  background: rgba(16, 24, 42, 0.88);
+  border: 1px solid var(--history-border);
+  border-radius: 18px;
+}
+
+.history-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+/*
+   VoiceSearch component integration.
+   These selectors style the shared search component only
+   within the History page.
+*/
+
+.history-search .keerthana-voice-search {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  color: var(--history-text);
+  font-family: "Inter", sans-serif;
+}
+
+.history-search .voice-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 7px 12px;
+
+  background: #0b1221;
+  border: 1px solid rgba(166, 186, 220, 0.17);
+  border-radius: 13px;
+
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.history-search .voice-search-bar:focus-within {
+  background: #0d1628;
+  border-color: var(--history-blue);
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.12);
+}
+
+.history-search .voice-search-bar input,
+.history-search .voice-search-bar input[type="text"] {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  padding: 7px 4px;
+
+  color: var(--history-text);
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.history-search .voice-search-bar input::placeholder {
+  color: #71809a;
+  opacity: 1;
+}
+
+.history-search .voice-search-bar input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Search component buttons */
+
+.history-search .voice-search-bar button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 36px;
+  min-height: 36px;
+  padding: 8px;
+
+  color: var(--history-text-secondary);
+  background: rgba(166, 186, 220, 0.08);
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.history-search .voice-search-bar button:hover {
+  color: var(--history-gold);
+  background: rgba(232, 201, 138, 0.1);
+  border-color: rgba(232, 201, 138, 0.2);
+}
+
+/* Search component icon */
+
+.history-search .voice-search-bar svg {
+  flex-shrink: 0;
+}
+
+/* Search options row */
+
+.history-search-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin-top: 15px;
+}
+
+.history-search-hint {
+  color: var(--history-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Language selector */
+
+.history-language-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.history-language-label {
+  color: var(--history-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.history-language-select {
+  min-width: 132px;
+  min-height: 38px;
+  padding: 8px 32px 8px 12px;
+
+  color: var(--history-gold);
+  background-color: #0b1221;
+  border: 1px solid rgba(232, 201, 138, 0.23);
+  border-radius: 10px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.history-language-select:hover {
+  border-color: rgba(232, 201, 138, 0.48);
+}
+
+.history-language-select option {
+  color: var(--history-text);
+  background: #10182a;
+}
+
+/* Clear search button */
+
+.history-search .history-search-clear {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  color: var(--history-text-secondary);
+  background: var(--history-surface-soft);
+  border: 1px solid var(--history-border);
+  border-radius: 9px;
+
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.history-search .history-search-clear:hover {
+  color: var(--history-gold);
+  background: var(--history-surface-hover);
+  border-color: var(--history-border-hover);
+}
+
+/*
+   Reserve space for the clear button when it is visible.
+*/
+
+.history-search:has(.history-search-clear) .voice-search-bar {
+  padding-right: 47px;
+}
+
+/* Voice feedback, if rendered by VoiceSearch */
+
+.history-search .voice-search-feedback {
+  margin-top: 9px;
+  color: var(--history-text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.history-search .voice-search-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Search result count */
+
+.history-search-summary {
+  margin: 0 0 18px;
+  color: var(--history-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.history-search-summary::first-letter {
+  color: var(--history-gold);
+}
+
+/* =========================================================
+   6. ERROR STATE
 ========================================================= */
 
 .history-error {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 135, 148, 0.22);
-  border-radius: 12px;
-  color: #ffb3bb;
-  background: rgba(150, 39, 57, 0.13);
-  font-size: 12px;
-  line-height: 1.7;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 22px;
+  padding: 16px 18px;
+
+  color: #ffc0c5;
+  background: rgba(255, 115, 125, 0.08);
+  border: 1px solid rgba(255, 115, 125, 0.25);
+  border-radius: 13px;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.history-error span {
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
+.history-error button {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+
+  color: var(--history-danger);
+  background: rgba(255, 115, 125, 0.1);
+  border: 1px solid rgba(255, 115, 125, 0.28);
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.history-error button:hover:not(:disabled) {
+  background: rgba(255, 115, 125, 0.19);
+}
+
+.history-error button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* =========================================================
-   SQUARE SONG CARD GRID
+   7. LOADING STATE
 ========================================================= */
 
-.history-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 220px));
-  justify-content: start;
-  align-items: start;
-  gap: 20px;
-  margin-top: 26px;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-/* No table header in card layout */
-
-.history-list-header {
-  display: none;
-}
-
-/* Each complete card is square */
-
-.history-row {
-  position: relative;
+.history-status {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  min-width: 0;
-  min-height: 0;
-  padding: 13px;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  min-height: 270px;
+  padding: 38px 20px;
+
+  color: var(--history-text-secondary);
+  background: rgba(16, 24, 42, 0.55);
   border: 1px solid var(--history-border);
-  border-radius: 17px;
-  background: linear-gradient(145deg, #14213a, #0e1729);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transition:
-    transform 180ms ease,
-    border-color 180ms ease,
-    background 180ms ease;
+  border-radius: 18px;
+
+  text-align: center;
 }
 
-.history-row:last-child {
+.history-status p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.history-spinner {
+  display: block;
+  width: 38px;
+  height: 38px;
+
+  border: 3px solid rgba(57, 120, 246, 0.17);
+  border-top-color: var(--history-blue);
+  border-right-color: var(--history-gold);
+  border-radius: 50%;
+
+  animation: history-spin 800ms linear infinite;
+}
+
+@keyframes history-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   8. EMPTY STATES
+========================================================= */
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 300px;
+  padding: 42px 24px;
+
+  text-align: center;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(57, 120, 246, 0.07),
+      transparent 65%
+    ),
+    rgba(16, 24, 42, 0.55);
+
+  border: 1px solid var(--history-border);
+  border-radius: 20px;
+}
+
+.history-empty-icon {
+  display: grid;
+  place-items: center;
+
+  width: 74px;
+  height: 74px;
+  margin-bottom: 22px;
+
+  color: var(--history-gold);
+  background: var(--history-gold-soft);
+  border: 1px solid rgba(232, 201, 138, 0.18);
+  border-radius: 22px;
+
+  font-size: 27px;
+}
+
+.history-empty h2 {
+  margin: 0 0 12px;
+
+  color: var(--history-text);
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.history-empty > p {
+  max-width: 480px;
+  margin: 0;
+
+  color: var(--history-text-secondary);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* No results */
+
+.history-no-results .history-empty-icon {
+  color: var(--history-blue-hover);
+  background: var(--history-blue-soft);
+  border-color: rgba(57, 120, 246, 0.2);
+}
+
+.history-reset-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 42px;
+  margin-top: 22px;
+  padding: 0 17px;
+
+  color: var(--history-gold);
+  background: var(--history-gold-soft);
+  border: 1px solid rgba(232, 201, 138, 0.2);
+  border-radius: 11px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.history-reset-search:hover {
+  background: rgba(232, 201, 138, 0.18);
+  border-color: rgba(232, 201, 138, 0.4);
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   9. HISTORY LIST HEADER
+========================================================= */
+
+.history-list-section {
+  width: 100%;
+  min-width: 0;
+}
+
+.history-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin: 0 0 16px;
+}
+
+.history-list-heading h2 {
+  margin: 0;
+
+  color: var(--history-text);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.history-list-heading > span {
+  padding: 7px 11px;
+
+  color: var(--history-gold);
+  background: var(--history-gold-soft);
+  border: 1px solid rgba(232, 201, 138, 0.14);
+  border-radius: 9px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   10. SONG TABLE HEADER
+========================================================= */
+
+.history-table-header,
+.history-row {
+  display: grid;
+  grid-template-columns:
+    68px
+    minmax(220px, 1.8fr)
+    minmax(120px, 0.9fr)
+    minmax(150px, 0.9fr);
+
+  align-items: center;
+  column-gap: 18px;
+}
+
+.history-table-header {
+  min-height: 44px;
+  padding: 0 18px;
+
+  color: var(--history-text-muted);
   border-bottom: 1px solid var(--history-border);
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.history-number-heading {
+  padding-left: 7px;
+}
+
+/* =========================================================
+   11. SONG LIST
+========================================================= */
+
+.history-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  width: 100%;
+  min-width: 0;
+  margin-top: 7px;
+}
+
+.history-row {
+  min-height: 88px;
+  padding: 12px 18px;
+
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 13px;
+
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
 }
 
 .history-row:hover {
-  transform: translateY(-3px);
-  border-color: rgba(77, 133, 255, 0.48);
-  background: linear-gradient(145deg, #192b49, #111c31);
+  background: rgba(20, 31, 52, 0.78);
+  border-color: var(--history-border);
 }
 
-.history-row.is-current,
-.history-row.is-playing {
-  border-color: rgba(77, 133, 255, 0.6);
-  background: linear-gradient(145deg, #172a49, #101a2d);
-}
+.history-row.is-current-song {
+  background:
+    linear-gradient(
+      100deg,
+      rgba(57, 120, 246, 0.12),
+      rgba(20, 31, 52, 0.72)
+    );
 
-/* Hide table-only columns */
-
-.history-number,
-.history-album {
-  display: none;
+  border-color: rgba(57, 120, 246, 0.24);
 }
 
 /* =========================================================
-   SQUARE ARTWORK
+   12. TRACK NUMBER + PLAY BUTTON
 ========================================================= */
 
-.history-song {
+.history-row-number {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
   min-width: 0;
 }
 
-/* Artwork fills card width and remains square */
+.history-track-number {
+  display: inline-block;
+  width: 23px;
+  flex: 0 0 23px;
 
-.history-cover {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid rgba(160, 183, 222, 0.14);
-  border-radius: 11px;
-  background: #17243b;
+  color: var(--history-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
-.history-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 220ms ease;
-}
-
-.history-row:hover .history-cover img {
-  transform: scale(1.04);
-}
-
-/* Cover play overlay */
-
-.history-cover::after {
-  position: absolute;
-  inset: 0;
-  background: rgba(3, 8, 18, 0.3);
-  content: "";
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 180ms ease;
-}
-
-.history-row:hover .history-cover::after {
-  opacity: 1;
-}
-
-.history-cover button {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  display: flex;
+.history-row-play {
+  display: inline-flex;
+  flex: 0 0 34px;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+
+  width: 34px;
+  height: 34px;
   padding: 0;
-  border: 0;
-  color: #fff;
-  background: transparent;
-  opacity: 0;
+
+  color: var(--history-text-secondary);
+  background: rgba(166, 186, 220, 0.07);
+  border: 1px solid transparent;
+  border-radius: 50%;
+
   cursor: pointer;
-  transition: opacity 180ms ease;
+
+  opacity: 0;
+  transition:
+    opacity 160ms ease,
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
 }
 
-.history-cover:hover button,
-.history-cover:focus-within button,
-.history-cover button.is-playing {
+.history-row:hover .history-row-play,
+.history-row:focus-within .history-row-play,
+.history-row.is-current-song .history-row-play {
   opacity: 1;
 }
 
-.history-cover button svg {
-  font-size: 24px;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
+.history-row-play svg {
+  font-size: 11px;
+}
+
+.history-row-play:hover {
+  color: #ffffff;
+  background: var(--history-blue);
+  border-color: rgba(57, 120, 246, 0.5);
+  transform: scale(1.05);
+}
+
+.history-row.is-current-song .history-row-play {
+  color: var(--history-gold);
+  background: rgba(232, 201, 138, 0.12);
+  border-color: rgba(232, 201, 138, 0.2);
 }
 
 /* =========================================================
-   SONG NAME — KEEP VISIBLE
+   13. SONG COVER + DETAILS
 ========================================================= */
 
 .history-song-info {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 15px;
+
   width: 100%;
   min-width: 0;
-  padding-right: 2px;
+  padding: 0;
+
+  color: inherit;
+  text-align: left;
+
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+
+  cursor: pointer;
 }
 
-.history-song-info strong {
-  display: -webkit-box;
-  width: 100%;
-  max-height: 3em;
+.history-cover {
+  display: block;
+  flex: 0 0 56px;
+
+  width: 56px;
+  height: 56px;
+
+  object-fit: cover;
+  background: var(--history-surface-soft);
+  border: 1px solid rgba(166, 186, 220, 0.1);
+  border-radius: 10px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.history-row:hover .history-cover {
+  border-color: rgba(57, 120, 246, 0.35);
+  transform: scale(1.025);
+}
+
+.history-song-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-song-text h3 {
   overflow: hidden;
-  color: #eef3ff;
-  font-size: 12px;
-  font-weight: 750;
+  margin: 0 0 7px;
+
+  color: var(--history-text);
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.5;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  transition: color 180ms ease;
 }
 
-.history-row.is-current .history-song-info strong {
-  color: var(--history-blue-light);
+.history-song-info:hover .history-song-text h3 {
+  color: var(--history-gold);
 }
 
-/* English title */
-
-.history-song-info > span {
-  display: block;
-  width: 100%;
+.history-song-text p {
   overflow: hidden;
-  color: #a4b5d0;
-  font-size: 10px;
-  line-height: 1.4;
+  margin: 0;
+
+  color: var(--history-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Artist */
-
-.history-song-info small {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  color: #8295b3;
-  font-size: 10px;
-  line-height: 1.4;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.history-row.is-current-song .history-song-text h3 {
+  color: var(--history-gold);
 }
 
 /* =========================================================
-   LAST PLAYED
+   14. ALBUM COLUMN
+========================================================= */
+
+.history-album {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.history-album span {
+  display: block;
+  overflow: hidden;
+
+  color: var(--history-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  transition: color 180ms ease;
+}
+
+.history-row:hover .history-album span {
+  color: var(--history-text);
+}
+
+/* =========================================================
+   15. LAST PLAYED COLUMN
 ========================================================= */
 
 .history-date {
   display: flex;
   align-items: center;
-  gap: 6px;
-  width: 100%;
+  gap: 9px;
+
   min-width: 0;
-  margin-top: auto;
-  padding: 5px 34px 0 0;
-  color: var(--history-muted);
-  font-size: 9px;
-  line-height: 1.5;
+
+  color: var(--history-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
-.history-date > svg {
-  flex: 0 0 auto;
-  color: #8298bb;
-  font-size: 10px;
-}
-
-.history-date > span {
+.history-date span {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-/* =========================================================
-   PLAY BUTTON
-========================================================= */
-
-.history-play-button {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid rgba(145, 184, 255, 0.25);
-  border-radius: 50%;
-  color: #e4edff;
-  background: rgba(77, 133, 255, 0.18);
-  font-size: 11px;
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    background 180ms ease,
-    border-color 180ms ease;
-}
-
-.history-play-button:hover:not(:disabled) {
-  transform: scale(1.07);
-  border-color: var(--history-blue);
-  background: var(--history-blue);
-}
-
-.history-play-button.is-playing {
-  border-color: var(--history-blue-light);
-  color: white;
-  background: #2d5fbd;
-}
-
-.history-play-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.history-empty {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 300px;
-  margin-top: 26px;
-  padding: 30px 20px;
-  border: 1px dashed rgba(145, 184, 255, 0.22);
-  border-radius: 20px;
-  text-align: center;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(61, 105, 198, 0.11), transparent 60%),
-    rgba(16, 26, 45, 0.4);
-}
-
-.history-empty > svg {
-  width: 72px;
-  height: 72px;
-  margin-bottom: 20px;
-  padding: 20px;
-  border: 1px solid rgba(145, 184, 255, 0.22);
-  border-radius: 21px;
-  color: var(--history-blue-light);
-  background: linear-gradient(145deg, #203b68, #101a2d);
-  font-size: 28px;
-}
-
-.history-empty h2 {
-  margin: 0;
-  color: var(--history-text);
-  font-size: 21px;
-  font-weight: 800;
-}
-
-.history-empty p {
-  max-width: 380px;
-  margin: 11px 0 0;
-  color: var(--history-muted);
+.history-date-icon {
+  flex: 0 0 auto;
+  color: var(--history-gold);
   font-size: 12px;
-  line-height: 1.8;
+  opacity: 0.8;
 }
 
 /* =========================================================
-   LOADING STATE
-========================================================= */
-
-.history-loading {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 60vh;
-  padding: 30px 20px;
-  text-align: center;
-}
-
-.history-loading > svg {
-  color: var(--history-blue-light);
-  font-size: 36px;
-  animation: history-pulse 1.5s ease-in-out infinite;
-}
-
-.history-loading h2 {
-  margin: 18px 0 0;
-  color: var(--history-text);
-  font-size: 21px;
-}
-
-.history-loading p {
-  margin-top: 9px;
-  color: var(--history-muted);
-  font-size: 12px;
-  line-height: 1.7;
-}
-
-@keyframes history-pulse {
-  0%, 100% {
-    opacity: 0.55;
-    transform: scale(0.96);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.04);
-  }
-}
-
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-.history-page button:focus-visible {
-  outline: 2px solid var(--history-blue-light);
-  outline-offset: 3px;
-}
-
-/* =========================================================
-   TABLET
+   16. TABLET RESPONSIVENESS
 ========================================================= */
 
 @media (max-width: 1100px) {
   .history-page {
-    padding: 26px 24px 115px;
+    padding: 28px 24px;
   }
 
-  .history-header {
-    padding: 27px;
+  .history-table-header,
+  .history-row {
+    grid-template-columns:
+      58px
+      minmax(190px, 1.7fr)
+      minmax(100px, 0.8fr)
+      minmax(125px, 0.9fr);
+
+    column-gap: 12px;
   }
 
-  .history-header-icon {
-    width: 66px;
-    height: 66px;
-    flex-basis: 66px;
-    font-size: 25px;
-  }
-
-  .history-list {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 210px));
-    gap: 16px;
+  .history-table-header {
+    padding-right: 12px;
+    padding-left: 12px;
+    font-size: 10px;
   }
 
   .history-row {
-    padding: 12px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .history-row-number {
+    gap: 7px;
+  }
+
+  .history-track-number {
+    width: 20px;
+    flex-basis: 20px;
+  }
+
+  .history-song-info {
+    gap: 11px;
+  }
+
+  .history-cover {
+    width: 49px;
+    height: 49px;
+    flex-basis: 49px;
   }
 }
 
 /* =========================================================
-   MOBILE
+   17. COMPACT TABLET / LARGE MOBILE
 ========================================================= */
 
 @media (max-width: 760px) {
   .history-page {
-    padding: 18px 14px 110px;
+    padding: 23px 18px;
   }
 
   .history-header {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 20px;
-    min-height: auto;
-    padding: 23px 19px;
-    border-radius: 19px;
+    gap: 15px;
+    margin-bottom: 23px;
   }
 
-  .history-header-main {
-    align-items: flex-start;
+  .history-heading {
     gap: 14px;
   }
 
-  .history-header-icon {
-    width: 51px;
-    height: 51px;
-    flex-basis: 51px;
-    border-radius: 15px;
+  .history-heading-icon {
+    width: 54px;
+    height: 54px;
+    flex-basis: 54px;
+    border-radius: 16px;
     font-size: 21px;
   }
 
+  .history-heading h1 {
+    font-size: 27px;
+    letter-spacing: -0.7px;
+  }
+
   .history-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .history-subtitle {
+    font-size: 12px;
+  }
+
+  .history-count {
+    gap: 7px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .history-toolbar {
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .history-toolbar-left {
+    gap: 11px;
+  }
+
+  .history-toolbar-caption {
+    flex-basis: 100%;
+  }
+
+  .history-search-controls {
+    padding: 15px;
+  }
+
+  .history-search-options {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .history-language-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .history-table-header {
+    display: none;
+  }
+
+  .history-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 8px;
+
+    padding: 13px;
+    border-color: rgba(166, 186, 220, 0.07);
+    background: rgba(16, 24, 42, 0.48);
+  }
+
+  .history-row-number {
+    grid-row: 1;
+    grid-column: 1;
+    align-self: center;
+    justify-content: center;
+  }
+
+  .history-track-number {
+    display: none;
+  }
+
+  .history-row-play {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+    opacity: 1;
+  }
+
+  .history-song-info {
+    grid-row: 1;
+    grid-column: 2;
+    gap: 13px;
+  }
+
+  .history-cover {
+    width: 55px;
+    height: 55px;
+    flex-basis: 55px;
+  }
+
+  .history-song-text h3 {
+    font-size: 13px;
+  }
+
+  .history-song-text p {
+    font-size: 11px;
+  }
+
+  .history-album {
+    grid-row: 2;
+    grid-column: 2;
+    padding-left: 68px;
+  }
+
+  .history-album::before {
+    content: "Album: ";
+    color: var(--history-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .history-album span {
+    display: inline;
+    font-size: 11px;
+  }
+
+  .history-date {
+    grid-row: 3;
+    grid-column: 2;
+    padding-left: 68px;
+    font-size: 10px;
+  }
+
+  .history-list-heading h2 {
+    font-size: 17px;
+  }
+
+  .history-row:hover {
+    background: rgba(20, 31, 52, 0.82);
+  }
+}
+
+/* =========================================================
+   18. MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .history-page {
+    padding: 18px 12px;
+  }
+
+  .history-header {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .history-heading {
+    gap: 12px;
+    flex: 1 1 100%;
+  }
+
+  .history-heading-icon {
+    width: 47px;
+    height: 47px;
+    flex-basis: 47px;
+    border-radius: 14px;
+    font-size: 19px;
+  }
+
+  .history-heading h1 {
+    font-size: 24px;
+  }
+
+  .history-eyebrow {
+    margin-bottom: 5px;
     font-size: 9px;
-    letter-spacing: 1.6px;
+    letter-spacing: 1.2px;
   }
 
-  .history-header-content h1 {
-    margin-top: 9px;
-    font-size: clamp(25px, 6vw, 33px);
-    letter-spacing: -0.6px;
+  .history-subtitle {
+    margin-top: 7px;
+    font-size: 11px;
   }
 
-  .history-header-content p {
-    margin-top: 8px;
+  .history-count {
+    margin-left: 59px;
+  }
+
+  .history-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 13px;
+    padding: 13px;
+    border-radius: 15px;
+  }
+
+  .history-toolbar-left {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .history-play-all {
+    min-height: 42px;
+    padding: 0 15px;
+  }
+
+  .history-toolbar-caption {
     font-size: 11px;
   }
 
   .history-clear-button {
-    min-height: 38px;
-    font-size: 10px;
-  }
-
-  .history-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .history-row {
-    gap: 9px;
-    padding: 10px;
-    border-radius: 14px;
-  }
-
-  .history-song {
-    gap: 8px;
-  }
-
-  .history-song-info strong {
+    align-self: flex-end;
+    min-height: 39px;
+    padding: 0 13px;
     font-size: 11px;
-    line-height: 1.45;
   }
 
-  .history-song-info > span,
-  .history-song-info small {
-    font-size: 9px;
+  .history-search-controls {
+    padding: 12px;
+    border-radius: 15px;
   }
 
-  .history-date {
+  .history-search .voice-search-bar {
+    min-height: 47px;
     gap: 5px;
-    padding-right: 0;
-    font-size: 8px;
+    padding: 5px 8px;
   }
 
-  .history-play-button {
-    right: 7px;
-    bottom: 7px;
-    width: 28px;
-    height: 28px;
+  .history-search .voice-search-bar input,
+  .history-search .voice-search-bar input[type="text"] {
+    font-size: 12px;
+  }
+
+  .history-search .voice-search-bar button {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 6px;
+  }
+
+  .history-search .history-search-clear {
+    right: 8px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .history-search:has(.history-search-clear) .voice-search-bar {
+    padding-right: 39px;
+  }
+
+  .history-search-hint {
     font-size: 10px;
   }
 
-  .history-cover button {
-    opacity: 1;
-    background: rgba(3, 8, 18, 0.12);
+  .history-language-controls {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
   }
 
-  .history-cover button svg {
-    font-size: 19px;
+  .history-language-label {
+    font-size: 11px;
+  }
+
+  .history-language-select {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .history-error {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 13px;
+    font-size: 12px;
+  }
+
+  .history-status {
+    min-height: 220px;
   }
 
   .history-empty {
-    min-height: 270px;
-    margin-top: 20px;
-    padding: 26px 16px;
-  }
-}
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 380px) {
-  .history-page {
-    padding-right: 10px;
-    padding-left: 10px;
+    min-height: 260px;
+    padding: 30px 18px;
   }
 
-  .history-header {
-    padding: 19px 14px;
-  }
-
-  .history-header-main {
-    gap: 10px;
-  }
-
-  .history-header-icon {
-    width: 43px;
-    height: 43px;
-    flex-basis: 43px;
-    font-size: 18px;
-  }
-
-  .history-header-content h1 {
+  .history-empty-icon {
+    width: 62px;
+    height: 62px;
+    margin-bottom: 18px;
+    border-radius: 18px;
     font-size: 23px;
   }
 
-  .history-list {
-    gap: 9px;
+  .history-empty h2 {
+    font-size: 18px;
+  }
+
+  .history-empty > p {
+    font-size: 12px;
+  }
+
+  .history-list-heading h2 {
+    font-size: 16px;
+  }
+
+  .history-list-heading > span {
+    font-size: 10px;
   }
 
   .history-row {
-    padding: 8px;
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 9px;
+    padding: 11px 9px;
+    border-radius: 11px;
   }
 
+  .history-row-play {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .history-song-info {
+    gap: 10px;
+  }
+
+  .history-cover {
+    width: 47px;
+    height: 47px;
+    flex-basis: 47px;
+    border-radius: 8px;
+  }
+
+  .history-song-text h3 {
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+
+  .history-song-text p {
+    font-size: 10px;
+  }
+
+  .history-album,
   .history-date {
-    font-size: 7px;
+    padding-left: 57px;
+  }
+
+  .history-album span,
+  .history-date {
+    font-size: 10px;
   }
 }
 
 /* =========================================================
-   REDUCED MOTION
+   19. REDUCED MOTION ACCESSIBILITY
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .history-page *,
   .history-page *::before,
   .history-page *::after {
+    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
 /* =========================================================
-   HISTORY — LARGER SQUARE CARDS
+   END — KEERTHANA LISTENING HISTORY
 ========================================================= */
-
-.history-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 22px;
-  margin-top: 28px;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.history-list-header {
-  display: none;
-}
-
-.history-row {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  min-width: 0;
-  min-height: 0;
-  padding: 16px;
-  overflow: hidden;
-  border: 1px solid var(--history-border);
-  border-radius: 18px;
-  background: linear-gradient(145deg, #14213a, #0e1729);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-  transition: transform 180ms ease, border-color 180ms ease;
-}
-
-.history-row:hover {
-  transform: translateY(-3px);
-  border-color: rgba(77, 133, 255, 0.48);
-}
-
-.history-row.is-current,
-.history-row.is-playing {
-  border-color: rgba(77, 133, 255, 0.65);
-  background: linear-gradient(145deg, #192d4c, #101a2d);
-}
-
-.history-number,
-.history-album {
-  display: none;
-}
-
-/* Artwork */
-.history-song {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  width: 100%;
-  min-width: 0;
-}
-
-.history-cover {
-  position: relative;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid var(--history-border);
-  border-radius: 12px;
-  background: #17243b;
-}
-
-.history-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Song title — allow two visible lines */
-.history-song-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-  min-width: 0;
-}
-
-.history-song-info strong {
-  display: block;
-  width: 100%;
-  max-height: none;
-  overflow: visible;
-  color: #f5f7ff;
-  font-size: 14px;
-  font-weight: 750;
-  line-height: 1.6;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  text-overflow: clip;
-}
-
-.history-row.is-current .history-song-info strong {
-  color: var(--history-blue-light);
-}
-
-.history-song-info > span {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  color: #a4b5d0;
-  font-size: 11px;
-  line-height: 1.5;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.history-song-info small {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  color: #91a3bf;
-  font-size: 11px;
-  line-height: 1.5;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Last played */
-.history-date {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  min-width: 0;
-  margin-top: auto;
-  padding: 8px 42px 0 0;
-  color: var(--history-muted);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.history-date > svg {
-  flex: 0 0 auto;
-  color: #91a8cc;
-  font-size: 11px;
-}
-
-.history-date > span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-/* Play button */
-.history-play-button {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid rgba(145, 184, 255, 0.28);
-  border-radius: 50%;
-  color: #fff;
-  background: #234b91;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.history-play-button:hover:not(:disabled) {
-  background: var(--history-blue);
-}
-
-.history-play-button.is-playing {
-  background: var(--history-blue);
-}
-
-.history-play-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Tablet: two or three larger cards per row */
-@media (max-width: 900px) {
-  .history-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .history-row {
-    padding: 13px;
-  }
-
-  .history-song-info strong {
-    font-size: 13px;
-  }
-}
-
-/* Mobile: two cards per row */
-@media (max-width: 560px) {
-  .history-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .history-row {
-    gap: 9px;
-    padding: 10px;
-    border-radius: 14px;
-  }
-
-  .history-song {
-    gap: 9px;
-  }
-
-  .history-song-info strong {
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .history-song-info > span,
-  .history-song-info small {
-    font-size: 10px;
-  }
-
-  .history-date {
-    padding-right: 0;
-    font-size: 9px;
-  }
-
-  .history-play-button {
-    right: 7px;
-    bottom: 7px;
-    width: 31px;
-    height: 31px;
-  }
-}
-
-/* Very narrow phones: one larger card per row */
-@media (max-width: 360px) {
-  .history-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .history-row {
-    aspect-ratio: auto;
-    min-height: 0;
-  }
-
-  .history-cover {
-    max-height: 280px;
-  }
-}
-
-/* =========================================================
-   FIX: SHOW SONG NAME BELOW SQUARE COVER
-========================================================= */
-
-.history-row {
-  aspect-ratio: auto !important;
-  min-height: 0;
-  height: auto;
-  overflow: visible;
-  padding: 12px;
-  gap: 10px;
-}
-
-/* Square cover, smaller to leave room for song details */
-.history-cover {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  flex: 0 0 auto;
-  overflow: hidden;
-}
-
-/* Keep image square */
-.history-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Always display the song information */
-.history-song-info {
-  display: flex !important;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-  min-width: 0;
-  overflow: visible;
-  padding-bottom: 4px;
-}
-
-.history-song-info strong {
-  display: -webkit-box !important;
-  width: 100%;
-  max-height: none;
-  overflow: visible;
-  color: #f5f7ff;
-  font-size: 14px;
-  line-height: 1.55;
-  font-weight: 750;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  text-overflow: clip;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-.history-song-info > span,
-.history-song-info small {
-  display: block !important;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Keep last-played details visible */
-.history-date {
-  position: relative;
-  margin-top: 4px;
-  padding: 0 40px 4px 0;
-  font-size: 10px;
-}
-
-/* Play button stays inside the card */
-.history-play-button {
-  right: 10px;
-  bottom: 10px;
-  z-index: 3;
-}
-
-/* Consistent grid */
-.history-list {
-  grid-template-columns: repeat(auto-fill, minmax(220px, 260px));
-  align-items: start;
-  gap: 20px;
-}
-
-/* Mobile */
-@media (max-width: 560px) {
-  .history-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .history-row {
-    padding: 10px;
-  }
-
-  .history-song-info strong {
-    font-size: 12px;
-    line-height: 1.5;
-  }
-}
-
-/* =========================================================
-   KEERTHANA — PREMIUM LISTENING HISTORY TYPOGRAPHY
-   Matches Statistics + Notifications
-========================================================= */
-
-
-
-/* Main page */
-.history-page {
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-/* Main heading */
-.history-header-content h1 {
-  font-family: 'Outfit', sans-serif;
-  font-size: clamp(29px, 3vw, 42px);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.8px;
-  color: #f4f7ff;
-}
-
-/* Small uppercase label */
-.history-eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  line-height: 1.5;
-  color: #8eb5ff;
-}
-
-/* Header description */
-.history-header-content p {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.7;
-  color: #a9c5ef;
-}
-
-/* Clear history button */
-.history-clear-button {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1px;
-}
-
-/* Song title */
-.history-song-info strong {
-  font-family: 'Outfit', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -0.15px;
-  color: #f4f7ff;
-}
-
-/* Currently playing song */
-.history-row.is-current .history-song-info strong,
-.history-row.is-playing .history-song-info strong {
-  color: #91b8ff;
-}
-
-/* English song title */
-.history-song-info > span {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #b5c8e8;
-}
-
-/* Artist name */
-.history-song-info small {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: #91a6c8;
-}
-
-/* Last played time */
-.history-date {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 1.6;
-  color: #a9c5ef;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Play button */
-.history-play-button {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-}
-
-/* Error message */
-.history-error {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.7;
-}
-
-/* Empty state heading */
-.history-empty h2 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 23px;
-  font-weight: 600;
-  letter-spacing: -0.3px;
-  color: #f4f7ff;
-}
-
-/* Empty state description */
-.history-empty p {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.8;
-  color: #a9c5ef;
-}
-
-/* Loading state */
-.history-loading h2 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: #f4f7ff;
-}
-
-.history-loading p {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #a9c5ef;
-}
-
-/* Mobile typography */
-@media (max-width: 760px) {
-  .history-header-content h1 {
-    font-size: clamp(25px, 6vw, 33px);
-  }
-
-  .history-song-info strong {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 560px) {
-  .history-song-info strong {
-    font-size: 12px;
-    line-height: 1.55;
-  }
-
-  .history-song-info > span,
-  .history-song-info small {
-    font-size: 10px;
-  }
-}

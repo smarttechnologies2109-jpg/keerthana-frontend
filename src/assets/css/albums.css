@@ -1,31 +1,62 @@
 
 /* =========================================================
-   KEERTHANA — PREMIUM ALBUMS PAGE
-   Midnight Navy + Royal Blue + Champagne Gold
+   KEERTHANA MUSIC — PREMIUM ALBUMS PAGE
+   Midnight Navy • Royal Blue • Champagne Gold
+   Professional typography • Responsive design
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
+
+/* =========================================================
+   PAGE FOUNDATION
+========================================================= */
 
 .albums-page {
   --album-bg: #080d19;
   --album-surface: #101a2c;
   --album-card: #121f35;
   --album-hover: #192c49;
+
   --album-text: #f4f6ff;
   --album-muted: #a0aec6;
+  --album-muted-light: #c2cce0;
+
   --album-blue: #4d85ff;
   --album-blue-light: #9bbcff;
   --album-gold: #e8ca91;
+
   --album-border: rgba(164, 187, 226, 0.14);
+  --album-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
 
   width: 100%;
   min-height: 100vh;
+  min-width: 0;
   box-sizing: border-box;
-  padding: 32px clamp(18px, 3vw, 44px) 145px;
+
+  padding: 26px clamp(16px, 3vw, 38px) 140px;
+
   color: var(--album-text);
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
   background:
-    radial-gradient(ellipse at 90% 0%, rgba(65, 112, 210, 0.12), transparent 32%),
-    radial-gradient(ellipse at 5% 60%, rgba(232, 202, 145, 0.035), transparent 30%),
+    radial-gradient(
+      ellipse at 90% 0%,
+      rgba(65, 112, 210, 0.12),
+      transparent 32%
+    ),
+    radial-gradient(
+      ellipse at 5% 60%,
+      rgba(232, 202, 145, 0.035),
+      transparent 30%
+    ),
     var(--album-bg);
 }
 
@@ -35,40 +66,74 @@
   box-sizing: border-box;
 }
 
+.albums-page h1,
+.albums-page h2,
+.albums-page h3,
+.albums-page p,
+.albums-page span {
+  overflow-wrap: anywhere;
+}
+
+.albums-page button {
+  font: inherit;
+}
+
 /* =========================================================
-   HEADER
+   COMPACT ALBUMS HEADER
+   Matches the Artists page
 ========================================================= */
 
 .albums-header {
   position: relative;
   isolation: isolate;
+
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  min-height: 215px;
-  margin-bottom: 34px;
-  padding: clamp(27px, 4vw, 42px);
+  align-items: flex-start;
+  justify-content: center;
+
+  min-height: 140px;
+  margin: 0 0 24px;
+  padding: 22px 28px;
+
   overflow: hidden;
+
   border: 1px solid var(--album-border);
-  border-radius: 24px;
+  border-radius: 18px;
+
   background:
-    radial-gradient(circle at 85% 15%, rgba(77, 133, 255, 0.2), transparent 36%),
-    linear-gradient(125deg, #172743 0%, #101a2c 55%, #172b49 100%);
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.24);
+    radial-gradient(
+      circle at 85% 25%,
+      rgba(77, 133, 255, 0.16),
+      transparent 32%
+    ),
+    linear-gradient(
+      120deg,
+      #101a2e 0%,
+      #14223c 55%,
+      #192e50 100%
+    );
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
 }
 
 .albums-header::before {
   position: absolute;
   z-index: -1;
-  top: -230px;
+
+  top: -120px;
   right: 8%;
-  width: 390px;
-  height: 390px;
+
+  width: 250px;
+  height: 250px;
+
   border: 1px solid rgba(232, 202, 145, 0.12);
   border-radius: 50%;
+
   box-shadow:
-    0 0 0 30px rgba(232, 202, 145, 0.025),
-    0 0 0 65px rgba(232, 202, 145, 0.015);
+    0 0 0 20px rgba(232, 202, 145, 0.025),
+    0 0 0 42px rgba(145, 184, 255, 0.025);
+
   content: "";
   pointer-events: none;
 }
@@ -76,50 +141,136 @@
 .albums-header::after {
   position: absolute;
   z-index: -1;
-  right: -100px;
-  bottom: -180px;
-  width: 300px;
-  height: 300px;
+
+  right: -55px;
+  bottom: -120px;
+
+  width: 200px;
+  height: 200px;
+
   border-radius: 50%;
-  background: rgba(77, 133, 255, 0.12);
-  filter: blur(45px);
+  background: rgba(77, 133, 255, 0.1);
+  filter: blur(35px);
+
   content: "";
   pointer-events: none;
 }
 
+/* Brand label */
+
 .albums-header > p {
   position: relative;
   z-index: 1;
-  margin: 0 0 10px;
+
+  margin: 0 0 7px;
+
   color: var(--album-blue-light);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
+  line-height: 1.5;
   text-transform: uppercase;
 }
+
+/* Main heading */
 
 .albums-header h1 {
   position: relative;
   z-index: 1;
+
   margin: 0;
+
   color: #fffaf0;
-  font-family: "Noto Sans Telugu", "Noto Serif Telugu", system-ui, sans-serif;
-  font-size: clamp(38px, 5vw, 62px);
+
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: clamp(28px, 3.2vw, 38px);
   font-weight: 800;
   line-height: 1.15;
-  letter-spacing: -1px;
-  overflow-wrap: anywhere;
+  letter-spacing: -0.5px;
 }
+
+/* Subtitle */
 
 .albums-header > span {
   position: relative;
   z-index: 1;
+
   display: block;
-  max-width: 560px;
-  margin-top: 13px;
+  max-width: 450px;
+  margin-top: 7px;
+
   color: #a4b3ce;
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.albums-section {
+  width: 100%;
+  min-width: 0;
+}
+
+.albums-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+
+  margin: 0 0 20px;
+}
+
+.albums-section-heading > div {
+  min-width: 0;
+}
+
+.albums-section-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+
+  color: var(--album-blue-light);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  line-height: 1.5;
+}
+
+.albums-section-heading h2 {
+  margin: 0;
+
+  color: var(--album-text);
+  font-size: clamp(19px, 2vw, 24px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.45px;
+}
+
+.albums-total {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  min-height: 29px;
+  padding: 6px 11px;
+
+  border: 1px solid rgba(232, 202, 145, 0.2);
+  border-radius: 20px;
+
+  color: var(--album-gold);
+  background: rgba(232, 202, 145, 0.06);
+
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 /* =========================================================
@@ -127,14 +278,78 @@
 ========================================================= */
 
 .albums-error {
-  margin-bottom: 22px;
-  padding: 14px 17px;
-  border: 1px solid rgba(255, 135, 148, 0.2);
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 0 0 22px;
+  padding: 14px 16px;
+
+  border: 1px solid rgba(255, 135, 148, 0.22);
+  border-radius: 13px;
+
   color: #ffb3bb;
   background: rgba(150, 39, 57, 0.12);
-  font-size: 13px;
+
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1.7;
+}
+
+.albums-error > svg {
+  flex-shrink: 0;
+  font-size: 17px;
+}
+
+.albums-error > span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* =========================================================
+   RETRY / REFRESH BUTTON
+========================================================= */
+
+.albums-retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  min-height: 37px;
+  padding: 9px 13px;
+
+  border: 1px solid rgba(155, 188, 255, 0.25);
+  border-radius: 9px;
+
+  color: #dce7ff;
+  background: rgba(77, 133, 255, 0.12);
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.3;
+
+  cursor: pointer;
+
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.albums-retry:hover {
+  border-color: rgba(155, 188, 255, 0.5);
+  background: rgba(77, 133, 255, 0.22);
+}
+
+.albums-retry:active {
+  transform: scale(0.97);
+}
+
+.albums-retry:focus-visible {
+  outline: 2px solid var(--album-blue-light);
+  outline-offset: 3px;
 }
 
 /* =========================================================
@@ -143,10 +358,12 @@
 
 .albums-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 22px;
-  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
   align-items: stretch;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
 }
 
 /* =========================================================
@@ -155,18 +372,32 @@
 
 .album-card {
   position: relative;
+
   display: flex;
   flex-direction: column;
+
   min-width: 0;
-  padding: 12px;
+  padding: 11px;
+
   overflow: hidden;
+
   border: 1px solid var(--album-border);
-  border-radius: 18px;
+  border-radius: 17px;
+
   color: inherit;
-  background: linear-gradient(155deg, #14223a, #101a2c 62%, #0b1424);
+  background:
+    linear-gradient(
+      155deg,
+      #14223a,
+      #101a2c 62%,
+      #0b1424
+    );
+
   text-align: left;
   cursor: pointer;
+
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+
   transition:
     transform 220ms ease,
     border-color 220ms ease,
@@ -176,90 +407,196 @@
 
 .album-card::before {
   position: absolute;
+  z-index: 0;
+
   top: -65px;
   right: -65px;
+
   width: 150px;
   height: 150px;
+
   border-radius: 50%;
   background: rgba(77, 133, 255, 0.06);
+
   content: "";
   pointer-events: none;
 }
 
 .album-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(77, 133, 255, 0.45);
-  background: linear-gradient(155deg, #1a2d4b, #111e33 65%, #0e192b);
-  box-shadow: 0 19px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+
+  border-color: rgba(77, 133, 255, 0.42);
+
+  background:
+    linear-gradient(
+      155deg,
+      #1a2d4b,
+      #111e33 65%,
+      #0e192b
+    );
+
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
 }
 
 .album-card:focus-visible {
   outline: 2px solid var(--album-blue-light);
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
 
 /* =========================================================
-   SQUARE COVER ART
+   ALBUM COVER
 ========================================================= */
 
 .album-card-cover {
   position: relative;
   z-index: 1;
+
   width: 100%;
   aspect-ratio: 1 / 1;
   flex: 0 0 auto;
+
   overflow: hidden;
+
   border: 1px solid rgba(164, 187, 226, 0.15);
   border-radius: 12px;
-  background: linear-gradient(145deg, #20375a, #101a2c);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+
+  background:
+    linear-gradient(
+      145deg,
+      #20375a,
+      #101a2c
+    );
+
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.23);
 }
 
 .album-card-cover img {
   display: block;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
-  transition: transform 350ms ease, filter 350ms ease;
+  object-position: center;
+
+  transition:
+    transform 350ms ease,
+    filter 350ms ease;
 }
 
 .album-card:hover .album-card-cover img {
   transform: scale(1.055);
-  filter: brightness(1.06);
+  filter: brightness(1.07);
 }
+
+/* Subtle bottom shading */
 
 .album-card-cover::after {
   position: absolute;
+  z-index: 1;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 55%,
-    rgba(3, 8, 18, 0.25)
-  );
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 55%,
+      rgba(3, 8, 18, 0.27)
+    );
+
   content: "";
   pointer-events: none;
 }
 
 /* =========================================================
-   COVER PLACEHOLDER
+   COVER HOVER OVERLAY
+========================================================= */
+
+.album-cover-overlay {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(4, 10, 22, 0.32);
+  opacity: 0;
+
+  transition: opacity 220ms ease;
+
+  pointer-events: none;
+}
+
+.album-card:hover .album-cover-overlay,
+.album-card:focus-visible .album-cover-overlay {
+  opacity: 1;
+}
+
+.album-cover-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 48px;
+  height: 48px;
+
+  border: 1px solid rgba(232, 202, 145, 0.48);
+  border-radius: 50%;
+
+  color: var(--album-gold);
+  background: rgba(10, 19, 36, 0.88);
+
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.32);
+
+  transform: translateY(5px) scale(0.92);
+
+  transition: transform 220ms ease;
+}
+
+.album-card:hover .album-cover-play,
+.album-card:focus-visible .album-cover-play {
+  transform: translateY(0) scale(1);
+}
+
+.album-cover-play svg {
+  font-size: 19px;
+}
+
+/* =========================================================
+   ALBUM PLACEHOLDER
+   Available for optional placeholder markup
 ========================================================= */
 
 .album-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 100%;
   height: 100%;
+
   color: var(--album-gold);
+
   background:
-    radial-gradient(circle at 50% 35%, rgba(77, 133, 255, 0.2), transparent 55%),
-    linear-gradient(145deg, #20375a, #101a2c);
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(77, 133, 255, 0.2),
+      transparent 55%
+    ),
+    linear-gradient(
+      145deg,
+      #20375a,
+      #101a2c
+    );
 }
 
 .album-placeholder svg {
   font-size: clamp(38px, 4vw, 55px);
   opacity: 0.85;
+
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+
   transition: transform 250ms ease;
 }
 
@@ -274,28 +611,46 @@
 .album-card-info {
   position: relative;
   z-index: 1;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+
+  flex: 1;
   min-width: 0;
-  padding: 15px 4px 5px;
+
+  padding: 13px 4px 5px;
 }
+
+/* Album title */
 
 .album-card-info h3 {
   display: -webkit-box;
+
   width: 100%;
   min-height: 3em;
   margin: 0;
+
   overflow: hidden;
+
   color: #f2f5ff;
-  font-family: "Noto Sans Telugu", "Noto Serif Telugu", system-ui, sans-serif;
-  font-size: 14px;
-  font-weight: 750;
+
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    sans-serif;
+
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.5;
+  letter-spacing: 0;
+
   overflow-wrap: anywhere;
   white-space: normal;
+
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+
   transition: color 180ms ease;
 }
 
@@ -303,31 +658,52 @@
   color: #ffffff;
 }
 
+/* Artist name */
+
 .album-card-info p {
   width: 100%;
   margin: 7px 0 0;
+
   overflow: hidden;
+
   color: var(--album-muted);
-  font-size: 12px;
+
+  font-size: 11px;
+  font-weight: 400;
   line-height: 1.5;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.album-card-info span {
+/* Song count badge */
+
+.album-card-info .album-song-count {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+
   width: fit-content;
   max-width: 100%;
-  margin-top: 12px;
+
+  margin-top: 11px;
   padding: 5px 9px;
+
   border: 1px solid rgba(232, 202, 145, 0.17);
   border-radius: 20px;
+
   color: var(--album-gold);
   background: rgba(232, 202, 145, 0.07);
+
   font-size: 10px;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.4;
+  letter-spacing: 0.1px;
+}
+
+.album-song-count svg {
+  flex-shrink: 0;
+  font-size: 10px;
 }
 
 /* =========================================================
@@ -339,54 +715,123 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 360px;
+
+  min-height: 300px;
   margin-bottom: 20px;
-  padding: 40px 24px;
+  padding: 38px 24px;
+
   border: 1px solid var(--album-border);
-  border-radius: 22px;
-  background: linear-gradient(145deg, #121f35, #0c1526);
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(77, 133, 255, 0.09),
+      transparent 45%
+    ),
+    linear-gradient(
+      145deg,
+      #121f35,
+      #0c1526
+    );
+
   text-align: center;
+
   box-shadow: 0 15px 42px rgba(0, 0, 0, 0.16);
 }
 
-.albums-empty > svg {
-  width: 74px;
-  height: 74px;
-  box-sizing: border-box;
-  margin-bottom: 22px;
-  padding: 20px;
+.albums-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 66px;
+  height: 66px;
+  margin-bottom: 19px;
+
   border: 1px solid rgba(232, 202, 145, 0.2);
-  border-radius: 22px;
+  border-radius: 19px;
+
   color: var(--album-gold);
   background: rgba(232, 202, 145, 0.06);
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.albums-empty-icon svg {
+  font-size: 28px;
 }
 
 .albums-empty h2 {
   margin: 0;
+
   color: var(--album-text);
-  font-size: 26px;
-  font-weight: 800;
+
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.4;
+  letter-spacing: -0.35px;
 }
 
 .albums-empty p {
   max-width: 420px;
   margin: 10px 0 0;
+
   color: var(--album-muted);
-  font-size: 13px;
-  line-height: 1.7;
+
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.albums-empty .albums-retry {
+  margin-top: 20px;
 }
 
 /* =========================================================
    LOADING STATE
 ========================================================= */
 
-.albums-page:not(:has(.albums-header)) {
+.albums-loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 14px;
+
+  min-height: 55vh;
+  width: 100%;
+
   color: var(--album-muted);
-  font-size: 13px;
+
+  font-size: 12px;
   font-weight: 600;
+}
+
+.albums-loading p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.albums-loading-spinner {
+  display: block;
+
+  width: 34px;
+  height: 34px;
+
+  border: 3px solid rgba(155, 188, 255, 0.14);
+  border-top-color: var(--album-blue-light);
+  border-right-color: var(--album-gold);
+
+  border-radius: 50%;
+
+  animation: albums-spin 850ms linear infinite;
+}
+
+@keyframes albums-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =========================================================
@@ -394,9 +839,22 @@
 ========================================================= */
 
 @media (min-width: 1450px) {
+  .albums-page {
+    padding-right: 44px;
+    padding-left: 44px;
+  }
+
   .albums-grid {
-    grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(200px, 1fr)
+    );
+
+    gap: 23px;
+  }
+
+  .album-card {
+    padding: 12px;
   }
 }
 
@@ -406,21 +864,39 @@
 
 @media (max-width: 900px) {
   .albums-page {
-    padding: 26px 20px 130px;
+    padding: 23px 20px 130px;
   }
 
   .albums-header {
-    min-height: 185px;
-    padding: 30px 26px;
+    min-height: 125px;
+    margin-bottom: 21px;
+    padding: 20px 24px;
+  }
+
+  .albums-header h1 {
+    font-size: 32px;
   }
 
   .albums-grid {
-    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-    gap: 17px;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(165px, 1fr)
+    );
+
+    gap: 16px;
   }
 
   .album-card {
-    padding: 10px;
+    padding: 9px;
+    border-radius: 15px;
+  }
+
+  .album-card-info {
+    padding-top: 11px;
+  }
+
+  .albums-section-heading {
+    margin-bottom: 17px;
   }
 }
 
@@ -430,23 +906,58 @@
 
 @media (max-width: 650px) {
   .albums-page {
-    padding: 16px 12px 150px;
+    padding: 16px 12px 145px;
   }
 
   .albums-header {
-    min-height: 165px;
-    margin-bottom: 25px;
-    padding: 24px 20px;
-    border-radius: 19px;
+    min-height: 108px;
+    margin-bottom: 19px;
+    padding: 17px 18px;
+    border-radius: 14px;
+  }
+
+  .albums-header::before {
+    top: -105px;
+    width: 190px;
+    height: 190px;
   }
 
   .albums-header h1 {
-    font-size: clamp(34px, 9vw, 43px);
+    font-size: 26px;
+    line-height: 1.2;
+  }
+
+  .albums-header > p {
+    margin-bottom: 5px;
+    font-size: 8px;
+    letter-spacing: 1.8px;
   }
 
   .albums-header > span {
-    margin-top: 9px;
-    font-size: 12px;
+    margin-top: 5px;
+    font-size: 10px;
+  }
+
+  .albums-section-heading {
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .albums-section-eyebrow {
+    margin-bottom: 5px;
+    font-size: 8px;
+    letter-spacing: 1.3px;
+  }
+
+  .albums-section-heading h2 {
+    font-size: 18px;
+  }
+
+  .albums-total {
+    min-height: 26px;
+    padding: 5px 8px;
+    font-size: 9px;
   }
 
   .albums-grid {
@@ -455,7 +966,7 @@
   }
 
   .album-card {
-    padding: 9px;
+    padding: 8px;
     border-radius: 14px;
   }
 
@@ -463,12 +974,23 @@
     border-radius: 10px;
   }
 
+  .album-cover-play {
+    width: 38px;
+    height: 38px;
+  }
+
+  .album-cover-play svg {
+    font-size: 15px;
+  }
+
   .album-card-info {
-    padding: 12px 3px 4px;
+    padding: 10px 2px 4px;
   }
 
   .album-card-info h3 {
-    font-size: 12px;
+    min-height: 3em;
+    font-size: 11px;
+    line-height: 1.5;
   }
 
   .album-card-info p {
@@ -476,19 +998,55 @@
     font-size: 10px;
   }
 
-  .album-card-info span {
-    margin-top: 9px;
+  .album-card-info .album-song-count {
+    gap: 5px;
+    margin-top: 8px;
     padding: 4px 7px;
     font-size: 9px;
   }
 
+  .album-song-count svg {
+    font-size: 9px;
+  }
+
+  .albums-error {
+    flex-wrap: wrap;
+    gap: 9px;
+    padding: 12px;
+    font-size: 11px;
+  }
+
+  .albums-error > span {
+    flex-basis: calc(100% - 30px);
+  }
+
+  .albums-error .albums-retry {
+    margin-left: auto;
+  }
+
   .albums-empty {
-    min-height: 300px;
-    padding: 30px 16px;
+    min-height: 260px;
+    padding: 28px 16px;
+    border-radius: 16px;
+  }
+
+  .albums-empty-icon {
+    width: 58px;
+    height: 58px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+  }
+
+  .albums-empty-icon svg {
+    font-size: 24px;
   }
 
   .albums-empty h2 {
-    font-size: 23px;
+    font-size: 19px;
+  }
+
+  .albums-empty p {
+    font-size: 11px;
   }
 }
 
@@ -496,14 +1054,138 @@
    SMALL MOBILE
 ========================================================= */
 
-@media (max-width: 360px) {
+@media (max-width: 380px) {
   .albums-page {
     padding-right: 9px;
     padding-left: 9px;
   }
 
+  .albums-header {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
   .albums-grid {
     gap: 9px;
+  }
+
+  .album-card {
+    padding: 7px;
+    border-radius: 12px;
+  }
+
+  .album-card-cover {
+    border-radius: 9px;
+  }
+
+  .album-card-info h3 {
+    font-size: 10px;
+  }
+
+  .album-card-info p {
+    font-size: 9px;
+  }
+
+  .album-card-info .album-song-count {
+    gap: 4px;
+    padding: 4px 6px;
+    font-size: 8px;
+  }
+
+  .albums-section-heading h2 {
+    font-size: 16px;
+  }
+
+  .albums-total {
+    padding: 4px 7px;
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   KEYBOARD ACCESSIBILITY
+========================================================= */
+
+.albums-page button:focus-visible,
+.albums-page a:focus-visible,
+.album-card:focus-visible {
+  outline: 2px solid var(--album-blue-light);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   REDUCED MOTION ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .albums-page *,
+  .albums-page *::before,
+  .albums-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   COMPACT ALBUM CARDS
+========================================================= */
+
+.albums-grid {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(150px, 175px)
+  );
+  gap: 14px;
+}
+
+.album-card {
+  padding: 8px;
+  border-radius: 13px;
+}
+
+.album-card-cover {
+  border-radius: 9px;
+}
+
+.album-card-info {
+  padding: 9px 3px 3px;
+}
+
+.album-card-info h3 {
+  font-size: 12px;
+  line-height: 1.4;
+  min-height: 2.8em;
+}
+
+.album-card-info p {
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+.album-card-info .album-song-count {
+  margin-top: 7px;
+  padding: 4px 7px;
+  font-size: 9px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .albums-grid {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(135px, 155px)
+    );
+    gap: 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .albums-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .album-card {
@@ -513,89 +1195,230 @@
   .album-card-info h3 {
     font-size: 11px;
   }
+}
 
-  .album-card-info p {
-    font-size: 9px;
+/* =========================================================
+   KEERTHANA MUSIC — ALBUM SEARCH
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.albums-page .albums-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  width: 100%;
+  max-width: 460px;
+  min-height: 46px;
+  margin: 24px 0 12px;
+  padding: 0 15px;
+
+  background: rgba(15, 25, 45, 0.88);
+  border: 1px solid rgba(130, 153, 190, 0.2);
+  border-radius: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.albums-page .albums-search:focus-within {
+  background: #101b30;
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.13);
+}
+
+.albums-page .albums-search-icon {
+  flex-shrink: 0;
+  color: #e8c98a;
+  font-size: 15px;
+}
+
+.albums-page .albums-search input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0;
+
+  color: #f4f6fb;
+  background: transparent;
+  border: 0;
+  outline: none;
+
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.albums-page .albums-search input::placeholder {
+  color: #8491a8;
+}
+
+.albums-page .albums-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.albums-page .albums-search-clear {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+
+  width: 30px;
+  height: 30px;
+
+  color: #b9c5d8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.albums-page .albums-search-clear:hover {
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.18);
+}
+
+.albums-page .albums-search-clear:focus-visible,
+.albums-page .albums-reset-search:focus-visible {
+  outline: 2px solid #3978f6;
+  outline-offset: 3px;
+}
+
+.albums-page .albums-search-summary {
+  margin: 0 0 18px;
+
+  color: #aab7cc;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+}
+
+/* =========================================================
+   SEARCH EMPTY STATE
+========================================================= */
+
+.albums-page .albums-reset-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  margin-top: 18px;
+  padding: 11px 17px;
+
+  color: #e8c98a;
+  background: rgba(57, 120, 246, 0.12);
+  border: 1px solid rgba(57, 120, 246, 0.3);
+  border-radius: 999px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.albums-page .albums-reset-search:hover {
+  background: rgba(57, 120, 246, 0.2);
+  border-color: #3978f6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+  .albums-page .albums-search {
+    max-width: none;
+    min-height: 44px;
+    margin: 18px 0 12px;
+    border-radius: 12px;
+  }
+
+  .albums-page .albums-search input {
+    font-size: 12.5px;
   }
 }
 
 /* =========================================================
-   REDUCED MOTION
+   ACCESSIBILITY — REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .album-card,
-  .album-card-cover img,
-  .album-placeholder svg {
+  .albums-page .albums-search,
+  .albums-page .albums-search-clear,
+  .albums-page .albums-reset-search {
     transition: none;
   }
 }
 
 /* =========================================================
-   KEERTHANA — ALBUMS TYPOGRAPHY CONSISTENCY
-   Professional typography across all screen sizes
+   KEERTHANA — FULL-WIDTH ALBUM VOICE SEARCH
 ========================================================= */
 
-.albums-page {
-  font-family:
-    "Inter",
-    "Noto Sans Telugu",
-    "Noto Serif Telugu",
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+.albums-voice-search-section {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 24px 0 16px;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.albums-page h1,
-.albums-page h2,
-.albums-page h3,
-.albums-page p,
-.albums-page span {
-  overflow-wrap: anywhere;
+.albums-voice-search-section .keerthana-voice-search {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.albums-header h1 {
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
+.albums-voice-search-section .voice-search-bar {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.album-card-info h3 {
-  font-weight: 700;
-  line-height: 1.5;
-  letter-spacing: 0;
+.albums-voice-search-section .voice-search-bar input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.album-card-info p,
-.albums-header > span,
-.albums-empty p {
-  font-weight: 400;
-  line-height: 1.65;
+.albums-voice-search-section .voice-search-options {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  justify-content: flex-end;
+  box-sizing: border-box;
 }
 
-.album-card-info span {
-  font-weight: 600;
-  letter-spacing: 0.15px;
+.albums-voice-search-section .voice-search-feedback {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Accessible keyboard focus */
-.albums-page button:focus-visible,
-.albums-page a:focus-visible {
-  outline: 2px solid var(--album-blue-light);
-  outline-offset: 3px;
-}
+/* Keep the search full width on mobile too */
 
-/* Respect reduced-motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .albums-page *,
-  .albums-page *::before,
-  .albums-page *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+@media (max-width: 768px) {
+  .albums-voice-search-section,
+  .albums-voice-search-section .keerthana-voice-search,
+  .albums-voice-search-section .voice-search-bar {
+    width: 100%;
+    max-width: none;
   }
 }

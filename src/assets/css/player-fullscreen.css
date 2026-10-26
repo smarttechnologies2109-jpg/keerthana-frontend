@@ -1,0 +1,354 @@
+
+/* =========================================================
+   KEERTHANA MUSIC — FULLSCREEN PLAYER ONLY
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.music-player.music-player-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000 !important;
+
+  width: 100vw !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+  padding: 30px clamp(24px, 5vw, 76px) 0 !important;
+
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+
+  gap: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  box-sizing: border-box;
+  border: 0 !important;
+  border-radius: 0 !important;
+
+  color: #f5f7fc;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 38%,
+      rgba(40, 91, 139, 0.3),
+      transparent 55%
+    ),
+    linear-gradient(
+      135deg,
+      #061124 0%,
+      #0b1c34 48%,
+      #040b17 100%
+    ) !important;
+
+  box-shadow: none !important;
+
+  font-family:
+    Inter,
+    "Noto Sans Telugu",
+    "Noto Sans",
+    sans-serif;
+}
+
+/* Song artwork and information */
+
+.music-player-fullscreen .player-song-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding-bottom: 24px;
+}
+
+.music-player-fullscreen .player-song-info > img {
+  width: clamp(180px, 29vh, 330px);
+  height: clamp(180px, 29vh, 330px);
+
+  flex: 0 0 auto;
+  object-fit: cover;
+
+  border: 1px solid rgba(233, 196, 119, 0.6);
+  border-radius: 20px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 35px rgba(57, 118, 185, 0.15);
+}
+
+.music-player-fullscreen .player-song-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: min(900px, 100%);
+  min-width: 0;
+  text-align: center;
+}
+
+.music-player-fullscreen .player-song-title-link {
+  width: 100%;
+  max-width: 900px;
+
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+
+  font-size: clamp(22px, 2.5vw, 36px);
+  font-weight: 750;
+  line-height: 1.6;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.music-player-fullscreen .player-artist-link,
+.music-player-fullscreen .player-artist-name {
+  margin-top: 8px;
+  color: #aebed4;
+  font-size: 14px;
+}
+
+/* Fullscreen playback controls */
+
+.music-player-fullscreen .player-main {
+  width: 100%;
+  max-width: none !important;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 22px;
+
+  padding-bottom: 28px;
+}
+
+.music-player-fullscreen .player-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(22px, 4vw, 54px);
+
+  width: 100%;
+}
+
+.music-player-fullscreen .player-buttons > button {
+  width: 42px;
+  height: 42px;
+
+  color: #d3deed;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+
+  cursor: pointer;
+}
+
+.music-player-fullscreen .player-buttons > button:hover:not(:disabled) {
+  color: #ffdda0;
+  background: rgba(233, 196, 119, 0.12);
+}
+
+.music-player-fullscreen .player-buttons > button.player-play {
+  width: 72px;
+  height: 72px;
+  flex-basis: 72px;
+
+  color: #071326;
+  background: linear-gradient(145deg, #fff2d0, #e8bd68);
+
+  border: 2px solid #fff3d3;
+  font-size: 22px;
+
+  box-shadow: 0 0 28px rgba(233, 196, 119, 0.2);
+}
+
+/* Full-width timeline */
+
+.music-player-fullscreen .player-progress {
+  display: grid !important;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 14px;
+
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  margin: 0;
+}
+
+.music-player-fullscreen .player-progress > span {
+  color: #dbe5f3;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.music-player-fullscreen .player-progress > span:last-child {
+  text-align: right;
+}
+
+.music-player-fullscreen .player-progress input[type="range"] {
+  display: block;
+
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  height: 5px;
+
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: rgba(174, 190, 212, 0.3);
+  border: 0;
+  border-radius: 999px;
+
+  accent-color: #e9c477;
+  cursor: pointer;
+}
+
+.music-player-fullscreen .player-progress input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 16px;
+  height: 16px;
+
+  background: #ffdda0;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.music-player-fullscreen .player-progress input[type="range"]::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+
+  background: #ffdda0;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+/* Fullscreen top toolbar */
+
+.music-player-fullscreen .player-right-controls {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+
+  width: auto;
+  max-width: calc(100% - 48px);
+}
+
+.music-player-fullscreen .player-lyrics-button,
+.music-player-fullscreen .player-queue-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 40px;
+  padding: 0 13px;
+
+  color: #e8edf7;
+  background: rgba(9, 24, 43, 0.8);
+  border: 1px solid rgba(233, 196, 119, 0.3);
+  border-radius: 11px;
+
+  cursor: pointer;
+}
+
+.music-player-fullscreen .player-lyrics-button:hover:not(:disabled),
+.music-player-fullscreen .player-lyrics-button.active,
+.music-player-fullscreen .player-queue-button:hover,
+.music-player-fullscreen .player-queue-button.active {
+  color: #ffdda0;
+  background: rgba(233, 196, 119, 0.1);
+  border-color: rgba(233, 196, 119, 0.7);
+}
+
+.music-player-fullscreen .player-expand-btn,
+.music-player-fullscreen .player-close-button {
+  width: 38px;
+  height: 38px;
+
+  color: #e9c477;
+  background: rgba(9, 24, 43, 0.8);
+  border: 1px solid rgba(233, 196, 119, 0.2);
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+/* Mobile fullscreen */
+
+@media (max-width: 600px) {
+  .music-player.music-player-fullscreen {
+    padding:
+      max(65px, env(safe-area-inset-top))
+      18px
+      0 !important;
+  }
+
+  .music-player-fullscreen .player-song-info > img {
+    width: min(53vw, 245px);
+    height: min(53vw, 245px);
+    border-radius: 16px;
+  }
+
+  .music-player-fullscreen .player-song-title-link {
+    font-size: clamp(19px, 5vw, 26px);
+  }
+
+  .music-player-fullscreen .player-right-controls {
+    top: 12px;
+    right: 12px;
+  }
+
+  .music-player-fullscreen .player-right-controls > .player-lyrics-button,
+  .music-player-fullscreen .player-right-controls > .player-queue-button,
+  .music-player-fullscreen .player-sleep-timer-control,
+  .music-player-fullscreen .player-volume {
+    display: none;
+  }
+
+  .music-player-fullscreen .player-buttons {
+    gap: clamp(13px, 4vw, 25px);
+  }
+
+  .music-player-fullscreen .player-buttons > button.player-play {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
+  }
+
+  .music-player-fullscreen .player-progress {
+    grid-template-columns: 35px minmax(0, 1fr) 35px;
+    gap: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-player-fullscreen * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

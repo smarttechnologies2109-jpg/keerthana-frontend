@@ -1,47 +1,80 @@
 
 /* =========================================================
    KEERTHANA MUSIC — SEARCH PAGE
-   Premium Midnight Navy • Royal Blue • Champagne Gold
-   Square Song Cards • Responsive • Production Ready
+   Premium Production UI
+   Midnight Navy • Royal Blue • Champagne Gold
+   Refined Search • Voice Search • Horizontal Song Rows
 ========================================================= */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
+/* =========================================================
+   1. FONT & DESIGN TOKENS
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --search-bg: #080d1a;
+  --search-surface: #101a2d;
+  --search-surface-raised: #14213a;
+  --search-surface-hover: #192946;
+
+  --search-blue: #3978f6;
+  --search-blue-hover: #2865df;
+  --search-blue-soft: rgba(57, 120, 246, 0.14);
+
+  --search-gold: #e8c98a;
+  --search-gold-soft: rgba(232, 201, 138, 0.1);
+
+  --search-text: #f5f7ff;
+  --search-text-secondary: #b4c0d7;
+  --search-text-muted: #8493ae;
+
+  --search-border: rgba(148, 170, 210, 0.18);
+  --search-border-strong: rgba(148, 170, 210, 0.3);
+
+  --search-danger: #ff858b;
+  --search-danger-bg: rgba(255, 83, 94, 0.09);
+  --search-success: #65d6a3;
+
+  --search-radius-sm: 8px;
+  --search-radius-md: 12px;
+  --search-radius-lg: 16px;
+  --search-radius-xl: 18px;
+
+  --search-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.22);
+
+  --search-transition: 180ms ease;
+}
 
 /* =========================================================
-   THEME
+   2. PAGE FOUNDATION
 ========================================================= */
 
 .search-page {
-  --search-blue: #3978f6;
-  --search-blue-light: #8eb5ff;
-  --search-gold: #e8c98a;
-
-  --search-text: #f6f8ff;
-  --search-muted: #a7b3c9;
-  --search-border: rgba(177, 198, 235, 0.14);
-
-  --search-surface: #111b30;
-  --search-raised: #0d1424;
-  --search-card-hover: #182641;
-
   width: 100%;
-  max-width: none;
   min-width: 0;
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
-  padding: 30px;
+  padding: 30px 32px 100px;
+  box-sizing: border-box;
 
-  overflow-x: clip;
-  background: transparent;
   color: var(--search-text);
-
-  font-family: "Inter", "Noto Sans Telugu", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.6;
-
+  font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background:
+    radial-gradient(
+      ellipse at 5% 0%,
+      rgba(57, 120, 246, 0.09),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #0a1020 0%,
+      #080d1a 65%
+    );
 }
 
 .search-page *,
@@ -50,91 +83,101 @@
   box-sizing: border-box;
 }
 
+.search-page button,
+.search-page input,
+.search-page select {
+  font-family: inherit;
+}
+
+.search-page button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.search-page button:focus-visible,
+.search-page input:focus-visible,
+.search-page select:focus-visible {
+  outline: 2px solid var(--search-gold);
+  outline-offset: 3px;
+}
+
+.search-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 /* =========================================================
-   HEADER
+   3. PAGE HEADER
 ========================================================= */
 
-.search-page .search-page-header {
+.search-page-header {
   display: flex;
-  align-items: center;
-  gap: 18px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
 
   width: 100%;
-  min-width: 0;
-  margin-bottom: 30px;
+  margin: 0 0 24px;
 }
 
-.search-page .search-brand-icon {
-  display: grid;
-  flex: 0 0 60px;
-
-  width: 60px;
-  height: 60px;
-  place-items: center;
-
-  border: 1px solid rgba(232, 201, 138, 0.3);
-  border-radius: 17px;
-
-  background: linear-gradient(145deg, #223657, #0d1424);
-  color: #fff;
-
-  font-size: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-
-.search-page .search-page-heading {
-  flex: 1;
+.search-page-heading {
   min-width: 0;
 }
 
-.search-page .search-page-label,
-.search-page .search-section-label {
-  display: block;
+.search-page-eyebrow {
+  display: inline-block;
+  margin: 0 0 7px;
 
   color: var(--search-gold);
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 1.5px;
-  line-height: 1.5;
-}
-
-.search-page .search-page-heading h1 {
-  margin: 7px 0;
-
-  color: var(--search-text);
-  font-family: "Manrope", "Noto Sans Telugu", sans-serif;
-  font-size: clamp(26px, 2.2vw, 35px);
+  font-size: 10px;
   font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.7px;
+  letter-spacing: 2.2px;
+  line-height: 1.5;
+  text-transform: uppercase;
 }
 
-.search-page .search-page-heading p {
+.search-page-heading h1 {
   margin: 0;
 
-  color: var(--search-muted);
-  font-size: 14px;
-  line-height: 1.7;
+  color: var(--search-text);
+  font-size: clamp(30px, 3vw, 38px);
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  line-height: 1.2;
+}
+
+.search-page-heading p {
+  margin: 8px 0 0;
+
+  color: var(--search-text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.65;
 }
 
 /* =========================================================
-   SEARCH PANEL
+   4. SEARCH CONTROLS
 ========================================================= */
 
-.search-page .search-main-area {
+.search-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+
   width: 100%;
+  max-width: 100%;
   min-width: 0;
-  margin-bottom: 32px;
-  padding: 18px;
-
-  border: 1px solid rgba(142, 181, 255, 0.15);
-  border-radius: 20px;
-
-  background: linear-gradient(145deg, #101a2e, #0b1221);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+  margin: 0 0 28px;
 }
 
+/* =========================================================
+   5. PREMIUM SEARCH BAR
+========================================================= */
+
 .search-page .search-input-wrapper {
+  position: relative;
+  isolation: isolate;
+
   display: flex;
   align-items: center;
   gap: 12px;
@@ -142,568 +185,473 @@
   width: 100%;
   min-width: 0;
   min-height: 60px;
-  padding: 8px 10px 8px 17px;
+  margin: 0;
+  padding: 7px 9px 7px 18px;
 
-  border: 1px solid rgba(142, 181, 255, 0.25);
+  background: linear-gradient(
+    110deg,
+    #14213a 0%,
+    #111b2e 55%,
+    #10192b 100%
+  );
+
+  border: 1px solid rgba(148, 170, 210, 0.24);
   border-radius: 15px;
 
-  background: #141f34;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 
   transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease;
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background 220ms ease;
+}
+
+.search-page .search-input-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    100deg,
+    rgba(57, 120, 246, 0.09),
+    transparent 48%,
+    rgba(232, 201, 138, 0.035)
+  );
+}
+
+.search-page .search-input-wrapper:hover {
+  border-color: rgba(113, 153, 238, 0.42);
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.2),
+    0 0 18px rgba(57, 120, 246, 0.045);
 }
 
 .search-page .search-input-wrapper:focus-within {
-  border-color: var(--search-gold);
-  background: #17243b;
-  box-shadow: 0 0 0 3px rgba(232, 199, 120, 0.12);
+  background: linear-gradient(
+    110deg,
+    #172641,
+    #101a2d
+  );
+
+  border-color: #5489ff;
+
+  box-shadow:
+    0 0 0 3px rgba(57, 120, 246, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.22);
 }
 
+.search-page .search-input-wrapper > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Search icon */
+
 .search-page .search-input-icon {
+  display: flex;
+  flex: 0 0 21px;
+  align-items: center;
+  justify-content: center;
+
+  width: 21px;
+  height: 21px;
+
+  color: var(--search-gold);
+  font-size: 19px;
+
+  transition:
+    color 200ms ease,
+    transform 200ms ease;
+}
+
+.search-page .search-input-wrapper:focus-within
+.search-input-icon {
+  color: #f4dba5;
+  transform: scale(1.04);
+}
+
+/* Search input */
+
+.search-page .search-input {
+  display: block;
+  flex: 1 1 auto;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 0;
+
+  color: #f6f8ff;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05px;
+  line-height: 1.5;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.search-page .search-input:hover,
+.search-page .search-input:focus,
+.search-page .search-input:focus-visible {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.search-page .search-input::placeholder {
+  color: #a2b0ca;
+  font-weight: 400;
+  opacity: 1;
+}
+
+.search-page .search-input::-webkit-search-cancel-button,
+.search-page .search-input::-webkit-search-decoration {
+  display: none;
+}
+
+/* Clear button */
+
+.search-page .search-clear-button {
+  display: inline-flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+
+  color: #aebbd2;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(164, 184, 222, 0.15);
+  border-radius: 9px;
+
+  font-size: 12px;
+  cursor: pointer;
+
+  transition:
+    color var(--search-transition),
+    background var(--search-transition),
+    border-color var(--search-transition),
+    transform var(--search-transition);
+}
+
+.search-page .search-clear-button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(164, 184, 222, 0.32);
+}
+
+.search-page .search-clear-button:active {
+  transform: scale(0.94);
+}
+
+/* =========================================================
+   6. INTEGRATED VOICE SEARCH
+========================================================= */
+
+.search-page .search-voice-button {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
 
-  color: var(--search-blue-light);
-  font-size: 18px;
-}
-
-/* Fallback for a regular input */
-.search-page .search-input-wrapper > input,
-.search-page .search-input-wrapper input[type="text"],
-.search-page .search-input-wrapper input[type="search"] {
-  display: block;
-  flex: 1 1 0%;
-
-  width: 0;
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 4px;
-
-  border: 0;
-  outline: none;
-
-  background: transparent;
-  color: var(--search-text);
-  caret-color: var(--search-blue-light);
-
-  font-family: "Inter", "Noto Sans Telugu", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-
-  box-shadow: none;
-  -webkit-text-fill-color: var(--search-text);
-}
-
-.search-page .search-input-wrapper input::placeholder {
-  color: #8999b4;
-  opacity: 1;
-  -webkit-text-fill-color: #8999b4;
-}
-
-.search-page .search-input-wrapper input::-webkit-search-cancel-button {
-  display: none;
-}
-
-.search-page .search-clear-button {
-  display: grid;
-  flex: 0 0 38px;
-
-  width: 38px;
-  height: 38px;
-  place-items: center;
-
-  border: 1px solid rgba(177, 198, 235, 0.12);
-  border-radius: 10px;
-
-  background: #223657;
-  color: #dce7ff;
-
-  font-size: 14px;
-  cursor: pointer;
-
-  transition:
-    background 180ms ease,
-    color 180ms ease;
-}
-
-.search-page .search-clear-button:hover {
-  background: #30476c;
-  color: #fff;
-}
-
-/* =========================================================
-   SEARCH TOOLBAR
-========================================================= */
-
-.search-page .search-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  margin-top: 14px;
-}
-
-.search-page .search-live-hint {
-  color: var(--search-muted);
-  font-size: 13px;
-}
-
-.search-page .voice-language-selector {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 9px;
-
-  color: var(--search-muted);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.search-page .voice-language-selector select {
-  max-width: 170px;
-  min-height: 38px;
-  padding: 0 28px 0 10px;
-
-  border: 1px solid var(--search-border);
-  border-radius: 9px;
-
-  background: var(--search-surface);
-  color: var(--search-text);
-
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-/* =========================================================
-   DISCOVERY INTRO
-========================================================= */
-
-.search-page .search-discovery-intro {
-  width: 100%;
-  padding: 42px 24px;
-
-  border: 1px solid var(--search-border);
-  border-radius: 19px;
-
-  background: linear-gradient(145deg, #111b30, #0d1424);
-  text-align: center;
-}
-
-.search-page .search-discovery-icon,
-.search-page .search-empty-icon {
-  display: grid;
-
-  width: 58px;
-  height: 58px;
-  margin: 0 auto 18px;
-  place-items: center;
-
-  border: 1px solid rgba(142, 181, 255, 0.13);
-  border-radius: 17px;
-
-  background: #182641;
-  color: var(--search-blue-light);
-
-  font-size: 23px;
-}
-
-.search-page .search-discovery-intro h2,
-.search-page .search-state-card h2 {
-  margin: 0 0 10px;
-
-  color: var(--search-text);
-  font-family: "Manrope", "Noto Sans Telugu", sans-serif;
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1.4;
-}
-
-.search-page .search-discovery-intro p,
-.search-page .search-state-card p {
-  max-width: 560px;
-  margin: 0 auto;
-
-  color: var(--search-muted);
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-/* =========================================================
-   SEARCH RESULTS HEADER
-========================================================= */
-
-.search-page .search-results {
-  width: 100%;
-  min-width: 0;
-  margin-top: 30px;
-}
-
-.search-page .search-results-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-
-  margin-bottom: 20px;
-}
-
-.search-page .search-results-header h2 {
-  margin: 6px 0 0;
-
-  color: var(--search-text);
-  font-family: "Manrope", "Noto Sans Telugu", sans-serif;
-  font-size: 23px;
-  font-weight: 750;
-  line-height: 1.4;
-  letter-spacing: -0.35px;
-
-  overflow-wrap: anywhere;
-}
-
-.search-page .search-results-count {
-  flex: 0 0 auto;
-  padding: 7px 12px;
-
-  border: 1px solid rgba(232, 201, 138, 0.24);
-  border-radius: 20px;
-
-  background: rgba(232, 201, 138, 0.08);
-  color: var(--search-gold);
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-/* =========================================================
-   SQUARE SONG CARD GRID
-========================================================= */
-
-.search-page .search-song-list {
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(min(100%, 175px), 1fr)
-  );
-
-  align-items: stretch;
-  gap: 18px;
-
-  width: 100%;
-  min-width: 0;
+  min-width: 42px;
+  min-height: 42px;
   margin: 0;
   padding: 0;
 }
 
-/* =========================================================
-   SONG CARD
-   Square artwork with a separate title area underneath
-========================================================= */
-
-.search-page .search-song-card {
-  position: relative;
-
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  width: 100%;
-  min-width: 0;
-  height: auto;
-  aspect-ratio: auto;
-  overflow: visible;
-  padding: 10px;
-
-  border: 1px solid var(--search-border);
-  border-radius: 16px;
-
-  background: linear-gradient(
-    150deg,
-    rgba(24, 38, 65, 0.98),
-    rgba(17, 27, 48, 0.99) 60%,
-    #0d1424
-  );
-
-  color: var(--search-text);
-  box-shadow: 0 7px 22px rgba(0, 0, 0, 0.14);
-
-  cursor: pointer;
-
-  transition:
-    transform 200ms ease,
-    border-color 200ms ease,
-    background 200ms ease,
-    box-shadow 200ms ease;
-}
-
-.search-page .search-song-card:hover {
-  transform: translateY(-3px);
-
-  border-color: rgba(110, 157, 255, 0.45);
-  background: var(--search-card-hover);
-
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
-}
-
-.search-page .search-song-card-active {
-  border-color: var(--search-blue);
-  background: #1b2b49;
-
-  box-shadow:
-    inset 0 0 0 1px rgba(57, 120, 246, 0.25),
-    0 8px 25px rgba(0, 0, 0, 0.18);
-}
-
-/* =========================================================
-   SQUARE COVER IMAGE
-========================================================= */
-
-.search-page .search-song-cover {
-  display: block;
-  flex: 0 0 auto;
-
-  width: 100%;
-  max-width: none;
-  height: auto;
-  aspect-ratio: 1 / 1;
-
-  margin: 0 0 10px;
-  overflow: hidden;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 11px;
-
-  background: #223657;
-  object-fit: cover;
-  object-position: center;
-
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-
-  transition: transform 250ms ease;
-}
-
-.search-page .search-song-card:hover .search-song-cover {
-  transform: scale(1.015);
-}
-
-/* =========================================================
-   SONG INFORMATION
-   Title can occupy two lines without being cut off by the card
-========================================================= */
-
-.search-page .search-song-info {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 5px;
-
-  width: 100%;
-  min-width: 0;
-  min-height: 58px;
-  overflow: visible;
-
-  padding: 0 2px 4px;
-}
-
-.search-page .search-song-info h3 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-
-  color: var(--search-text);
-  font-family: "Inter", "Noto Sans Telugu", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.45;
-  letter-spacing: -0.1px;
-
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: normal;
-}
-
-.search-page .search-song-secondary {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-
-  color: #c0cee6;
-  font-size: 11px;
-  font-weight: 450;
-  line-height: 1.5;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.search-page .search-song-artist {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-
-  color: var(--search-muted);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.5;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* =========================================================
-   SONG METADATA
-========================================================= */
-
-.search-page .search-song-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-
-  max-width: 100%;
-  margin-top: 5px;
-}
-
-.search-page .search-song-meta span {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-
-  padding: 4px 7px;
-
-  border: 1px solid rgba(177, 198, 235, 0.1);
-  border-radius: 6px;
-
-  background: rgba(34, 54, 87, 0.75);
-  color: #c0cee6;
-
-  font-size: 9px;
-  font-weight: 600;
-  line-height: 1.4;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.search-page .search-playing-indicator {
+.search-page .search-voice-button > * {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-
-  margin-top: 5px;
-
-  color: var(--search-blue-light);
-  font-size: 10px;
-  font-weight: 750;
+  justify-content: center;
 }
 
-/* =========================================================
-   PLAY BUTTON
-========================================================= */
+/* VoiceSearch component button */
 
-.search-page .search-song-play {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 3;
+.search-page .search-voice-button button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  display: grid;
-  flex: 0 0 38px;
+  min-width: 42px;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 12px;
 
-  width: 38px;
-  height: 38px;
-  place-items: center;
-
-  padding: 0;
-
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 50%;
-
-  background: linear-gradient(145deg, #6596ff, #3978f6);
-  color: #fff;
-
-  box-shadow: 0 5px 16px rgba(57, 120, 246, 0.35);
+  color: #f0d7a5;
+  background: rgba(232, 201, 138, 0.09);
+  border: 1px solid rgba(232, 201, 138, 0.26);
+  border-radius: 11px;
 
   font-size: 13px;
+  font-weight: 600;
+
   cursor: pointer;
 
-  opacity: 0;
-  transform: scale(0.94);
-
   transition:
-    opacity 180ms ease,
-    transform 180ms ease,
-    box-shadow 180ms ease;
+    color var(--search-transition),
+    background var(--search-transition),
+    border-color var(--search-transition),
+    box-shadow var(--search-transition),
+    transform var(--search-transition);
 }
 
-.search-page .search-song-card:hover .search-song-play,
-.search-page .search-song-card:focus-within .search-song-play,
-.search-page .search-song-play.playing {
-  opacity: 1;
-  transform: scale(1);
+.search-page .search-voice-button button:hover {
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    #3978f6,
+    #285fd0
+  );
+  border-color: #6598ff;
+  box-shadow: 0 4px 14px rgba(57, 120, 246, 0.2);
 }
 
-.search-page .search-song-play:hover {
-  box-shadow: 0 7px 20px rgba(57, 120, 246, 0.5);
+.search-page .search-voice-button button:active {
+  transform: scale(0.96);
 }
 
-.search-page .search-song-play.playing {
-  background: #285cc7;
-  color: #fff;
-}
-
-/* Touch devices must not require hover */
-
-@media (hover: none) {
-  .search-page .search-song-play {
-    opacity: 1;
-    transform: none;
-  }
+.search-page .search-voice-button button svg {
+  display: block;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
 }
 
 /* =========================================================
-   LOADING / EMPTY / ERROR STATES
+   7. VOICE LANGUAGE SELECTOR
+========================================================= */
+
+.search-page .search-voice-language {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+
+  width: 100%;
+  margin-top: 10px;
+  padding-left: 2px;
+}
+
+.search-page .search-language-label {
+  color: var(--search-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.search-page .search-language-select {
+  display: block;
+
+  width: auto;
+  max-width: 180px;
+  min-height: 34px;
+  margin: 0;
+  padding: 7px 28px 7px 11px;
+
+  color: #dce5f8;
+  background-color: #111d32;
+  border: 1px solid rgba(148, 170, 210, 0.2);
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--search-transition),
+    background var(--search-transition);
+}
+
+.search-page .search-language-select:hover {
+  background-color: #16243c;
+  border-color: rgba(232, 201, 138, 0.4);
+}
+
+.search-page .search-language-select:focus {
+  border-color: var(--search-blue);
+}
+
+.search-page .search-language-select option {
+  color: #f5f7ff;
+  background: #111d32;
+}
+
+/* =========================================================
+   8. FEEDBACK MESSAGES
+========================================================= */
+
+.search-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+
+  border: 1px solid var(--search-border);
+  border-radius: var(--search-radius-md);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.search-message > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.search-message button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+  padding: 0;
+
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.search-message button:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.search-error {
+  color: var(--search-danger);
+  background: var(--search-danger-bg);
+  border-color: rgba(255, 133, 139, 0.23);
+}
+
+/* =========================================================
+   9. LOADING, EMPTY & ERROR STATES
 ========================================================= */
 
 .search-page .search-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
   width: 100%;
-  padding: 42px 20px;
+  min-width: 0;
+  min-height: 0;
+  margin: 18px 0;
+  padding: 30px 24px;
 
-  border: 1px solid var(--search-border);
-  border-radius: 18px;
-
-  background: var(--search-surface);
   text-align: center;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(57, 120, 246, 0.09),
+      transparent 70%
+    ),
+    linear-gradient(
+      145deg,
+      #101a2d,
+      #0d1525
+    );
+
+  border: 1px solid rgba(148, 170, 210, 0.16);
+  border-radius: 17px;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
-.search-page .search-loading-spinner {
-  display: block;
+.search-page .search-state-card h2 {
+  margin: 15px 0 7px;
 
-  width: 38px;
-  height: 38px;
-  margin: 0 auto 20px;
+  color: var(--search-text);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.35px;
+  line-height: 1.45;
+}
 
-  border: 3px solid #223657;
-  border-top-color: var(--search-blue-light);
+.search-page .search-state-card p {
+  max-width: 540px;
+  margin: 0;
+
+  color: var(--search-text-secondary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Empty state icon */
+
+.search-page .search-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 50px;
+  height: 50px;
+
+  color: var(--search-gold);
+  background: linear-gradient(
+    145deg,
+    rgba(232, 201, 138, 0.13),
+    rgba(57, 120, 246, 0.1)
+  );
+
+  border: 1px solid rgba(232, 201, 138, 0.2);
+  border-radius: 15px;
+
+  font-size: 19px;
+}
+
+.search-page .search-empty .search-hint {
+  margin-top: 7px;
+  color: #8e9fbd;
+  font-size: 12px;
+}
+
+/* Loading state */
+
+.search-page .search-loading {
+  min-height: 190px;
+  padding: 28px 20px;
+}
+
+.search-loading-spinner {
+  width: 34px;
+  height: 34px;
+
+  border: 3px solid rgba(57, 120, 246, 0.18);
+  border-top-color: var(--search-blue);
+  border-right-color: var(--search-gold);
   border-radius: 50%;
 
-  animation: search-spin 800ms linear infinite;
+  animation: search-spin 850ms linear infinite;
 }
 
 @keyframes search-spin {
@@ -712,315 +660,1632 @@
   }
 }
 
-.search-page .search-empty .search-empty-icon {
-  margin-bottom: 18px;
+/* Error state */
+
+.search-page .search-error-state {
+  min-height: 190px;
+  padding: 28px 20px;
 }
 
-.search-page .search-show-all-button,
-.search-page .search-error button {
-  min-height: 42px;
-  margin-top: 20px;
-  padding: 0 18px;
+.search-page .search-error-state .search-empty-icon {
+  color: var(--search-danger);
+  background: var(--search-danger-bg);
+  border-color: rgba(255, 133, 139, 0.2);
+}
 
-  border: 0;
+/* Retry and clear-search buttons */
+
+.search-page .search-show-all-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 40px;
+  margin-top: 20px;
+  padding: 0 16px;
+
+  color: #ffffff;
+  background: var(--search-blue);
+  border: 1px solid var(--search-blue);
   border-radius: 10px;
 
-  background: var(--search-blue);
-  color: #fff;
-
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
 
   cursor: pointer;
-  transition: background 180ms ease;
+
+  transition:
+    background var(--search-transition),
+    border-color var(--search-transition),
+    transform var(--search-transition);
 }
 
-.search-page .search-show-all-button:hover,
-.search-page .search-error button:hover {
-  background: #285cc7;
+.search-page .search-show-all-button:hover {
+  background: var(--search-blue-hover);
+  border-color: var(--search-blue-hover);
 }
 
-.search-page .search-error {
-  border-color: rgba(255, 130, 130, 0.24);
-}
-
-.search-page .search-error h2 {
-  color: #ffb7bd;
-}
-
-.search-page .search-play-error {
-  margin: 16px 0;
-  padding: 12px 14px;
-
-  border: 1px solid rgba(255, 130, 130, 0.2);
-  border-radius: 10px;
-
-  background: #301d2a;
-  color: #ffc6cc;
-
-  font-size: 13px;
+.search-page .search-show-all-button:active {
+  transform: scale(0.98);
 }
 
 /* =========================================================
-   TABLET
+   10. SEARCH RESULTS HEADER
 ========================================================= */
 
-@media (max-width: 900px) {
+.search-results-section {
+  width: 100%;
+  min-width: 0;
+  margin-top: 24px;
+}
+
+.search-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.search-results-header > div {
+  min-width: 0;
+}
+
+.search-results-header h2 {
+  margin: 0;
+
+  color: var(--search-text);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.45;
+}
+
+.search-results-header p {
+  margin: 5px 0 0;
+
+  color: var(--search-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.search-page .search-results-clear {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 35px;
+  padding: 0 11px;
+
+  color: var(--search-text-secondary);
+  background: transparent;
+  border: 1px solid var(--search-border);
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color var(--search-transition),
+    background var(--search-transition),
+    border-color var(--search-transition);
+}
+
+.search-page .search-results-clear:hover {
+  color: var(--search-gold);
+  background: var(--search-gold-soft);
+  border-color: rgba(232, 201, 138, 0.3);
+}
+
+/* =========================================================
+   11. HORIZONTAL SONG LIST
+========================================================= */
+
+.search-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.search-song-card {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 40px 54px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 13px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 82px;
+  padding: 10px 13px;
+
+  background: rgba(16, 26, 45, 0.72);
+  border: 1px solid rgba(148, 170, 210, 0.07);
+  border-radius: 12px;
+
+  transition:
+    background var(--search-transition),
+    border-color var(--search-transition),
+    box-shadow var(--search-transition);
+}
+
+.search-song-card:hover {
+  background: var(--search-surface-raised);
+  border-color: rgba(57, 120, 246, 0.22);
+}
+
+.search-song-card-active {
+  background: linear-gradient(
+    100deg,
+    rgba(57, 120, 246, 0.13),
+    rgba(16, 26, 45, 0.9) 70%
+  );
+
+  border-color: rgba(57, 120, 246, 0.4);
+  box-shadow: inset 3px 0 0 var(--search-blue);
+}
+
+/* =========================================================
+   12. SONG PLAY BUTTON
+========================================================= */
+
+.search-page .search-song-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  padding: 0;
+
+  color: var(--search-text-secondary);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--search-border);
+  border-radius: 50%;
+
+  font-size: 12px;
+  cursor: pointer;
+
+  transition:
+    color var(--search-transition),
+    background var(--search-transition),
+    border-color var(--search-transition),
+    transform var(--search-transition);
+}
+
+.search-page .search-song-play:hover,
+.search-page .search-song-play.playing {
+  color: #ffffff;
+  background: var(--search-blue);
+  border-color: var(--search-blue);
+}
+
+.search-page .search-song-play:active {
+  transform: scale(0.93);
+}
+
+.search-page .search-song-play svg {
+  display: block;
+}
+
+/* =========================================================
+   13. SONG COVER
+========================================================= */
+
+.search-page .search-song-cover-button {
+  display: block;
+
+  width: 54px;
+  height: 54px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+
+  background: var(--search-surface-raised);
+  border: 1px solid var(--search-border);
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.search-page .search-song-cover {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  border-radius: inherit;
+
+  transition: transform 240ms ease;
+}
+
+.search-page .search-song-cover-button:hover
+.search-song-cover {
+  transform: scale(1.06);
+}
+
+/* =========================================================
+   14. SONG DETAILS
+========================================================= */
+
+.search-song-info {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.search-song-info h3 {
+  display: block;
+
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+
+  color: var(--search-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-page .search-song-title-button {
+  display: inline-block;
+
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  color: inherit;
+  background: transparent;
+  border: 0;
+
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition: color var(--search-transition);
+}
+
+.search-page .search-song-title-button:hover {
+  color: var(--search-gold);
+}
+
+.search-song-secondary {
+  margin: 2px 0 0;
+  overflow: hidden;
+
+  color: var(--search-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-song-artist {
+  margin: 3px 0 0;
+  overflow: hidden;
+
+  color: var(--search-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Album, language and category metadata */
+
+.search-song-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 7px;
+
+  min-width: 0;
+  margin-top: 6px;
+}
+
+.search-song-meta span {
+  display: inline-block;
+
+  max-width: 180px;
+  padding: 3px 7px;
+  overflow: hidden;
+
+  color: var(--search-text-muted);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(148, 170, 210, 0.09);
+  border-radius: 5px;
+
+  font-size: 10px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Now-playing indicator */
+
+.search-playing-indicator {
+  display: inline-block;
+  margin-top: 5px;
+
+  color: var(--search-gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* =========================================================
+   15. THREE-DOT MENU TRIGGER
+========================================================= */
+
+.search-song-menu-container {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  min-width: 0;
+}
+
+.search-page .search-song-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  color: var(--search-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  font-size: 14px;
+  cursor: pointer;
+
+  transition:
+    color var(--search-transition),
+    background var(--search-transition),
+    border-color var(--search-transition);
+}
+
+.search-page .search-song-menu-trigger:hover,
+.search-page .search-song-menu-trigger[aria-expanded="true"] {
+  color: var(--search-gold);
+  background: var(--search-gold-soft);
+  border-color: rgba(232, 201, 138, 0.2);
+}
+
+/* =========================================================
+   16. THREE-DOT CONTEXT MENU
+========================================================= */
+
+.search-song-context-menu {
+  position: absolute;
+  z-index: 100;
+
+  top: calc(100% + 5px);
+  right: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  width: 232px;
+  max-width: calc(100vw - 32px);
+  padding: 7px;
+
+  background: #121e34;
+  border: 1px solid var(--search-border-strong);
+  border-radius: 12px;
+
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.42),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+
+  animation: search-menu-enter 140ms ease-out;
+}
+
+@keyframes search-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-page .search-song-context-menu > button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  width: 100%;
+  min-height: 39px;
+  margin: 0;
+  padding: 9px 10px;
+
+  color: var(--search-text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    color var(--search-transition),
+    background var(--search-transition);
+}
+
+.search-page .search-song-context-menu > button:hover {
+  color: var(--search-text);
+  background: rgba(57, 120, 246, 0.14);
+}
+
+.search-page .search-song-context-menu > button svg {
+  flex: 0 0 15px;
+
+  width: 15px;
+  height: 15px;
+
+  color: var(--search-gold);
+  font-size: 13px;
+}
+
+.search-page .search-song-context-menu > button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.search-song-menu-divider {
+  width: 100%;
+  height: 1px;
+  margin: 4px 0;
+
+  background: var(--search-border);
+}
+
+/* =========================================================
+   17. EMPTY SEARCH RESULTS
+========================================================= */
+
+.search-results-section > .search-state-card {
+  margin-top: 16px;
+}
+
+.search-empty > p {
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   18. TABLET LAYOUT
+========================================================= */
+
+@media (max-width: 1024px) {
   .search-page {
-    padding: 25px 20px 120px;
+    padding: 26px 24px 100px;
   }
 
-  .search-page .search-song-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+  .search-page-heading h1 {
+    font-size: 35px;
   }
 
-  .search-page .search-song-card {
-    padding: 9px;
-    border-radius: 14px;
+  .search-song-card {
+    grid-template-columns: 38px 50px minmax(0, 1fr) 36px;
+    gap: 11px;
+    padding: 10px 11px;
   }
 
-  .search-page .search-song-cover {
-    border-radius: 9px;
-  }
-
-  .search-page .search-song-info h3 {
-    font-size: 13px;
+  .search-page .search-song-cover-button {
+    width: 50px;
+    height: 50px;
   }
 
   .search-page .search-song-play {
-    top: 14px;
-    right: 14px;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
   }
 }
 
 /* =========================================================
-   MOBILE / ANDROID
+   19. MOBILE LAYOUT
 ========================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .search-page {
-    padding: 20px 13px 125px;
+    padding: 20px 14px 90px;
   }
 
-  .search-page .search-page-header {
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 24px;
+  .search-page-header {
+    margin-bottom: 20px;
   }
 
-  .search-page .search-brand-icon {
-    flex-basis: 48px;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    font-size: 20px;
+  .search-page-eyebrow {
+    margin-bottom: 7px;
+    font-size: 10px;
+    letter-spacing: 2px;
   }
 
-  .search-page .search-page-heading h1 {
-    font-size: 25px;
-    letter-spacing: -0.45px;
+  .search-page-heading h1 {
+    font-size: 30px;
+    letter-spacing: -0.9px;
   }
 
-  .search-page .search-page-heading p {
+  .search-page-heading p {
+    margin-top: 7px;
     font-size: 12px;
   }
 
-  .search-page .search-main-area {
-    margin-bottom: 24px;
-    padding: 12px;
-    border-radius: 15px;
+  /* Search bar */
+
+  .search-controls {
+    margin-bottom: 22px;
   }
 
   .search-page .search-input-wrapper {
-    gap: 9px;
-    min-height: 54px;
-    padding: 6px 7px 6px 12px;
+    gap: 8px;
+    min-height: 53px;
+    padding: 6px 7px 6px 11px;
     border-radius: 13px;
   }
 
   .search-page .search-input-icon {
-    font-size: 15px;
-  }
-
-  .search-page .search-input-wrapper > input,
-  .search-page .search-input-wrapper input[type="text"],
-  .search-page .search-input-wrapper input[type="search"] {
-    min-height: 42px;
+    flex-basis: 17px;
+    width: 17px;
+    height: 17px;
     font-size: 16px;
   }
 
+  .search-page .search-input {
+    min-height: 38px;
+    font-size: 12px;
+  }
+
   .search-page .search-clear-button {
-    flex-basis: 34px;
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-  }
-
-  .search-page .search-toolbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .search-page .voice-language-selector select {
-    min-height: 40px;
-  }
-
-  .search-page .search-results {
-    margin-top: 24px;
-  }
-
-  .search-page .search-results-header {
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .search-page .search-results-header h2 {
-    font-size: 19px;
-  }
-
-  .search-page .search-results-count {
-    padding: 6px 9px;
-    font-size: 11px;
-  }
-
-  /* Two columns of square artwork cards */
-
-  .search-page .search-song-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 11px;
-  }
-
-  .search-page .search-song-card {
-    padding: 8px;
-    border-radius: 12px;
-  }
-
-  .search-page .search-song-cover {
-    margin-bottom: 8px;
+    flex-basis: 29px;
+    width: 29px;
+    height: 30px;
     border-radius: 8px;
   }
 
-  .search-page .search-song-info {
-    gap: 4px;
-    min-height: 54px;
-    padding: 0 1px 3px;
+  .search-page .search-voice-button,
+  .search-page .search-voice-button button {
+    min-width: 35px;
+    min-height: 35px;
   }
 
-  .search-page .search-song-info h3 {
-    font-size: 12px;
-    line-height: 1.45;
+  .search-page .search-voice-button button {
+    gap: 0;
+    padding: 0 8px;
+    border-radius: 9px;
   }
 
-  .search-page .search-song-secondary,
-  .search-page .search-song-artist {
-    font-size: 10px;
+  .search-page .search-voice-button button svg {
+    width: 15px;
+    height: 15px;
   }
 
-  .search-page .search-song-meta {
-    gap: 4px;
-    margin-top: 4px;
+  /* Language selector */
+
+  .search-page .search-voice-language {
+    justify-content: flex-start;
+    gap: 9px;
+    margin-top: 9px;
   }
 
-  .search-page .search-song-meta span {
-    padding: 3px 5px;
-    font-size: 9px;
+  .search-page .search-language-label {
+    font-size: 11px;
+  }
+
+  .search-page .search-language-select {
+    max-width: 155px;
+    min-height: 33px;
+    padding: 6px 23px 6px 9px;
+    font-size: 11px;
+  }
+
+  /* Results header */
+
+  .search-results-section {
+    margin-top: 20px;
+  }
+
+  .search-results-header {
+    gap: 10px;
+    margin-bottom: 13px;
+  }
+
+  .search-results-header h2 {
+    font-size: 17px;
+  }
+
+  .search-results-header p {
+    font-size: 11px;
+  }
+
+  .search-page .search-results-clear {
+    min-height: 32px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+
+  /* Horizontal song rows */
+
+  .search-song-list {
+    gap: 7px;
+  }
+
+  .search-song-card {
+    grid-template-columns: 30px 44px minmax(0, 1fr) 30px;
+    gap: 8px;
+
+    min-height: 70px;
+    padding: 8px;
+    border-radius: 10px;
   }
 
   .search-page .search-song-play {
-    top: 11px;
-    right: 11px;
+    width: 29px;
+    height: 29px;
+    font-size: 10px;
+  }
 
+  .search-page .search-song-cover-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  .search-song-info h3 {
+    font-size: 12px;
+  }
+
+  .search-song-secondary {
+    font-size: 10px;
+  }
+
+  .search-song-artist {
+    margin-top: 2px;
+    font-size: 10px;
+  }
+
+  .search-song-meta {
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  .search-song-meta span {
+    max-width: 110px;
+    padding: 2px 5px;
+    font-size: 9px;
+  }
+
+  .search-playing-indicator {
+    margin-top: 4px;
+    font-size: 9px;
+  }
+
+  .search-song-menu-container {
     width: 30px;
-    height: 30px;
-
-    font-size: 11px;
-    opacity: 1;
-    transform: none;
   }
 
-  .search-page .search-discovery-intro {
-    padding: 32px 17px;
+  .search-page .search-song-menu-trigger {
+    width: 29px;
+    height: 32px;
+    font-size: 12px;
   }
 
-  .search-page .search-discovery-intro h2,
-  .search-page .search-state-card h2 {
-    font-size: 19px;
+  .search-song-context-menu {
+    right: 0;
+    width: 218px;
+    max-width: calc(100vw - 28px);
   }
 
-  .search-page .search-discovery-intro p,
-  .search-page .search-state-card p {
-    font-size: 13px;
-  }
+  /* Empty, loading and error states */
 
   .search-page .search-state-card {
-    padding: 32px 15px;
+    min-height: 0;
+    margin-top: 14px;
+    padding: 25px 16px;
+    border-radius: 14px;
+  }
+
+  .search-page .search-empty-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    font-size: 17px;
+  }
+
+  .search-page .search-empty h2 {
+    margin-top: 13px;
+    font-size: 16px;
+  }
+
+  .search-page .search-state-card p {
+    font-size: 12px;
+  }
+
+  .search-page .search-empty .search-hint {
+    font-size: 11px;
+  }
+
+  .search-page .search-loading,
+  .search-page .search-error-state {
+    min-height: 175px;
+    padding: 24px 15px;
+  }
+
+  .search-message {
+    gap: 9px;
+    padding: 10px;
+    font-size: 12px;
   }
 }
 
 /* =========================================================
-   SMALL MOBILE
+   20. SMALL MOBILE DEVICES
 ========================================================= */
 
-@media (max-width: 360px) {
+@media (max-width: 380px) {
   .search-page {
     padding-right: 10px;
     padding-left: 10px;
   }
 
-  .search-page .search-song-list {
-    gap: 8px;
+  .search-page .search-input-wrapper {
+    gap: 6px;
+    padding-left: 9px;
   }
 
-  .search-page .search-song-card {
-    padding: 7px;
-    border-radius: 10px;
-  }
-
-  .search-page .search-song-info h3 {
+  .search-page .search-input {
     font-size: 11px;
   }
 
-  .search-page .search-song-secondary,
-  .search-page .search-song-artist {
-    font-size: 9px;
+  .search-page .search-voice-button,
+  .search-page .search-voice-button button {
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .search-page .search-voice-button button {
+    padding: 0 7px;
+  }
+
+  .search-song-card {
+    grid-template-columns: 27px 40px minmax(0, 1fr) 27px;
+    gap: 7px;
+    padding: 7px 6px;
   }
 
   .search-page .search-song-play {
-    top: 9px;
-    right: 9px;
+    width: 26px;
+    height: 26px;
+    font-size: 9px;
+  }
+
+  .search-page .search-song-cover-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search-song-info h3 {
+    font-size: 11px;
+  }
+
+  .search-song-artist {
+    font-size: 9px;
+  }
+
+  .search-song-meta span {
+    max-width: 90px;
+  }
+
+  .search-song-menu-container {
     width: 27px;
-    height: 27px;
-    font-size: 10px;
+  }
+
+  .search-page .search-song-menu-trigger {
+    width: 26px;
+    height: 30px;
   }
 }
 
 /* =========================================================
-   KEYBOARD ACCESSIBILITY
-========================================================= */
-
-.search-page button:focus-visible,
-.search-page input:focus-visible,
-.search-page select:focus-visible,
-.search-page .search-song-card:focus-visible {
-  outline: 2px solid var(--search-blue-light);
-  outline-offset: 3px;
-}
-
-/* =========================================================
-   REDUCED MOTION
+   21. ACCESSIBILITY & REDUCED MOTION
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .search-page *,
   .search-page *::before,
   .search-page *::after {
+    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .search-loading-spinner {
+    animation: none;
+  }
+}
+
+/* =========================================================
+   END — KEERTHANA MUSIC SEARCH PAGE
+========================================================= */
+
+/* =========================================================
+   KEERTHANA — SEARCH BAR LAYOUT
+   Search input first row, language controls below
+========================================================= */
+
+.search-page .search-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0 0 32px;
+}
+
+/* Main search bar */
+.search-page .search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  min-height: 68px;
+  padding: 8px 11px 8px 20px;
+  border-radius: 18px;
+}
+
+/* Search field uses all remaining space */
+.search-page .search-input {
+  flex: 1 1 0%;
+  width: 0;
+  min-width: 0;
+  min-height: 46px;
+}
+
+/* Microphone button stays at the right end */
+.search-page .search-voice-button {
+  display: flex;
+  flex: 0 0 46px;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  min-width: 46px;
+  margin: 0;
+}
+
+/* VoiceSearch component button */
+.search-page .search-voice-button button {
+  display: inline-flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Language and helper row below the bar */
+.search-page .search-language-inline {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 14px;
+  padding: 0;
+}
+
+/* Helper text on the left */
+.search-page .search-language-hint {
+  color: var(--search-text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Label and dropdown stay together on the right */
+.search-page .search-language-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  gap: 12px;
+  min-width: 0;
+}
+
+.search-page .search-language-inline .search-language-label {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border: 0;
+  color: var(--search-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.search-page .search-language-inline .search-language-select {
+  flex: 0 0 142px;
+  width: 142px;
+  min-width: 142px;
+  max-width: 142px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 30px 0 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .search-page .search-input-wrapper {
+    min-height: 60px;
+    gap: 10px;
+    padding-left: 15px;
+  }
+
+  .search-page .search-language-inline {
+    gap: 10px;
+  }
+
+  .search-page .search-language-controls {
+    gap: 8px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .search-page .search-controls {
+    margin-bottom: 24px;
+  }
+
+  .search-page .search-input-wrapper {
+    min-height: 56px;
+    gap: 8px;
+    padding: 6px 7px 6px 12px;
+    border-radius: 15px;
+  }
+
+  .search-page .search-input {
+    min-height: 40px;
+    font-size: 12px;
+  }
+
+  .search-page .search-voice-button {
+    flex-basis: 38px;
+    width: 38px;
+    min-width: 38px;
+  }
+
+  .search-page .search-voice-button button {
+    flex-basis: 36px;
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    height: 36px;
+    min-height: 36px;
+  }
+
+  .search-page .search-language-inline {
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .search-page .search-language-hint {
+    flex: 1 1 100%;
+    font-size: 11px;
+  }
+
+  .search-page .search-language-controls {
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .search-page .search-language-inline .search-language-label {
+    font-size: 11px;
+  }
+
+  .search-page .search-language-inline .search-language-select {
+    flex-basis: 120px;
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    height: 38px;
+    min-height: 38px;
+    font-size: 12px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .search-page .search-input-wrapper {
+    gap: 6px;
+    padding-left: 9px;
+  }
+
+  .search-page .search-input {
+    font-size: 11px;
+  }
+
+  .search-page .search-language-controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .search-page .search-language-inline .search-language-select {
+    flex-basis: auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+}
+/* =========================================================
+   KEERTHANA — SEARCH BAR FIX
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.search-page .search-input-wrapper {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 58px;
+  padding: 7px 10px 7px 15px;
+
+  background: #111b30;
+  border: 1px solid rgba(142, 181, 255, 0.25);
+  border-radius: 15px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  transition: border-color 180ms ease,
+              box-shadow 180ms ease,
+              background 180ms ease;
+}
+
+.search-page .search-input-wrapper:focus-within {
+  background: #131f37;
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+}
+
+/* Voice search fills the available space */
+.search-page .search-input-wrapper .voice-search-wrapper {
+  display: block;
+  flex: 1 1 0%;
+  width: 0;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Remove nested box styling */
+.search-page .search-input-wrapper .voice-search-box,
+.search-page .search-input-wrapper .voice-search-box:focus-within,
+.search-page .search-input-wrapper
+.voice-search-is-listening .voice-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0;
+
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Use the search page's existing search icon */
+.search-page .search-input-wrapper .voice-search-icon {
+  display: none;
+}
+
+/* Input */
+.search-page .search-input-wrapper .voice-search-input {
+  box-sizing: border-box;
+  flex: 1 1 0%;
+  width: 0;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 4px;
+
+  color: #f6f8ff !important;
+  -webkit-text-fill-color: #f6f8ff !important;
+  caret-color: #e8c98a;
+
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.search-page .search-input-wrapper
+.voice-search-input::placeholder {
+  color: #a7b3c9 !important;
+  -webkit-text-fill-color: #a7b3c9 !important;
+  opacity: 1;
+}
+
+/* Microphone, search and clear buttons */
+.search-page .search-input-wrapper .voice-search-mic,
+.search-page .search-input-wrapper .voice-search-submit,
+.search-page .search-input-wrapper .search-clear-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border-radius: 11px;
+}
+
+/* Keyboard accessibility */
+.search-page .search-input-wrapper button:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 3px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .search-page .search-input-wrapper {
+    gap: 6px;
+    min-height: 54px;
+    padding: 5px 6px 5px 12px;
+    border-radius: 13px;
+  }
+
+  .search-page .search-input-wrapper .voice-search-box {
+    gap: 4px;
+  }
+
+  .search-page .search-input-wrapper .voice-search-input {
+    min-height: 40px;
+    font-size: 16px;
+  }
+
+  .search-page .search-input-wrapper .voice-search-mic,
+  .search-page .search-input-wrapper .voice-search-submit,
+  .search-page .search-input-wrapper .search-clear-button {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 10px;
+  }
+}
+
+/* Small Android phones */
+@media (max-width: 360px) {
+  .search-page .search-input-wrapper {
+    gap: 4px;
+    padding-right: 5px;
+    padding-left: 8px;
+  }
+
+  .search-page .search-input-wrapper .voice-search-mic,
+  .search-page .search-input-wrapper .voice-search-submit,
+  .search-page .search-input-wrapper .search-clear-button {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .search-page .search-input-wrapper {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   KEERTHANA SEARCH — RIGHT-ALIGNED VOICE LANGUAGE
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+/* Language row below the main search bar */
+.search-page .search-language-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* Search hint stays on the left */
+.search-page .search-language-hint {
+  flex: 1;
+  min-width: 0;
+  color: #9ba9c3;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* Language label and dropdown align to the right */
+.search-page .search-language-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Voice language label */
+.search-page .search-language-label {
+  margin: 0;
+  color: #e8c98a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Voice language dropdown */
+.search-page .search-language-select {
+  width: auto;
+  min-width: 145px;
+  max-width: 190px;
+  min-height: 40px;
+  padding: 9px 32px 9px 12px;
+
+  color: #f4f7ff;
+  background-color: #101a2d;
+  border: 1px solid rgba(57, 120, 246, 0.45);
+  border-radius: 10px;
+
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  outline: none;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.search-page .search-language-select:hover {
+  border-color: #3978f6;
+  background-color: #14213a;
+}
+
+.search-page .search-language-select:focus-visible {
+  border-color: #e8c98a;
+  box-shadow: 0 0 0 3px rgba(232, 201, 138, 0.18);
+}
+
+.search-page .search-language-select option {
+  color: #f4f7ff;
+  background: #101a2d;
+}
+
+/* Tablet and mobile */
+@media (max-width: 640px) {
+  .search-page .search-language-inline {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .search-page .search-language-hint {
+    flex-basis: 100%;
+  }
+
+  .search-page .search-language-controls {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 380px) {
+  .search-page .search-language-controls {
+    gap: 7px;
+  }
+
+  .search-page .search-language-label {
+    font-size: 0.74rem;
+  }
+
+  .search-page .search-language-select {
+    min-width: 120px;
+    max-width: 150px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-page .search-language-select {
+    transition: none;
+  }
+}
+/* =========================================
+   KEERTHANA — SEARCH BAR LAYOUT FIX
+========================================= */
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.search-input-icon {
+  flex: 0 0 auto;
+}
+
+.search-input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.search-clear-button,
+.search-voice-button {
+  flex: 0 0 auto;
+}
+
+.search-voice-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-language-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 14px;
+}
+
+.search-language-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.search-language-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.search-language-label {
+  white-space: nowrap;
+}
+
+.search-language-select {
+  width: 160px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .search-language-inline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .search-language-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-language-select {
+    width: 160px;
+  }
+}
+
+/* =========================================================
+   KEERTHANA — FINAL SEARCH BAR LAYOUT
+   One search field • One microphone • One language selector
+========================================================= */
+
+.search-page .search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 8px 12px 8px 18px;
+}
+
+.search-page .search-input {
+  flex: 1 1 auto;
+  width: 0;
+  min-width: 0;
+}
+
+.search-page .search-clear-button {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.search-page .search-voice-button {
+  display: inline-flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Keep the microphone button compact */
+.search-page .search-voice-button button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+}
+
+/* Keep the helper text and language selector below the bar */
+.search-page .search-language-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 14px;
+}
+
+.search-page .search-language-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.search-page .search-language-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.search-page .search-language-label {
+  white-space: nowrap;
+}
+
+.search-page .search-language-select {
+  flex: 0 1 160px;
+  width: 160px;
+  min-width: 130px;
+  max-width: 160px;
+  min-height: 42px;
+}
+
+@media (max-width: 600px) {
+  .search-page .search-input-wrapper {
+    gap: 7px;
+    min-height: 54px;
+    padding: 6px 7px 6px 12px;
+  }
+
+  .search-page .search-voice-button {
+    flex-basis: 36px;
+    width: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .search-page .search-voice-button button {
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    height: 36px;
+    min-height: 36px;
+  }
+
+  .search-page .search-language-inline {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .search-page .search-language-hint {
+    flex-basis: 100%;
+  }
+
+  .search-page .search-language-controls {
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .search-page .search-language-select {
+    flex: 0 1 150px;
+    width: 150px;
+    min-width: 120px;
+    max-width: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-page .search-input-wrapper {
+    transition: none;
   }
 }

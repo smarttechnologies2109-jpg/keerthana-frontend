@@ -230,6 +230,7 @@ import BusinessOwnerForgotPassword
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 import useAndroidBackButton from "./hooks/useAndroidBackButton";
+import RecentlyAdded from "./pages/RecentlyAdded";
 
 
 
@@ -394,7 +395,15 @@ function App() {
                   <Home />
                 }
               />
+{/* =================================================
+    RECENTLY ADDED
+    Uses the shared AppLayout
+================================================= */}
 
+<Route
+  path="/recently-added"
+  element={<RecentlyAdded />}
+/>
 
               {/* =================================================
                   ALL SONGS

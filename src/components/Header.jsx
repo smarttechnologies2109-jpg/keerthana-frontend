@@ -3,13 +3,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FaBars,
   FaBell,
+  FaChevronDown,
   FaChevronLeft,
   FaChevronRight,
+  FaCrown,
   FaMicrophone,
   FaMicrophoneSlash,
   FaMusic,
   FaSearch,
+  FaSignInAlt,
+  FaSignOutAlt,
   FaUser,
+  FaUserCircle,
 } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -27,11 +32,15 @@ const PAGE_TITLES = [
   { paths: ["/history"], title: "Listening History" },
   { paths: ["/premium"], title: "Premium" },
   { paths: ["/profile"], title: "Profile" },
-  { paths: ["/offline-songs"], title: "Offline Songs" },
+  { paths: ["/offline-songs", "/downloads"], title: "Offline Songs" },
   { paths: ["/notifications"], title: "Notifications" },
   { paths: ["/song", "/songs"], title: "Songs" },
   { paths: ["/artist", "/artists"], title: "Artists" },
   { paths: ["/album", "/albums"], title: "Albums" },
+  { paths: ["/ministries"], title: "Ministries" },
+  { paths: ["/mood-playlists"], title: "Mood Playlists" },
+  { paths: ["/statistics"], title: "Statistics" },
+  { paths: ["/keerthana-ai"], title: "Keerthana AI" },
 ];
 
 function getPageTitle(pathname) {
@@ -49,17 +58,27 @@ function getPageTitle(pathname) {
 function Header({ onToggleSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
+
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null);
+  const profileMenuRef = useRef(null);
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { unreadCount = 0 } = useNotifications();
 
   const [searchValue, setSearchValue] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(true);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const pageTitle = getPageTitle(location.pathname);
+
+  const displayName =
+    user?.name?.trim() ||
+    user?.email?.trim() ||
+    "My Account";
+
+  const avatarLetter = displayName.charAt(0).toUpperCase();
 
   const handleSearchSubmit = useCallback(
     (event) => {
@@ -108,6 +127,7 @@ function Header({ onToggleSidebar }) {
     }
   }, [isListening, stopVoiceSearch, voiceSupported]);
 
+  // Voice search
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -181,6 +201,7 @@ function Header({ onToggleSidebar }) {
     };
   }, [navigate]);
 
+  // Keyboard shortcut: focus search with /
   useEffect(() => {
     const handleKeyDown = (event) => {
       const target = event.target;
@@ -210,6 +231,45 @@ function Header({ onToggleSidebar }) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  // Close the profile menu when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!profileMenuOpen) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [profileMenuOpen]);
+
+  // Close the dropdown when changing pages
+  useEffect(() => {
+    setProfileMenuOpen(false);
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    setProfileMenuOpen(false);
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <header className="keerthana-header">
@@ -337,13 +397,97 @@ function Header({ onToggleSidebar }) {
           )}
         </Link>
 
-        {!user && (
+        {user ? (
+          <div className="header-profile" ref={profileMenuRef}>
+            <button
+              type="button"
+              className={`header-profile-trigger ${
+                profileMenuOpen ? "header-profile-trigger-open" : ""
+              }`}
+              onClick={() => setProfileMenuOpen((open) => !open)}
+              aria-expanded={profileMenuOpen}
+              aria-haspopup="menu"
+              aria-label={`Open account menu for ${displayName}`}
+            >
+              <span className="header-profile-avatar" aria-hidden="true">
+                {avatarLetter}
+              </span>
+
+              <span className="header-profile-name">
+                {displayName}
+              </span>
+
+              <FaChevronDown
+                className="header-profile-chevron"
+                aria-hidden="true"
+              />
+            </button>
+
+            {profileMenuOpen && (
+              <div
+                className="header-profile-dropdown"
+                role="menu"
+                aria-label="Account menu"
+              >
+                <div className="header-profile-dropdown-heading">
+                  <span className="header-profile-avatar header-profile-avatar-large">
+                    {avatarLetter}
+                  </span>
+
+                  <span className="header-profile-heading-copy">
+                    <strong>{displayName}</strong>
+                    <small>KEERTHANA account</small>
+                  </span>
+                </div>
+
+                <div className="header-profile-divider" />
+
+                <Link
+                  to="/profile"
+                  className="header-profile-menu-item"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <FaUserCircle aria-hidden="true" />
+                  <span>View Profile</span>
+                  <FaChevronRight className="header-profile-item-arrow" aria-hidden="true" />
+                </Link>
+
+                <Link
+                  to="/premium"
+                  className="header-profile-menu-item header-profile-premium-item"
+                  role="menuitem"
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <FaCrown aria-hidden="true" />
+                  <span>
+                    <strong>Premium</strong>
+                    <small>Enjoy more music</small>
+                  </span>
+                  <FaChevronRight className="header-profile-item-arrow" aria-hidden="true" />
+                </Link>
+
+                <div className="header-profile-divider" />
+
+                <button
+                  type="button"
+                  className="header-profile-menu-item header-profile-logout"
+                  role="menuitem"
+                  onClick={handleLogout}
+                >
+                  <FaSignOutAlt aria-hidden="true" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
           <button
             type="button"
             className="header-login-button"
             onClick={() => navigate("/login")}
           >
-            <FaUser aria-hidden="true" />
+            <FaSignInAlt aria-hidden="true" />
             <span>Login</span>
           </button>
         )}

@@ -759,3 +759,1014 @@
     font-size: 11px;
   }
 }
+/* =========================================
+   ALL SONGS — RESULTS HEADER & PLAY ALL
+========================================= */
+
+.all-songs-results-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.all-songs-results-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.all-songs-results-title h2 {
+  margin: 0;
+  color: #f4f6fc;
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.all-songs-count {
+  color: #aab8d1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================
+   ALL SONGS — RESULTS HEADER & PLAY ALL
+========================================= */
+
+.all-songs-results-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.all-songs-results-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.all-songs-results-title h2 {
+  margin: 0;
+  color: #f4f6fc;
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.all-songs-count {
+  color: #aab8d1;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* =========================================
+   PLAY ALL BUTTON
+========================================= */
+
+.all-songs-play-all {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 18px;
+
+  border: 1px solid rgba(230, 193, 115, 0.4);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    135deg,
+    #f0d49a 0%,
+    #d9ad58 100%
+  );
+
+  color: #10182b;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 16px rgba(217, 173, 88, 0.12);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.all-songs-play-all:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 7px 22px rgba(217, 173, 88, 0.22);
+}
+
+.all-songs-play-all:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.all-songs-play-all:focus-visible {
+  outline: 2px solid #f0d49a;
+  outline-offset: 4px;
+}
+
+.all-songs-play-all:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.all-songs-play-all svg {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+/* =========================================
+   TABLET & MOBILE RESPONSIVENESS
+========================================= */
+
+@media (max-width: 480px) {
+  .all-songs-results-heading {
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .all-songs-results-title {
+    gap: 6px;
+  }
+
+  .all-songs-results-title h2 {
+    font-size: 17px;
+    letter-spacing: -0.3px;
+  }
+
+  .all-songs-count {
+    font-size: 11px;
+  }
+
+  .all-songs-play-all {
+    min-height: 36px;
+    padding: 0 13px;
+    gap: 7px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION ACCESSIBILITY
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .all-songs-play-all {
+    transition: none;
+  }
+
+  .all-songs-play-all:hover:not(:disabled),
+  .all-songs-play-all:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .all-songs-results-heading {
+    gap: 10px;
+  }
+
+  .all-songs-results-title {
+    gap: 5px;
+  }
+
+  .all-songs-results-title h2 {
+    font-size: 17px;
+  }
+
+  .all-songs-play-all {
+    min-height: 38px;
+    padding: 0 13px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .all-songs-play-all {
+    transition: none;
+  }
+}
+
+/* =========================================
+   SONG CARD — THREE-DOT MENU
+========================================= */
+
+.all-songs-page .all-song-card {
+  position: relative;
+}
+
+.all-songs-page .all-song-menu-container {
+  position: absolute;
+  z-index: 10;
+  top: 15px;
+  right: 15px;
+}
+
+.all-songs-page .all-song-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(8, 13, 26, 0.88);
+  color: #f6f8ff;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+  backdrop-filter: blur(10px);
+}
+
+.all-songs-page .all-song-card:hover .all-song-menu-trigger,
+.all-songs-page .all-song-menu-trigger:focus-visible,
+.all-songs-page .all-song-menu-trigger[aria-expanded="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.all-songs-page .all-song-menu-trigger:hover,
+.all-songs-page .all-song-menu-trigger[aria-expanded="true"] {
+  border-color: #8eb5ff;
+  background: #3978f6;
+}
+
+.all-songs-page .all-song-menu-trigger:focus-visible,
+.all-songs-page .all-song-context-menu button:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 3px;
+}
+
+/* Floating action menu */
+
+.all-songs-page .all-song-context-menu {
+  position: absolute;
+  top: 43px;
+  right: 0;
+  z-index: 30;
+  width: min(235px, calc(100vw - 48px));
+  padding: 7px;
+  border: 1px solid rgba(142, 181, 255, 0.2);
+  border-radius: 14px;
+  background: #111b30;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.42);
+  animation: all-song-menu-enter 150ms ease-out;
+}
+
+.all-songs-page .all-song-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 41px;
+  padding: 10px 11px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #eaf0ff;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.all-songs-page .all-song-context-menu button svg {
+  flex: 0 0 15px;
+  width: 15px;
+  color: #8eb5ff;
+  font-size: 13px;
+}
+
+.all-songs-page .all-song-context-menu button:hover {
+  background: rgba(57, 120, 246, 0.16);
+  color: #ffffff;
+}
+
+.all-songs-page .all-song-context-menu button:hover svg {
+  color: #e8c98a;
+}
+
+.all-songs-page .all-song-menu-divider {
+  height: 1px;
+  margin: 6px 5px;
+  background: rgba(177, 198, 235, 0.14);
+}
+
+/* Language filters */
+
+.all-songs-page .all-songs-language-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 22px;
+}
+
+.all-songs-page .all-songs-language-chip {
+  min-height: 35px;
+  padding: 0 15px;
+  border: 1px solid rgba(177, 198, 235, 0.16);
+  border-radius: 999px;
+  background: #111b30;
+  color: #b7c4dc;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.all-songs-page .all-songs-language-chip:hover {
+  border-color: rgba(142, 181, 255, 0.55);
+  color: #ffffff;
+}
+
+.all-songs-page .all-songs-language-chip.active {
+  border-color: #3978f6;
+  background: #3978f6;
+  color: #ffffff;
+}
+
+/* Toast feedback */
+
+.all-songs-page .all-songs-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 105px;
+  z-index: 1000;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 13px 17px;
+  border: 1px solid rgba(142, 181, 255, 0.25);
+  border-radius: 12px;
+  background: #111b30;
+  color: #f6f8ff;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  animation: all-song-menu-enter 150ms ease-out;
+}
+
+@keyframes all-song-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Touch devices: always show the menu button */
+
+@media (hover: none) {
+  .all-songs-page .all-song-menu-trigger {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .all-songs-page .all-song-menu-container {
+    top: 11px;
+    right: 11px;
+  }
+
+  .all-songs-page .all-song-menu-trigger {
+    width: 33px;
+    height: 33px;
+    opacity: 1;
+    transform: none;
+  }
+
+  .all-songs-page .all-song-context-menu {
+    top: 39px;
+    width: min(225px, calc(100vw - 35px));
+  }
+
+  .all-songs-page .all-song-context-menu button {
+    min-height: 43px;
+    font-size: 12px;
+  }
+
+  .all-songs-page .all-songs-toast {
+    right: 12px;
+    bottom: 95px;
+    left: 12px;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .all-songs-page .all-song-menu-trigger,
+  .all-songs-page .all-song-context-menu,
+  .all-songs-page .all-songs-language-chip {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =====================================================
+   KEERTHANA — PREMIUM HORIZONTAL SONG LIST
+   Compact artwork • Clean rows • Navy / Blue / Gold
+===================================================== */
+
+/* Replace the square-card grid with a vertical list */
+.all-songs-page .all-songs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Horizontal song row */
+.all-songs-page .all-song-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  min-width: 0;
+  min-height: 92px;
+  padding: 11px 14px;
+  overflow: visible;
+  border: 1px solid rgba(177, 198, 235, 0.10);
+  border-radius: 13px;
+  background: rgba(13, 20, 36, 0.88);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.all-songs-page .all-song-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(142, 181, 255, 0.27);
+  background: #111b30;
+}
+
+.all-songs-page .all-song-card.current {
+  border-color: rgba(57, 120, 246, 0.55);
+  background: linear-gradient(
+    100deg,
+    rgba(57, 120, 246, 0.13),
+    rgba(17, 27, 48, 0.96) 48%
+  );
+}
+
+/* Compact rectangular-row artwork */
+.all-songs-page .all-song-cover {
+  width: 68px;
+  height: 68px;
+  aspect-ratio: auto;
+  flex: none;
+  border-radius: 9px;
+  background: #182641;
+}
+
+.all-songs-page .all-song-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Small play overlay on artwork */
+.all-songs-page .all-song-cover-play {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  top: 0;
+  width: auto;
+  height: auto;
+  border: none;
+  border-radius: 9px;
+  background: rgba(5, 11, 23, 0.48);
+  font-size: 17px;
+  opacity: 0;
+  transform: none;
+}
+
+.all-songs-page .all-song-card:hover .all-song-cover-play,
+.all-songs-page .all-song-card.current .all-song-cover-play,
+.all-songs-page .all-song-cover:focus-visible .all-song-cover-play {
+  opacity: 1;
+  transform: none;
+}
+
+/* Song information fills the middle column */
+.all-songs-page .all-song-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  padding: 0;
+}
+
+.all-songs-page .all-song-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 3px;
+}
+
+.all-songs-page .all-song-primary-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.all-songs-page .all-song-english-title {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.all-songs-page .all-song-artist {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* Play button remains beside the song information */
+.all-songs-page .all-song-play-button {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border-color: transparent;
+  color: #aabbd8;
+}
+
+.all-songs-page .all-song-card:hover .all-song-play-button,
+.all-songs-page .all-song-play-button.playing {
+  border-color: rgba(142, 181, 255, 0.24);
+  background: rgba(57, 120, 246, 0.16);
+  color: #8eb5ff;
+}
+
+/* Three-dot button belongs in the final grid column */
+.all-songs-page .all-song-menu-container {
+  position: relative;
+  top: auto;
+  right: auto;
+  z-index: 20;
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+}
+
+.all-songs-page .all-song-menu-trigger {
+  width: 34px;
+  height: 38px;
+  border-color: transparent;
+  background: transparent;
+  color: #a7b3c9;
+  opacity: 1;
+  transform: none;
+  backdrop-filter: none;
+}
+
+.all-songs-page .all-song-menu-trigger:hover,
+.all-songs-page .all-song-menu-trigger[aria-expanded="true"] {
+  border-color: rgba(142, 181, 255, 0.25);
+  background: #223657;
+  color: #ffffff;
+}
+
+/* Keep the dropdown above neighbouring song rows */
+.all-songs-page .all-song-context-menu {
+  top: calc(100% + 5px);
+  right: 0;
+  z-index: 100;
+}
+
+/* Current song gets a subtle blue accent */
+.all-songs-page .all-song-card.current .all-song-primary-title {
+  color: #ffffff;
+}
+
+.all-songs-page .all-song-card.current .all-song-artist {
+  color: #b8c9e7;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .all-songs-page .all-song-card {
+    grid-template-columns: 62px minmax(0, 1fr) 34px;
+    gap: 12px;
+    min-height: 84px;
+    padding: 10px 12px;
+  }
+
+  .all-songs-page .all-song-cover {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .all-songs-page .all-songs-list {
+    gap: 7px;
+  }
+
+  .all-songs-page .all-song-card {
+    grid-template-columns: 54px minmax(0, 1fr) 30px;
+    gap: 10px;
+    min-height: 74px;
+    padding: 9px;
+    border-radius: 11px;
+  }
+
+  .all-songs-page .all-song-cover {
+    width: 54px;
+    height: 54px;
+    border-radius: 8px;
+  }
+
+  .all-songs-page .all-song-cover-play {
+    border-radius: 8px;
+    opacity: 1;
+  }
+
+  .all-songs-page .all-song-card-info {
+    gap: 5px;
+  }
+
+  .all-songs-page .all-song-primary-title {
+    font-size: 12px;
+  }
+
+  .all-songs-page .all-song-english-title,
+  .all-songs-page .all-song-artist {
+    font-size: 11px;
+  }
+
+  .all-songs-page .all-song-play-button {
+    display: none;
+  }
+
+  .all-songs-page .all-song-menu-trigger {
+    width: 30px;
+    height: 36px;
+  }
+
+  .all-songs-page .all-song-context-menu {
+    width: min(225px, calc(100vw - 35px));
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .all-songs-page .all-song-card,
+  .all-songs-page .all-song-cover img,
+  .all-songs-page .all-song-cover-play,
+  .all-songs-page .all-song-play-button {
+    transition: none;
+  }
+}
+/* =========================================
+   FIX — PLAY ALL BUTTON RIGHT ALIGNMENT
+========================================= */
+
+.all-songs-page .all-songs-results-heading {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100%;
+}
+
+.all-songs-page .all-songs-results-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.all-songs-page .all-songs-play-all {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  align-self: center;
+}
+
+/* Mobile alignment */
+@media (max-width: 480px) {
+  .all-songs-page .all-songs-results-heading {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+  }
+
+  .all-songs-page .all-songs-play-all {
+    margin-left: auto !important;
+  }
+}
+/* =========================================
+   KEERTHANA — FORCE PLAY ALL TO THE LEFT
+========================================= */
+
+.all-songs-page .all-songs-results-heading {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  gap: 16px !important;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.all-songs-page .all-songs-results-title {
+  display: flex !important;
+  flex: 0 1 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.all-songs-page .all-songs-results-heading .all-songs-play-all {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  align-self: center;
+  white-space: nowrap;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .all-songs-page .all-songs-results-heading {
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .all-songs-page .all-songs-results-title {
+    flex: 0 1 auto !important;
+    gap: 6px;
+  }
+
+  .all-songs-page .all-songs-results-heading .all-songs-play-all {
+    margin-left: 0 !important;
+  }
+}
+
+/* =========================================
+   KEERTHANA — PLAY ALL ABOVE ALL SONGS
+   Left aligned, separate row
+========================================= */
+
+.all-songs-page .all-songs-results-heading {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.all-songs-page .all-songs-results-heading .all-songs-play-all {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+
+  gap: 9px;
+  width: auto;
+  min-width: 112px;
+  min-height: 42px;
+  margin: 0 !important;
+  padding: 0 18px;
+
+  border: 1px solid rgba(232, 202, 145, 0.35);
+  border-radius: 999px;
+
+  color: #111827;
+  background: linear-gradient(
+    135deg,
+    #f3dfb4,
+    #e8ca91 58%,
+    #d7b66f
+  );
+
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.all-songs-page .all-songs-results-heading .all-songs-play-all:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 7px 20px rgba(232, 202, 145, 0.16);
+}
+
+.all-songs-page .all-songs-results-heading .all-songs-play-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.all-songs-page .all-songs-results-title {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  flex: 0 1 auto !important;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .all-songs-page .all-songs-results-heading {
+    align-items: flex-start !important;
+    gap: 13px !important;
+  }
+
+  .all-songs-page .all-songs-results-heading .all-songs-play-all {
+    min-height: 39px;
+    min-width: 105px;
+    padding: 0 15px;
+    font-size: 11px;
+  }
+}
+
+/* =========================================
+   KEERTHANA — ALL SONGS RESULTS HEADER
+   Midnight Navy • Royal Blue • Soft Gold
+========================================= */
+
+.all-songs-results-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.all-songs-results-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.all-songs-results-title h2 {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 1.3;
+}
+
+.all-songs-count {
+  color: #c5cde0;
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.all-songs-play-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(232, 201, 138, 0.35);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3978f6, #245bd0);
+  color: #ffffff;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 5px 18px rgba(57, 120, 246, 0.2);
+  transition:
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.all-songs-play-all:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4c88ff, #316be6);
+  box-shadow: 0 8px 22px rgba(57, 120, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.all-songs-play-all:focus-visible {
+  outline: 2px solid #e8c98a;
+  outline-offset: 4px;
+}
+
+.all-songs-play-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .all-songs-results-heading {
+    gap: 12px;
+  }
+
+  .all-songs-play-all {
+    min-height: 42px;
+    padding: 0 18px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .all-songs-play-all {
+    transition: none;
+  }
+
+  .all-songs-play-all:hover:not(:disabled) {
+    transform: none;
+  }
+}
+/* =========================================
+   KEERTHANA — PLAY ALL + SONG COUNT ROW
+========================================= */
+
+.all-songs-play-all-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  width: 100%;
+}
+
+.all-songs-count {
+  margin-left: auto;
+  color: #c5cde0;
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .all-songs-play-all-row {
+    gap: 10px;
+  }
+}

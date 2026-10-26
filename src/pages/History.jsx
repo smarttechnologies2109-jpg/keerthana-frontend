@@ -1,7 +1,5 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+
+import { useCallback, useEffect, useState } from "react";
 
 import {
   FaClock,
@@ -9,67 +7,148 @@ import {
   FaPlay,
   FaPause,
   FaTrash,
+  FaMusic,
+  FaSearch,
+  FaTimes,
 } from "react-icons/fa";
 
 import API from "../services/api";
-
-import {
-  usePlayer,
-} from "../context/usePlayer";
-
-import {
-  getMediaUrl,
-} from "../utils/media";
+import { usePlayer } from "../context/PlayerContext";
+import { getMediaUrl } from "../utils/media";
+import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/history.css";
 
-
 /* =========================================================
-   FORMAT DATE
+   KEERTHANA — LISTENING HISTORY
 ========================================================= */
 
-function formatPlayedDate(dateValue) {
+const DEFAULT_COVER = "/images/default-cover.png";
 
-  if (!dateValue) {
-    return "";
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const getSongId = (song) =>
+  song?.id ?? song?.song_id ?? song?.songId ?? null;
+
+const getSongTitle = (song) =>
+  song?.title ||
+  song?.title_english ||
+  song?.name ||
+  "Untitled Song";
+
+const getArtistName = (song) =>
+  song?.artist_name ||
+  (typeof song?.artist === "string"
+    ? song.artist
+    : song?.artist?.name) ||
+  "Unknown Artist";
+
+const getAlbumName = (song) =>
+  song?.album_name ||
+  song?.album?.title ||
+  (typeof song?.album === "string"
+    ? song.album
+    : "Single");
+
+const formatPlayedDate = (value) => {
+  if (!value) return "Recently played";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Recently played";
   }
 
+  const now = new Date();
 
-  const date =
-    new Date(dateValue);
-
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return "";
-  }
-
-
-  return date.toLocaleString(
-    undefined,
-    {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
   );
 
-}
+  const playedDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
 
+  const days = Math.round(
+    (today.getTime() - playedDay.getTime()) / 86400000
+  );
+
+  if (days === 0) {
+    return `Today, ${date.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    })}`;
+  }
+
+  if (days === 1) {
+    return "Yesterday";
+  }
+
+  return date.toLocaleDateString([], {
+    day: "numeric",
+    month: "short",
+    year:
+      date.getFullYear() !== now.getFullYear()
+        ? "numeric"
+        : undefined,
+  });
+};
+
+const normalizeHistory = (responseData) => {
+  const records = Array.isArray(responseData)
+    ? responseData
+    : responseData?.history ||
+      responseData?.songs ||
+      responseData?.recently_played ||
+      responseData?.data ||
+      [];
+
+  if (!Array.isArray(records)) return [];
+
+  const seen = new Set();
+
+  return records
+    .map((record) => {
+      const song = record?.song || record?.track || record;
+
+      if (!song || typeof song !== "object") {
+        return null;
+      }
+
+      const id = getSongId(song);
+
+      if (id == null || seen.has(String(id))) {
+        return null;
+      }
+
+      seen.add(String(id));
+
+      return {
+        ...song,
+        id,
+        played_at:
+          record?.played_at ||
+          record?.playedAt ||
+          record?.last_played_at ||
+          record?.created_at ||
+          song?.played_at ||
+          null,
+      };
+    })
+    .filter(Boolean);
+};
 
 /* =========================================================
    HISTORY PAGE
 ========================================================= */
 
-function History() {
-
-
-  /* =======================================================
-     PLAYER
-  ======================================================= */
-
+export default function History() {
   const {
     currentSong,
     isPlaying,
@@ -77,896 +156,517 @@ function History() {
     togglePlay,
   } = usePlayer();
 
-
-  /* =======================================================
-     STATE
-  ======================================================= */
-
-  const [
-    history,
-    setHistory,
-  ] = useState([]);
-
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
-
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-
-  const [
-    clearingHistory,
-    setClearingHistory,
-  ] = useState(false);
-
-
-  /* =======================================================
-     LOAD HISTORY
-  ======================================================= */
-
-  useEffect(() => {
-
-    let active = true;
-
-
-    const loadHistory =
-      async () => {
-
-        try {
-
-          setLoading(true);
-
-          setError("");
-
-
-          const response =
-            await API.get(
-              "/history"
-            );
-
-
-          /*
-            Supported response shapes:
-
-            {
-              history: [...]
-            }
-
-            OR
-
-            {
-              songs: [...]
-            }
-
-            OR
-
-            {
-              recently_played: [...]
-            }
-          */
-
-          const historyData =
-            response.data?.history ||
-            response.data?.songs ||
-            response.data?.recently_played ||
-            [];
-
-
-          /* =================================================
-             NORMALIZE HISTORY
-          ================================================= */
-
-          const normalized =
-            historyData
-              .map((item) => {
-
-                /*
-                  Some APIs return:
-
-                  {
-                    played_at: "...",
-                    song: {
-                      id: 1,
-                      title: "..."
-                    }
-                  }
-                */
-
-                if (
-                  item?.song &&
-                  typeof item.song ===
-                    "object"
-                ) {
-
-                  return {
-
-                    ...item.song,
-
-                    history_id:
-                      item.history_id ||
-                      item.id ||
-                      item.song.history_id ||
-                      null,
-
-                    progress_seconds:
-                      item.progress_seconds ??
-                      item.song.progress_seconds ??
-                      0,
-
-                    completed:
-                      item.completed ??
-                      item.song.completed ??
-                      false,
-
-                    played_at:
-                      item.played_at ||
-                      item.updated_at ||
-                      item.song.played_at ||
-                      null,
-
-                  };
-
-                }
-
-
-                /*
-                  Backend can also return
-                  song information directly.
-                */
-
-                return item;
-
-              })
-              .filter(
-                (song) =>
-                  song &&
-                  song.id
-              );
-
-
-          /*
-            Remove duplicate songs.
-
-            First/newest occurrence is preserved.
-          */
-
-          const uniqueHistory =
-            Array.from(
-              new Map(
-                normalized.map(
-                  (song) => [
-                    song.id,
-                    song,
-                  ]
-                )
-              ).values()
-            );
-
-
-          if (active) {
-
-            setHistory(
-              uniqueHistory
-            );
-
-          }
-
-
-        } catch (error) {
-
-          console.error(
-            "History loading error:",
-            error
-          );
-
-
-          if (active) {
-
-            setError(
-              error.response
-                ?.data
-                ?.message ||
-              "Unable to load listening history."
-            );
-
-          }
-
-
-        } finally {
-
-          if (active) {
-
-            setLoading(false);
-
-          }
-
-        }
-
-      };
-
-
-    loadHistory();
-
-
-    return () => {
-
-      active = false;
-
-    };
-
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [clearing, setClearing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  /* -------------------------------------------------------
+     VOICE SEARCH
+     Language selection is managed by VoiceSearch.jsx.
+  ------------------------------------------------------- */
+
+  const handleVoiceSearch = useCallback((recognizedText) => {
+    setSearchQuery(recognizedText);
   }, []);
 
+  /* -------------------------------------------------------
+     CURRENT SONG HELPERS
+  ------------------------------------------------------- */
 
-  /* =======================================================
-     CHECK CURRENT SONG
-  ======================================================= */
-
-  const isCurrentSong =
+  const isCurrentSong = useCallback(
     (song) => {
+      const currentId = getSongId(currentSong);
+      const songId = getSongId(song);
 
       return (
-        String(
-          currentSong?.id
-        ) ===
-        String(
-          song?.id
-        )
+        currentId != null &&
+        songId != null &&
+        String(currentId) === String(songId)
+      );
+    },
+    [currentSong]
+  );
+
+  const isSongPlaying = (song) =>
+    isCurrentSong(song) && isPlaying;
+
+  const isHistoryPlaying =
+    history.some(isCurrentSong) && isPlaying;
+
+  /* -------------------------------------------------------
+     LOAD HISTORY
+  ------------------------------------------------------- */
+
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await API.get("/history");
+
+      setHistory(normalizeHistory(response?.data));
+    } catch (err) {
+      console.error(
+        "Failed to load listening history:",
+        err
       );
 
-    };
-
-
-  /* =======================================================
-     CHECK PLAYING SONG
-  ======================================================= */
-
-  const isSongPlaying =
-    (song) => {
-
-      return (
-        isCurrentSong(song) &&
-        isPlaying
+      setError(
+        err?.response?.data?.message ||
+          "Unable to load your listening history. Please try again."
       );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    };
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
+  /* -------------------------------------------------------
+     FILTER HISTORY
+  ------------------------------------------------------- */
 
-  /* =======================================================
-     PLAY / PAUSE HISTORY SONG
-  ======================================================= */
+  const query = searchQuery.trim().toLowerCase();
 
-  const handlePlay =
-    (song) => {
+  const filteredHistory = history.filter((song) => {
+    if (!query) return true;
 
-      if (!song) {
-        return;
-      }
+    const title = getSongTitle(song).toLowerCase();
+    const artist = getArtistName(song).toLowerCase();
+    const album = getAlbumName(song).toLowerCase();
 
-
-      /*
-        If this is the currently loaded song,
-        toggle Play / Pause.
-      */
-
-      if (
-        isCurrentSong(song)
-      ) {
-
-        togglePlay();
-
-        return;
-
-      }
-
-
-      /*
-        Different song:
-        start that song and use history
-        as the queue.
-      */
-
-      if (!song.audio_url) {
-
-        window.alert(
-          "Audio is not available for this song."
-        );
-
-        return;
-
-      }
-
-
-      playSong(
-        song,
-        history
-      );
-
-    };
-
-
-  /* =======================================================
-     CLEAR HISTORY
-  ======================================================= */
-
-  const handleClearHistory =
-    async () => {
-
-      if (
-        clearingHistory ||
-        history.length === 0
-      ) {
-        return;
-      }
-
-
-      const confirmed =
-        window.confirm(
-          "Are you sure you want to clear your entire listening history?"
-        );
-
-
-      if (!confirmed) {
-        return;
-      }
-
-
-      try {
-
-        setClearingHistory(
-          true
-        );
-
-        setError("");
-
-
-        await API.delete(
-          "/history"
-        );
-
-
-        setHistory([]);
-
-
-      } catch (error) {
-
-        console.error(
-          "Clear history error:",
-          error
-        );
-
-
-        const message =
-          error.response
-            ?.data
-            ?.message ||
-          "Unable to clear listening history.";
-
-
-        setError(
-          message
-        );
-
-
-        window.alert(
-          message
-        );
-
-
-      } finally {
-
-        setClearingHistory(
-          false
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     LOADING
-  ======================================================= */
-
-  if (loading) {
+    const playedDate = formatPlayedDate(song.played_at)
+      .toLowerCase();
 
     return (
+      title.includes(query) ||
+      artist.includes(query) ||
+      album.includes(query) ||
+      playedDate.includes(query)
+    );
+  });
 
-      <div className="history-page">
+  /* -------------------------------------------------------
+     PLAY INDIVIDUAL SONG
+  ------------------------------------------------------- */
 
-        <div className="history-loading">
+  const handlePlaySong = async (song) => {
+    if (!song) return;
 
-          <FaHistory />
+    try {
+      if (isCurrentSong(song)) {
+        await togglePlay();
+        return;
+      }
 
-          <h2>
-            Loading History...
-          </h2>
+      const index = filteredHistory.findIndex(
+        (item) =>
+          String(getSongId(item)) ===
+          String(getSongId(song))
+      );
 
-          <p>
-            Finding your recently
-            played music.
-          </p>
+      await playSong(
+        song,
+        filteredHistory,
+        Math.max(index, 0)
+      );
+    } catch (err) {
+      console.error("History playback failed:", err);
+    }
+  };
 
-        </div>
+  /* -------------------------------------------------------
+     PLAY ALL / PAUSE ALL
+  ------------------------------------------------------- */
 
-      </div>
+  const handlePlayAll = async () => {
+    if (!filteredHistory.length) return;
 
+    try {
+      const containsCurrent = filteredHistory.some(
+        isCurrentSong
+      );
+
+      if (containsCurrent) {
+        await togglePlay();
+        return;
+      }
+
+      await playSong(
+        filteredHistory[0],
+        filteredHistory,
+        0
+      );
+    } catch (err) {
+      console.error("Play All history failed:", err);
+    }
+  };
+
+  /* -------------------------------------------------------
+     CLEAR HISTORY
+  ------------------------------------------------------- */
+
+  const handleClearHistory = async () => {
+    if (!history.length || clearing) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to clear your listening history?"
     );
 
-  }
+    if (!confirmed) return;
 
+    setClearing(true);
+    setError("");
 
-  /* =======================================================
-     PAGE
-  ======================================================= */
+    try {
+      await API.delete("/history");
+
+      setHistory([]);
+      setSearchQuery("");
+    } catch (err) {
+      console.error(
+        "Failed to clear listening history:",
+        err
+      );
+
+      setError(
+        err?.response?.data?.message ||
+          "Unable to clear history. Please try again."
+      );
+    } finally {
+      setClearing(false);
+    }
+  };
+
+  /* -------------------------------------------------------
+     COVER IMAGE
+  ------------------------------------------------------- */
+
+  const getCover = (song) => {
+    const cover =
+      song?.cover_url ||
+      song?.coverUrl ||
+      song?.album_cover ||
+      song?.image_url;
+
+    if (!cover) return DEFAULT_COVER;
+
+    try {
+      return getMediaUrl(cover) || DEFAULT_COVER;
+    } catch {
+      return DEFAULT_COVER;
+    }
+  };
+
+  /* -------------------------------------------------------
+     RENDER
+  ------------------------------------------------------- */
 
   return (
+    <main className="history-page">
+      <section className="history-container">
 
-    <div className="history-page">
+        {/* PAGE HEADER */}
 
-
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
-      <header className="history-header">
-
-
-        {/* LEFT */}
-
-        <div className="history-header-main">
-
-          <div className="history-header-icon">
-
-            <FaHistory />
-
-          </div>
-
-
-          <div className="history-header-content">
-
-            <span className="history-eyebrow">
-
-              YOUR MUSIC
-
+        <header className="history-header">
+          <div className="history-heading">
+            <span className="history-heading-icon">
+              <FaHistory />
             </span>
 
+            <div>
+              <p className="history-eyebrow">
+                YOUR MUSIC JOURNEY
+              </p>
 
-            <h1>
+              <h1>Listening History</h1>
 
-              Listening History
-
-            </h1>
-
-
-            <p>
-
-              Songs you've recently
-              played on KEERTHANA.
-
-            </p>
-
+              <p className="history-subtitle">
+                Return to the songs that have been part of
+                your worship.
+              </p>
+            </div>
           </div>
 
-        </div>
+          <div className="history-count">
+            <FaClock />
 
+            <span>
+              {history.length}{" "}
+              {history.length === 1 ? "song" : "songs"}
+            </span>
+          </div>
+        </header>
 
-        {/* CLEAR HISTORY */}
+        {/* TOOLBAR */}
 
-        {history.length > 0 && (
+        <div className="history-toolbar">
+          <div className="history-toolbar-left">
+            <button
+              type="button"
+              className={`history-play-all ${
+                isHistoryPlaying ? "is-playing" : ""
+              }`}
+              onClick={handlePlayAll}
+              disabled={
+                loading || filteredHistory.length === 0
+              }
+              aria-label={
+                isHistoryPlaying
+                  ? "Pause listening history"
+                  : "Play songs in listening history"
+              }
+            >
+              {isHistoryPlaying ? <FaPause /> : <FaPlay />}
+
+              <span>
+                {isHistoryPlaying ? "Pause All" : "Play All"}
+              </span>
+            </button>
+
+            <span className="history-toolbar-caption">
+              {filteredHistory.length > 0
+                ? query
+                  ? `Play ${filteredHistory.length} matching ${
+                      filteredHistory.length === 1
+                        ? "song"
+                        : "songs"
+                    }`
+                  : "Play your recently listened songs"
+                : history.length > 0
+                  ? "No songs match your search"
+                  : "Your recently played songs will appear here"}
+            </span>
+          </div>
 
           <button
             type="button"
             className="history-clear-button"
-            onClick={
-              handleClearHistory
-            }
+            onClick={handleClearHistory}
             disabled={
-              clearingHistory
+              loading || clearing || history.length === 0
             }
           >
-
             <FaTrash />
 
             <span>
-
-              {
-                clearingHistory
-                  ? "Clearing..."
-                  : "Clear History"
-              }
-
+              {clearing ? "Clearing..." : "Clear History"}
             </span>
-
           </button>
-
-        )}
-
-
-      </header>
-
-
-      {/* =================================================
-          ERROR
-      ================================================= */}
-
-      {error && (
-
-        <div className="history-error">
-
-          {error}
-
         </div>
 
-      )}
+        {/* SINGLE SEARCH BAR + LANGUAGE SELECTOR */}
 
-
-      {/* =================================================
-          EMPTY
-      ================================================= */}
-
-      {!error &&
-        history.length === 0 && (
-
-          <div className="history-empty">
-
-            <FaClock />
-
-
-            <h2>
-
-              No listening
-              history yet
-
-            </h2>
-
-
-            <p>
-
-              Songs you listen to
-              will appear here.
-
-            </p>
-
+        <section
+          className="history-search-controls"
+          aria-label="Search listening history"
+         >
+          <div className="history-search">
+            <VoiceSearch
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSearch={handleVoiceSearch}
+              placeholder="Search songs, artists, or albums..."
+              ariaLabel="Search listening history by voice or text"
+            />
           </div>
 
+          
+        </section>
+
+        {/* SEARCH RESULTS SUMMARY */}
+
+        {!loading && history.length > 0 && query && (
+          <p
+            className="history-search-summary"
+            aria-live="polite"
+          >
+            {filteredHistory.length}{" "}
+            {filteredHistory.length === 1 ? "song" : "songs"}{" "}
+            found
+          </p>
         )}
 
+        {/* ERROR */}
 
-      {/* =================================================
-          HISTORY LIST
-      ================================================= */}
+        {error && (
+          <div className="history-error" role="alert">
+            <span>{error}</span>
 
-      {history.length > 0 && (
-
-        <div className="history-list">
-
-
-          {/* TABLE HEADER */}
-
-          <div className="history-list-header">
-
-            <span>
-              #
-            </span>
-
-
-            <span>
-              Song
-            </span>
-
-
-            <span>
-              Album
-            </span>
-
-
-            <span>
-              Last Played
-            </span>
-
-
-            <span />
-
+            <button
+              type="button"
+              onClick={loadHistory}
+              disabled={loading}
+            >
+              Try again
+            </button>
           </div>
+        )}
 
+        {/* LOADING / EMPTY / RESULTS */}
 
-          {/* SONGS */}
+        {loading ? (
+          <div className="history-status">
+            <span className="history-spinner" />
+            <p>Loading your listening history...</p>
+          </div>
+        ) : history.length === 0 ? (
+          <div className="history-empty">
+            <div className="history-empty-icon">
+              <FaMusic />
+            </div>
 
-          {history.map(
-            (song, index) => {
+            <h2>Your history is waiting</h2>
 
-              /* =========================================
-                 COVER
-              ========================================= */
+            <p>
+              Songs you listen to will appear here, making it
+              easy to find your favourite worship music again.
+            </p>
+          </div>
+        ) : filteredHistory.length === 0 ? (
+          <div className="history-empty history-no-results">
+            <div className="history-empty-icon">
+              <FaSearch />
+            </div>
 
-              const cover =
-                song.cover_url
-                  ? getMediaUrl(
-                      song.cover_url
-                    )
-                  : "/images/default-cover.png";
+            <h2>No matching songs</h2>
 
+            <p>
+              No songs match "{searchQuery.trim()}". Try
+              searching for another title, artist, or album.
+            </p>
 
-              const current =
-                isCurrentSong(song);
+            <button
+              type="button"
+              className="history-reset-search"
+              onClick={() => setSearchQuery("")}
+            >
+              <FaTimes />
+              Clear search
+            </button>
+          </div>
+        ) : (
+          <section className="history-list-section">
+            <div className="history-list-heading">
+              <h2>
+                {query ? "Search Results" : "Recently Played"}
+              </h2>
 
+              <span>
+                {filteredHistory.length}{" "}
+                {filteredHistory.length === 1
+                  ? "track"
+                  : "tracks"}
+              </span>
+            </div>
 
-              const playing =
-                isSongPlaying(song);
+            {/* TABLE HEADER */}
 
+            <div className="history-table-header">
+              <span className="history-number-heading">#</span>
+              <span className="history-song-heading">Song</span>
+              <span className="history-album-heading">Album</span>
+              <span className="history-date-heading">
+                Last Played
+              </span>
+            </div>
 
-              return (
+            {/* SONG ROWS */}
 
-                <div
-                  className={
-                    `history-row ${
-                      current
-                        ? "is-current"
-                        : ""
-                    } ${
-                      playing
-                        ? "is-playing"
-                        : ""
-                    }`
-                  }
-                  key={
-                    `${song.id}-${
-                      song.played_at ||
-                      index
-                    }`
-                  }
-                >
+            <div
+              className="history-song-list"
+              id="history-song-list"
+            >
+              {filteredHistory.map((song, index) => {
+                const songId = getSongId(song);
+                const playing = isSongPlaying(song);
+                const selected = isCurrentSong(song);
 
+                return (
+                  <article
+                    className={`history-row ${
+                      selected ? "is-current-song" : ""
+                    }`}
+                    key={songId ?? index}
+                  >
+                    {/* PLAY / PAUSE */}
 
-                  {/* ===================================
-                     NUMBER
-                  =================================== */}
-
-                  <span className="history-number">
-
-                    {!current &&
-                      index + 1}
-
-                  </span>
-
-
-                  {/* ===================================
-                     SONG
-                  =================================== */}
-
-                  <div className="history-song">
-
-
-                    {/* COVER */}
-
-                    <div
-                      className={
-                        `history-cover ${
-                          current
-                            ? "is-current"
-                            : ""
-                        }`
-                      }
-                    >
-
-                      <img
-                        src={cover}
-                        alt={
-                          song.title ||
-                          "Song cover"
-                        }
-                        onError={(event) => {
-
-                          if (
-                            !event
-                              .currentTarget
-                              .src
-                              .endsWith(
-                                "/images/default-cover.png"
-                              )
-                          ) {
-
-                            event
-                              .currentTarget
-                              .src =
-                              "/images/default-cover.png";
-
-                          }
-
-                        }}
-                      />
-
-
-                      {/* COVER PLAY / PAUSE */}
+                    <div className="history-row-number">
+                      <span className="history-track-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
 
                       <button
                         type="button"
-                        className={
-                          playing
-                            ? "is-playing"
-                            : ""
-                        }
-                        onClick={() =>
-                          handlePlay(song)
-                        }
-                        disabled={
-                          !song.audio_url
-                        }
-                        aria-label={
-                          playing
-                            ? `Pause ${
-                                song.title ||
-                                "song"
-                              }`
-                            : `Play ${
-                                song.title ||
-                                "song"
-                              }`
-                        }
+                        className="history-row-play"
+                        onClick={() => handlePlaySong(song)}
+                        aria-label={`${
+                          playing ? "Pause" : "Play"
+                        } ${getSongTitle(song)}`}
+                        title={playing ? "Pause song" : "Play song"}
                       >
-
-                        {playing ? (
-
-                          <FaPause />
-
-                        ) : (
-
-                          <FaPlay />
-
-                        )}
-
+                        {playing ? <FaPause /> : <FaPlay />}
                       </button>
-
                     </div>
 
+                    {/* SONG DETAILS */}
 
-                    {/* SONG INFO */}
+                    <button
+                      type="button"
+                      className="history-song-info history-song-open"
+                      onClick={() => handlePlaySong(song)}
+                      aria-label={`${
+                        playing ? "Pause" : "Play"
+                      } ${getSongTitle(song)}`}
+                    >
+                      <img
+                        className="history-cover"
+                        src={getCover(song)}
+                        alt=""
+                        loading="lazy"
+                        onError={(event) => {
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.src = DEFAULT_COVER;
+                        }}
+                      />
 
-                    <div className="history-song-info">
+                      <div className="history-song-text">
+                        <h3 title={getSongTitle(song)}>
+                          {getSongTitle(song)}
+                        </h3>
 
-                      <strong>
+                        <p title={getArtistName(song)}>
+                          {getArtistName(song)}
+                        </p>
+                      </div>
+                    </button>
 
-                        {song.title ||
-                          "Unknown Song"}
+                    {/* ALBUM */}
 
-                      </strong>
-
-
-                      {song.title_english && (
-
-                        <span>
-
-                          {song.title_english}
-
-                        </span>
-
-                      )}
-
-
-                      <small>
-
-                        {song.artist_name ||
-                          "KEERTHANA"}
-
-                      </small>
-
+                    <div className="history-album">
+                      <span>{getAlbumName(song)}</span>
                     </div>
 
-                  </div>
+                    {/* LAST PLAYED */}
 
+                    <div className="history-date">
+                      <FaClock className="history-date-icon" />
 
-                  {/* ===================================
-                     ALBUM
-                  =================================== */}
-
-                  <span className="history-album">
-
-                    {song.album_title ||
-                      song.category_name ||
-                      "Christian Music"}
-
-                  </span>
-
-
-                  {/* ===================================
-                     LAST PLAYED
-                  =================================== */}
-
-                  <span className="history-date">
-
-                    <FaClock />
-
-
-                    <span>
-
-                      {
-                        formatPlayedDate(
-                          song.played_at ||
-                          song.updated_at ||
-                          song.created_at
-                        ) ||
-                        "Recently"
-                      }
-
-                    </span>
-
-                  </span>
-
-
-                  {/* ===================================
-                     PLAY / PAUSE BUTTON
-                  =================================== */}
-
-                  <button
-                    type="button"
-                    className={
-                      `history-play-button ${
-                        playing
-                          ? "is-playing"
-                          : ""
-                      }`
-                    }
-                    onClick={() =>
-                      handlePlay(song)
-                    }
-                    disabled={
-                      !song.audio_url
-                    }
-                    aria-label={
-                      playing
-                        ? `Pause ${
-                            song.title ||
-                            "song"
-                          }`
-                        : `Play ${
-                            song.title ||
-                            "song"
-                          }`
-                    }
-                    title={
-                      playing
-                        ? "Pause"
-                        : "Play"
-                    }
-                  >
-
-                    {playing ? (
-
-                      <FaPause />
-
-                    ) : (
-
-                      <FaPlay />
-
-                    )}
-
-                  </button>
-
-
-                </div>
-
-              );
-
-            }
-          )}
-
-
-        </div>
-
-      )}
-
-
-    </div>
-
+                      <span>
+                        {formatPlayedDate(song.played_at)}
+                      </span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </section>
+    </main>
   );
-
 }
-
-
-export default History;

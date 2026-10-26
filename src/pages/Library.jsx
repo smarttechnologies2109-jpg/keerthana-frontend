@@ -4,8 +4,6 @@ import {
   FaPlus,
   FaHistory,
   FaArrowRight,
-  FaHeadphones,
-  FaPlay,
 } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
@@ -24,29 +22,18 @@ function Library() {
       number: "01",
       title: "Your Playlists",
       description:
-        "All your personal collections of worship songs, praise, and Christian music.",
+        "Explore, play, and manage your personal collections of worship songs, praise, and Christian music.",
       action: "Explore playlists",
       icon: <FaMusic />,
       className: "library-card-playlists",
       onClick: () => navigate("/playlists"),
     },
     {
-      id: "create",
-      number: "02",
-      title: "Create a Playlist",
-      description:
-        "Bring your favourite worship songs together and create a collection of your own.",
-      action: "Create your collection",
-      icon: <FaPlus />,
-      className: "library-card-create",
-      onClick: openCreatePlaylist,
-    },
-    {
       id: "history",
-      number: "03",
+      number: "02",
       title: "Recently Played",
       description:
-        "Return to the songs you've listened to and continue your worship experience.",
+        "Return to songs you have listened to and continue your worship experience.",
       action: "View listening history",
       icon: <FaHistory />,
       className: "library-card-history",
@@ -57,70 +44,6 @@ function Library() {
   return (
     <main className="library-page">
       <div className="library-main">
-        <section className="library-hero">
-          <div className="library-hero-glow" aria-hidden="true" />
-
-          <div className="library-hero-copy">
-            <span className="library-eyebrow">
-              <span className="library-eyebrow-dot" />
-              KEERTHANA MUSIC
-            </span>
-
-            <h1>
-              Your music.
-              <br />
-              <span>Your worship.</span>
-            </h1>
-
-            <p>
-              Every song has a place. Discover your collections,
-              revisit meaningful moments, and make your worship personal.
-            </p>
-
-            <button
-              type="button"
-              className="library-hero-button"
-              onClick={() => navigate("/playlists")}
-            >
-              <FaPlay />
-              <span>Explore your library</span>
-              <FaArrowRight className="library-button-arrow" />
-            </button>
-          </div>
-
-          <div className="library-hero-art" aria-hidden="true">
-            <div className="library-art-orbit library-art-orbit-one" />
-            <div className="library-art-orbit library-art-orbit-two" />
-            <div className="library-art-glow" />
-
-            <div className="library-art-disc">
-              <div className="library-art-disc-inner">
-                <FaHeadphones />
-              </div>
-            </div>
-
-            <span className="library-art-note library-art-note-one">
-              ♪
-            </span>
-            <span className="library-art-note library-art-note-two">
-              ♫
-            </span>
-            <span className="library-art-note library-art-note-three">
-              ♪
-            </span>
-
-            <div className="library-art-caption">
-              <span className="library-art-caption-icon">
-                <FaMusic />
-              </span>
-              <span>
-                <strong>Your personal space</strong>
-                <small>Made for your worship</small>
-              </span>
-            </div>
-          </div>
-        </section>
-
         <section className="library-content">
           <div className="library-section-heading">
             <div className="library-section-copy">
@@ -175,6 +98,7 @@ function Library() {
 
                 <span className="library-card-action">
                   <span>{card.action}</span>
+
                   <span className="library-card-arrow-wrap">
                     <FaArrowRight className="library-card-arrow" />
                   </span>
@@ -189,13 +113,19 @@ function Library() {
             </span>
 
             <div>
-              <strong>Let the music lead your heart.</strong>
+              <strong>
+                Let the music lead your heart.
+              </strong>
+
               <p>
                 A place for praise, prayer, peace, and worship.
               </p>
             </div>
 
-            <span className="library-footer-decoration" aria-hidden="true">
+            <span
+              className="library-footer-decoration"
+              aria-hidden="true"
+            >
               ♪
             </span>
           </div>

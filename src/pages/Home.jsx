@@ -1,17 +1,32 @@
-import { useEffect, useState } from "react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaPlay,
   FaPause,
-  FaChevronRight,
   FaMusic,
-  FaPlus,
-  FaHandPointer,
+  FaChevronRight,
+  FaCompactDisc,
+  FaMicrophone,
+  FaPrayingHands,
+  FaHeart,
+  FaSun,
+  FaDove,
+  FaHandsHelping,
+  FaGlobe,
+  FaListUl,
+  FaExclamationCircle,
+  FaHeadphones,
+  FaArrowRight,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 
 import API from "../services/api";
 import { usePlayer } from "../context/usePlayer";
-
 import {
   getSongCover,
   getAlbumCover,
@@ -21,838 +36,749 @@ import {
 
 import "../assets/css/home.css";
 
-/* =====================================================
-   HOME
-===================================================== */
+/* =========================================================
+   KEERTHANA MUSIC — PREMIUM HOME
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
 
-function Home() {
+const MOODS = [
+  { name: "Worship", icon: FaPrayingHands, color: "mood-worship" },
+  { name: "Praise", icon: FaHeart, color: "mood-praise" },
+  { name: "Prayer", icon: FaHandsHelping, color: "mood-prayer" },
+  { name: "Hope", icon: FaSun, color: "mood-hope" },
+  { name: "Peace", icon: FaDove, color: "mood-peace" },
+  {
+    name: "Thanksgiving",
+    icon: FaHeart,
+    color: "mood-thanksgiving",
+  },
+];
+
+const LANGUAGES = [
+  "Telugu",
+  "Hindi",
+  "English",
+  "Malayalam",
+  "Kannada",
+  "Tamil",
+];
+
+/* =========================================================
+   RESPONSE HELPERS
+========================================================= */
+
+function getArray(response) {
+  const data = response?.data;
+
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.songs)) return data.songs;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.artists)) return data.artists;
+  if (Array.isArray(data?.albums)) return data.albums;
+  if (Array.isArray(data?.categories)) return data.categories;
+  if (Array.isArray(data?.history)) return data.history;
+
+  return [];
+}
+
+function getId(item) {
+  return item?.id ?? item?.song_id ?? item?.song?.id;
+}
+
+function getSongTitle(song) {
+  return (
+    song?.title ||
+    song?.title_english ||
+    song?.name ||
+    "Untitled Song"
+  );
+}
+
+function getArtistName(song) {
+  if (typeof song?.artist === "string") {
+    return song.artist;
+  }
+
+  return (
+    song?.artist_name ||
+    song?.artist?.name ||
+    "Unknown Artist"
+  );
+}
+
+function getEntityName(item) {
+  return (
+    item?.name ||
+    item?.title ||
+    item?.category_name ||
+    "Untitled"
+  );
+}
+
+function sortNewestFirst(items) {
+  return [...items].sort((a, b) => {
+    const dateA = new Date(
+      a?.created_at || a?.createdAt || 0
+    ).getTime();
+
+    const dateB = new Date(
+      b?.created_at || b?.createdAt || 0
+    ).getTime();
+
+    if (dateA && dateB && dateA !== dateB) {
+      return dateB - dateA;
+    }
+
+    return Number(getId(b) || 0) - Number(getId(a) || 0);
+  });
+}
+
+function isFeatured(song) {
+  return (
+    song?.featured === true ||
+    song?.featured === 1 ||
+    song?.featured === "true"
+  );
+}
+
+/* =========================================================
+   HOME COMPONENT
+========================================================= */
+
+export default function Home() {
   const navigate = useNavigate();
-
-  /* =====================================================
-     PLAYER
-  ===================================================== */
+  const player = usePlayer();
 
   const {
+    playSong,
     currentSong,
     isPlaying,
-    playSong,
-    togglePlay,
-    queue,
-    addToQueue,
-    removeFromQueue,
-  } = usePlayer();
-
-  /* =====================================================
-     STATE
-  ===================================================== */
+  } = player;
 
   const [songs, setSongs] = useState([]);
   const [artists, setArtists] = useState([]);
   const [albums, setAlbums] = useState([]);
-  const [worshipSongs, setWorshipSongs] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
-  const [continueListening, setContinueListening] = useState([]);
+  const [worshipSongs, setWorshipSongs] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* =====================================================
-     LOAD HOME DATA
-  ===================================================== */
+  /* =======================================================
+     LOAD HOMEPAGE DATA
+  ======================================================= */
 
-  useEffect(() => {
-    let active = true;
+  const loadHomeData = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-    /* Normalize history response into song objects */
-    const normalizeHistorySongs = (items = []) => {
-      return items
-        .map((item) => {
-          if (item?.song && typeof item.song === "object") {
-            return {
-              ...item.song,
-              progress_seconds:
-                item.progress_seconds ??
-                item.song.progress_seconds ??
-                0,
-              completed:
-                item.completed ??
-                item.song.completed ??
-                false,
-              played_at:
-                item.played_at ||
-                item.updated_at ||
-                item.song.played_at ||
-                null,
-            };
+    try {
+      const results = await Promise.allSettled([
+        API.get("/songs"),
+        API.get("/artists"),
+        API.get("/albums"),
+        API.get("/categories"),
+        API.get("/history"),
+        API.get("/moods/worship/songs"),
+      ]);
+
+      const [
+        songsResult,
+        artistsResult,
+        albumsResult,
+        categoriesResult,
+        historyResult,
+        worshipResult,
+      ] = results;
+
+      if (songsResult.status === "fulfilled") {
+        setSongs(getArray(songsResult.value));
+      } else {
+        setError("Unable to load songs. Please try again.");
+      }
+
+      if (artistsResult.status === "fulfilled") {
+        setArtists(getArray(artistsResult.value));
+      } else {
+        setArtists([]);
+      }
+
+      if (albumsResult.status === "fulfilled") {
+        setAlbums(getArray(albumsResult.value));
+      } else {
+        setAlbums([]);
+      }
+
+      if (categoriesResult.status === "fulfilled") {
+        setCategories(getArray(categoriesResult.value));
+      } else {
+        setCategories([]);
+      }
+
+      if (historyResult.status === "fulfilled") {
+        const history = getArray(historyResult.value);
+
+        const historySongs = history
+          .map((item) => item?.song || item)
+          .filter((song) => getId(song));
+
+        const uniqueSongs = [];
+        const seen = new Set();
+
+        for (const song of historySongs) {
+          const id = String(getId(song));
+
+          if (!seen.has(id)) {
+            seen.add(id);
+            uniqueSongs.push(song);
           }
-
-          return item;
-        })
-        .filter((song) => song && song.id);
-    };
-
-    /* Remove duplicate songs */
-    const dedupeSongs = (items = [], limit = 6) => {
-      const unique = new Map();
-
-      for (const song of items) {
-        if (song?.id && !unique.has(String(song.id))) {
-          unique.set(String(song.id), song);
         }
+
+        setRecentlyPlayed(uniqueSongs);
+      } else {
+        setRecentlyPlayed([]);
       }
 
-      return Array.from(unique.values()).slice(0, limit);
-    };
-
-    /* Load all homepage sections */
-    const loadHome = async ({ showLoader = false } = {}) => {
-      try {
-        if (showLoader) {
-          setLoading(true);
-        }
-
-        setError("");
-
-        const [
-          songsResponse,
-          artistsResponse,
-          albumsResponse,
-          historyResponse,
-          continueResponse,
-          worshipResponse,
-        ] = await Promise.all([
-          API.get("/songs"),
-
-          API.get("/artists"),
-
-          API.get("/albums"),
-
-          API.get("/history").catch((err) => {
-            console.error(
-              "Unable to load listening history:",
-              err.response?.data || err.message
-            );
-
-            return {
-              data: {
-                history: [],
-                songs: [],
-              },
-            };
-          }),
-
-          API.get("/history/continue").catch((err) => {
-            console.error(
-              "Unable to load Continue Listening:",
-              err.response?.data || err.message
-            );
-
-            return {
-              data: {
-                songs: [],
-              },
-            };
-          }),
-
-          /* NEW: Load songs assigned to the Worship mood */
-          API.get("/moods/worship/songs").catch((err) => {
-            console.error(
-              "Unable to load Worship mood songs:",
-              err.response?.data || err.message
-            );
-
-            return {
-              data: {
-                songs: [],
-              },
-            };
-          }),
-        ]);
-
-        if (!active) {
-          return;
-        }
-
-        /* ===============================================
-           ALL SONGS
-        =============================================== */
-
-        const allSongs = Array.isArray(songsResponse?.data?.songs)
-          ? songsResponse.data.songs
-          : [];
-
-        setSongs(allSongs);
-
-        /* ===============================================
-           ARTISTS
-        =============================================== */
-
-        const allArtists = Array.isArray(artistsResponse?.data?.artists)
-          ? artistsResponse.data.artists
-          : [];
-
-        setArtists(allArtists);
-
-        /* ===============================================
-           ALBUMS
-        =============================================== */
-
-        const allAlbums = Array.isArray(albumsResponse?.data?.albums)
-          ? albumsResponse.data.albums
-          : [];
-
-        setAlbums(allAlbums);
-
-        /* ===============================================
-           WORSHIP MOOD SONGS
-        =============================================== */
-
-        const moodSongs = Array.isArray(worshipResponse?.data?.songs)
-          ? worshipResponse.data.songs
-          : [];
-
-        setWorshipSongs(moodSongs);
-
-        /* ===============================================
-           RECENTLY PLAYED
-        =============================================== */
-
-        const historyData =
-          historyResponse?.data?.history ||
-          historyResponse?.data?.songs ||
-          historyResponse?.data?.recently_played ||
-          [];
-
-        setRecentlyPlayed(
-          dedupeSongs(normalizeHistorySongs(historyData), 6)
-        );
-
-        /* ===============================================
-           CONTINUE LISTENING
-        =============================================== */
-
-        const continueData =
-          continueResponse?.data?.songs ||
-          continueResponse?.data?.history ||
-          continueResponse?.data?.continue_listening ||
-          [];
-
-        const validContinueSongs = normalizeHistorySongs(continueData).filter(
-          (song) => {
-            const progress = Number(song.progress_seconds) || 0;
-            const songDuration = Number(song.duration) || 0;
-
-            return (
-              song.completed !== true &&
-              progress > 5 &&
-              (songDuration <= 0 || progress < songDuration)
-            );
-          }
-        );
-
-        setContinueListening(
-          dedupeSongs(validContinueSongs, 6)
-        );
-      } catch (err) {
-        if (!active) {
-          return;
-        }
-
-        console.error(
-          "KEERTHANA Home loading error:",
-          err.response?.data || err
-        );
-
-        setError("Unable to load KEERTHANA. Please try again.");
-      } finally {
-        if (active && showLoader) {
-          setLoading(false);
-        }
+      if (worshipResult.status === "fulfilled") {
+        setWorshipSongs(getArray(worshipResult.value));
+      } else {
+        setWorshipSongs([]);
       }
-    };
-
-    /* Initial load */
-    loadHome({ showLoader: true });
-
-    /* Refresh when user returns to the window */
-    const handleWindowFocus = () => {
-      loadHome();
-    };
-
-    /* Refresh when the tab becomes visible */
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        loadHome();
-      }
-    };
-
-    window.addEventListener("focus", handleWindowFocus);
-
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
-
-    return () => {
-      active = false;
-
-      window.removeEventListener(
-        "focus",
-        handleWindowFocus
-      );
-
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
-    };
+    } catch {
+      setError("Something went wrong while loading your music.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  /* =====================================================
+  useEffect(() => {
+    loadHomeData();
+  }, [loadHomeData]);
+
+  /* =======================================================
      DERIVED DATA
-  ===================================================== */
+  ======================================================= */
 
-  const latestSongs = songs.slice(0, 8);
-
-  const featuredSongs = songs.filter(
-    (song) => song.featured === true
+  const newestSongs = useMemo(
+    () => sortNewestFirst(songs),
+    [songs]
   );
 
-  const displayFeatured =
-    featuredSongs.length > 0
-      ? featuredSongs.slice(0, 6)
-      : songs.slice(0, 6);
+  const recentlyAdded = useMemo(
+    () => newestSongs.slice(0, 12),
+    [newestSongs]
+  );
 
-  const homeArtists = artists.slice(0, 6);
-  const homeAlbums = albums.slice(0, 6);
+  const featuredSongs = useMemo(
+    () => newestSongs.filter(isFeatured).slice(0, 12),
+    [newestSongs]
+  );
 
-  /* =====================================================
-     CATEGORIES
-  ===================================================== */
+  const popularArtists = useMemo(
+    () => artists.slice(0, 12),
+    [artists]
+  );
 
-  const categoryMap = new Map();
+  const popularAlbums = useMemo(
+    () => albums.slice(0, 12),
+    [albums]
+  );
 
-  songs.forEach((song) => {
-    if (!song.category_id || !song.category_name) {
+  /* =======================================================
+     PLAYBACK
+  ======================================================= */
+
+  
+const handlePlaySong = useCallback(
+  (song, list = songs) => {
+    if (!song || !getId(song)) return;
+
+    const songId = String(getId(song));
+    const currentId = String(getId(currentSong) ?? "");
+
+    // Clicking the currently playing song toggles playback.
+    if (songId === currentId) {
+      if (typeof player.togglePlayPause === "function") {
+        player.togglePlayPause();
+        return;
+      }
+
+      if (isPlaying) {
+        if (typeof player.pauseSong === "function") {
+          player.pauseSong();
+          return;
+        }
+
+        if (typeof player.pause === "function") {
+          player.pause();
+          return;
+        }
+
+        if (typeof player.togglePlayback === "function") {
+          player.togglePlayback();
+          return;
+        }
+
+        return;
+      }
+
+      // If the song is paused, use the player's resume method
+      // when available to preserve its current position.
+      if (typeof player.resumeSong === "function") {
+        player.resumeSong();
+        return;
+      }
+
+      if (typeof player.resume === "function") {
+        player.resume();
+        return;
+      }
+
+      // Fall through to playSong if no resume method is exposed.
+    }
+
+    // A different song was selected: start that song.
+    if (typeof playSong === "function") {
+      playSong(song, list);
+    }
+  },
+  [songs, currentSong, isPlaying, player, playSong]
+);
+
+
+  const handleStartListening = useCallback(() => {
+    const firstSong =
+      recentlyPlayed[0] ||
+      featuredSongs[0] ||
+      newestSongs[0];
+
+    if (firstSong) {
+      const playList = recentlyPlayed.length
+        ? recentlyPlayed
+        : featuredSongs.length
+          ? featuredSongs
+          : newestSongs;
+
+      handlePlaySong(firstSong, playList);
       return;
     }
 
-    if (!categoryMap.has(song.category_id)) {
-      categoryMap.set(song.category_id, {
-        id: song.category_id,
-        name: song.category_name,
-        image_url:
-          song.category_image_url ||
-          song.category_image ||
-          null,
-      });
-    }
-  });
+    navigate("/search");
+  }, [
+    recentlyPlayed,
+    featuredSongs,
+    newestSongs,
+    handlePlaySong,
+    navigate,
+  ]);
 
-  const categories = Array.from(categoryMap.values()).slice(0, 8);
+  /* =======================================================
+     NAVIGATION
+  ======================================================= */
 
-  /* =====================================================
-     HERO PLAY BUTTON
-  ===================================================== */
+  const openSong = useCallback(
+    (song) => {
+      const id = getId(song);
 
-  const handleHeroPlay = () => {
-    if (songs.length === 0) {
-      return;
-    }
+      if (id) navigate(`/songs/${id}`);
+    },
+    [navigate]
+  );
 
-    const isCurrent =
-      Number(currentSong?.id) === Number(songs[0]?.id);
+  const openArtist = useCallback(
+    (artist) => {
+      if (artist?.id) {
+        navigate(`/artists/${artist.id}`);
+      } else {
+        navigate(
+          `/search?q=${encodeURIComponent(getEntityName(artist))}`
+        );
+      }
+    },
+    [navigate]
+  );
 
-    if (isCurrent) {
-      togglePlay();
-      return;
-    }
+  const openAlbum = useCallback(
+    (album) => {
+      if (album?.id) {
+        navigate(`/albums/${album.id}`);
+      } else {
+        navigate(
+          `/search?q=${encodeURIComponent(getEntityName(album))}`
+        );
+      }
+    },
+    [navigate]
+  );
 
-    playSong(songs[0], songs);
-  };
+  const openCategory = useCallback(
+    (category) => {
+      navigate(
+        `/search?q=${encodeURIComponent(getEntityName(category))}`
+      );
+    },
+    [navigate]
+  );
 
-  /* =====================================================
+  const openLanguage = useCallback(
+    (language) => {
+      navigate(`/search?q=${encodeURIComponent(language)}`);
+    },
+    [navigate]
+  );
+
+  const openMood = useCallback(
+    (mood) => {
+      navigate(`/moods/${mood.toLowerCase()}`);
+    },
+    [navigate]
+  );
+
+  /* =======================================================
      LOADING
-  ===================================================== */
+  ======================================================= */
 
   if (loading) {
     return (
-      <div className="home-page">
-        <div className="home-loading">
-          <div className="loading-logo">♪</div>
-
-          <h2>KEERTHANA</h2>
-
-          <p>Loading Christian Music...</p>
+      <main className="home-page">
+        <div className="home-loading" role="status">
+          <div className="home-loading-orbit">
+            <div className="home-loading-spinner" />
+            <FaMusic className="home-loading-note" />
+          </div>
+          <h2>Preparing your worship experience</h2>
+          <p>Getting your music ready...</p>
         </div>
-      </div>
+      </main>
     );
   }
 
-  /* =====================================================
-     HOME PAGE
-  ===================================================== */
+  /* =======================================================
+     HOMEPAGE
+  ======================================================= */
 
   return (
-    <div className="home-page">
-      {/* ===============================================
-          HERO
-      =============================================== */}
-
-      <section className="keerthana-hero">
-        <div className="hero-content">
-          <span className="hero-small">WELCOME TO</span>
-
-          <h1>KEERTHANA</h1>
-
-          <h2>Christian Music</h2>
-
-          <p>Worship deeply. Praise freely. Find peace in every song.</p>
-
-          {songs.length > 0 && (
-            <button
-              type="button"
-              className="hero-play"
-              onClick={handleHeroPlay}
-            >
-              {Number(currentSong?.id) === Number(songs[0]?.id) &&
-              isPlaying ? (
-                <FaPause />
-              ) : (
-                <FaPlay />
-              )}
-
-              {Number(currentSong?.id) === Number(songs[0]?.id) &&
-              isPlaying
-                ? "Pause Music"
-                : "Play Music"}
+    <main className="home-page">
+      <div className="home-content">
+        {error && (
+          <div className="home-error" role="alert">
+            <FaExclamationCircle />
+            <span>{error}</span>
+            <button type="button" onClick={loadHomeData}>
+              Retry
             </button>
-          )}
-        </div>
-
-        <div className="hero-decoration">
-          <div className="hero-circle">
-            <FaMusic />
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* ===============================================
-          QUICK DISCOVERY — new visual section only
-      =============================================== */}
+      
 
-      <section className="home-discovery-strip" aria-label="Discover Christian music">
-        <div className="home-discovery-intro">
-          <span className="home-eyebrow">YOUR DAILY SOUNDTRACK</span>
-          <h2>Find music for this moment</h2>
-          <p>Choose a mood and spend a moment in worship.</p>
-        </div>
-        <div className="home-mood-pills">
-          {[
-            { label: "Worship", emoji: "🙏", path: "/moods/worship" },
-            { label: "Praise", emoji: "🙌", path: "/moods/praise" },
-            { label: "Prayer", emoji: "🕊️", path: "/moods/prayer" },
-            { label: "Hope", emoji: "✨", path: "/moods/hope" },
-            { label: "Peace", emoji: "🌿", path: "/moods/peace" },
-            { label: "Thanksgiving", emoji: "🤍", path: "/moods/thanksgiving" },
-          ].map((mood) => (
-            <button
-              type="button"
-              className="home-mood-pill"
-              key={mood.label}
-              onClick={() => navigate(mood.path)}
-            >
-              <span aria-hidden="true">{mood.emoji}</span>
-              {mood.label}
-              <FaChevronRight aria-hidden="true" />
-            </button>
-          ))}
-        </div>
-      </section>
+       
 
-      <section className="home-language-section" aria-label="Browse music by language">
-        <div className="home-language-heading">
-          <div>
-            <span className="home-eyebrow">MUSIC THAT SPEAKS TO YOU</span>
-            <h2>Browse by language</h2>
+        {/* 1. RECENTLY PLAYED */}
+
+       
+{/* 1. RECENTLY PLAYED */}
+
+{/* =========================================================
+    1. RECENTLY PLAYED
+========================================================= */}
+
+<HomeSection
+  title="Recently Played"
+  subtitle="Return to the songs that stay with you"
+  icon={<FaMusic />}
+  onViewAll={() => navigate("/history")}
+>
+  {recentlyPlayed.length > 0 ? (
+    <div className="home-square-song-grid">
+      {recentlyPlayed.slice(0, 12).map((song, index) => (
+        <SongCard
+          key={getId(song) ?? `recent-${index}`}
+          song={song}
+          songs={recentlyPlayed}
+          onPlay={handlePlaySong}
+          onOpen={openSong}
+          currentSong={currentSong}
+          isPlaying={isPlaying}
+          clickToPlay
+          showPlayButton
+        />
+      ))}
+    </div>
+  ) : (
+    <EmptySection message="Your listening history will appear here after you play some songs." />
+  )}
+</HomeSection>
+
+{/* =========================================================
+    2. RECENTLY ADDED
+========================================================= */}
+
+<HomeSection
+  title="Recently Added"
+  subtitle="Fresh additions to your music collection"
+  icon={<FaCompactDisc />}
+  onViewAll={() => navigate("/recently-added")}
+>
+  {recentlyAdded.length > 0 ? (
+    <div className="home-square-song-grid">
+      {recentlyAdded.map((song, index) => (
+        <SongCard
+          key={getId(song) ?? `added-${index}`}
+          song={song}
+          songs={newestSongs}
+          onPlay={handlePlaySong}
+          onOpen={openSong}
+          currentSong={currentSong}
+          isPlaying={isPlaying}
+          clickToPlay
+          showPlayButton
+        />
+      ))}
+    </div>
+  ) : (
+    <EmptySection message="New songs will appear here when available." />
+  )}
+</HomeSection>
+
+
+        {/* 3. BROWSE MOODS */}
+
+        <HomeSection
+          title="Browse Moods"
+          subtitle="Find the right song for every moment"
+          icon={<FaHeart />}
+        >
+          <div className="home-card-grid home-mood-grid">
+            {MOODS.map((mood, index) => {
+              const MoodIcon = mood.icon;
+
+              return (
+                <button
+                  type="button"
+                  key={mood.name}
+                  className={`home-entity-card home-mood-card ${mood.color}`}
+                  onClick={() => openMood(mood.name)}
+                  aria-label={`Browse ${mood.name} songs`}
+                  style={{ "--mood-index": index }}
+                >
+                  <div className="home-mood-art">
+                    <span className="home-mood-number">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <MoodIcon />
+                    <span className="home-mood-glow" />
+                  </div>
+
+                  <div className="home-entity-info">
+                    <h3>{mood.name}</h3>
+                    <p>Explore songs</p>
+                  </div>
+
+                  <span className="home-card-arrow">
+                    <FaChevronRight />
+                  </span>
+                </button>
+              );
+            })}
           </div>
-          <span className="home-language-note">Your favourite Christian songs, in your language.</span>
-        </div>
-        <div className="home-language-grid">
-          {[
-            { label: "Telugu", code: "తె", tone: "telugu" },
-            { label: "Hindi", code: "हि", tone: "hindi" },
-            { label: "English", code: "EN", tone: "english" },
-            { label: "Malayalam", code: "മ", tone: "malayalam" },
-            { label: "Kannada", code: "ಕ", tone: "kannada" },
-            { label: "Tamil", code: "த", tone: "tamil" },
-          ].map((language) => (
-            <button
-              type="button"
-              className={`home-language-card ${language.tone}`}
-              key={language.label}
-              onClick={() => navigate(`/search?q=${encodeURIComponent(language.label)}`)}
-              aria-label={`Explore ${language.label} Christian songs`}
-            >
-              <span className="home-language-symbol" aria-hidden="true">{language.code}</span>
-              <span className="home-language-name">{language.label}</span>
-              <span className="home-language-action">Explore music <FaChevronRight aria-hidden="true" /></span>
-            </button>
-          ))}
-        </div>
-      </section>
+        </HomeSection>
 
-      {/* ===============================================
-          ERROR
-      =============================================== */}
+        {/* 4. FEATURED WORSHIP */}
 
-      {error && (
-        <div className="home-error" role="alert">
-          {error}
-        </div>
-      )}
-
-      {/* ===============================================
-          FEATURED WORSHIP
-      =============================================== */}
-
-      {displayFeatured.length > 0 && (
         <HomeSection
           title="Featured Worship"
-          subtitle="Songs selected for you"
+          subtitle="Songs selected to lift your heart"
+          icon={<FaPrayingHands />}
+          onViewAll={() => navigate("/moods/worship")}
         >
-          <div className="home-card-grid">
-            {displayFeatured.map((song) => (
-              <SongCard
-                key={song.id}
-                song={song}
-                queue={queue}
-                playerQueue={displayFeatured}
-                playSong={playSong}
-                togglePlay={togglePlay}
-                currentSong={currentSong}
-                isPlaying={isPlaying}
-                addToQueue={addToQueue}
-                navigate={navigate}
-              />
-            ))}
-          </div>
-        </HomeSection>
-      )}
-
-      {/* ===============================================
-          NEW: WORSHIP MOOD SONGS
-      =============================================== */}
-
-      <HomeSection
-        title="Worship"
-        subtitle="Songs assigned to your Worship mood"
-        action={() => navigate("/moods/worship")}
-      >
-        {worshipSongs.length > 0 ? (
-          <div className="home-card-grid">
-            {worshipSongs.slice(0, 6).map((song) => (
-              <SongCard
-                key={`worship-${song.id}`}
-                song={song}
-                queue={queue}
-                playerQueue={worshipSongs}
-                playSong={playSong}
-                togglePlay={togglePlay}
-                currentSong={currentSong}
-                isPlaying={isPlaying}
-                addToQueue={addToQueue}
-                navigate={navigate}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="home-mood-empty">
-            <FaMusic className="home-mood-empty-icon" />
-
-            <div className="home-mood-empty-content">
-              <h3>No Worship songs yet</h3>
-
-              <p>
-                Songs assigned to the Worship mood will appear here.
-              </p>
+          {featuredSongs.length > 0 ? (
+            <div className="home-card-grid home-song-grid home-featured-grid">
+              {featuredSongs.map((song) => (
+                <SongCard
+                  key={getId(song)}
+                  song={song}
+                  songs={featuredSongs}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
             </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/moods/worship")}
-            >
-              Explore Worship
-              <FaChevronRight />
-            </button>
-          </div>
-        )}
-      </HomeSection>
-
-      {/* ===============================================
-          RECENTLY PLAYED
-      =============================================== */}
-
-      {recentlyPlayed.length > 0 && (
-        <HomeSection
-          title="Recently Played"
-          subtitle="Continue with songs you listened to recently"
-        >
-          <div className="home-card-grid">
-            {recentlyPlayed.map((song) => (
-              <SongCard
-                key={`recent-${song.id}`}
-                song={song}
-                queue={queue}
-                playerQueue={recentlyPlayed}
-                playSong={playSong}
-                togglePlay={togglePlay}
-                currentSong={currentSong}
-                isPlaying={isPlaying}
-                addToQueue={addToQueue}
-                navigate={navigate}
-              />
-            ))}
-          </div>
+          ) : (
+            <EmptySection message="Featured songs will appear here when selected by your admin." />
+          )}
         </HomeSection>
-      )}
 
-      {/* ===============================================
-          CONTINUE LISTENING
-      =============================================== */}
+        {/* 5. POPULAR ARTISTS */}
 
-      {continueListening.length > 0 && (
         <HomeSection
-          title="Continue Listening"
-          subtitle="Pick up where you left off"
+          title="Artists to discover"
+          subtitle="Voices behind the songs you love"
+          icon={<FaMicrophone />}
+          onViewAll={() => navigate("/artists")}
         >
-          <div className="continue-listening-grid">
-            {continueListening.map((song) => (
-              <ContinueListeningCard
-                key={`continue-${song.id}`}
-                song={song}
-                queue={queue}
-                playQueue={continueListening}
-                playSong={playSong}
-                togglePlay={togglePlay}
-                currentSong={currentSong}
-                isPlaying={isPlaying}
-                addToQueue={addToQueue}
-                navigate={navigate}
-              />
-            ))}
-          </div>
-        </HomeSection>
-      )}
-
-      {/* ===============================================
-          LATEST SONGS
-      =============================================== */}
-
-      {latestSongs.length > 0 && (
-        <HomeSection
-          title="Latest Songs"
-          subtitle="New music on KEERTHANA"
-          action={() => navigate("/search")}
-        >
-          <div className="latest-song-list">
-            {latestSongs.map((song, index) => (
-              <LatestSongRow
-                key={song.id}
-                song={song}
-                index={index}
-                songs={latestSongs}
-                queue={queue}
-                currentSong={currentSong}
-                isPlaying={isPlaying}
-                playSong={playSong}
-                togglePlay={togglePlay}
-                addToQueue={addToQueue}
-                removeFromQueue={removeFromQueue}
-                navigate={navigate}
-              />
-            ))}
-          </div>
-        </HomeSection>
-      )}
-
-      {/* ===============================================
-          ARTISTS
-      =============================================== */}
-
-      {homeArtists.length > 0 && (
-        <HomeSection
-          title="Popular Artists"
-          subtitle="Christian worship artists"
-          action={() => navigate("/artists")}
-        >
-          <div className="home-artist-grid">
-            {homeArtists.map((artist) => {
-              const image = getArtistImage(artist);
-
-              return (
-                <button
-                  type="button"
+          {popularArtists.length > 0 ? (
+            <div className="home-card-grid home-artist-grid">
+              {popularArtists.map((artist, index) => (
+                <EntityCard
+                  key={artist.id ?? `artist-${index}`}
+                  title={getEntityName(artist)}
+                  subtitle="View artist"
+                  image={getArtistImage(artist)}
+                  fallbackIcon={<FaMicrophone />}
                   className="home-artist-card"
-                  key={artist.id}
-                  onClick={() =>
-                    navigate(`/artists/${artist.id}`)
-                  }
-                >
-                  <div className="home-artist-image">
-                    <img
-                      src={image}
-                      alt={artist.name}
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-                        event.currentTarget.src =
-                          "/images/default-artist.png";
-                      }}
-                    />
-                  </div>
-
-                  <h3>{artist.name}</h3>
-
-                  <span>Artist</span>
-                </button>
-              );
-            })}
-          </div>
+                  onClick={() => openArtist(artist)}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="Artists will appear here when available." />
+          )}
         </HomeSection>
-      )}
 
-      {/* ===============================================
-          ALBUMS
-      =============================================== */}
+        {/* 6. POPULAR ALBUMS */}
 
-      {homeAlbums.length > 0 && (
         <HomeSection
-          title="Albums"
-          subtitle="Christian music collections"
-          action={() => navigate("/albums")}
+          title="Albums for your playlist"
+          subtitle="Discover collections of Christian music"
+          icon={<FaCompactDisc />}
+          onViewAll={() => navigate("/albums")}
         >
-          <div className="home-card-grid">
-            {homeAlbums.map((album) => {
-              const cover = getAlbumCover(album);
-
-              return (
-                <button
-                  type="button"
+          {popularAlbums.length > 0 ? (
+            <div className="home-card-grid home-album-grid">
+              {popularAlbums.map((album, index) => (
+                <EntityCard
+                  key={album.id ?? `album-${index}`}
+                  title={getEntityName(album)}
+                  subtitle={
+                    album.artist_name ||
+                    album.artist?.name ||
+                    "Open album"
+                  }
+                  image={getAlbumCover(album)}
+                  fallbackIcon={<FaCompactDisc />}
                   className="home-album-card"
-                  key={album.id}
-                  onClick={() =>
-                    navigate(`/albums/${album.id}`)
-                  }
-                >
-                  <div className="home-album-cover">
-                    <img
-                      src={cover}
-                      alt={album.title}
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-                        event.currentTarget.src =
-                          "/images/default-album.png";
-                      }}
-                    />
-                  </div>
-
-                  <h3>{album.title}</h3>
-
-                  <p>{album.artist_name || "KEERTHANA"}</p>
-
-                  <span>{album.song_count || 0} Songs</span>
-                </button>
-              );
-            })}
-          </div>
+                  onClick={() => openAlbum(album)}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="Albums will appear here when available." />
+          )}
         </HomeSection>
-      )}
 
-      {/* ===============================================
-          CATEGORIES
-      =============================================== */}
+        {/* 7. BROWSE BY LANGUAGE */}
 
-      {categories.length > 0 && (
         <HomeSection
-          title="Browse Categories"
-          subtitle="Find music for every moment"
+          title="Music in your language"
+          subtitle="Explore worship from across languages"
+          icon={<FaGlobe />}
         >
-          <div className="category-grid">
-            {categories.map((category) => {
-              const image = getCategoryImage(category);
+          <div className="home-card-grid home-language-grid">
+            {LANGUAGES.map((language, index) => (
+              <button
+                type="button"
+                key={language}
+                className="home-entity-card home-language-card"
+                onClick={() => openLanguage(language)}
+                style={{ "--language-index": index }}
+              >
+                <div className="home-language-art">
+                  <span className="home-language-symbol">
+                    {language === "Telugu"
+                      ? "తె"
+                      : language === "Hindi"
+                        ? "हि"
+                        : language === "Malayalam"
+                          ? "മ"
+                          : language === "Kannada"
+                            ? "ಕ"
+                            : language === "Tamil"
+                              ? "த"
+                              : "Aa"}
+                  </span>
+                  <FaGlobe className="home-language-globe" />
+                </div>
 
-              return (
-                <button
-                  type="button"
-                  className="category-card"
-                  key={category.id}
-                  onClick={() =>
-                    navigate(
-                      `/search?q=${encodeURIComponent(category.name)}`
-                    )
-                  }
-                >
-                  <div className="category-image">
-                    <img
-                      src={image}
-                      alt={category.name}
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-                        event.currentTarget.src =
-                          "/images/default-category.png";
-                      }}
-                    />
-                  </div>
+                <div className="home-entity-info">
+                  <h3>{language}</h3>
+                  <p>Explore music</p>
+                </div>
 
-                  <strong>{category.name}</strong>
-
-                  <span>Explore</span>
-                </button>
-              );
-            })}
+                <span className="home-card-arrow">
+                  <FaChevronRight />
+                </span>
+              </button>
+            ))}
           </div>
         </HomeSection>
-      )}
 
-      {/* ===============================================
-          EMPTY DATABASE
-      =============================================== */}
+        {/* 8. BROWSE CATEGORIES */}
 
-      {!error &&
-        songs.length === 0 &&
-        artists.length === 0 &&
-        albums.length === 0 && (
-          <div className="home-empty">
-            <FaMusic />
-
-            <h2>Welcome to KEERTHANA</h2>
-
-            <p>
-              Add songs, artists and albums to start your
-              Christian music library.
-            </p>
-          </div>
-        )}
-    </div>
+        <HomeSection
+          title="Explore categories"
+          subtitle="Find music by collection and theme"
+          icon={<FaListUl />}
+          onViewAll={() => navigate("/categories")}
+        >
+          {categories.length > 0 ? (
+            <div className="home-card-grid home-category-grid">
+              {categories.map((category, index) => (
+                <EntityCard
+                  key={category.id ?? `category-${index}`}
+                  title={getEntityName(category)}
+                  subtitle="Explore collection"
+                  image={getCategoryImage(category)}
+                  fallbackIcon={<FaMusic />}
+                  className="home-category-card"
+                  onClick={() => openCategory(category)}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="Categories will appear here when available." />
+          )}
+        </HomeSection>
+      </div>
+    </main>
   );
 }
 
-/* =====================================================
-   HOME SECTION
-===================================================== */
+/* =========================================================
+   SECTION HEADER
+========================================================= */
 
-function HomeSection({ title, subtitle, action, children }) {
+function HomeSection({
+  title,
+  subtitle,
+  icon,
+  onViewAll,
+  children,
+}) {
   return (
     <section className="home-section">
-      <div className="home-section-heading">
-        <div>
-          <h2>{title}</h2>
+      <div className="home-section-header">
+        <div className="home-section-heading">
+          <span className="home-section-icon">{icon}</span>
 
-          {subtitle && <p>{subtitle}</p>}
+          <div className="home-section-titles">
+            <h2>{title}</h2>
+            {subtitle && <p>{subtitle}</p>}
+          </div>
         </div>
 
-        {action && (
-          <button type="button" onClick={action}>
-            Show All
+        {onViewAll && (
+          <button
+            type="button"
+            className="home-view-all"
+            onClick={onViewAll}
+          >
+            <span>View all</span>
             <FaChevronRight />
           </button>
         )}
@@ -863,579 +789,190 @@ function HomeSection({ title, subtitle, action, children }) {
   );
 }
 
-/* =====================================================
-   SONG CARD
-===================================================== */
+/* =========================================================
+   SONG ROW
+========================================================= */
 
 function SongCard({
   song,
-  queue = [],
-  playerQueue = [],
-  playSong,
-  togglePlay,
+  songs,
+  onPlay,
+  onOpen,
   currentSong,
   isPlaying,
-  addToQueue,
-  navigate,
+  clickToPlay = false,
+  showPlayButton = true,
 }) {
-  const cover = getSongCover(song);
+  const id = getId(song);
+  const title = getSongTitle(song);
+  const artist = getArtistName(song);
 
-  const isCurrent =
-    Number(currentSong?.id) === Number(song?.id);
+  const activeSong =
+    String(getId(currentSong) ?? "") === String(id ?? "");
 
-  const isCurrentPlaying = isCurrent && isPlaying;
+  const playingThisSong = activeSong && isPlaying;
 
-  const isInQueue =
-    Array.isArray(queue) &&
-    queue.some(
-      (item) => Number(item?.id) === Number(song?.id)
-    );
-
-  const openSongDetails = () => {
-    navigate(`/songs/${song.id}`);
+  const handleCardClick = () => {
+    if (clickToPlay) {
+      onPlay(song, songs);
+    } else {
+      onOpen(song);
+    }
   };
 
-  const handlePlay = (event) => {
-    event.stopPropagation();
 
-    if (isCurrent) {
-      togglePlay();
+const handlePlayClick = (event) => {
+  event.stopPropagation();
+  onPlay(song, songs);
+
+
+
+    if (activeSong && isPlaying) {
+      if (typeof playerPauseFallback === "function") {
+        playerPauseFallback();
+      }
       return;
     }
 
-    playSong(song, playerQueue);
+    onPlay(song, songs);
   };
 
-  const handleAddToQueue = (event) => {
-    event.stopPropagation();
-
-    if (!addToQueue || isInQueue) {
-      return;
-    }
-
-    addToQueue(song);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openSongDetails();
-    }
-  };
+  /*
+   * Playback pause behavior belongs to the existing player context.
+   * This row uses the existing playSong callback without assuming
+   * a pause method name that may not exist in your context.
+   */
+  const playerPauseFallback = null;
 
   return (
-    <div
-      className="home-song-card"
-      onClick={openSongDetails}
-      onKeyDown={handleKeyDown}
+    <article
+      className={`home-song-card ${activeSong ? "is-active" : ""}`}
       role="button"
       tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleCardClick();
+        }
+      }}
+      aria-label={`${clickToPlay ? "Play" : "Open"} ${title} by ${artist}`}
     >
-      <div className="home-song-cover">
+      <div className="home-song-image">
         <img
-          src={cover}
-          alt={song.title}
+          src={getSongCover(song)}
+          alt=""
+          loading="lazy"
           onError={(event) => {
-            event.currentTarget.onerror = null;
-            event.currentTarget.src =
-              "/images/default-cover.png";
+            event.currentTarget.style.opacity = "0";
           }}
         />
 
-        <button
-          type="button"
-          className={
-            isCurrentPlaying
-              ? "home-card-play playing"
-              : "home-card-play"
-          }
-          onClick={handlePlay}
-          aria-label={
-            isCurrentPlaying
-              ? `Pause ${song.title}`
-              : `Play ${song.title}`
-          }
-          title={isCurrentPlaying ? "Pause" : "Play"}
-        >
-          {isCurrentPlaying ? <FaPause /> : <FaPlay />}
-        </button>
+<button
+  type="button"
+  className="home-song-play"
+  onClick={handlePlayClick}
+  aria-label={
+    activeSong && isPlaying
+      ? `Pause ${title}`
+      : `Play ${title}`
+  }
+>
+  {playingThisSong ? <FaPause /> : <FaPlay />}
+</button>
 
-        <button
-          type="button"
-          className={
-            isInQueue
-              ? "latest-queue added"
-              : "latest-queue"
-          }
-          onClick={handleAddToQueue}
-          disabled={isInQueue}
-          aria-label={
-            isInQueue
-              ? `${song.title} is already in queue`
-              : `Add ${song.title} to queue`
-          }
-          title={isInQueue ? "Already in queue" : "Add to queue"}
-        >
-          {isInQueue ? (
-            <>
-              <FaHandPointer />
-              <span>Queued</span>
-            </>
-          ) : (
-            <>
-              <FaPlus />
-              <span>Queue</span>
-            </>
-          )}
-        </button>
+
+        {activeSong && (
+          <span
+            className="home-song-active-indicator"
+            aria-label={playingThisSong ? "Now playing" : "Selected song"}
+          >
+            <span />
+            <span />
+            <span />
+          </span>
+        )}
       </div>
 
       <div className="home-song-info">
-        <h3>{song.title}</h3>
-
-        {song.title_english && (
-          <p className="home-english-title">
-            {song.title_english}
-          </p>
-        )}
-
-        <p className="home-song-artist">
-          {song.artist_name || "KEERTHANA"}
-        </p>
-
-        {song.category_name && (
-          <span className="home-song-category">
-            {song.category_name}
-          </span>
-        )}
-
-        {isCurrent && (
-          <small className="home-song-playing-status">
-            {isPlaying ? "Now Playing" : "Paused"}
-          </small>
-        )}
+        <h3 title={title}>{title}</h3>
+        <p title={artist}>{artist}</p>
       </div>
-    </div>
+
+      <span className="home-song-row-arrow" aria-hidden="true">
+        <FaChevronRight />
+      </span>
+    </article>
   );
 }
 
-/* =====================================================
-   CONTINUE LISTENING CARD
-===================================================== */
+/* =========================================================
+   ARTIST / ALBUM / CATEGORY CARD
+========================================================= */
 
-function ContinueListeningCard({
-  song,
-  queue = [],
-  playQueue = [],
-  playSong,
-  togglePlay,
-  currentSong,
-  isPlaying,
-  addToQueue,
-  navigate,
+function EntityCard({
+  title,
+  subtitle,
+  image,
+  fallbackIcon,
+  className = "",
+  onClick,
 }) {
-  const cover = getSongCover(song);
+  const [imageFailed, setImageFailed] = useState(false);
 
-  const progress = Math.max(
-    0,
-    Number(song.progress_seconds) || 0
-  );
-
-  const songDuration = Math.max(
-    0,
-    Number(song.duration) || 0
-  );
-
-  const progressPercent =
-    songDuration > 0
-      ? Math.min(100, (progress / songDuration) * 100)
-      : 0;
-
-  const formatProgressTime = (seconds) => {
-    const safeSeconds = Math.max(
-      0,
-      Math.floor(Number(seconds) || 0)
-    );
-
-    const minutes = Math.floor(safeSeconds / 60);
-    const remainingSeconds = safeSeconds % 60;
-
-    return `${minutes}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const isCurrent =
-    Number(currentSong?.id) === Number(song?.id);
-
-  const isCurrentPlaying = isCurrent && isPlaying;
-
-  const openSong = () => {
-    navigate(`/songs/${song.id}`);
-  };
-
-  const handleContinue = (event) => {
-    event.stopPropagation();
-
-    if (isCurrent) {
-      togglePlay();
-      return;
-    }
-
-    playSong(song, playQueue, progress);
-  };
-
-  const isInQueue =
-    Array.isArray(queue) &&
-    queue.some(
-      (item) => Number(item?.id) === Number(song?.id)
-    );
-
-  const handleAddToQueue = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!addToQueue || isInQueue) {
-      return;
-    }
-
-    addToQueue(song);
-  };
+  useEffect(() => {
+    setImageFailed(false);
+  }, [image]);
 
   return (
-    <div
-      className={
-        isCurrent
-          ? "continue-card current"
-          : "continue-card"
-      }
-      onClick={openSong}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          openSong();
-        }
-      }}
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
+      className={`home-entity-card ${className}`}
+      onClick={onClick}
+      aria-label={`${title}. ${subtitle || ""}`}
     >
-      <div className="continue-cover">
-        <img
-          src={cover}
-          alt={song.title || "Song cover"}
-          onError={(event) => {
-            event.currentTarget.onerror = null;
-            event.currentTarget.src =
-              "/images/default-cover.png";
-          }}
-        />
-
-        <button
-          type="button"
-          className={
-            isCurrentPlaying
-              ? "continue-play playing"
-              : "continue-play"
-          }
-          onClick={handleContinue}
-          aria-label={
-            isCurrentPlaying
-              ? `Pause ${song.title || "song"}`
-              : `Play ${song.title || "song"}`
-          }
-          title={
-            isCurrentPlaying
-              ? "Pause"
-              : "Continue listening"
-          }
-        >
-          {isCurrentPlaying ? <FaPause /> : <FaPlay />}
-        </button>
-
-        <button
-          type="button"
-          className={
-            isInQueue
-              ? "latest-queue added"
-              : "latest-queue"
-          }
-          onClick={handleAddToQueue}
-          disabled={isInQueue}
-          aria-label={
-            isInQueue
-              ? `${song.title} is already in queue`
-              : `Add ${song.title} to queue`
-          }
-          title={isInQueue ? "Already in queue" : "Add to queue"}
-        >
-          {isInQueue ? (
-            <>
-              <FaHandPointer />
-              <span>Queued</span>
-            </>
-          ) : (
-            <>
-              <FaPlus />
-              <span>Queue</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      <div className="continue-info">
-        <h3>{song.title || "Unknown Song"}</h3>
-
-        {song.title_english && (
-          <p className="continue-english-title">
-            {song.title_english}
-          </p>
-        )}
-
-        <p className="continue-artist">
-          {song.artist_name || "KEERTHANA"}
-        </p>
-
-        <div className="continue-progress">
-          <div className="continue-progress-track">
-            <div
-              className="continue-progress-fill"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-
-          <div className="continue-progress-time">
-            <span>{formatProgressTime(progress)}</span>
-
-            <span>
-              {songDuration > 0
-                ? formatProgressTime(songDuration)
-                : "--:--"}
-            </span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className={
-            isCurrentPlaying
-              ? "continue-button playing"
-              : "continue-button"
-          }
-          onClick={handleContinue}
-        >
-          {isCurrentPlaying ? <FaPause /> : <FaPlay />}
-
-          <span>
-            {isCurrentPlaying ? "Pause" : "Continue"}
-          </span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* =====================================================
-   LATEST SONG ROW
-===================================================== */
-
-function LatestSongRow({
-  song,
-  index,
-  songs,
-  queue = [],
-  currentSong,
-  isPlaying,
-  playSong,
-  togglePlay,
-  addToQueue,
-  removeFromQueue,
-  navigate,
-}) {
-  const cover = getSongCover(song);
-
-  const isCurrent =
-    Number(currentSong?.id) === Number(song?.id);
-
-  const isCurrentPlaying = isCurrent && isPlaying;
-
-  const openSong = () => {
-    navigate(`/songs/${song.id}`);
-  };
-
-  const handlePlay = (event) => {
-    event.stopPropagation();
-
-    if (isCurrent) {
-      togglePlay();
-      return;
-    }
-
-    playSong(song, songs);
-  };
-
-  const isInQueue =
-    Array.isArray(queue) &&
-    queue.some(
-      (item) => Number(item?.id) === Number(song?.id)
-    );
-
-  const handleQueueClick = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (isInQueue) {
-      if (removeFromQueue) {
-        removeFromQueue(song.id);
-      }
-
-      return;
-    }
-
-    if (addToQueue) {
-      addToQueue(song);
-    }
-  };
-
-  return (
-    <div
-      className={
-        isCurrent
-          ? "latest-song-row current"
-          : "latest-song-row"
-      }
-      onClick={openSong}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          openSong();
-        }
-      }}
-    >
-      <span className="latest-number">{index + 1}</span>
-
-      <div className="latest-cover">
-        <img
-          src={cover}
-          alt={song.title}
-          onError={(event) => {
-            event.currentTarget.onerror = null;
-            event.currentTarget.src =
-              "/images/default-cover.png";
-          }}
-        />
-
-        <button
-          type="button"
-          className={isCurrentPlaying ? "playing" : ""}
-          onClick={handlePlay}
-          aria-label={
-            isCurrentPlaying
-              ? `Pause ${song.title}`
-              : `Play ${song.title}`
-          }
-        >
-          {isCurrentPlaying ? <FaPause /> : <FaPlay />}
-        </button>
-      </div>
-
-      <div className="latest-info">
-        <strong>{song.title}</strong>
-
-        {song.title_english && (
-          <span className="latest-english-title">
-            {song.title_english}
-          </span>
-        )}
-
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-
-            if (song.artist_id) {
-              navigate(`/artists/${song.artist_id}`);
-            }
-          }}
-        >
-          {song.artist_name || "KEERTHANA"}
-        </button>
-
-        {isCurrent && (
-          <small className="latest-playing-status">
-            {isPlaying ? "Now Playing" : "Paused"}
-          </small>
-        )}
-      </div>
-
-      <button
-        type="button"
-        className="latest-album"
-        onClick={(event) => {
-          event.stopPropagation();
-
-          if (song.album_id) {
-            navigate(`/albums/${song.album_id}`);
-          }
-        }}
-      >
-        {song.album_title ||
-          song.category_name ||
-          "Christian Music"}
-      </button>
-
-      <button
-        type="button"
-        className={
-          isInQueue
-            ? "latest-queue added"
-            : "latest-queue"
-        }
-        onClick={handleQueueClick}
-        aria-label={
-          isInQueue
-            ? `Remove ${song.title} from queue`
-            : `Add ${song.title} to queue`
-        }
-        title={
-          isInQueue
-            ? "Remove from queue"
-            : "Add to queue"
-        }
-      >
-        {isInQueue ? (
-          <>
-            <FaHandPointer />
-            <span>Queued</span>
-          </>
+      <div className="home-entity-image">
+        {image && !imageFailed ? (
+          <img
+            src={image}
+            alt=""
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
-          <>
-            <FaPlus />
-            <span>Queue</span>
-          </>
+          <span className="home-entity-fallback">
+            {fallbackIcon || <FaMusic />}
+          </span>
         )}
-      </button>
 
-      <button
-        type="button"
-        className={
-          isCurrentPlaying
-            ? "latest-play playing"
-            : "latest-play"
-        }
-        onClick={handlePlay}
-        aria-label={
-          isCurrentPlaying
-            ? `Pause ${song.title}`
-            : `Play ${song.title}`
-        }
-        title={isCurrentPlaying ? "Pause" : "Play"}
-      >
-        {isCurrentPlaying ? <FaPause /> : <FaPlay />}
-      </button>
-    </div>
+        <span className="home-entity-image-glow" />
+      </div>
+
+      <div className="home-entity-info">
+        <h3 title={title}>{title}</h3>
+        <p title={subtitle}>{subtitle}</p>
+      </div>
+
+      <span className="home-card-arrow" aria-hidden="true">
+        <FaChevronRight />
+      </span>
+    </button>
   );
 }
 
-export default Home;
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+function EmptySection({ message }) {
+  return (
+    <div className="home-empty">
+      <span className="home-empty-icon">
+        <FaMusic />
+      </span>
+      <p>{message}</p>
+    </div>
+  );
+}

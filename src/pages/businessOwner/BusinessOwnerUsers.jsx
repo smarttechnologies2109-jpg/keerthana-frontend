@@ -1,3 +1,4 @@
+
 import React, {
   useCallback,
   useEffect,
@@ -27,6 +28,10 @@ import {
   FaBriefcase,
   FaCheckCircle,
   FaExclamationCircle,
+  FaChevronLeft,
+  FaChevronRight,
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -35,30 +40,17 @@ import "../../assets/css/businessowner/BusinessOwnerUsers.css";
 
 
 /* =========================================================
-   ROLE FILTERS
+   CONFIGURATION
 ========================================================= */
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+
 const ROLE_FILTERS = [
-  {
-    value: "ALL",
-    label: "All Roles",
-  },
-  {
-    value: "USER",
-    label: "Users",
-  },
-  {
-    value: "ADMIN",
-    label: "Admins",
-  },
-  {
-    value: "EMPLOYEE",
-    label: "Employees",
-  },
-  {
-    value: "BUSINESS_OWNER",
-    label: "Business Owners",
-  },
+  { value: "ALL", label: "All Roles" },
+  { value: "USER", label: "Users" },
+  { value: "ADMIN", label: "Admins" },
+  { value: "EMPLOYEE", label: "Employees" },
+  { value: "BUSINESS_OWNER", label: "Business Owners" },
 ];
 
 
@@ -66,16 +58,10 @@ const ROLE_FILTERS = [
    HELPERS
 ========================================================= */
 
-const normalizeRole = (role) => {
-  return String(role || "USER")
-    .trim()
-    .toUpperCase();
-};
-
+const normalizeRole = (role) =>
+  String(role || "USER").trim().toUpperCase();
 
 const formatRole = (role) => {
-  const normalizedRole = normalizeRole(role);
-
   const roleNames = {
     USER: "User",
     ADMIN: "Admin",
@@ -83,28 +69,30 @@ const formatRole = (role) => {
     BUSINESS_OWNER: "Business Owner",
   };
 
+  const normalizedRole = normalizeRole(role);
+
   return roleNames[normalizedRole] || normalizedRole;
 };
 
-
 const getRoleClass = (role) => {
-  const normalizedRole = normalizeRole(role);
-
-  switch (normalizedRole) {
+  switch (normalizeRole(role)) {
     case "BUSINESS_OWNER":
       return "role-owner";
-
     case "ADMIN":
       return "role-admin";
-
     case "EMPLOYEE":
       return "role-employee";
-
     case "USER":
     default:
       return "role-user";
   }
 };
+
+const getErrorMessage = (err, fallback) =>
+  err.response?.data?.message ||
+  err.response?.data?.error ||
+  err.message ||
+  fallback;
 
 
 /* =========================================================
@@ -115,29 +103,33 @@ const BusinessOwnerUsers = () => {
   const navigate = useNavigate();
 
 
-  /* =========================================================
-     USERS
-  ========================================================= */
+  /* =======================================================
+     USERS AND FILTERS
+  ======================================================= */
 
   const [users, setUsers] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
-
   const [roleFilter, setRoleFilter] = useState("ALL");
 
 
-  /* =========================================================
+  /* =======================================================
+     PAGINATION
+  ======================================================= */
+
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
+
+  /* =======================================================
      CREATE USER MODAL
-  ========================================================= */
+  ======================================================= */
 
   const [showModal, setShowModal] = useState(false);
-
   const [creating, setCreating] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
-
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
 
@@ -151,18 +143,14 @@ const BusinessOwnerUsers = () => {
   });
 
 
-  /* =========================================================
+  /* =======================================================
      EDIT USER MODAL
-  ========================================================= */
+  ======================================================= */
 
   const [showEditModal, setShowEditModal] = useState(false);
-
   const [editingUser, setEditingUser] = useState(null);
-
   const [updating, setUpdating] = useState(false);
-
-  const [editShowPassword, setEditShowPassword] =
-    useState(false);
+  const [editShowPassword, setEditShowPassword] = useState(false);
 
   const [editFormData, setEditFormData] = useState({
     name: "",
@@ -173,18 +161,17 @@ const BusinessOwnerUsers = () => {
   });
 
 
-  /* =========================================================
+  /* =======================================================
      ALERTS
-  ========================================================= */
+  ======================================================= */
 
   const [error, setError] = useState("");
-
   const [success, setSuccess] = useState("");
 
 
-  /* =========================================================
+  /* =======================================================
      LOAD USERS
-  ========================================================= */
+  ======================================================= */
 
   const loadUsers = useCallback(async () => {
     try {
@@ -192,26 +179,23 @@ const BusinessOwnerUsers = () => {
       setError("");
 
       const response = await API.get("/owner/users");
-
       const responseData = response?.data;
 
       const userList = Array.isArray(responseData)
         ? responseData
         : Array.isArray(responseData?.users)
-        ? responseData.users
-        : [];
+          ? responseData.users
+          : [];
 
       setUsers(userList);
     } catch (err) {
-      console.error(
-        "Failed to load users:",
-        err
-      );
+      console.error("Failed to load users:", err);
 
       setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
+        getErrorMessage(
+          err,
           "Failed to load users. Please try again."
+        )
       );
 
       setUsers([]);
@@ -220,21 +204,23 @@ const BusinessOwnerUsers = () => {
     }
   }, []);
 
-
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
 
-  /* =========================================================
+  /* =======================================================
+     RESET PAGINATION WHEN FILTERS CHANGE
+  ======================================================= */
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, roleFilter, pageSize]);
+
+
+  /* =======================================================
      ROLE COUNTS
-     
-     IMPORTANT:
-     Total Users = ONLY role USER
-     Total Admins = ONLY role ADMIN
-     Total Employees = ONLY role EMPLOYEE
-     Total Business Owners = ONLY role BUSINESS_OWNER
-  ========================================================= */
+  ======================================================= */
 
   const roleCounts = useMemo(() => {
     const counts = {
@@ -262,9 +248,9 @@ const BusinessOwnerUsers = () => {
   }, [users]);
 
 
-  /* =========================================================
+  /* =======================================================
      FILTER USERS
-  ========================================================= */
+  ======================================================= */
 
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -292,32 +278,79 @@ const BusinessOwnerUsers = () => {
 
       return matchesRole && matchesSearch;
     });
-  }, [
-    users,
-    search,
-    roleFilter,
-  ]);
+  }, [users, search, roleFilter]);
 
 
-  /* =========================================================
+  /* =======================================================
+     PAGINATION CALCULATIONS
+  ======================================================= */
+
+  const totalFilteredUsers = filteredUsers.length;
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalFilteredUsers / pageSize)
+  );
+
+  const safePage = Math.min(currentPage, totalPages);
+
+  const startIndex = (safePage - 1) * pageSize;
+
+  const endIndex = Math.min(
+    startIndex + pageSize,
+    totalFilteredUsers
+  );
+
+  const paginatedUsers = useMemo(
+    () => filteredUsers.slice(startIndex, endIndex),
+    [filteredUsers, startIndex, endIndex]
+  );
+
+  const pageNumbers = useMemo(() => {
+    const maxVisiblePages = 5;
+
+    let start = Math.max(1, safePage - 2);
+
+    let end = Math.min(
+      totalPages,
+      start + maxVisiblePages - 1
+    );
+
+    start = Math.max(
+      1,
+      end - maxVisiblePages + 1
+    );
+
+    return Array.from(
+      { length: end - start + 1 },
+      (_, index) => start + index
+    );
+  }, [safePage, totalPages]);
+
+  const goToPage = (page) => {
+    setCurrentPage(
+      Math.max(1, Math.min(page, totalPages))
+    );
+  };
+
+
+  /* =======================================================
      CLEAR FILTERS
-  ========================================================= */
+  ======================================================= */
 
   const clearFilters = () => {
     setSearch("");
     setRoleFilter("ALL");
+    setCurrentPage(1);
   };
 
 
-  /* =========================================================
+  /* =======================================================
      CREATE FORM CHANGE
-  ========================================================= */
+  ======================================================= */
 
   const handleChange = (event) => {
-    const {
-      name,
-      value,
-    } = event.target;
+    const { name, value } = event.target;
 
     setFormData((previous) => ({
       ...previous,
@@ -326,15 +359,12 @@ const BusinessOwnerUsers = () => {
   };
 
 
-  /* =========================================================
+  /* =======================================================
      EDIT FORM CHANGE
-  ========================================================= */
+  ======================================================= */
 
   const handleEditChange = (event) => {
-    const {
-      name,
-      value,
-    } = event.target;
+    const { name, value } = event.target;
 
     setEditFormData((previous) => ({
       ...previous,
@@ -343,9 +373,9 @@ const BusinessOwnerUsers = () => {
   };
 
 
-  /* =========================================================
+  /* =======================================================
      OPEN CREATE MODAL
-  ========================================================= */
+  ======================================================= */
 
   const openCreateModal = () => {
     setError("");
@@ -362,14 +392,13 @@ const BusinessOwnerUsers = () => {
 
     setShowPassword(false);
     setShowConfirmPassword(false);
-
     setShowModal(true);
   };
 
 
-  /* =========================================================
+  /* =======================================================
      CLOSE CREATE MODAL
-  ========================================================= */
+  ======================================================= */
 
   const closeCreateModal = () => {
     if (creating) return;
@@ -390,9 +419,9 @@ const BusinessOwnerUsers = () => {
   };
 
 
-  /* =========================================================
+  /* =======================================================
      CREATE USER
-  ========================================================= */
+  ======================================================= */
 
   const handleCreateUser = async (event) => {
     event.preventDefault();
@@ -421,16 +450,11 @@ const BusinessOwnerUsers = () => {
     }
 
     if (formData.password.length < 6) {
-      setError(
-        "Password must be at least 6 characters."
-      );
+      setError("Password must be at least 6 characters.");
       return;
     }
 
-    if (
-      formData.password !==
-      formData.confirmPassword
-    ) {
+    if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
@@ -441,33 +465,38 @@ const BusinessOwnerUsers = () => {
       await API.post("/owner/users", {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        mobile:
-          formData.mobile.trim() || null,
+        mobile: formData.mobile.trim() || null,
         role: normalizeRole(formData.role),
         password: formData.password,
       });
 
-      closeCreateModal();
+      setShowModal(false);
+
+      setFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        role: "USER",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setShowPassword(false);
+      setShowConfirmPassword(false);
 
       await loadUsers();
 
-      setSuccess(
-        "User created successfully."
-      );
+      setCurrentPage(1);
 
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
+      setSuccess("User created successfully.");
     } catch (err) {
-      console.error(
-        "Create user error:",
-        err
-      );
+      console.error("Create user error:", err);
 
       setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
+        getErrorMessage(
+          err,
           "Failed to create user. Please try again."
+        )
       );
     } finally {
       setCreating(false);
@@ -475,9 +504,9 @@ const BusinessOwnerUsers = () => {
   };
 
 
-  /* =========================================================
+  /* =======================================================
      DELETE USER
-  ========================================================= */
+  ======================================================= */
 
   const handleDeleteUser = async (user) => {
     const confirmed = window.confirm(
@@ -490,37 +519,27 @@ const BusinessOwnerUsers = () => {
       setError("");
       setSuccess("");
 
-      await API.delete(
-        `/owner/users/${user.id}`
-      );
+      await API.delete(`/owner/users/${user.id}`);
 
       await loadUsers();
 
-      setSuccess(
-        "User deleted successfully."
-      );
-
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
+      setSuccess("User deleted successfully.");
     } catch (err) {
-      console.error(
-        "Delete user error:",
-        err
-      );
+      console.error("Delete user error:", err);
 
       setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
+        getErrorMessage(
+          err,
           "Failed to delete user. Please try again."
+        )
       );
     }
   };
 
 
-  /* =========================================================
+  /* =======================================================
      OPEN EDIT MODAL
-  ========================================================= */
+  ======================================================= */
 
   const openEditModal = (user) => {
     setError("");
@@ -537,20 +556,18 @@ const BusinessOwnerUsers = () => {
     });
 
     setEditShowPassword(false);
-
     setShowEditModal(true);
   };
 
 
-  /* =========================================================
+  /* =======================================================
      CLOSE EDIT MODAL
-  ========================================================= */
+  ======================================================= */
 
   const closeEditModal = () => {
     if (updating) return;
 
     setShowEditModal(false);
-
     setEditingUser(null);
 
     setEditFormData({
@@ -565,9 +582,9 @@ const BusinessOwnerUsers = () => {
   };
 
 
-  /* =========================================================
+  /* =======================================================
      UPDATE USER
-  ========================================================= */
+  ======================================================= */
 
   const handleUpdateUser = async (event) => {
     event.preventDefault();
@@ -581,9 +598,7 @@ const BusinessOwnerUsers = () => {
     }
 
     if (!editFormData.email.trim()) {
-      setError(
-        "Please enter the user's email."
-      );
+      setError("Please enter the user's email.");
       return;
     }
 
@@ -596,9 +611,7 @@ const BusinessOwnerUsers = () => {
       editFormData.password &&
       editFormData.password.length < 6
     ) {
-      setError(
-        "Password must be at least 6 characters."
-      );
+      setError("Password must be at least 6 characters.");
       return;
     }
 
@@ -613,14 +626,12 @@ const BusinessOwnerUsers = () => {
       const payload = {
         name: editFormData.name.trim(),
         email: editFormData.email.trim(),
-        mobile:
-          editFormData.mobile.trim() || null,
+        mobile: editFormData.mobile.trim() || null,
         role: normalizeRole(editFormData.role),
       };
 
       if (editFormData.password.trim()) {
-        payload.password =
-          editFormData.password;
+        payload.password = editFormData.password;
       }
 
       await API.put(
@@ -628,27 +639,30 @@ const BusinessOwnerUsers = () => {
         payload
       );
 
-      closeEditModal();
+      setShowEditModal(false);
+      setEditingUser(null);
+
+      setEditFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        role: "USER",
+        password: "",
+      });
+
+      setEditShowPassword(false);
 
       await loadUsers();
 
-      setSuccess(
-        "User updated successfully."
-      );
-
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
+      setSuccess("User updated successfully.");
     } catch (err) {
-      console.error(
-        "Update user error:",
-        err
-      );
+      console.error("Update user error:", err);
 
       setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
+        getErrorMessage(
+          err,
           "Failed to update user. Please try again."
+        )
       );
     } finally {
       setUpdating(false);
@@ -656,40 +670,35 @@ const BusinessOwnerUsers = () => {
   };
 
 
-  /* =========================================================
+  /* =======================================================
      FORMAT DATE
-  ========================================================= */
+  ======================================================= */
 
-  const formatDate = (date) => {
-    if (!date) return "-";
+  const formatDate = (value) => {
+    if (!value) return "-";
 
-    try {
-      return new Date(
-        date
-      ).toLocaleDateString(
-        "en-IN",
-        {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }
-      );
-    } catch {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
       return "-";
     }
+
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
 
-  /* =========================================================
+  /* =======================================================
      RENDER
-  ========================================================= */
+  ======================================================= */
 
   return (
     <div className="owner-users-page">
 
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <div className="owner-users-header">
 
@@ -698,14 +707,11 @@ const BusinessOwnerUsers = () => {
           <button
             type="button"
             className="owner-back-btn"
-            onClick={() =>
-              navigate("/owner/dashboard")
-            }
+            onClick={() => navigate("/owner/dashboard")}
           >
             <FaArrowLeft />
             <span>Dashboard</span>
           </button>
-
 
           <div className="owner-page-heading">
 
@@ -715,7 +721,6 @@ const BusinessOwnerUsers = () => {
 
             <div>
               <h1>User Management</h1>
-
               <p>
                 Manage users, admins, employees
                 and business owners
@@ -725,7 +730,6 @@ const BusinessOwnerUsers = () => {
           </div>
 
         </div>
-
 
         <button
           type="button"
@@ -739,110 +743,58 @@ const BusinessOwnerUsers = () => {
       </div>
 
 
-      {/* =====================================================
-          MAIN CONTENT
-      ===================================================== */}
+      {/* MAIN CONTENT */}
 
       <div className="owner-users-content">
 
-
-        {/* ===================================================
-            ROLE STATISTICS
-        =================================================== */}
+        {/* ROLE STATISTICS */}
 
         <div className="users-statistics-grid">
 
-
-          {/* TOTAL USERS */}
-
           <div className="user-stat-card stat-users">
-
             <div className="user-stat-icon">
               <FaUsers />
             </div>
-
             <div className="user-stat-content">
-
               <span>Total Users</span>
-
-              <strong>
-                {roleCounts.users}
-              </strong>
-
+              <strong>{roleCounts.users}</strong>
             </div>
-
           </div>
 
-
-          {/* TOTAL ADMINS */}
-
           <div className="user-stat-card stat-admins">
-
             <div className="user-stat-icon">
               <FaUserShield />
             </div>
-
             <div className="user-stat-content">
-
               <span>Total Admins</span>
-
-              <strong>
-                {roleCounts.admins}
-              </strong>
-
+              <strong>{roleCounts.admins}</strong>
             </div>
-
           </div>
 
-
-          {/* TOTAL EMPLOYEES */}
-
           <div className="user-stat-card stat-employees">
-
             <div className="user-stat-icon">
               <FaUserTie />
             </div>
-
             <div className="user-stat-content">
-
               <span>Total Employees</span>
-
-              <strong>
-                {roleCounts.employees}
-              </strong>
-
+              <strong>{roleCounts.employees}</strong>
             </div>
-
           </div>
 
-
-          {/* TOTAL BUSINESS OWNERS */}
-
           <div className="user-stat-card stat-owners">
-
             <div className="user-stat-icon">
               <FaBriefcase />
             </div>
-
             <div className="user-stat-content">
-
               <span>Total Business Owners</span>
-
-              <strong>
-                {roleCounts.businessOwners}
-              </strong>
-
+              <strong>{roleCounts.businessOwners}</strong>
             </div>
-
           </div>
-
 
         </div>
 
 
-        {/* ===================================================
-            SEARCH + FILTER
-        =================================================== */}
+        {/* SEARCH AND ROLE FILTER */}
 
         <div className="users-controls-card">
 
@@ -858,13 +810,9 @@ const BusinessOwnerUsers = () => {
 
               <input
                 id="user-search"
-                type="text"
+                type="search"
                 value={search}
-                onChange={(event) =>
-                  setSearch(
-                    event.target.value
-                  )
-                }
+                onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search by name, email, mobile or ID..."
               />
 
@@ -872,9 +820,7 @@ const BusinessOwnerUsers = () => {
                 <button
                   type="button"
                   className="clear-search-btn"
-                  onClick={() =>
-                    setSearch("")
-                  }
+                  onClick={() => setSearch("")}
                   aria-label="Clear search"
                 >
                   <FaTimes />
@@ -884,7 +830,6 @@ const BusinessOwnerUsers = () => {
             </div>
 
           </div>
-
 
           <div className="users-role-control">
 
@@ -899,203 +844,152 @@ const BusinessOwnerUsers = () => {
               <select
                 id="role-filter"
                 value={roleFilter}
-                onChange={(event) =>
-                  setRoleFilter(
-                    event.target.value
-                  )
-                }
+                onChange={(event) => setRoleFilter(event.target.value)}
               >
-
-                {ROLE_FILTERS.map(
-                  (role) => (
-                    <option
-                      key={role.value}
-                      value={role.value}
-                    >
-                      {role.label}
-                    </option>
-                  )
-                )}
-
+                {ROLE_FILTERS.map((role) => (
+                  <option key={role.value} value={role.value}>
+                    {role.label}
+                  </option>
+                ))}
               </select>
 
             </div>
 
           </div>
 
-
-          {(search ||
-            roleFilter !== "ALL") && (
-
+          {(search || roleFilter !== "ALL") && (
             <button
               type="button"
               className="clear-filters-btn"
               onClick={clearFilters}
             >
               <FaTimes />
-
-              <span>
-                Clear Filters
-              </span>
+              <span>Clear Filters</span>
             </button>
-
           )}
 
         </div>
 
 
-        {/* ===================================================
-            RESULT BAR
-        =================================================== */}
+        {/* RESULTS SUMMARY AND PAGE SIZE */}
 
         <div className="users-result-bar">
 
-          <div>
-
+          <div className="users-result-count">
             Showing{" "}
-
             <strong>
-              {filteredUsers.length}
-            </strong>{" "}
+              {totalFilteredUsers === 0 ? 0 : startIndex + 1}
+              {"–"}
+              {endIndex}
+            </strong>
+            {" "}of{" "}
+            <strong>{totalFilteredUsers}</strong>
+            {" "}matching accounts
+          </div>
 
-            of{" "}
+          <div className="users-pagination-size">
 
-            <strong>
-              {users.length}
-            </strong>{" "}
+            <label htmlFor="users-page-size">
+              Rows per page
+            </label>
 
-            accounts
+            <select
+              id="users-page-size"
+              value={pageSize}
+              onChange={(event) =>
+                setPageSize(Number(event.target.value))
+              }
+            >
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
 
           </div>
 
-
           {roleFilter !== "ALL" && (
-
             <span className="active-filter-badge">
               {formatRole(roleFilter)}
             </span>
-
           )}
 
         </div>
 
 
-        {/* ===================================================
-            ALERTS
-        =================================================== */}
+        {/* ALERTS */}
 
         {error && (
-
-          <div className="owner-alert owner-alert-error">
-
+          <div className="owner-alert owner-alert-error" role="alert">
             <FaExclamationCircle />
-
-            <span>
-              {error}
-            </span>
-
+            <span>{error}</span>
             <button
               type="button"
-              onClick={() =>
-                setError("")
-              }
+              onClick={() => setError("")}
               aria-label="Close error"
             >
               <FaTimes />
             </button>
-
           </div>
-
         )}
 
-
         {success && (
-
-          <div className="owner-alert owner-alert-success">
-
+          <div className="owner-alert owner-alert-success" role="status">
             <FaCheckCircle />
-
-            <span>
-              {success}
-            </span>
-
+            <span>{success}</span>
             <button
               type="button"
-              onClick={() =>
-                setSuccess("")
-              }
-              aria-label="Close success"
+              onClick={() => setSuccess("")}
+              aria-label="Close success message"
             >
               <FaTimes />
             </button>
-
           </div>
-
         )}
 
 
-        {/* ===================================================
-            USERS TABLE
-        =================================================== */}
+        {/* USERS TABLE */}
 
         <div className="users-table-card">
 
           {loading ? (
-
-            <div className="users-loading">
-
+            <div className="users-loading" role="status">
               <div className="users-spinner"></div>
-
-              <p>
-                Loading users...
-              </p>
-
+              <p>Loading users...</p>
             </div>
-
           ) : filteredUsers.length === 0 ? (
-
             <div className="users-empty">
 
               <div className="users-empty-icon">
                 <FaUsers />
               </div>
 
-              <h3>
-                No users found
-              </h3>
+              <h3>No users found</h3>
 
               <p>
-                {search ||
-                roleFilter !== "ALL"
+                {search || roleFilter !== "ALL"
                   ? "Try changing your search or filter."
                   : "There are no users available yet."}
               </p>
 
-              {(search ||
-                roleFilter !== "ALL") && (
-
+              {(search || roleFilter !== "ALL") && (
                 <button
                   type="button"
-                  onClick={
-                    clearFilters
-                  }
+                  onClick={clearFilters}
                   className="empty-clear-btn"
                 >
                   Clear Filters
                 </button>
-
               )}
 
             </div>
-
           ) : (
-
             <div className="users-table-wrapper">
 
               <table className="users-table">
 
                 <thead>
-
                   <tr>
                     <th>ID</th>
                     <th>User</th>
@@ -1105,181 +999,225 @@ const BusinessOwnerUsers = () => {
                     <th>Created</th>
                     <th>Actions</th>
                   </tr>
-
                 </thead>
 
-
                 <tbody>
+                  {paginatedUsers.map((user) => (
+                    <tr key={user.id}>
 
-                  {filteredUsers.map(
-                    (user) => (
+                      <td>
+                        <span className="user-id">
+                          #{user.id}
+                        </span>
+                      </td>
 
-                      <tr key={user.id}>
+                      <td>
+                        <div className="table-user-info">
 
-                        <td>
-
-                          <span className="user-id">
-                            #{user.id}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <div className="table-user-info">
-
-                            <div className="table-user-avatar">
-
-                              {user.profile_image ? (
-
-                                <img
-                                  src={
-                                    user.profile_image
-                                  }
-                                  alt={
-                                    user.name ||
-                                    "User"
-                                  }
-                                />
-
-                              ) : (
-
-                                <FaUser />
-
-                              )}
-
-                            </div>
-
-
-                            <div className="table-user-details">
-
-                              <strong>
-                                {user.name ||
-                                  "Unnamed User"}
-                              </strong>
-
-                              <span>
-                                User ID:{" "}
-                                {user.id}
-                              </span>
-
-                            </div>
-
+                          <div className="table-user-avatar">
+                            {user.profile_image ? (
+                              <img
+                                src={user.profile_image}
+                                alt={user.name || "User"}
+                              />
+                            ) : (
+                              <FaUser />
+                            )}
                           </div>
 
-                        </td>
-
-
-                        <td>
-
-                          <div className="table-contact">
-
-                            <FaEnvelope />
-
-                            <span>
-                              {user.email ||
-                                "-"}
-                            </span>
-
+                          <div className="table-user-details">
+                            <strong>
+                              {user.name || "Unnamed User"}
+                            </strong>
+                            <span>User ID: {user.id}</span>
                           </div>
 
-                        </td>
+                        </div>
+                      </td>
 
+                      <td>
+                        <div className="table-contact">
+                          <FaEnvelope />
+                          <span>{user.email || "-"}</span>
+                        </div>
+                      </td>
 
-                        <td>
+                      <td>
+                        <div className="table-contact">
+                          <FaPhone />
+                          <span>{user.mobile || "-"}</span>
+                        </div>
+                      </td>
 
-                          <div className="table-contact">
+                      <td>
+                        <span
+                          className={`user-role-badge ${getRoleClass(user.role)}`}
+                        >
+                          {formatRole(user.role)}
+                        </span>
+                      </td>
 
-                            <FaPhone />
+                      <td>
+                        <span className="created-date">
+                          {formatDate(user.created_at)}
+                        </span>
+                      </td>
 
-                            <span>
-                              {user.mobile ||
-                                "-"}
-                            </span>
+                      <td>
+                        <div className="user-actions">
 
-                          </div>
-
-                        </td>
-
-
-                        <td>
-
-                          <span
-                            className={`user-role-badge ${getRoleClass(
-                              user.role
-                            )}`}
+                          <button
+                            type="button"
+                            className="user-edit-btn"
+                            onClick={() => openEditModal(user)}
+                            title="Edit user"
+                            aria-label={`Edit ${user.name || "user"}`}
                           >
-                            {formatRole(
-                              user.role
-                            )}
-                          </span>
+                            <FaEdit />
+                          </button>
 
-                        </td>
+                          <button
+                            type="button"
+                            className="user-delete-btn"
+                            onClick={() => handleDeleteUser(user)}
+                            title="Delete user"
+                            aria-label={`Delete ${user.name || "user"}`}
+                          >
+                            <FaTrash />
+                          </button>
 
+                        </div>
+                      </td>
 
-                        <td>
-
-                          <span className="created-date">
-
-                            {formatDate(
-                              user.created_at
-                            )}
-
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <div className="user-actions">
-
-                            <button
-                              type="button"
-                              className="user-edit-btn"
-                              onClick={() =>
-                                openEditModal(
-                                  user
-                                )
-                              }
-                              title="Edit user"
-                            >
-                              <FaEdit />
-                            </button>
-
-
-                            <button
-                              type="button"
-                              className="user-delete-btn"
-                              onClick={() =>
-                                handleDeleteUser(
-                                  user
-                                )
-                              }
-                              title="Delete user"
-                            >
-                              <FaTrash />
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
+                    </tr>
+                  ))}
                 </tbody>
 
               </table>
 
             </div>
-
           )}
 
         </div>
+
+
+        {/* PAGINATION FOOTER */}
+
+        {!loading && totalFilteredUsers > 0 && (
+          <div className="users-pagination">
+
+            <p className="users-pagination-info">
+              Page <strong>{safePage}</strong> of{" "}
+              <strong>{totalPages}</strong>
+            </p>
+
+            <nav
+              className="users-pagination-controls"
+              aria-label="User list pagination"
+            >
+
+              <button
+                type="button"
+                className="users-page-button"
+                onClick={() => goToPage(1)}
+                disabled={safePage === 1}
+                aria-label="First page"
+                title="First page"
+              >
+                <FaAngleDoubleLeft />
+              </button>
+
+              <button
+                type="button"
+                className="users-page-button users-page-direction"
+                onClick={() => goToPage(safePage - 1)}
+                disabled={safePage === 1}
+                aria-label="Previous page"
+              >
+                <FaChevronLeft />
+                <span>Previous</span>
+              </button>
+
+              {pageNumbers[0] > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="users-page-button"
+                    onClick={() => goToPage(1)}
+                  >
+                    1
+                  </button>
+
+                  {pageNumbers[0] > 2 && (
+                    <span className="users-page-ellipsis">
+                      …
+                    </span>
+                  )}
+                </>
+              )}
+
+              {pageNumbers.map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  className={`users-page-button ${
+                    safePage === page ? "active" : ""
+                  }`}
+                  onClick={() => goToPage(page)}
+                  aria-current={
+                    safePage === page ? "page" : undefined
+                  }
+                  aria-label={`Page ${page}`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {pageNumbers[pageNumbers.length - 1] < totalPages && (
+                <>
+                  {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+                    <span className="users-page-ellipsis">
+                      …
+                    </span>
+                  )}
+
+                  <button
+                    type="button"
+                    className="users-page-button"
+                    onClick={() => goToPage(totalPages)}
+                    aria-label={`Page ${totalPages}`}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+
+              <button
+                type="button"
+                className="users-page-button users-page-direction"
+                onClick={() => goToPage(safePage + 1)}
+                disabled={safePage === totalPages}
+                aria-label="Next page"
+              >
+                <span>Next</span>
+                <FaChevronRight />
+              </button>
+
+              <button
+                type="button"
+                className="users-page-button"
+                onClick={() => goToPage(totalPages)}
+                disabled={safePage === totalPages}
+                aria-label="Last page"
+                title="Last page"
+              >
+                <FaAngleDoubleRight />
+              </button>
+
+            </nav>
+
+          </div>
+        )}
 
       </div>
 
@@ -1289,23 +1227,24 @@ const BusinessOwnerUsers = () => {
       ===================================================== */}
 
       {showModal && (
-
         <div
           className="owner-modal-overlay"
           onMouseDown={(event) => {
-
             if (
-              event.target ===
-                event.currentTarget &&
+              event.target === event.currentTarget &&
               !creating
             ) {
               closeCreateModal();
             }
-
           }}
         >
 
-          <div className="owner-modal">
+          <div
+            className="owner-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-user-title"
+          >
 
             <div className="owner-modal-header">
 
@@ -1316,28 +1255,22 @@ const BusinessOwnerUsers = () => {
                 </div>
 
                 <div>
-
-                  <h2>
+                  <h2 id="create-user-title">
                     Create New User
                   </h2>
-
                   <p>
-                    Add a new user to the
-                    KEERTHANA system
+                    Add a new user to the KEERTHANA system
                   </p>
-
                 </div>
 
               </div>
 
-
               <button
                 type="button"
                 className="modal-close-btn"
-                onClick={
-                  closeCreateModal
-                }
+                onClick={closeCreateModal}
                 disabled={creating}
+                aria-label="Close create user form"
               >
                 <FaTimes />
               </button>
@@ -1347,257 +1280,149 @@ const BusinessOwnerUsers = () => {
 
             <form
               className="owner-user-form"
-              onSubmit={
-                handleCreateUser
-              }
+              onSubmit={handleCreateUser}
             >
 
               <div className="form-grid">
 
-
-                {/* NAME */}
-
                 <div className="form-group">
-
-                  <label htmlFor="create-name">
-                    Full Name
-                  </label>
-
+                  <label htmlFor="create-name">Full Name</label>
                   <div className="form-input-wrapper">
-
                     <FaUser />
-
                     <input
                       id="create-name"
                       type="text"
                       name="name"
-                      value={
-                        formData.name
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder="Enter full name"
+                      autoComplete="name"
+                      required
                       disabled={creating}
                     />
-
                   </div>
-
                 </div>
 
-
-                {/* EMAIL */}
-
                 <div className="form-group">
-
-                  <label htmlFor="create-email">
-                    Email Address
-                  </label>
-
+                  <label htmlFor="create-email">Email Address</label>
                   <div className="form-input-wrapper">
-
                     <FaEnvelope />
-
                     <input
                       id="create-email"
                       type="email"
                       name="email"
-                      value={
-                        formData.email
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder="Enter email address"
+                      autoComplete="email"
+                      required
                       disabled={creating}
                     />
-
                   </div>
-
                 </div>
 
-
-                {/* MOBILE */}
-
                 <div className="form-group">
-
-                  <label htmlFor="create-mobile">
-                    Mobile Number
-                  </label>
-
+                  <label htmlFor="create-mobile">Mobile Number</label>
                   <div className="form-input-wrapper">
-
                     <FaPhone />
-
                     <input
                       id="create-mobile"
                       type="tel"
                       name="mobile"
-                      value={
-                        formData.mobile
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formData.mobile}
+                      onChange={handleChange}
                       placeholder="Enter mobile number"
+                      autoComplete="tel"
                       disabled={creating}
                     />
-
                   </div>
-
                 </div>
 
-
-                {/* ROLE */}
-
                 <div className="form-group">
-
-                  <label htmlFor="create-role">
-                    Role
-                  </label>
-
+                  <label htmlFor="create-role">Role</label>
                   <div className="form-input-wrapper">
-
                     <FaUsers />
-
                     <select
                       id="create-role"
                       name="role"
-                      value={
-                        formData.role
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formData.role}
+                      onChange={handleChange}
                       disabled={creating}
                     >
-
-                      <option value="USER">
-                        User
-                      </option>
-
-                      <option value="ADMIN">
-                        Admin
-                      </option>
-
-                      <option value="EMPLOYEE">
-                        Employee
-                      </option>
-
-                      <option value="BUSINESS_OWNER">
-                        Business Owner
-                      </option>
-
+                      <option value="USER">User</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="EMPLOYEE">Employee</option>
+                      <option value="BUSINESS_OWNER">Business Owner</option>
                     </select>
-
                   </div>
-
                 </div>
 
-
-                {/* PASSWORD */}
-
                 <div className="form-group">
-
-                  <label htmlFor="create-password">
-                    Password
-                  </label>
-
+                  <label htmlFor="create-password">Password</label>
                   <div className="form-input-wrapper">
-
                     <FaLock />
-
                     <input
                       id="create-password"
-                      type={
-                        showPassword
-                          ? "text"
-                          : "password"
-                      }
+                      type={showPassword ? "text" : "password"}
                       name="password"
-                      value={
-                        formData.password
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formData.password}
+                      onChange={handleChange}
                       placeholder="Minimum 6 characters"
+                      autoComplete="new-password"
+                      minLength={6}
+                      required
                       disabled={creating}
                     />
-
                     <button
                       type="button"
                       className="password-toggle"
                       onClick={() =>
-                        setShowPassword(
-                          (previous) =>
-                            !previous
-                        )
+                        setShowPassword((previous) => !previous)
                       }
                       disabled={creating}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                     >
-                      {showPassword ? (
-                        <FaEyeSlash />
-                      ) : (
-                        <FaEye />
-                      )}
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
-
                   </div>
-
                 </div>
 
-
-                {/* CONFIRM PASSWORD */}
-
                 <div className="form-group">
-
                   <label htmlFor="create-confirm-password">
                     Confirm Password
                   </label>
-
                   <div className="form-input-wrapper">
-
                     <FaLock />
-
                     <input
                       id="create-confirm-password"
-                      type={
-                        showConfirmPassword
-                          ? "text"
-                          : "password"
-                      }
+                      type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
-                      value={
-                        formData.confirmPassword
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
                       placeholder="Confirm password"
+                      autoComplete="new-password"
+                      minLength={6}
+                      required
                       disabled={creating}
                     />
-
                     <button
                       type="button"
                       className="password-toggle"
                       onClick={() =>
-                        setShowConfirmPassword(
-                          (previous) =>
-                            !previous
-                        )
+                        setShowConfirmPassword((previous) => !previous)
                       }
                       disabled={creating}
+                      aria-label={
+                        showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"
+                      }
                     >
-                      {showConfirmPassword ? (
-                        <FaEyeSlash />
-                      ) : (
-                        <FaEye />
-                      )}
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
-
                   </div>
-
                 </div>
 
               </div>
@@ -1608,21 +1433,17 @@ const BusinessOwnerUsers = () => {
                 <button
                   type="button"
                   className="modal-cancel-btn"
-                  onClick={
-                    closeCreateModal
-                  }
+                  onClick={closeCreateModal}
                   disabled={creating}
                 >
                   Cancel
                 </button>
-
 
                 <button
                   type="submit"
                   className="modal-submit-btn"
                   disabled={creating}
                 >
-
                   {creating ? (
                     <>
                       <span className="button-spinner"></span>
@@ -1634,7 +1455,6 @@ const BusinessOwnerUsers = () => {
                       Create User
                     </>
                   )}
-
                 </button>
 
               </div>
@@ -1644,7 +1464,6 @@ const BusinessOwnerUsers = () => {
           </div>
 
         </div>
-
       )}
 
 
@@ -1652,322 +1471,214 @@ const BusinessOwnerUsers = () => {
           EDIT USER MODAL
       ===================================================== */}
 
-      {showEditModal &&
-        editingUser && (
+      {showEditModal && editingUser && (
+        <div
+          className="owner-modal-overlay"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              !updating
+            ) {
+              closeEditModal();
+            }
+          }}
+        >
 
           <div
-            className="owner-modal-overlay"
-            onMouseDown={(event) => {
-
-              if (
-                event.target ===
-                  event.currentTarget &&
-                !updating
-              ) {
-                closeEditModal();
-              }
-
-            }}
+            className="owner-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-user-title"
           >
 
-            <div className="owner-modal">
+            <div className="owner-modal-header">
 
-              <div className="owner-modal-header">
+              <div className="owner-modal-heading">
 
-                <div className="owner-modal-heading">
-
-                  <div className="modal-title-icon edit-modal-icon">
-                    <FaEdit />
-                  </div>
-
-                  <div>
-
-                    <h2>
-                      Edit User
-                    </h2>
-
-                    <p>
-                      Update user account
-                      information
-                    </p>
-
-                  </div>
-
+                <div className="modal-title-icon edit-modal-icon">
+                  <FaEdit />
                 </div>
 
+                <div>
+                  <h2 id="edit-user-title">Edit User</h2>
+                  <p>Update user account information</p>
+                </div>
 
-                <button
-                  type="button"
-                  className="modal-close-btn"
-                  onClick={
-                    closeEditModal
-                  }
-                  disabled={updating}
-                >
-                  <FaTimes />
-                </button>
+              </div>
+
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={closeEditModal}
+                disabled={updating}
+                aria-label="Close edit user form"
+              >
+                <FaTimes />
+              </button>
+
+            </div>
+
+
+            <form
+              className="owner-user-form"
+              onSubmit={handleUpdateUser}
+            >
+
+              <div className="form-grid">
+
+                <div className="form-group">
+                  <label htmlFor="edit-name">Full Name</label>
+                  <div className="form-input-wrapper">
+                    <FaUser />
+                    <input
+                      id="edit-name"
+                      type="text"
+                      name="name"
+                      value={editFormData.name}
+                      onChange={handleEditChange}
+                      placeholder="Enter full name"
+                      autoComplete="name"
+                      required
+                      disabled={updating}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-email">Email Address</label>
+                  <div className="form-input-wrapper">
+                    <FaEnvelope />
+                    <input
+                      id="edit-email"
+                      type="email"
+                      name="email"
+                      value={editFormData.email}
+                      onChange={handleEditChange}
+                      placeholder="Enter email address"
+                      autoComplete="email"
+                      required
+                      disabled={updating}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-mobile">Mobile Number</label>
+                  <div className="form-input-wrapper">
+                    <FaPhone />
+                    <input
+                      id="edit-mobile"
+                      type="tel"
+                      name="mobile"
+                      value={editFormData.mobile}
+                      onChange={handleEditChange}
+                      placeholder="Enter mobile number"
+                      autoComplete="tel"
+                      disabled={updating}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-role">Role</label>
+                  <div className="form-input-wrapper">
+                    <FaUsers />
+                    <select
+                      id="edit-role"
+                      name="role"
+                      value={editFormData.role}
+                      onChange={handleEditChange}
+                      disabled={updating}
+                    >
+                      <option value="USER">User</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="EMPLOYEE">Employee</option>
+                      <option value="BUSINESS_OWNER">Business Owner</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group form-group-full">
+                  <label htmlFor="edit-password">
+                    New Password
+                    <span className="optional-label">Optional</span>
+                  </label>
+
+                  <div className="form-input-wrapper">
+                    <FaLock />
+                    <input
+                      id="edit-password"
+                      type={editShowPassword ? "text" : "password"}
+                      name="password"
+                      value={editFormData.password}
+                      onChange={handleEditChange}
+                      placeholder="Leave empty to keep current password"
+                      autoComplete="new-password"
+                      minLength={editFormData.password ? 6 : undefined}
+                      disabled={updating}
+                    />
+
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() =>
+                        setEditShowPassword((previous) => !previous)
+                      }
+                      disabled={updating}
+                      aria-label={
+                        editShowPassword
+                          ? "Hide new password"
+                          : "Show new password"
+                      }
+                    >
+                      {editShowPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                </div>
 
               </div>
 
 
-              <form
-                className="owner-user-form"
-                onSubmit={
-                  handleUpdateUser
-                }
-              >
-
-                <div className="form-grid">
-
-
-                  {/* NAME */}
-
-                  <div className="form-group">
-
-                    <label htmlFor="edit-name">
-                      Full Name
-                    </label>
-
-                    <div className="form-input-wrapper">
-
-                      <FaUser />
-
-                      <input
-                        id="edit-name"
-                        type="text"
-                        name="name"
-                        value={
-                          editFormData.name
-                        }
-                        onChange={
-                          handleEditChange
-                        }
-                        placeholder="Enter full name"
-                        disabled={updating}
-                      />
-
-                    </div>
-
-                  </div>
-
-
-                  {/* EMAIL */}
-
-                  <div className="form-group">
-
-                    <label htmlFor="edit-email">
-                      Email Address
-                    </label>
-
-                    <div className="form-input-wrapper">
-
-                      <FaEnvelope />
-
-                      <input
-                        id="edit-email"
-                        type="email"
-                        name="email"
-                        value={
-                          editFormData.email
-                        }
-                        onChange={
-                          handleEditChange
-                        }
-                        placeholder="Enter email address"
-                        disabled={updating}
-                      />
-
-                    </div>
-
-                  </div>
-
-
-                  {/* MOBILE */}
-
-                  <div className="form-group">
-
-                    <label htmlFor="edit-mobile">
-                      Mobile Number
-                    </label>
-
-                    <div className="form-input-wrapper">
-
-                      <FaPhone />
-
-                      <input
-                        id="edit-mobile"
-                        type="tel"
-                        name="mobile"
-                        value={
-                          editFormData.mobile
-                        }
-                        onChange={
-                          handleEditChange
-                        }
-                        placeholder="Enter mobile number"
-                        disabled={updating}
-                      />
-
-                    </div>
-
-                  </div>
-
-
-                  {/* ROLE */}
-
-                  <div className="form-group">
-
-                    <label htmlFor="edit-role">
-                      Role
-                    </label>
-
-                    <div className="form-input-wrapper">
-
-                      <FaUsers />
-
-                      <select
-                        id="edit-role"
-                        name="role"
-                        value={
-                          editFormData.role
-                        }
-                        onChange={
-                          handleEditChange
-                        }
-                        disabled={updating}
-                      >
-
-                        <option value="USER">
-                          User
-                        </option>
-
-                        <option value="ADMIN">
-                          Admin
-                        </option>
-
-                        <option value="EMPLOYEE">
-                          Employee
-                        </option>
-
-                        <option value="BUSINESS_OWNER">
-                          Business Owner
-                        </option>
-
-                      </select>
-
-                    </div>
-
-                  </div>
-
-
-                  {/* PASSWORD */}
-
-                  <div className="form-group form-group-full">
-
-                    <label htmlFor="edit-password">
-
-                      New Password
-
-                      <span className="optional-label">
-                        Optional
-                      </span>
-
-                    </label>
-
-                    <div className="form-input-wrapper">
-
-                      <FaLock />
-
-                      <input
-                        id="edit-password"
-                        type={
-                          editShowPassword
-                            ? "text"
-                            : "password"
-                        }
-                        name="password"
-                        value={
-                          editFormData.password
-                        }
-                        onChange={
-                          handleEditChange
-                        }
-                        placeholder="Leave empty to keep current password"
-                        disabled={updating}
-                      />
-
-                      <button
-                        type="button"
-                        className="password-toggle"
-                        onClick={() =>
-                          setEditShowPassword(
-                            (previous) =>
-                              !previous
-                          )
-                        }
-                        disabled={updating}
-                      >
-                        {editShowPassword ? (
-                          <FaEyeSlash />
-                        ) : (
-                          <FaEye />
-                        )}
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                <div className="owner-modal-footer">
-
-                  <button
-                    type="button"
-                    className="modal-cancel-btn"
-                    onClick={
-                      closeEditModal
-                    }
-                    disabled={updating}
-                  >
-                    Cancel
-                  </button>
-
-
-                  <button
-                    type="submit"
-                    className="modal-submit-btn"
-                    disabled={updating}
-                  >
-
-                    {updating ? (
-                      <>
-                        <span className="button-spinner"></span>
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <FaEdit />
-                        Update User
-                      </>
-                    )}
-
-                  </button>
-
-                </div>
-
-              </form>
-
-            </div>
+              <div className="owner-modal-footer">
+
+                <button
+                  type="button"
+                  className="modal-cancel-btn"
+                  onClick={closeEditModal}
+                  disabled={updating}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="modal-submit-btn"
+                  disabled={updating}
+                >
+                  {updating ? (
+                    <>
+                      <span className="button-spinner"></span>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <FaEdit />
+                      Update User
+                    </>
+                  )}
+                </button>
+
+              </div>
+
+            </form>
 
           </div>
 
-        )}
+        </div>
+      )}
 
     </div>
   );
 };
-
 
 export default BusinessOwnerUsers;

@@ -1,332 +1,548 @@
 
-import { useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import {
   FaMusic,
   FaPlus,
   FaTrash,
-  FaEraser,
-  FaArrowLeft,
   FaTimes,
   FaCheck,
-  FaHeadphones,
-  FaArrowRight,
-  FaPlay,
+  FaSearch,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+
+import API from "../services/api";
+import { usePlayer } from "../context/usePlayer";
+import VoiceSearch from "../components/VoiceSearch";
+
 import "../assets/css/playlists.css";
+
+/* =========================================================
+   RESPONSE HELPERS
+========================================================= */
+
+const getPlaylists = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.playlists)) return data.playlists;
+  if (Array.isArray(data?.data?.playlists)) {
+    return data.data.playlists;
+  }
+  if (Array.isArray(data?.data)) return data.data;
+
+  return [];
+};
+
+const getSongTitle = (song) =>
+  song?.title_english ||
+  song?.titleEnglish ||
+  song?.title ||
+  "Unknown Song";
+
+const getPlaylistDetails = (data) =>
+  data?.playlist ||
+  data?.data?.playlist ||
+  data?.data ||
+  data;
+
+/* =========================================================
+   VOICE SEARCH LANGUAGES
+========================================================= */
+
+const VOICE_LANGUAGES = [
+  { value: "te-IN", label: "తెలుగు" },
+  { value: "hi-IN", label: "हिन्दी" },
+  { value: "en-IN", label: "English" },
+  { value: "ml-IN", label: "മലയാളം" },
+  { value: "kn-IN", label: "ಕನ್ನಡ" },
+  { value: "ta-IN", label: "தமிழ்" },
+];
+
+/* =========================================================
+   PLAYLIST COLLECTION PAGE
+========================================================= */
 
 function Playlists() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Existing demo state and playlist behavior
-  const [playlists, setPlaylists] = useState([
-    {
-      id: 1,
-      name: "My Worship Songs",
-      description: "Songs for personal worship",
-      songs: [],
-    },
-    {
-      id: 2,
-      name: "Praise and Prayer",
-      description: "Music for praise and prayer",
-      songs: [],
-    },
-  ]);
+  const { playSong } = usePlayer();
 
-  const [activePlaylist, setActivePlaylist] = useState(null);
+  /* =======================================================
+     STATE
+  ======================================================= */
+
+  const [playlists, setPlaylists] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [voiceLanguage, setVoiceLanguage] = useState("en-IN");
+
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAddSongs, setShowAddSongs] = useState(false);
+
   const [playlistName, setPlaylistName] = useState("");
   const [playlistDescription, setPlaylistDescription] = useState("");
+
   const [confirmAction, setConfirmAction] = useState(null);
+  const [pendingSong, setPendingSong] = useState(null);
+  const [targetPlaylistId, setTargetPlaylistId] = useState("");
 
-  const openPlaylist = (playlist) => {
-    setActivePlaylist(playlist);
-  };
+  /* =======================================================
+     FILTER PLAYLISTS
+  ======================================================= */
 
-  const createPlaylist = (event) => {
+  const filteredPlaylists = playlists.filter((playlist) => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) return true;
+
+    const name = String(playlist?.name || "").toLowerCase();
+    const description = String(
+      playlist?.description || ""
+    ).toLowerCase();
+
+    return name.includes(query) || description.includes(query);
+  });
+
+  /* =======================================================
+     LOAD PLAYLISTS
+  ======================================================= */
+
+  const fetchPlaylists = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await API.get("/playlists");
+
+      setPlaylists(getPlaylists(response?.data));
+    } catch (err) {
+      console.error("Load playlists error:", err);
+
+      setError(
+        err?.response?.data?.message ||
+          "Unable to load your playlists. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPlaylists();
+  }, [fetchPlaylists]);
+
+  /* =======================================================
+     OPEN PLAYLIST DETAILS
+  ======================================================= */
+
+  const openPlaylist = useCallback(
+    (playlist) => {
+      if (!playlist?.id) {
+        setActionError("Unable to open this playlist.");
+        return;
+      }
+
+      setActionError("");
+      navigate(`/playlists/${playlist.id}`);
+    },
+    [navigate]
+  );
+
+  /* =======================================================
+     HANDLE SONG PASSED FROM SEARCH
+  ======================================================= */
+
+  useEffect(() => {
+    const song = location.state?.selectedSong;
+    const action = location.state?.action;
+
+    if (song && action === "add-song") {
+      setPendingSong(song);
+      setTargetPlaylistId("");
+      setShowAddSongs(true);
+      setActionError("");
+    }
+  }, [location.state]);
+
+  /* =======================================================
+     CREATE PLAYLIST
+  ======================================================= */
+
+  const createPlaylist = async (event) => {
     event.preventDefault();
 
     const name = playlistName.trim();
 
-    if (!name) return;
+    if (!name) {
+      setActionError("Enter a playlist name.");
+      return;
+    }
 
-    const newPlaylist = {
-      id: Date.now(),
-      name,
-      description: playlistDescription.trim(),
-      songs: [],
-    };
+    try {
+      setActionLoading(true);
+      setActionError("");
 
-    setPlaylists((previous) => [...previous, newPlaylist]);
-    setPlaylistName("");
-    setPlaylistDescription("");
-    setShowCreateModal(false);
-  };
+      await API.post("/playlists", {
+        name,
+        description: playlistDescription.trim(),
+      });
 
-  const clearPlaylist = (playlistId) => {
-    setPlaylists((previous) =>
-      previous.map((playlist) =>
-        playlist.id === playlistId
-          ? { ...playlist, songs: [] }
-          : playlist
-      )
-    );
+      setPlaylistName("");
+      setPlaylistDescription("");
+      setShowCreateModal(false);
 
-    setActivePlaylist((previous) =>
-      previous?.id === playlistId
-        ? { ...previous, songs: [] }
-        : previous
-    );
+      await fetchPlaylists();
+    } catch (err) {
+      console.error("Create playlist error:", err);
 
-    setConfirmAction(null);
-  };
-
-  const deletePlaylist = (playlistId) => {
-    setPlaylists((previous) =>
-      previous.filter((playlist) => playlist.id !== playlistId)
-    );
-
-    setActivePlaylist((previous) =>
-      previous?.id === playlistId ? null : previous
-    );
-
-    setConfirmAction(null);
-  };
-
-  const requestAction = (type, playlist) => {
-    setConfirmAction({ type, playlist });
-  };
-
-  const confirmSelectedAction = () => {
-    if (!confirmAction) return;
-
-    const { type, playlist } = confirmAction;
-
-    if (type === "clear") {
-      clearPlaylist(playlist.id);
-    } else if (type === "delete") {
-      deletePlaylist(playlist.id);
+      setActionError(
+        err?.response?.data?.message ||
+          "Unable to create the playlist."
+      );
+    } finally {
+      setActionLoading(false);
     }
   };
+
+  /* =======================================================
+     DELETE PLAYLIST
+  ======================================================= */
+
+  const deletePlaylist = async (playlist) => {
+    if (!playlist?.id) return;
+
+    try {
+      setActionLoading(true);
+      setActionError("");
+
+      await API.delete(`/playlists/${playlist.id}`);
+
+      setConfirmAction(null);
+
+      await fetchPlaylists();
+    } catch (err) {
+      console.error("Delete playlist error:", err);
+
+      setActionError(
+        err?.response?.data?.message ||
+          "Unable to delete this playlist."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  /* =======================================================
+     ADD SEARCH SONG TO SELECTED PLAYLIST
+  ======================================================= */
+
+  const handleAddSelectedSong = async () => {
+    if (!targetPlaylistId || !pendingSong?.id) {
+      setActionError("Choose a playlist first.");
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      setActionError("");
+
+      const playlistResponse = await API.get(
+        `/playlists/${targetPlaylistId}`
+      );
+
+      const playlist = getPlaylistDetails(playlistResponse?.data);
+
+      const existingSongs = Array.isArray(playlist?.songs)
+        ? playlist.songs
+        : [];
+
+      const alreadyAdded = existingSongs.some(
+        (song) => String(song.id) === String(pendingSong.id)
+      );
+
+      if (alreadyAdded) {
+        setActionError("This song is already in that playlist.");
+        return;
+      }
+
+      await API.post(
+        `/playlists/${targetPlaylistId}/songs/${pendingSong.id}`
+      );
+
+      await fetchPlaylists();
+
+      /* Attempt playback without failing the add operation. */
+
+      try {
+        const updatedResponse = await API.get(
+          `/playlists/${targetPlaylistId}`
+        );
+
+        const updatedPlaylist = getPlaylistDetails(
+          updatedResponse?.data
+        );
+
+        const updatedSongs = Array.isArray(updatedPlaylist?.songs)
+          ? updatedPlaylist.songs
+          : [];
+
+        const addedSong = updatedSongs.find(
+          (song) => String(song.id) === String(pendingSong.id)
+        );
+
+        if (addedSong?.audio_url) {
+          await playSong(addedSong, updatedSongs);
+        }
+      } catch (playbackError) {
+        console.error(
+          "Load added song for playback error:",
+          playbackError
+        );
+      }
+
+      setShowAddSongs(false);
+      setPendingSong(null);
+      setTargetPlaylistId("");
+
+      navigate("/playlists", {
+        replace: true,
+        state: {},
+      });
+    } catch (err) {
+      console.error("Add song to playlist error:", err);
+
+      setActionError(
+        err?.response?.data?.message ||
+          "Unable to add this song. Please try again."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  /* =======================================================
+     HANDLE CREATE QUERY PARAMETER
+  ======================================================= */
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+
+    if (params.get("create") === "true") {
+      setShowCreateModal(true);
+    }
+  }, [location.search]);
+
+  /* =======================================================
+     CLOSE ADD SONG MODAL
+  ======================================================= */
+
+  const closeAddSongsModal = () => {
+    if (actionLoading) return;
+
+    setShowAddSongs(false);
+    setPendingSong(null);
+    setTargetPlaylistId("");
+    setActionError("");
+
+    if (location.state?.action === "add-song") {
+      navigate("/playlists", {
+        replace: true,
+        state: {},
+      });
+    }
+  };
+
+  /* =======================================================
+     CLEAR SEARCH
+  ======================================================= */
+
+  const clearPlaylistSearch = () => {
+    setSearchQuery("");
+  };
+
+  /* =======================================================
+     LOADING STATE
+  ======================================================= */
+
+  if (loading) {
+    return (
+      <main className="playlists-page">
+        <div className="playlists-main">
+          <div className="playlist-empty-state">
+            <FaMusic />
+            <h3>Loading your playlists...</h3>
+            <p>Please wait while we load your collection.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
 
   return (
     <main className="playlists-page">
       <div className="playlists-main">
-        <header className="playlists-hero">
-          <div className="playlists-hero-glow" aria-hidden="true" />
+        {/* ERROR MESSAGES */}
 
-          <div className="playlists-hero-copy">
-            <span className="playlists-eyebrow">
-              <span className="playlists-eyebrow-dot" />
-              KEERTHANA MUSIC
-            </span>
+        {error && (
+          <div className="playlist-error" role="alert">
+            <p>{error}</p>
+            <button
+              type="button"
+              onClick={fetchPlaylists}
+              disabled={loading}
+            >
+              Try again
+            </button>
+          </div>
+        )}
 
-            <h1>
-              Your worship.
-              <br />
-              <span>Your collections.</span>
-            </h1>
+        {actionError && !showCreateModal && !showAddSongs && (
+          <div className="playlist-error" role="alert">
+            <p>{actionError}</p>
+            <button
+              type="button"
+              onClick={() => setActionError("")}
+            >
+              <FaTimes /> Dismiss
+            </button>
+          </div>
+        )}
 
-            <p>
-              Create a soundtrack for every moment.
-              Keep your favourite praise, prayer, and worship
-              songs together in one personal space.
-            </p>
+        {/* PLAYLIST COLLECTION */}
+
+        <section className="playlists-grid-section">
+          {/* SECTION HEADER */}
+
+          <div className="playlists-section-heading">
+            <div>
+              <span className="playlists-section-eyebrow">
+                YOUR PERSONAL COLLECTION
+              </span>
+
+              <h2>Made by you</h2>
+
+              <p>
+                Your playlists, organized around the music you love.
+              </p>
+            </div>
 
             <button
               type="button"
-              className="playlists-create-button"
-              onClick={() => setShowCreateModal(true)}
+              className="playlists-secondary-button"
+              onClick={() => {
+                setActionError("");
+                setShowCreateModal(true);
+              }}
             >
               <FaPlus />
-              <span>Create playlist</span>
-              <FaArrowRight className="playlists-button-arrow" />
+              New playlist
             </button>
           </div>
 
-          <div className="playlists-hero-art" aria-hidden="true">
-            <div className="playlists-hero-orbit playlists-hero-orbit-one" />
-            <div className="playlists-hero-orbit playlists-hero-orbit-two" />
+          {/* PLAYLIST SEARCH BAR */}
 
-            <div className="playlists-hero-disc">
-              <div className="playlists-hero-disc-inner">
-                <FaHeadphones />
-              </div>
-            </div>
+          
+{/* PLAYLIST SEARCH BAR + VOICE LANGUAGE */}
 
-            <span className="playlists-hero-note playlists-note-one">♫</span>
-            <span className="playlists-hero-note playlists-note-two">♪</span>
+<div className="playlists-search-section">
+  <div className="playlists-search-row">
+    <div className="playlists-search playlists-voice-search">
+      <VoiceSearch
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onSearch={setSearchQuery}
+        language={voiceLanguage}
+        onLanguageChange={setVoiceLanguage}
+        placeholder="Search your playlists..."
+        ariaLabel="Search your playlists"
+      />
+    </div>
+  </div>
+</div>
 
-            <div className="playlists-hero-caption">
-              <span className="playlists-caption-icon">
+{/* SEARCH RESULTS SUMMARY */}
+
+{playlists.length > 0 && searchQuery.trim() && (
+  <p
+    className="playlists-search-summary"
+    aria-live="polite"
+  >
+    {filteredPlaylists.length}{" "}
+    {filteredPlaylists.length === 1
+      ? "playlist"
+      : "playlists"}{" "}
+    found
+  </p>
+)}
+
+
+          {/* EMPTY COLLECTION */}
+
+          {playlists.length === 0 && !searchQuery.trim() ? (
+            <div className="playlist-empty-state">
+              <div className="playlist-empty-art">
                 <FaMusic />
+                <span>♪</span>
+              </div>
+
+              <span className="playlist-empty-eyebrow">
+                START SOMETHING PERSONAL
               </span>
-              <span>
-                <strong>Made for your moments</strong>
-                <small>Praise · Prayer · Worship</small>
-              </span>
-            </div>
-          </div>
-        </header>
 
-        {activePlaylist ? (
-          <section className="playlist-detail">
-            <button
-              type="button"
-              className="playlist-back-button"
-              onClick={() => setActivePlaylist(null)}
-            >
-              <FaArrowLeft />
-              <span>All playlists</span>
-            </button>
+              <h3>Your first playlist starts here</h3>
 
-            <div className="playlist-detail-heading">
-              <div className="playlist-detail-art">
-                <div className="playlist-detail-art-glow" />
-                <FaMusic />
-              </div>
-
-              <div className="playlist-detail-info">
-                <span className="playlist-detail-label">PLAYLIST</span>
-
-                <h2>{activePlaylist.name}</h2>
-
-                <p>
-                  {activePlaylist.description ||
-                    "Your personal music collection"}
-                </p>
-
-                <span className="playlist-song-count">
-                  <FaMusic />
-                  {activePlaylist.songs.length}{" "}
-                  {activePlaylist.songs.length === 1 ? "song" : "songs"}
-                </span>
-              </div>
-            </div>
-
-            <div className="playlist-management-actions">
-              <button
-                type="button"
-                className="playlist-action-clear"
-                onClick={() => requestAction("clear", activePlaylist)}
-                disabled={activePlaylist.songs.length === 0}
-              >
-                <FaEraser />
-                Clear songs
-              </button>
+              <p>
+                Create a playlist, then add songs directly from your
+                music library.
+              </p>
 
               <button
                 type="button"
-                className="playlist-action-delete"
-                onClick={() => requestAction("delete", activePlaylist)}
-              >
-                <FaTrash />
-                Delete playlist
-              </button>
-            </div>
-
-            {activePlaylist.songs.length === 0 ? (
-              <div className="playlist-empty-state">
-                <div className="playlist-empty-art">
-                  <FaMusic />
-                  <span>♪</span>
-                </div>
-
-                <span className="playlist-empty-eyebrow">
-                  YOUR NEXT FAVOURITE SONG
-                </span>
-
-                <h3>This playlist is waiting for music</h3>
-
-                <p>
-                  Find songs that speak to your heart and add them
-                  to this collection.
-                </p>
-
-                <button
-                  type="button"
-                  className="playlists-create-button"
-                  onClick={() => navigate("/search")}
-                >
-                  <FaPlay />
-                  Find songs
-                </button>
-              </div>
-            ) : (
-              <div className="playlist-songs-list">
-                {activePlaylist.songs.map((song, index) => (
-                  <div className="playlist-song-row" key={song.id}>
-                    <span className="playlist-song-index">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    <span className="playlist-song-icon">
-                      <FaMusic />
-                    </span>
-
-                    <span className="playlist-song-title">
-                      {song.title}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        ) : (
-          <section className="playlists-grid-section">
-            <div className="playlists-section-heading">
-              <div>
-                <span className="playlists-section-eyebrow">
-                  YOUR PERSONAL COLLECTION
-                </span>
-                <h2>Made by you</h2>
-                <p>
-                  Your playlists, organized around the music you love.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                className="playlists-secondary-button"
-                onClick={() => setShowCreateModal(true)}
+                className="playlists-create-button"
+                onClick={() => {
+                  setActionError("");
+                  setShowCreateModal(true);
+                }}
               >
                 <FaPlus />
-                New playlist
+                Create your first playlist
               </button>
             </div>
+          ) : filteredPlaylists.length > 0 ? (
+            /* PLAYLIST CARDS */
 
-            {playlists.length === 0 ? (
-              <div className="playlist-empty-state">
-                <div className="playlist-empty-art">
-                  <FaMusic />
-                  <span>♪</span>
-                </div>
+            <div className="playlists-grid" id="playlists-grid">
+              {filteredPlaylists.map((playlist, index) => {
+                const songCount = Number(
+                  playlist.song_count ??
+                    playlist.songs?.length ??
+                    0
+                );
 
-                <span className="playlist-empty-eyebrow">
-                  START SOMETHING PERSONAL
-                </span>
+                return (
+                  <article
+                    className="playlist-card"
+                    key={playlist.id}
+                  >
+                    {/* ARTWORK */}
 
-                <h3>Your first playlist starts here</h3>
-
-                <p>
-                  Bring your favourite Christian songs together
-                  in one beautiful collection.
-                </p>
-
-                <button
-                  type="button"
-                  className="playlists-create-button"
-                  onClick={() => setShowCreateModal(true)}
-                >
-                  <FaPlus />
-                  Create your first playlist
-                </button>
-              </div>
-            ) : (
-              <div className="playlists-grid">
-                {playlists.map((playlist, index) => (
-                  <article className="playlist-card" key={playlist.id}>
                     <button
                       type="button"
                       className={`playlist-card-open playlist-card-artwork artwork-variant-${index % 4}`}
@@ -341,13 +557,15 @@ function Playlists() {
                       </span>
 
                       <span className="playlist-card-open-play">
-                        <FaPlay />
+                        <FaSearch />
                       </span>
 
                       <span className="playlist-card-art-label">
                         KEERTHANA
                       </span>
                     </button>
+
+                    {/* PLAYLIST INFORMATION */}
 
                     <div className="playlist-card-info">
                       <button
@@ -359,31 +577,38 @@ function Playlists() {
                       </button>
 
                       <p>
-                        {playlist.description || "Your music collection"}
+                        {playlist.description ||
+                          "Your music collection"}
                       </p>
 
                       <span className="playlist-card-song-count">
-                        {playlist.songs.length}{" "}
-                        {playlist.songs.length === 1 ? "song" : "songs"}
+                        {songCount}{" "}
+                        {songCount === 1 ? "song" : "songs"}
                       </span>
                     </div>
+
+                    {/* PLAYLIST ACTIONS */}
 
                     <div className="playlist-card-actions">
                       <button
                         type="button"
-                        onClick={() => requestAction("clear", playlist)}
-                        disabled={playlist.songs.length === 0}
-                        aria-label={`Clear songs from ${playlist.name}`}
-                        title="Clear songs"
+                        onClick={() => openPlaylist(playlist)}
+                        aria-label={`Open ${playlist.name} to manage songs`}
                       >
-                        <FaEraser />
-                        <span>Clear</span>
+                        <FaPlus />
+                        <span>Add songs</span>
                       </button>
 
                       <button
                         type="button"
                         className="playlist-card-delete"
-                        onClick={() => requestAction("delete", playlist)}
+                        onClick={() => {
+                          setActionError("");
+                          setConfirmAction({
+                            type: "delete",
+                            playlist,
+                          });
+                        }}
                         aria-label={`Delete ${playlist.name}`}
                         title="Delete playlist"
                       >
@@ -392,34 +617,53 @@ function Playlists() {
                       </button>
                     </div>
                   </article>
-                ))}
+                );
+              })}
+            </div>
+          ) : (
+            /* NO SEARCH RESULTS */
+
+            <div className="playlist-empty-state playlists-no-results">
+              <div className="playlist-empty-art">
+                <FaSearch />
               </div>
-            )}
-          </section>
-        )}
 
-        <footer className="playlists-footer-note">
-          <span className="playlists-footer-icon">
-            <FaMusic />
-          </span>
+              <span className="playlist-empty-eyebrow">
+                NO MATCHES FOUND
+              </span>
 
-          <div>
-            <strong>Every song can become a special moment.</strong>
-            <p>Build your own collection of praise, prayer, and worship.</p>
-          </div>
+              <h3>No playlists found</h3>
 
-          <span className="playlists-footer-note-mark" aria-hidden="true">
-            ♪
-          </span>
-        </footer>
+              <p>
+                No playlists match "{searchQuery.trim()}". Try
+                another name or description.
+              </p>
+
+              <button
+                type="button"
+                className="playlists-create-button"
+                onClick={clearPlaylistSearch}
+              >
+                <FaTimes />
+                Clear search
+              </button>
+            </div>
+          )}
+        </section>
       </div>
+
+      {/* CREATE PLAYLIST MODAL */}
 
       {showCreateModal && (
         <div
           className="playlist-modal-overlay"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
+            if (
+              event.target === event.currentTarget &&
+              !actionLoading
+            ) {
               setShowCreateModal(false);
+              setActionError("");
             }
           }}
         >
@@ -431,15 +675,27 @@ function Playlists() {
           >
             <div className="playlist-modal-heading">
               <div>
-                <span className="playlists-eyebrow">YOUR MUSIC</span>
-                <h2 id="create-playlist-title">Create a playlist</h2>
-                <p>Give your collection a name of its own.</p>
+                <span className="playlists-eyebrow">
+                  YOUR MUSIC
+                </span>
+
+                <h2 id="create-playlist-title">
+                  Create a playlist
+                </h2>
+
+                <p>
+                  Give your collection a name of its own.
+                </p>
               </div>
 
               <button
                 type="button"
                 className="playlist-modal-close"
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setActionError("");
+                }}
+                disabled={actionLoading}
                 aria-label="Close"
               >
                 <FaTimes />
@@ -447,12 +703,16 @@ function Playlists() {
             </div>
 
             <form onSubmit={createPlaylist}>
-              <label htmlFor="playlist-name">Playlist name</label>
+              <label htmlFor="playlist-name">
+                Playlist name
+              </label>
 
               <input
                 id="playlist-name"
                 value={playlistName}
-                onChange={(event) => setPlaylistName(event.target.value)}
+                onChange={(event) =>
+                  setPlaylistName(event.target.value)
+                }
                 placeholder="e.g. Morning Worship"
                 maxLength={80}
                 required
@@ -474,11 +734,21 @@ function Playlists() {
                 rows={3}
               />
 
+              {actionError && (
+                <p role="alert" className="playlist-error">
+                  {actionError}
+                </p>
+              )}
+
               <div className="playlist-modal-actions">
                 <button
                   type="button"
                   className="playlist-modal-cancel"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setActionError("");
+                  }}
+                  disabled={actionLoading}
                 >
                   Cancel
                 </button>
@@ -486,9 +756,12 @@ function Playlists() {
                 <button
                   type="submit"
                   className="playlists-create-button"
+                  disabled={actionLoading}
                 >
                   <FaCheck />
-                  Create playlist
+                  {actionLoading
+                    ? "Creating..."
+                    : "Create playlist"}
                 </button>
               </div>
             </form>
@@ -496,12 +769,143 @@ function Playlists() {
         </div>
       )}
 
-      {confirmAction && (
+      {/* ADD SONG TO A PLAYLIST */}
+
+      {showAddSongs && pendingSong && (
         <div
           className="playlist-modal-overlay"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
+              closeAddSongsModal();
+            }
+          }}
+        >
+          <section
+            className="playlist-modal playlist-add-songs-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-songs-title"
+          >
+            <div className="playlist-modal-heading">
+              <div>
+                <span className="playlists-eyebrow">
+                  KEERTHANA MUSIC
+                </span>
+
+                <h2 id="add-songs-title">
+                  Add song to a playlist
+                </h2>
+
+                <p>
+                  Choose where you want to save this song.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="playlist-modal-close"
+                onClick={closeAddSongsModal}
+                disabled={actionLoading}
+                aria-label="Close"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {actionError && (
+              <p className="playlist-error" role="alert">
+                {actionError}
+              </p>
+            )}
+
+            <div className="playlist-add-selected-song">
+              <div className="playlist-add-selected-song-info">
+                <FaMusic />
+
+                <div>
+                  <strong>{getSongTitle(pendingSong)}</strong>
+
+                  <span>
+                    {pendingSong.artist_name ||
+                      pendingSong.artist?.name ||
+                      "KEERTHANA MUSIC"}
+                  </span>
+                </div>
+              </div>
+
+              <label htmlFor="target-playlist">
+                Choose playlist
+              </label>
+
+              <select
+                id="target-playlist"
+                value={targetPlaylistId}
+                onChange={(event) =>
+                  setTargetPlaylistId(event.target.value)
+                }
+                disabled={actionLoading}
+              >
+                <option value="">Select a playlist</option>
+
+                {playlists.map((playlist) => (
+                  <option
+                    key={playlist.id}
+                    value={playlist.id}
+                  >
+                    {playlist.name}
+                  </option>
+                ))}
+              </select>
+
+              {playlists.length === 0 && (
+                <p>
+                  Create a playlist first, then add this song.
+                </p>
+              )}
+
+              <div className="playlist-modal-actions">
+                <button
+                  type="button"
+                  className="playlist-modal-cancel"
+                  onClick={closeAddSongsModal}
+                  disabled={actionLoading}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="playlists-create-button"
+                  onClick={handleAddSelectedSong}
+                  disabled={
+                    actionLoading ||
+                    !targetPlaylistId ||
+                    playlists.length === 0
+                  }
+                >
+                  <FaPlus />
+                  {actionLoading
+                    ? "Adding..."
+                    : "Add to playlist"}
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION */}
+
+      {confirmAction?.type === "delete" && (
+        <div
+          className="playlist-modal-overlay"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              !actionLoading
+            ) {
               setConfirmAction(null);
+              setActionError("");
             }
           }}
         >
@@ -521,33 +925,43 @@ function Playlists() {
             </span>
 
             <h2 id="playlist-confirm-title">
-              {confirmAction.type === "clear"
-                ? "Clear this playlist?"
-                : "Delete this playlist?"}
+              Delete this playlist?
             </h2>
 
             <p id="playlist-confirm-description">
-              {confirmAction.type === "clear"
-                ? `All songs will be removed from "${confirmAction.playlist.name}". The playlist itself will remain.`
-                : `"${confirmAction.playlist.name}" will be removed from your playlist collection. This action cannot be undone.`}
+              "{confirmAction.playlist.name}" will be removed
+              from your playlist collection.
             </p>
+
+            {actionError && (
+              <p className="playlist-error" role="alert">
+                {actionError}
+              </p>
+            )}
 
             <div className="playlist-modal-actions">
               <button
                 type="button"
                 className="playlist-modal-cancel"
-                onClick={() => setConfirmAction(null)}
+                onClick={() => {
+                  setConfirmAction(null);
+                  setActionError("");
+                }}
+                disabled={actionLoading}
               >
-                Keep playlist
+                Cancel
               </button>
 
               <button
                 type="button"
                 className="playlist-confirm-danger"
-                onClick={confirmSelectedAction}
+                onClick={() =>
+                  deletePlaylist(confirmAction.playlist)
+                }
+                disabled={actionLoading}
               >
-                {confirmAction.type === "clear"
-                  ? "Clear songs"
+                {actionLoading
+                  ? "Please wait..."
                   : "Delete playlist"}
               </button>
             </div>
