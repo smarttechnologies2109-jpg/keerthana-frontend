@@ -413,14 +413,16 @@ const handlePlaySong = useCallback(
     [navigate]
   );
 
-  const openCategory = useCallback(
-    (category) => {
-      navigate(
-        `/search?q=${encodeURIComponent(getEntityName(category))}`
-      );
-    },
-    [navigate]
-  );
+  const openCategory = (category) => {
+  const categoryId = category?.id;
+
+  if (!categoryId) {
+    console.error("Category ID is missing:", category);
+    return;
+  }
+
+  navigate(`/categories/${categoryId}`);
+};
 
   const openLanguage = useCallback(
     (language) => {
@@ -725,7 +727,7 @@ const handlePlaySong = useCallback(
           subtitle="Find music by collection and theme"
           icon={<FaListUl />}
           onViewAll={() => navigate("/categories")}
-        >
+         >
           {categories.length > 0 ? (
             <div className="home-card-grid home-category-grid">
               {categories.map((category, index) => (
