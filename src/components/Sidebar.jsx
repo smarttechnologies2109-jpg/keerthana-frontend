@@ -1,6 +1,7 @@
 
 import React, { useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+
 import {
   FaBell,
   FaBookOpen,
@@ -19,6 +20,7 @@ import {
   FaTimes,
   FaMicrophone,
   FaBookmark,
+  FaThLarge,
 } from "react-icons/fa";
 
 import "../assets/css/sidebar.css";
@@ -28,14 +30,52 @@ import "../assets/css/sidebar.css";
 ========================================================= */
 
 const EXPLORE_LINKS = [
-  { to: "/", label: "Home", Icon: FaHome, end: true },
-  { to: "/songs", label: "All Songs", Icon: FaMusic },
-  { to: "/search", label: "Search", Icon: FaSearch },
-  { to: "/library", label: "Your Library", Icon: FaBookOpen },
-  { to: "/artists", label: "Artists", Icon: FaMicrophone },
-  { to: "/albums", label: "Albums", Icon: FaCompactDisc },
-  { to: "/ministries", label: "Ministries", Icon: FaChurch },
-  { to: "/mood-playlists", label: "Mood Playlists", Icon: FaMusic },
+  {
+    to: "/",
+    label: "Home",
+    Icon: FaHome,
+    end: true,
+  },
+  {
+    to: "/songs",
+    label: "All Songs",
+    Icon: FaMusic,
+  },
+  {
+    to: "/search",
+    label: "Search",
+    Icon: FaSearch,
+  },
+  {
+    to: "/library",
+    label: "Your Library",
+    Icon: FaBookOpen,
+  },
+  {
+    to: "/artists",
+    label: "Artists",
+    Icon: FaMicrophone,
+  },
+  {
+    to: "/albums",
+    label: "Albums",
+    Icon: FaCompactDisc,
+  },
+  {
+    to: "/ministries",
+    label: "Ministries",
+    Icon: FaChurch,
+  },
+  {
+    to: "/categories",
+    label: "Categories",
+    Icon: FaThLarge,
+  },
+  {
+    to: "/mood-playlists",
+    label: "Mood Playlists",
+    Icon: FaMusic,
+  },
 ];
 
 /* =========================================================
@@ -112,7 +152,9 @@ function SidebarLink({
         <Icon aria-hidden="true" />
       </span>
 
-      <span className="sidebar-label">{label}</span>
+      <span className="sidebar-label">
+        {label}
+      </span>
 
       <FaChevronRight
         className="sidebar-item-arrow"
@@ -126,14 +168,24 @@ function SidebarLink({
    SIDEBAR SECTION
 ========================================================= */
 
-function SidebarSection({ title, links, onNavigate }) {
+function SidebarSection({
+  title,
+  links,
+  onNavigate,
+}) {
   return (
-    <section className="sidebar-section" aria-label={title}>
+    <section
+      className="sidebar-section"
+      aria-label={title}
+    >
       <div className="sidebar-section-heading">
         <span>{title}</span>
       </div>
 
-      <nav className="sidebar-nav" aria-label={title}>
+      <nav
+        className="sidebar-nav"
+        aria-label={title}
+      >
         {links.map((link) => (
           <SidebarLink
             key={link.to}
@@ -148,7 +200,8 @@ function SidebarSection({ title, links, onNavigate }) {
 
 /* =========================================================
    KEERTHANA MUSIC — MAIN SIDEBAR
-   Profile, Premium and Logout are handled in Header.jsx
+
+   Profile, Premium and Logout are handled in Header.jsx.
 ========================================================= */
 
 function Sidebar({ isOpen, onToggle }) {
@@ -178,7 +231,9 @@ function Sidebar({ isOpen, onToggle }) {
       {/* Main sidebar */}
       <aside
         className={`sidebar ${
-          isOpen ? "sidebar-open" : "sidebar-closed"
+          isOpen
+            ? "sidebar-open"
+            : "sidebar-closed"
         }`}
         aria-label="Main sidebar"
       >
@@ -202,7 +257,10 @@ function Sidebar({ isOpen, onToggle }) {
           }}
           aria-label="Go to KEERTHANA home"
         >
-          <span className="sidebar-brand-logo" aria-hidden="true">
+          <span
+            className="sidebar-brand-logo"
+            aria-hidden="true"
+          >
             <FaMusic />
           </span>
 
@@ -227,7 +285,7 @@ function Sidebar({ isOpen, onToggle }) {
           />
         </div>
 
-        {/* Footer only — account actions are in the header */}
+        {/* Footer */}
         <div className="sidebar-bottom">
           <footer className="sidebar-footer">
             <span>
