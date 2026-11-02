@@ -1,4 +1,3 @@
-
 import React, {
   useCallback,
   useEffect,
@@ -22,19 +21,46 @@ const VOICE_WS_URL =
   import.meta.env.VITE_VOICE_SEARCH_WS_URL ||
   DEFAULT_VOICE_WS_URL;
 
-const TARGET_SAMPLE_RATE = 16000;
+const TARGET_SAMPLE_RATE = 16_000;
 
+const SUPPORTED_LANGUAGES = new Set([
+  "te-IN",
+  "hi-IN",
+  "en-IN",
+  "ml-IN",
+  "kn-IN",
+  "ta-IN",
+]);
+
+function normalizeLanguage(language) {
+  const candidate = String(language || "te-IN").trim();
+  return SUPPORTED_LANGUAGES.has(candidate) ? candidate : "te-IN";
+}
+
+// Convert browser Float32 audio to mono, signed 16-bit PCM at 16 kHz.
 function downsampleToPcm16(input, inputSampleRate) {
   if (!input?.length || !inputSampleRate) {
     return new ArrayBuffer(0);
   }
 
+  if (inputSampleRate === TARGET_SAMPLE_RATE) {
+    const pcm = new Int16Array(input.length);
+
+    for (let i = 0; i < input.length; i++) {
+      const sample = Math.max(-1, Math.min(1, input[i]));
+      pcm[i] =
+        sample < 0
+          ? Math.round(sample * 0x8000)
+          : Math.round(sample * 0x7fff);
+    }
+
+    return pcm.buffer;
+  }
+
   const ratio = inputSampleRate / TARGET_SAMPLE_RATE;
   const outputLength = Math.floor(input.length / ratio);
 
-  if (outputLength <= 0) {
-    return new ArrayBuffer(0);
-  }
+  if (outputLength <= 0) return new ArrayBuffer(0);
 
   const pcm = new Int16Array(outputLength);
 
@@ -65,10 +91,17 @@ function downsampleToPcm16(input, inputSampleRate) {
   return pcm.buffer;
 }
 
+function buildVoiceSocketUrl(language) {
+  const url = new URL(VOICE_WS_URL);
+  url.searchParams.set("language", normalizeLanguage(language));
+  return url.toString();
+}
+
 function VoiceSearch({
   value = "",
   onChange = () => {},
   onSearch,
+  language = "te-IN",
   placeholder = "Search songs, artists, albums, lyrics...",
   ariaLabel = "Search songs, artists, albums and lyrics",
 }) {
@@ -92,11 +125,9 @@ function VoiceSearch({
   const cleanupAudio = useCallback(async () => {
     if (processorRef.current) {
       processorRef.current.onaudioprocess = null;
-
       try {
         processorRef.current.disconnect();
       } catch {}
-
       processorRef.current = null;
     }
 
@@ -104,7 +135,6 @@ function VoiceSearch({
       try {
         sourceRef.current.disconnect();
       } catch {}
-
       sourceRef.current = null;
     }
 
@@ -112,7 +142,6 @@ function VoiceSearch({
       try {
         silentGainRef.current.disconnect();
       } catch {}
-
       silentGainRef.current = null;
     }
 
@@ -120,7 +149,6 @@ function VoiceSearch({
       mediaStreamRef.current.getTracks().forEach((track) => {
         track.stop();
       });
-
       mediaStreamRef.current = null;
     }
 
@@ -144,6 +172,7 @@ function VoiceSearch({
       setIsProcessing(true);
     }
 
+    // Stop sending new audio before asking AWS to finish the stream.
     await cleanupAudio();
 
     const socket = socketRef.current;
@@ -161,6 +190,8 @@ function VoiceSearch({
   }, [cleanupAudio]);
 
   const startListening = useCallback(async () => {
+    if (isListening || isProcessing) return;
+
     setVoiceError("");
     setDetectedLanguage("");
     finalTranscriptRef.current = "";
@@ -172,7 +203,7 @@ function VoiceSearch({
       !navigator.mediaDevices.getUserMedia
     ) {
       setVoiceError(
-        "Microphone access requires a supported browser and secure connection."
+        "Microphone access requires HTTPS and a supported browser."
       );
       return;
     }
@@ -182,7 +213,11 @@ function VoiceSearch({
       return;
     }
 
+    let socket;
+
     try {
+      // Keep Chrome's normal microphone processing enabled.
+      // Disabling autoGainControl previously resulted in extremely low PCM levels.
       const mediaStream =
         await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -195,7 +230,19 @@ function VoiceSearch({
 
       mediaStreamRef.current = mediaStream;
 
-      const socket = new WebSocket(VOICE_WS_URL);
+      const track = mediaStream.getAudioTracks()[0];
+
+      console.log("KEERTHANA microphone track:", {
+        label: track?.label,
+        enabled: track?.enabled,
+        muted: track?.muted,
+        settings: track?.getSettings?.(),
+      });
+
+      socket = new WebSocket(
+        buildVoiceSocketUrl(language)
+      );
+
       socket.binaryType = "arraybuffer";
       socketRef.current = socket;
 
@@ -222,14 +269,16 @@ function VoiceSearch({
 
           const source =
             audioContext.createMediaStreamSource(mediaStream);
-
           sourceRef.current = source;
 
+          // 4096 input frames become approximately 85 ms at 16 kHz
+          // when the browser input sample rate is 48 kHz.
           const processor =
             audioContext.createScriptProcessor(4096, 1, 1);
-
           processorRef.current = processor;
 
+          // Keep the processor running without playing microphone audio
+          // through the laptop speakers.
           const silentGain = audioContext.createGain();
           silentGain.gain.value = 0;
           silentGainRef.current = silentGain;
@@ -250,31 +299,53 @@ function VoiceSearch({
               audioContext.sampleRate
             );
 
-            if (pcmBuffer.byteLength > 0) {
-              socket.send(pcmBuffer);
+            if (pcmBuffer.byteLength === 0) return;
 
-              // Log one audio frame approximately every second.
-              audioFrameCountRef.current++;
+            // Diagnostic: raw microphone and PCM levels, once per ~second.
+            audioFrameCountRef.current += 1;
 
-              if (audioFrameCountRef.current % 12 === 0) {
-                let maxAmplitude = 0;
+            if (audioFrameCountRef.current % 12 === 0) {
+              let rawMax = 0;
+              let rawSumSquares = 0;
 
-                const pcm = new Int16Array(pcmBuffer);
-
-                for (let i = 0; i < pcm.length; i++) {
-                  maxAmplitude = Math.max(
-                    maxAmplitude,
-                    Math.abs(pcm[i])
-                  );
-                }
-
-                console.log("KEERTHANA microphone diagnostic:", {
-                  sampleRate: TARGET_SAMPLE_RATE,
-                  bytes: pcmBuffer.byteLength,
-                  maxAmplitude,
-                });
+              for (let i = 0; i < input.length; i++) {
+                rawMax = Math.max(rawMax, Math.abs(input[i]));
+                rawSumSquares += input[i] * input[i];
               }
+
+              const rawRms = Math.sqrt(
+                rawSumSquares / input.length
+              );
+
+              let pcmMin = 32767;
+              let pcmMax = -32768;
+              let pcmSumSquares = 0;
+              const pcm = new Int16Array(pcmBuffer);
+
+              for (let i = 0; i < pcm.length; i++) {
+                const sample = pcm[i];
+                pcmMin = Math.min(pcmMin, sample);
+                pcmMax = Math.max(pcmMax, sample);
+                pcmSumSquares += sample * sample;
+              }
+
+              const pcmRms = Math.sqrt(
+                pcmSumSquares / pcm.length
+              );
+
+              console.log("KEERTHANA AUDIO DIAGNOSTIC:", {
+                inputSampleRate: audioContext.sampleRate,
+                targetSampleRate: TARGET_SAMPLE_RATE,
+                bytes: pcmBuffer.byteLength,
+                rawMax: Number(rawMax.toFixed(5)),
+                rawRms: Number(rawRms.toFixed(5)),
+                pcmMin,
+                pcmMax,
+                pcmRms: Math.round(pcmRms),
+              });
             }
+
+            socket.send(pcmBuffer);
           };
 
           source.connect(processor);
@@ -286,6 +357,8 @@ function VoiceSearch({
             setIsProcessing(false);
           }
         } catch (error) {
+          console.error("KEERTHANA audio setup error:", error);
+
           if (mountedRef.current) {
             setVoiceError(
               error.message || "Unable to start microphone audio."
@@ -294,7 +367,10 @@ function VoiceSearch({
 
           await cleanupAudio();
 
-          if (socket.readyState === WebSocket.OPEN) {
+          if (
+            socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING
+          ) {
             socket.close();
           }
         }
@@ -358,7 +434,7 @@ function VoiceSearch({
             onSearch?.(transcript);
           } else if (mountedRef.current) {
             setVoiceError(
-              "No speech was detected. Please try again."
+              "No speech was detected. Please speak clearly and try again."
             );
           }
 
@@ -375,12 +451,15 @@ function VoiceSearch({
         }
 
         if (message.type === "error") {
-          setVoiceError(
-            message.message || "Voice search failed. Please try again."
-          );
+          if (mountedRef.current) {
+            setVoiceError(
+              message.message ||
+              "Voice search failed. Please try again."
+            );
+            setIsListening(false);
+            setIsProcessing(false);
+          }
 
-          setIsListening(false);
-          setIsProcessing(false);
           cleanupAudio();
 
           if (socket.readyState === WebSocket.OPEN) {
@@ -389,7 +468,9 @@ function VoiceSearch({
         }
 
         if (message.type === "limit") {
-          setVoiceError(message.message || "Voice search limit reached.");
+          setVoiceError(
+            message.message || "Voice search limit reached."
+          );
           stopListening();
         }
       };
@@ -400,7 +481,6 @@ function VoiceSearch({
         setVoiceError(
           "Unable to connect to voice search. Check the backend WebSocket and ECS deployment."
         );
-
         setIsListening(false);
         setIsProcessing(false);
         cleanupAudio();
@@ -419,34 +499,43 @@ function VoiceSearch({
         }
       };
     } catch (error) {
+      console.error("KEERTHANA voice-search startup error:", error);
+
       await cleanupAudio();
 
-      setIsListening(false);
-      setIsProcessing(false);
+      if (mountedRef.current) {
+        setIsListening(false);
+        setIsProcessing(false);
 
-      if (error.name === "NotAllowedError") {
-        setVoiceError(
-          "Please allow microphone access to use voice search."
-        );
-      } else if (error.name === "NotFoundError") {
-        setVoiceError("No microphone was found on this device.");
-      } else {
-        setVoiceError(
-          error.message || "Unable to start voice search."
-        );
+        if (error.name === "NotAllowedError") {
+          setVoiceError(
+            "Please allow microphone access in Chrome site settings."
+          );
+        } else if (error.name === "NotFoundError") {
+          setVoiceError("No microphone was found on this device.");
+        } else {
+          setVoiceError(
+            error.message || "Unable to start voice search."
+          );
+        }
       }
     }
-  }, [cleanupAudio, onChange, onSearch, stopListening]);
+  }, [
+    cleanupAudio,
+    isListening,
+    isProcessing,
+    language,
+    onChange,
+    onSearch,
+    stopListening,
+  ]);
 
   const toggleListening = () => {
     if (isListening) {
       stopListening();
-      return;
+    } else if (!isProcessing) {
+      startListening();
     }
-
-    if (isProcessing) return;
-
-    startListening();
   };
 
   const handleSubmit = (event) => {
@@ -485,7 +574,6 @@ function VoiceSearch({
         try {
           socket.close();
         } catch {}
-
         socketRef.current = null;
       }
     };
@@ -572,7 +660,7 @@ function VoiceSearch({
         {isListening ? (
           <>
             <span className="voice-search-pulse" />
-            Listening… speak in Telugu
+            Listening… speak now
           </>
         ) : isProcessing ? (
           "Processing your speech…"
@@ -581,7 +669,7 @@ function VoiceSearch({
             {voiceError}
           </span>
         ) : detectedLanguage ? (
-          `Detected language: ${detectedLanguage}`
+          `Recognized language: ${detectedLanguage}`
         ) : null}
       </div>
     </div>
