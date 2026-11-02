@@ -507,14 +507,13 @@ export function AuthProvider({
       password
     ) => {
 
-      const response =
-        await API.post(
-          "/admin/auth/login",
-          {
-            email,
-            password,
-          }
-        );
+    const response = await API.post(
+  "/auth/admin/login",
+  {
+    email: email.trim(),
+    password,
+  }
+);
 
 
       const {

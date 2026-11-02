@@ -1,0 +1,164 @@
+/* KEERTHANA compact vertical volume control
+   The popup floats above the button; it does not resize the player. */
+
+.keerthana-volume-control {
+  --volume-button-size: 44px;
+  --volume-track-width: 38px;
+  --volume-popup-height: 142px;
+
+  position: relative;
+  z-index: 30;
+  display: inline-flex;
+  flex: 0 0 var(--volume-button-size);
+  width: var(--volume-button-size);
+  height: var(--volume-button-size);
+  min-width: var(--volume-button-size);
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* Smaller footprint specifically for the mini-player toolbar. */
+.keerthana-volume-control.is-compact {
+  --volume-button-size: 38px;
+  --volume-track-width: 34px;
+  --volume-popup-height: 116px;
+}
+
+.keerthana-volume-popup {
+  position: absolute;
+  z-index: 10050;
+  left: 50%;
+  bottom: calc(var(--volume-button-size) - 5px);
+  transform: translateX(-50%);
+  width: 46px;
+  height: var(--volume-popup-height);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.keerthana-volume-track {
+  width: var(--volume-track-width);
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1.5px solid #85809b;
+  border-radius: 30px;
+  background: rgba(15, 12, 42, 0.96);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+}
+
+.keerthana-volume-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  touch-action: pan-x;
+  background: linear-gradient(
+    to top,
+    #6559e8 0%,
+    #6559e8 var(--volume-fill),
+    transparent var(--volume-fill),
+    transparent 100%
+  );
+}
+
+.keerthana-volume-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.keerthana-volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 3px;
+  height: 3px;
+  border: 0;
+  background: transparent;
+}
+
+.keerthana-volume-slider::-moz-range-track {
+  background: transparent;
+  border: 0;
+}
+
+.keerthana-volume-slider::-moz-range-thumb {
+  width: 3px;
+  height: 3px;
+  border: 0;
+  background: transparent;
+}
+
+.keerthana-volume-button {
+  position: relative;
+  z-index: 10051;
+  display: inline-flex;
+  flex: 0 0 var(--volume-button-size);
+  width: var(--volume-button-size);
+  height: var(--volume-button-size);
+  min-width: var(--volume-button-size);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid #e45bd9;
+  border-radius: 50%;
+  background: #100b35;
+  color: #ed7be8;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 0 9px rgba(228, 91, 217, 0.2);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.keerthana-volume-control.is-compact .keerthana-volume-button {
+  font-size: 16px;
+}
+
+.keerthana-volume-button:active {
+  transform: scale(0.95);
+}
+
+/* Keep popup visible above the mini-player action row. */
+.mini-player-actions,
+.mini-player-actions > *,
+.full-player-toolbar,
+.full-player-volume {
+  overflow: visible;
+}
+
+@media (max-width: 600px) {
+  .keerthana-volume-control.is-compact {
+    --volume-button-size: 36px;
+    --volume-track-width: 32px;
+    --volume-popup-height: 108px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-volume-button {
+    transition: none;
+  }
+}
+/* Compact vertical volume popover for the mini player only */
+.keerthana-vertical-volume{position:relative;z-index:30;width:38px;height:38px;min-width:38px;flex:0 0 38px;display:inline-flex;align-items:center;justify-content:center}
+.vertical-volume-speaker{width:34px;height:34px;min-width:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(224,190,120,.75);border-radius:50%;color:#f0d49b;background:#101a35;font-size:15px;cursor:pointer}
+.vertical-volume-speaker:hover,.vertical-volume-speaker.is-open{color:#fff;border-color:#e7c783;background:#1b2c52}
+.vertical-volume-popup{position:absolute;z-index:100;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:42px;height:150px;padding:10px 0;display:flex;align-items:center;justify-content:center;border:1px solid rgba(224,190,120,.45);border-radius:22px;background:#101a35;box-shadow:0 10px 28px rgba(0,0,0,.38)}
+.vertical-volume-slider{appearance:none;-webkit-appearance:none;writing-mode:vertical-lr;direction:rtl;width:24px;height:128px;margin:0;padding:0;cursor:pointer;accent-color:#d8b66f;background:transparent;touch-action:pan-x}
+.vertical-volume-slider::-webkit-slider-runnable-track{width:4px;border-radius:5px;background:linear-gradient(to top,#d8b66f 0%,#d8b66f var(--volume-fill),#64708a var(--volume-fill),#64708a 100%)}
+.vertical-volume-slider::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:13px;height:13px;margin-left:-4.5px;border:2px solid #fff;border-radius:50%;background:#d8b66f}
+.vertical-volume-slider::-moz-range-track{width:4px;border-radius:5px;background:#64708a}.vertical-volume-slider::-moz-range-progress{background:#d8b66f}.vertical-volume-slider::-moz-range-thumb{width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#d8b66f}
+@media(max-width:600px){.keerthana-vertical-volume{width:34px;height:34px;min-width:34px;flex-basis:34px}.vertical-volume-speaker{width:32px;height:32px;min-width:32px;font-size:14px}.vertical-volume-popup{height:138px}.vertical-volume-slider{height:116px}}

@@ -1680,3 +1680,18 @@
     scroll-behavior: auto !important;
   }
 }
+/* Allow vertical volume popup to display outside toolbar */
+
+.mini-player-actions,
+.full-player-toolbar,
+.full-player-volume {
+  overflow: visible !important;
+}
+
+.full-player-volume {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+}

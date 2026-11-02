@@ -6,17 +6,7 @@ import {
   Route,
 } from "react-router-dom";
 
-/* =========================================================
-   PLAYER
-========================================================= */
 
-import { PlayerProvider } from "./context/PlayerContext";
-
-/* =========================================================
-   LIKED SONGS
-========================================================= */
-
-import { LikedSongsProvider } from "./context/LikedSongsContext";
 
 /* =========================================================
    NOTIFICATIONS
@@ -147,15 +137,12 @@ function UserHomeRedirect() {
 /* =========================================================
    APP
 ========================================================= */
-
 function App() {
   return (
-    <PlayerProvider>
-      <LikedSongsProvider>
-        <NotificationsProvider>
-          <AndroidBackButtonHandler />
+    <NotificationsProvider>
+      <AndroidBackButtonHandler />
 
-          <Routes>
+      <Routes>
             {/* =============================================
                 USER AUTHENTICATION
             ============================================= */}
@@ -550,10 +537,8 @@ function App() {
                 </OwnerRoute>
               }
             />
-          </Routes>
-        </NotificationsProvider>
-      </LikedSongsProvider>
-    </PlayerProvider>
+       </Routes>
+    </NotificationsProvider>
   );
 }
 

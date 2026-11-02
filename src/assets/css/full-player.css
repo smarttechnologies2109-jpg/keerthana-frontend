@@ -870,3 +870,24 @@
 .full-player-title-link:hover {
   color: #e5c477;
 }
+/* Allow vertical volume popup to display outside toolbar */
+
+.mini-player-actions,
+.full-player-toolbar,
+.full-player-volume {
+  overflow: visible !important;
+}
+
+.full-player-volume {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+}
+
+.full-player-volume{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:150px;max-width:220px}.full-player-volume-icon{display:inline-flex;align-items:center;justify-content:center;color:#e4c27f;font-size:17px}.full-player-volume-slider{width:120px;max-width:100%;accent-color:#d8b66f;cursor:pointer}@media(max-width:600px){.full-player-volume{min-width:112px;gap:7px}.full-player-volume-slider{width:88px}}
+/* Swap Full Player Collapse and Close button positions */
+.full-player-header {
+  flex-direction: row-reverse;
+}
