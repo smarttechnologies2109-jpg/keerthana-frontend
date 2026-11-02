@@ -12,31 +12,28 @@ import {
   FaEllipsisV,
   FaHeart,
   FaListUl,
-  FaMicrophone,
-  FaMicrophoneSlash,
   FaMusic,
   FaPause,
   FaPlay,
   FaPlus,
   FaRegHeart,
-  FaSearch,
   FaStepForward,
-  FaTimes,
 } from "react-icons/fa";
 
 import API from "../services/api";
 import { usePlayer } from "../context/usePlayer";
 import { useLikedSongs } from "../context/LikedSongsContext";
+
 import {
   getSongCover,
   DEFAULT_COVER,
 } from "../utils/media";
 
+import VoiceSearch from "../components/VoiceSearch";
+
 import "../assets/css/allSongs.css";
 
 import { useNavigate } from "react-router-dom";
-
-
 
 /* =====================================================
    LANGUAGE FILTERS
@@ -54,33 +51,19 @@ const LANGUAGES = [
 ];
 
 /* =====================================================
-   VOICE SEARCH LANGUAGES
-===================================================== */
-
-const VOICE_LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు", locale: "te-IN" },
-  { value: "English", label: "English", locale: "en-IN" },
-  { value: "Hindi", label: "हिन्दी", locale: "hi-IN" },
-  { value: "Malayalam", label: "മലയാളം", locale: "ml-IN" },
-  { value: "Kannada", label: "ಕನ್ನಡ", locale: "kn-IN" },
-  { value: "Tamil", label: "தமிழ்", locale: "ta-IN" },
-];
-
-/* =====================================================
    LANGUAGE-SPECIFIC UI TEXT
-   Updates when the language filter changes
 ===================================================== */
 
 const LANGUAGE_TEXT = {
   All: {
     allSongs: "All Songs",
     search: "Search songs, artists, and albums...",
-    searchHint: "Search by song, artist, album, or mood",
     songs: "songs",
     playAll: "Play All",
     clearFilters: "Clear Filters",
     emptyTitle: "No songs found",
-    emptyMessage: "Try another search or choose a different language.",
+    emptyMessage:
+      "Try another search or choose a different language.",
     loadingTitle: "Loading songs...",
   },
 
@@ -92,19 +75,20 @@ const LANGUAGE_TEXT = {
     playAll: "అన్నీ ప్లే చేయండి",
     clearFilters: "ఫిల్టర్లను తొలగించండి",
     emptyTitle: "పాటలు కనబడలేదు",
-    emptyMessage: "మరో పదంతో వెతకండి లేదా వేరే భాషను ఎంచుకోండి.",
+    emptyMessage:
+      "మరో పదంతో వెతకండి లేదా వేరే భాషను ఎంచుకోండి.",
     loadingTitle: "పాటలు లోడ్ అవుతున్నాయి...",
   },
 
   English: {
     allSongs: "All Songs",
     search: "Search songs, artists, and albums...",
-    searchHint: "Search by song, artist, album, or mood",
     songs: "songs",
     playAll: "Play All",
     clearFilters: "Clear Filters",
     emptyTitle: "No songs found",
-    emptyMessage: "Try another search or choose a different language.",
+    emptyMessage:
+      "Try another search or choose a different language.",
     loadingTitle: "Loading songs...",
   },
 
@@ -116,7 +100,8 @@ const LANGUAGE_TEXT = {
     playAll: "सभी चलाएँ",
     clearFilters: "फ़िल्टर हटाएँ",
     emptyTitle: "कोई गाना नहीं मिला",
-    emptyMessage: "दूसरे शब्द से खोजें या कोई दूसरी भाषा चुनें।",
+    emptyMessage:
+      "दूसरे शब्द से खोजें या कोई दूसरी भाषा चुनें।",
     loadingTitle: "गाने लोड हो रहे हैं...",
   },
 
@@ -128,7 +113,8 @@ const LANGUAGE_TEXT = {
     playAll: "എല്ലാം പ്ലേ ചെയ്യുക",
     clearFilters: "ഫിൽട്ടറുകൾ നീക്കുക",
     emptyTitle: "പാട്ടുകളൊന്നും കണ്ടെത്തിയില്ല",
-    emptyMessage: "മറ്റൊരു വാക്ക് തിരയുക അല്ലെങ്കിൽ മറ്റൊരു ഭാഷ തിരഞ്ഞെടുക്കുക.",
+    emptyMessage:
+      "മറ്റൊരു വാക്ക് തിരയുക അല്ലെങ്കിൽ മറ്റൊരു ഭാഷ തിരഞ്ഞെടുക്കുക.",
     loadingTitle: "പാട്ടുകൾ ലോഡ് ചെയ്യുന്നു...",
   },
 
@@ -140,7 +126,8 @@ const LANGUAGE_TEXT = {
     playAll: "ಎಲ್ಲವನ್ನೂ ಪ್ಲೇ ಮಾಡಿ",
     clearFilters: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
     emptyTitle: "ಯಾವುದೇ ಹಾಡುಗಳು ಕಂಡುಬಂದಿಲ್ಲ",
-    emptyMessage: "ಬೇರೆ ಪದದಿಂದ ಹುಡುಕಿ ಅಥವಾ ಬೇರೆ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+    emptyMessage:
+      "ಬೇರೆ ಪದದಿಂದ ಹುಡುಕಿ ಅಥವಾ ಬೇರೆ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
     loadingTitle: "ಹಾಡುಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
   },
 
@@ -152,7 +139,8 @@ const LANGUAGE_TEXT = {
     playAll: "அனைத்தையும் இயக்கு",
     clearFilters: "வடிகட்டிகளை நீக்கு",
     emptyTitle: "பாடல்கள் எதுவும் கிடைக்கவில்லை",
-    emptyMessage: "வேறு சொல்லைத் தேடுங்கள் அல்லது வேறு மொழியைத் தேர்ந்தெடுக்கவும்.",
+    emptyMessage:
+      "வேறு சொல்லைத் தேடுங்கள் அல்லது வேறு மொழியைத் தேர்ந்தெடுக்கவும்.",
     loadingTitle: "பாடல்கள் ஏற்றப்படுகின்றன...",
   },
 };
@@ -192,13 +180,13 @@ const normalizeSong = (song) => ({
   id: getSongId(song),
 });
 
-
 /* =====================================================
    ALL SONGS PAGE
 ===================================================== */
 
 export default function AllSongs() {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const player = usePlayer();
   const likedContext = useLikedSongs();
 
@@ -222,15 +210,11 @@ export default function AllSongs() {
 
   const [search, setSearch] = useState("");
   const [language, setLanguage] = useState("All");
-  const [voiceLanguage, setVoiceLanguage] = useState("Telugu");
 
   const [menuSongId, setMenuSongId] = useState(null);
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState("");
   const [notice, setNotice] = useState("");
 
   const menuRef = useRef(null);
-  const recognitionRef = useRef(null);
 
   const currentSongId = getSongId(currentSong);
 
@@ -251,6 +235,7 @@ export default function AllSongs() {
 
     try {
       const response = await API.get("/songs");
+
       const payload = response?.data;
 
       const list = Array.isArray(payload)
@@ -326,26 +311,6 @@ export default function AllSongs() {
         "keydown",
         handleKeyDown
       );
-    };
-  }, []);
-
-  /* ===================================================
-     VOICE RECOGNITION CLEANUP
-  =================================================== */
-
-  useEffect(() => {
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current.onend = null;
-
-        try {
-          recognitionRef.current.abort();
-        } catch {
-          // Recognition may already have stopped.
-        }
-      }
     };
   }, []);
 
@@ -450,6 +415,10 @@ export default function AllSongs() {
     ]
   );
 
+  /* ===================================================
+     PLAY ALL
+  =================================================== */
+
   const handlePlayAll = () => {
     if (filteredSongs.length > 0) {
       handlePlay(filteredSongs[0], filteredSongs);
@@ -467,7 +436,9 @@ export default function AllSongs() {
     }
 
     addToQueue(normalizeSong(song));
+
     setMenuSongId(null);
+
     showNotice("Added to your queue");
   };
 
@@ -480,7 +451,9 @@ export default function AllSongs() {
 
     if (typeof player.playNext === "function") {
       player.playNext(normalizedSong);
+
       setMenuSongId(null);
+
       showNotice("Added to play next");
       return;
     }
@@ -512,13 +485,13 @@ export default function AllSongs() {
       );
 
       player.setQueue(queue);
+
       setMenuSongId(null);
+
       showNotice("Added to play next");
       return;
     }
 
-    // Fallback until the player exposes a dedicated
-    // playNext action.
     handleAddToQueue(normalizedSong);
   };
 
@@ -538,6 +511,7 @@ export default function AllSongs() {
 
     try {
       await toggleLike(normalizeSong(song));
+
       setMenuSongId(null);
 
       showNotice(
@@ -557,23 +531,22 @@ export default function AllSongs() {
 
   /* ===================================================
      PLAYLIST INTEGRATION
-     Custom event retained from your existing code.
   =================================================== */
 
-const handleAddToPlaylist = (song) => {
-  setMenuSongId(null);
+  const handleAddToPlaylist = (song) => {
+    setMenuSongId(null);
 
-  navigate("/playlists", {
-    state: {
-      selectedSong: normalizeSong(song),
-      action: "add-song",
-    },
-  });
-};
+    navigate("/playlists", {
+      state: {
+        selectedSong: normalizeSong(song),
+        action: "add-song",
+      },
+    });
+  };
 
   /* ===================================================
      ALBUM NAVIGATION
-     Connect this event to your actual album route.
+     Existing event integration preserved.
   =================================================== */
 
   const handleViewAlbum = (song) => {
@@ -605,101 +578,29 @@ const handleAddToPlaylist = (song) => {
 
   /* ===================================================
      VOICE SEARCH
+     AWS automatically identifies the spoken language.
+     Transcript updates the existing search state.
   =================================================== */
 
-  const startVoiceSearch = () => {
-    setVoiceError("");
+  const handleVoiceSearchChange = useCallback(
+    (nextValue) => {
+      setSearch(nextValue);
+    },
+    []
+  );
 
-    const SpeechRecognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
+  const handleVoiceSearchSubmit = useCallback(
+    (spokenText) => {
+      const searchText = String(
+        spokenText || ""
+      ).trim();
 
-    if (!SpeechRecognition) {
-      setVoiceError(
-        "Voice search is not supported in this browser. Please try Chrome."
-      );
-      return;
-    }
-
-    try {
-      recognitionRef.current?.abort();
-    } catch {
-      // Ignore an already stopped recognition session.
-    }
-
-    const selectedVoiceLanguage =
-      VOICE_LANGUAGES.find(
-        (item) => item.value === voiceLanguage
-      );
-
-    const recognition = new SpeechRecognition();
-
-    recognition.lang =
-      selectedVoiceLanguage?.locale || "te-IN";
-
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      setVoiceError("");
-    };
-
-    recognition.onresult = (event) => {
-      const transcript =
-        event.results?.[0]?.[0]?.transcript;
-
-      if (transcript) {
-        setSearch(transcript.trim());
+      if (searchText) {
+        setSearch(searchText);
       }
-    };
-
-    recognition.onerror = (event) => {
-      setIsListening(false);
-
-      if (event.error === "not-allowed") {
-        setVoiceError(
-          "Microphone access is blocked. Allow microphone permission in your browser."
-        );
-      } else if (event.error === "no-speech") {
-        setVoiceError(
-          "No speech detected. Please try again."
-        );
-      } else if (event.error !== "aborted") {
-        setVoiceError(
-          "Voice search couldn't start. Please try again."
-        );
-      }
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    try {
-      recognition.start();
-    } catch (err) {
-      console.error("Voice search failed:", err);
-
-      setIsListening(false);
-      setVoiceError(
-        "Unable to start voice search."
-      );
-    }
-  };
-
-  const stopVoiceSearch = () => {
-    try {
-      recognitionRef.current?.stop();
-    } catch {
-      // Recognition may already have stopped.
-    }
-
-    setIsListening(false);
-  };
+    },
+    []
+  );
 
   /* ===================================================
      RENDER
@@ -707,10 +608,12 @@ const handleAddToPlaylist = (song) => {
 
   return (
     <main className="all-songs-page">
+
       {/* PAGE HEADER */}
 
       <header className="all-songs-header">
         <div className="all-songs-title-area">
+
           <div
             className="all-songs-icon"
             aria-hidden="true"
@@ -719,6 +622,7 @@ const handleAddToPlaylist = (song) => {
           </div>
 
           <div className="all-songs-heading">
+
             <span className="all-songs-overline">
               YOUR WORSHIP LIBRARY
             </span>
@@ -726,6 +630,7 @@ const handleAddToPlaylist = (song) => {
             <h1>{languageText.allSongs}</h1>
 
             <p>{languageText.searchHint}</p>
+
           </div>
         </div>
       </header>
@@ -736,147 +641,47 @@ const handleAddToPlaylist = (song) => {
         className="all-songs-search-section"
         aria-label="Search songs"
       >
-        <div
-          className={`all-songs-search ${
-            isListening ? "is-listening" : ""
-          }`}
-        >
-          <FaSearch
-            className="all-songs-search-icon"
-            aria-hidden="true"
-          />
 
-          <input
-            type="search"
-            value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-            placeholder={languageText.search}
-            aria-label={languageText.search}
-          />
+        <VoiceSearch
+          value={search}
+          onChange={handleVoiceSearchChange}
+          onSearch={handleVoiceSearchSubmit}
+          placeholder={languageText.search}
+          ariaLabel="Search songs, artists, albums and lyrics"
+        />
 
-          {search && (
-            <button
-              type="button"
-              className="all-songs-clear"
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
-              title="Clear search"
-            >
-              <FaTimes />
-            </button>
-          )}
-
-          <button
-            type="button"
-            className={`all-songs-mic ${
-              isListening ? "active" : ""
-            }`}
-            onClick={
-              isListening
-                ? stopVoiceSearch
-                : startVoiceSearch
-            }
-            aria-label={
-              isListening
-                ? "Stop voice search"
-                : "Start voice search"
-            }
-            title={
-              isListening
-                ? "Stop voice search"
-                : "Voice search"
-            }
-          >
-            {isListening ? (
-              <FaMicrophoneSlash />
-            ) : (
-              <FaMicrophone />
-            )}
-          </button>
-        </div>
-
-        <div className="all-songs-search-footer">
-          <span className="all-songs-search-hint">
-            {languageText.searchHint}
-          </span>
-
-          {/* VOICE LANGUAGE SELECTOR */}
-
-          <label className="all-songs-voice-language">
-            <span>Voice Language / వాయిస్ భాష</span>
-
-            <select
-              value={voiceLanguage}
-              onChange={(event) =>
-                setVoiceLanguage(event.target.value)
-              }
-            >
-              {VOICE_LANGUAGES.map((item) => (
-                <option
-                  key={item.value}
-                  value={item.value}
-                >
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        {isListening && (
-          <p
-            className="all-songs-voice-status"
-            role="status"
-          >
-            <span className="all-songs-pulse" />
-            Listening… మాట్లాడండి
-          </p>
-        )}
-
-        {voiceError && (
-          <p
-            className="all-songs-voice-error"
-            role="alert"
-          >
-            {voiceError}
-          </p>
-        )}
       </section>
 
       {/* RESULTS */}
 
       <section className="all-songs-results">
-      
 
+        <div className="all-songs-results-heading">
 
-<div className="all-songs-results-heading">
-  {/* ALL SONGS TITLE */}
-  <div className="all-songs-results-title">
-    <h2>{languageText.allSongs}</h2>
-  </div>
+          {/* ALL SONGS TITLE */}
 
-  {/* PLAY ALL + SONG COUNT */}
-  <div className="all-songs-play-all-row">
-    <button
-      type="button"
-      className="all-songs-play-all"
-      onClick={handlePlayAll}
-      disabled={!filteredSongs.length || loading}
-    >
-      <FaPlay />
-      {languageText.playAll}
-    </button>
+          <div className="all-songs-results-title">
+            <h2>{languageText.allSongs}</h2>
+          </div>
 
-    <span className="all-songs-count">
-      {filteredSongs.length} {languageText.songs}
-    </span>
-  </div>
-</div>
+          {/* PLAY ALL */}
 
+          <div className="all-songs-play-all-row">
 
+            <button
+              type="button"
+              className="all-songs-play-all"
+              onClick={handlePlayAll}
+              disabled={
+                !filteredSongs.length || loading
+              }
+            >
+              <FaPlay />
+              {languageText.playAll}
+            </button>
 
+          </div>
+        </div>
 
         {/* LANGUAGE FILTERS */}
 
@@ -884,7 +689,9 @@ const handleAddToPlaylist = (song) => {
           className="all-songs-language-filters"
           aria-label="Filter songs by language"
         >
+
           {LANGUAGES.map((item) => (
+
             <button
               key={item.value}
               type="button"
@@ -894,33 +701,45 @@ const handleAddToPlaylist = (song) => {
                   : ""
               }`}
               onClick={() => setLanguage(item.value)}
-              aria-pressed={language === item.value}
+              aria-pressed={
+                language === item.value
+              }
             >
               {item.label}
             </button>
+
           ))}
+
         </div>
 
         {/* LOADING */}
 
         {loading ? (
+
           <div
             className="all-songs-loading"
             role="status"
           >
+
             <FaMusic className="all-songs-loading-icon" />
 
             <h2>{languageText.loadingTitle}</h2>
 
-            <p>Please wait while we prepare your songs.</p>
+            <p>
+              Please wait while we prepare your songs.
+            </p>
+
           </div>
+
         ) : error ? (
+
           /* ERROR */
 
           <div
             className="all-songs-error"
             role="alert"
           >
+
             <p>{error}</p>
 
             <button
@@ -929,11 +748,15 @@ const handleAddToPlaylist = (song) => {
             >
               Try Again
             </button>
+
           </div>
+
         ) : filteredSongs.length === 0 ? (
+
           /* EMPTY STATE */
 
           <div className="all-songs-empty">
+
             <FaMusic className="all-songs-empty-icon" />
 
             <h2>{languageText.emptyTitle}</h2>
@@ -941,6 +764,7 @@ const handleAddToPlaylist = (song) => {
             <p>{languageText.emptyMessage}</p>
 
             {(search || language !== "All") && (
+
               <button
                 type="button"
                 className="all-songs-reset-search"
@@ -951,13 +775,19 @@ const handleAddToPlaylist = (song) => {
               >
                 {languageText.clearFilters}
               </button>
+
             )}
+
           </div>
+
         ) : (
+
           /* SONG LIST */
 
           <div className="all-songs-list">
+
             {filteredSongs.map((song) => {
+
               const songId = getSongId(song);
 
               const isCurrent =
@@ -983,12 +813,14 @@ const handleAddToPlaylist = (song) => {
               }
 
               return (
+
                 <article
                   key={songId}
                   className={`all-song-card ${
                     isCurrent ? "current" : ""
                   }`}
                 >
+
                   {/* SONG COVER */}
 
                   <button
@@ -999,71 +831,61 @@ const handleAddToPlaylist = (song) => {
                       playing ? "Pause" : "Play"
                     } ${getSongTitle(song)}`}
                   >
+
                     <img
                       src={cover}
                       alt={`${getSongTitle(song)} cover`}
                       loading="lazy"
                       onError={(event) => {
                         event.currentTarget.onerror = null;
+
                         event.currentTarget.src =
                           DEFAULT_COVER;
                       }}
                     />
 
                     <span className="all-song-cover-play">
+
                       {playing ? (
                         <FaPause />
                       ) : (
                         <FaPlay />
                       )}
+
                     </span>
+
                   </button>
 
                   {/* SONG DETAILS */}
 
                   <div className="all-song-card-info">
+
                     <button
                       type="button"
                       className="all-song-info"
                       onClick={() => handlePlay(song)}
                       title={getSongTitle(song)}
                     >
+
                       <span className="all-song-primary-title">
                         {getSongTitle(song)}
                       </span>
 
                       {song.title_english &&
-                        song.title_english !==
-                          song.title && (
+                        song.title_english !== song.title && (
+
                           <span className="all-song-english-title">
                             {song.title_english}
                           </span>
+
                         )}
 
                       <span className="all-song-artist">
                         {getArtistName(song)}
                       </span>
+
                     </button>
 
-                    {/* <button
-                      type="button"
-                      className={`all-song-play-button ${
-                        playing ? "playing" : ""
-                      }`}
-                      onClick={() => handlePlay(song)}
-                      aria-label={`${
-                        playing ? "Pause" : "Play"
-                      } ${getSongTitle(song)}`}
-                      title={
-                        playing ? "Pause" : "Play"
-                      }
-                     >
-                      {playing ? (
-                        <FaPause />
-                      ) : (
-                        <FaPlay />
-                      )}
-                    </button> */}
                   </div>
 
                   {/* THREE-DOT MENU */}
@@ -1076,6 +898,7 @@ const handleAddToPlaylist = (song) => {
                         : null
                     }
                   >
+
                     <button
                       type="button"
                       className="all-song-menu-trigger"
@@ -1096,11 +919,15 @@ const handleAddToPlaylist = (song) => {
                     </button>
 
                     {menuSongId === songId && (
+
                       <div
                         className="all-song-context-menu"
                         role="menu"
                         aria-label={`Options for ${getSongTitle(song)}`}
                       >
+
+                        {/* PLAY NOW */}
+
                         <button
                           type="button"
                           role="menuitem"
@@ -1108,10 +935,12 @@ const handleAddToPlaylist = (song) => {
                             handlePlay(song);
                             setMenuSongId(null);
                           }}
-                         >
+                        >
                           <FaPlay />
                           <span>Play Now</span>
                         </button>
+
+                        {/* PLAY NEXT */}
 
                         <button
                           type="button"
@@ -1123,6 +952,8 @@ const handleAddToPlaylist = (song) => {
                           <FaStepForward />
                           <span>Play Next</span>
                         </button>
+
+                        {/* ADD TO QUEUE */}
 
                         <button
                           type="button"
@@ -1137,6 +968,8 @@ const handleAddToPlaylist = (song) => {
 
                         <div className="all-song-menu-divider" />
 
+                        {/* LIKE / UNLIKE */}
+
                         <button
                           type="button"
                           role="menuitem"
@@ -1144,6 +977,7 @@ const handleAddToPlaylist = (song) => {
                             handleToggleLike(song)
                           }
                         >
+
                           {liked ? (
                             <FaHeart />
                           ) : (
@@ -1155,7 +989,10 @@ const handleAddToPlaylist = (song) => {
                               ? "Remove from Liked Songs"
                               : "Add to Liked Songs"}
                           </span>
+
                         </button>
+
+                        {/* PLAYLIST */}
 
                         <button
                           type="button"
@@ -1168,8 +1005,12 @@ const handleAddToPlaylist = (song) => {
                           <span>Add to Playlist</span>
                         </button>
 
+                        {/* ALBUM */}
+
                         {albumName && (
+
                           <>
+
                             <div className="all-song-menu-divider" />
 
                             <button
@@ -1182,28 +1023,42 @@ const handleAddToPlaylist = (song) => {
                               <FaCompactDisc />
                               <span>View Album</span>
                             </button>
+
                           </>
+
                         )}
+
                       </div>
+
                     )}
+
                   </div>
+
                 </article>
+
               );
+
             })}
+
           </div>
+
         )}
+
       </section>
 
       {/* TOAST */}
 
       {notice && (
+
         <div
           className="all-songs-toast"
           role="status"
         >
           {notice}
         </div>
+
       )}
+
     </main>
   );
 }

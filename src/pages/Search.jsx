@@ -198,19 +198,6 @@ function Search() {
 
   const menuRef = useRef(null);
 
-  /* ---------------------------------------------------
-     VOICE SEARCH LANGUAGES
-  --------------------------------------------------- */
-
-  const voiceLanguages = [
-    { label: "తెలుగు", value: "te-IN" },
-    { label: "English", value: "en-IN" },
-    { label: "हिन्दी", value: "hi-IN" },
-    { label: "മലയാളം", value: "ml-IN" },
-    { label: "ಕನ್ನಡ", value: "kn-IN" },
-    { label: "தமிழ்", value: "ta-IN" },
-  ];
-
   /* ===================================================
      LOAD SONGS
   =================================================== */
@@ -352,16 +339,17 @@ function Search() {
      VOICE SEARCH
   =================================================== */
 
-  const handleVoiceSearch = useCallback((recognizedText) => {
-    const text = String(recognizedText || "").trim();
+const handleVoiceSearch = (spokenText) => {
+  const searchText = String(spokenText || "").trim();
 
-    if (text) {
-      setQuery(text);
-      setPlayError("");
-      setMenuError("");
-      setOpenMenuId(null);
-    }
-  }, []);
+  if (!searchText) return;
+
+  setQuery(searchText);
+
+  // Use your existing search function here.
+  // For example, if your existing function is searchSongs:
+  searchSongs(searchText);
+};
 
   /* ===================================================
      PLAY SONG
@@ -575,76 +563,19 @@ function Search() {
         className="search-controls"
         aria-label="Song search"
       >
-        <div className="search-input-wrapper">
-          <FaSearch
-            className="search-input-icon"
-            aria-hidden="true"
-          />
-
-          <input
-            type="search"
-            className="search-input"
-            placeholder="Search songs, artists, albums, lyrics..."
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setPlayError("");
-              setMenuError("");
-              setOpenMenuId(null);
-            }}
-            aria-label="Search songs, artists, albums, and lyrics"
-            autoComplete="off"
-          />
-
-          {query && (
-            <button
-              type="button"
-              className="search-clear-button"
-              onClick={clearSearch}
-              aria-label="Clear search"
-              title="Clear search"
-            >
-              <FaTimes />
-            </button>
-          )}
-
-        
-        </div>
-
-        {/* Single voice-language selector below the search bar */}
-
-        <div className="search-language-inline">
-         
-
-          <div className="search-language-controls">
-            <label
-              className="search-language-label"
-              htmlFor="search-voice-language"
-            >
-              Voice language
-            </label>
-
-            <select
-              id="search-voice-language"
-              className="search-language-select"
-              value={voiceLanguage}
-              onChange={(event) =>
-                setVoiceLanguage(event.target.value)
-              }
-            >
-              {voiceLanguages.map((language) => (
-                <option
-                  key={language.value}
-                  value={language.value}
-                >
-                  {language.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+     <VoiceSearch
+  value={query}
+  onChange={(nextValue) => {
+    setQuery(nextValue);
+    setPlayError("");
+    setMenuError("");
+    setOpenMenuId(null);
+  }}
+  onSearch={handleVoiceSearch}
+  placeholder="Search songs, artists, albums, lyrics..."
+  ariaLabel="Search songs, artists, albums, and lyrics"
+/>
       </section>
-
 
       {/* PLAYBACK FEEDBACK */}
 
@@ -1003,15 +934,9 @@ function Search() {
 
           <h2>Find Your Favourite Worship Songs</h2>
 
-          <p>
-            Search by song title, artist, album, category, mood,
-            or lyrics.
-          </p>
+         
 
-          <p className="search-hint">
-            Try searching for worship, praise, prayer, or your
-            favourite song.
-          </p>
+         
         </section>
       )}
 

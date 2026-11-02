@@ -1,5 +1,5 @@
-
 import React, {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -14,220 +14,458 @@ import {
 
 import "../assets/css/voiceSearch.css";
 
-/* =========================================================
-   SUPPORTED VOICE SEARCH LANGUAGES
-========================================================= */
+const DEFAULT_VOICE_WS_URL =
+  "wss://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws/api/voice-search/stream";
 
-const LANGUAGES = [
-  { value: "te-IN", label: "తెలుగు (Telugu)" },
-  { value: "hi-IN", label: "हिन्दी (Hindi)" },
-  { value: "en-IN", label: "English" },
-  { value: "ml-IN", label: "മലയാളം (Malayalam)" },
-  { value: "kn-IN", label: "ಕನ್ನಡ (Kannada)" },
-  { value: "ta-IN", label: "தமிழ் (Tamil)" },
-];
+const VOICE_WS_URL =
+  import.meta.env.VITE_VOICE_SEARCH_WS_URL ||
+  DEFAULT_VOICE_WS_URL;
 
-/* =========================================================
-   KEERTHANA VOICE SEARCH
-========================================================= */
+const TARGET_SAMPLE_RATE = 16000;
+
+function downsampleToPcm16(input, inputSampleRate) {
+  if (!input?.length || !inputSampleRate) {
+    return new ArrayBuffer(0);
+  }
+
+  const ratio = inputSampleRate / TARGET_SAMPLE_RATE;
+  const outputLength = Math.floor(input.length / ratio);
+
+  if (outputLength <= 0) {
+    return new ArrayBuffer(0);
+  }
+
+  const pcm = new Int16Array(outputLength);
+
+  for (let i = 0; i < outputLength; i += 1) {
+    const start = Math.floor(i * ratio);
+    const end = Math.min(
+      Math.floor((i + 1) * ratio),
+      input.length
+    );
+
+    let total = 0;
+    let count = 0;
+
+    for (let j = start; j < end; j += 1) {
+      total += input[j];
+      count += 1;
+    }
+
+    const sample = count ? total / count : 0;
+    const clamped = Math.max(-1, Math.min(1, sample));
+
+    pcm[i] =
+      clamped < 0
+        ? Math.round(clamped * 0x8000)
+        : Math.round(clamped * 0x7fff);
+  }
+
+  return pcm.buffer;
+}
 
 function VoiceSearch({
   value = "",
   onChange = () => {},
   onSearch,
-  language = "en-IN",
-  onLanguageChange,
-  placeholder = "Search songs...",
-  ariaLabel = "Search",
+  placeholder = "Search songs, artists, albums, lyrics...",
+  ariaLabel = "Search songs, artists, albums and lyrics",
 }) {
   const [isListening, setIsListening] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [voiceError, setVoiceError] = useState("");
+  const [detectedLanguage, setDetectedLanguage] = useState("");
 
-  const recognitionRef = useRef(null);
+  const socketRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const sourceRef = useRef(null);
+  const processorRef = useRef(null);
+  const silentGainRef = useRef(null);
 
-  const SpeechRecognition =
-    typeof window !== "undefined"
-      ? window.SpeechRecognition ||
-        window.webkitSpeechRecognition
-      : null;
+  const finalTranscriptRef = useRef("");
+  const isStoppingRef = useRef(false);
+  const mountedRef = useRef(true);
 
-  const supported = Boolean(SpeechRecognition);
+  const cleanupAudio = useCallback(async () => {
+    if (processorRef.current) {
+      processorRef.current.onaudioprocess = null;
 
-  /* =======================================================
-     CLEAN UP SPEECH RECOGNITION
-  ======================================================= */
-
-  useEffect(() => {
-    return () => {
-      const recognition = recognitionRef.current;
-
-      if (recognition) {
-        recognition.onstart = null;
-        recognition.onresult = null;
-        recognition.onerror = null;
-        recognition.onend = null;
-
-        try {
-          recognition.abort();
-        } catch {
-          // Recognition may already have stopped.
-        }
-
-        recognitionRef.current = null;
-      }
-    };
-  }, []);
-
-  /* =======================================================
-     STOP LISTENING
-  ======================================================= */
-
-  const stopListening = () => {
-    const recognition = recognitionRef.current;
-
-    if (recognition) {
       try {
-        recognition.stop();
-      } catch {
-        // Recognition may already have stopped.
-      }
+        processorRef.current.disconnect();
+      } catch {}
+
+      processorRef.current = null;
     }
 
-    setIsListening(false);
-  };
+    if (sourceRef.current) {
+      try {
+        sourceRef.current.disconnect();
+      } catch {}
 
-  /* =======================================================
-     START / STOP VOICE SEARCH
-  ======================================================= */
+      sourceRef.current = null;
+    }
 
-  const toggleListening = () => {
+    if (silentGainRef.current) {
+      try {
+        silentGainRef.current.disconnect();
+      } catch {}
+
+      silentGainRef.current = null;
+    }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      mediaStreamRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      const context = audioContextRef.current;
+      audioContextRef.current = null;
+
+      if (context.state !== "closed") {
+        try {
+          await context.close();
+        } catch {}
+      }
+    }
+  }, []);
+
+  const stopListening = useCallback(async () => {
+    isStoppingRef.current = true;
+
+    if (mountedRef.current) {
+      setIsListening(false);
+      setIsProcessing(true);
+    }
+
+    await cleanupAudio();
+
+    const socket = socketRef.current;
+
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "stop" }));
+    } else if (
+      socket &&
+      socket.readyState !== WebSocket.CLOSED
+    ) {
+      socket.close();
+    } else if (mountedRef.current) {
+      setIsProcessing(false);
+    }
+  }, [cleanupAudio]);
+
+  const startListening = useCallback(async () => {
     setVoiceError("");
+    setDetectedLanguage("");
+    finalTranscriptRef.current = "";
+    isStoppingRef.current = false;
 
-    if (!supported) {
+    if (
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
       setVoiceError(
-        "Voice search is not supported in this browser."
+        "Microphone access requires a supported browser and a secure connection."
       );
       return;
     }
 
+    if (typeof WebSocket === "undefined") {
+      setVoiceError(
+        "Live voice search is not supported in this browser."
+      );
+      return;
+    }
+
+    try {
+      const mediaStream =
+        await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+
+      mediaStreamRef.current = mediaStream;
+
+      const socket = new WebSocket(VOICE_WS_URL);
+      socket.binaryType = "arraybuffer";
+      socketRef.current = socket;
+
+      socket.onopen = async () => {
+        try {
+          const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+          if (!AudioContextClass) {
+            throw new Error(
+              "Audio recording is not supported by this browser."
+            );
+          }
+
+          const audioContext = new AudioContextClass();
+          audioContextRef.current = audioContext;
+
+          await audioContext.resume();
+
+          const source =
+            audioContext.createMediaStreamSource(mediaStream);
+
+          sourceRef.current = source;
+
+          const processor =
+            audioContext.createScriptProcessor(4096, 1, 1);
+
+          processorRef.current = processor;
+
+          const silentGain = audioContext.createGain();
+          silentGain.gain.value = 0;
+          silentGainRef.current = silentGain;
+
+          processor.onaudioprocess = (event) => {
+            if (
+              isStoppingRef.current ||
+              socket.readyState !== WebSocket.OPEN
+            ) {
+              return;
+            }
+
+            const input =
+              event.inputBuffer.getChannelData(0);
+
+            const pcmBuffer = downsampleToPcm16(
+              input,
+              audioContext.sampleRate
+            );
+
+            if (pcmBuffer.byteLength > 0) {
+              socket.send(pcmBuffer);
+            }
+          };
+
+          source.connect(processor);
+          processor.connect(silentGain);
+          silentGain.connect(audioContext.destination);
+
+          if (mountedRef.current) {
+            setIsListening(true);
+            setIsProcessing(false);
+          }
+        } catch (error) {
+          if (mountedRef.current) {
+            setVoiceError(
+              error.message ||
+                "Unable to start microphone audio."
+            );
+          }
+
+          await cleanupAudio();
+
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.close();
+          }
+        }
+      };
+
+      socket.onmessage = (event) => {
+        let message;
+
+        try {
+          message = JSON.parse(event.data);
+        } catch {
+          return;
+        }
+
+        if (message.type === "transcript") {
+          const transcriptText =
+            String(message.text || "").trim();
+
+          if (message.languageCode) {
+            setDetectedLanguage(message.languageCode);
+          }
+
+          if (!transcriptText) return;
+
+          if (message.isPartial) {
+            const preview = [
+              finalTranscriptRef.current,
+              transcriptText,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .trim();
+
+            onChange(preview);
+          } else {
+            finalTranscriptRef.current = [
+              finalTranscriptRef.current,
+              transcriptText,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .trim();
+
+            onChange(finalTranscriptRef.current);
+          }
+        }
+
+        if (message.type === "complete") {
+          const transcript =
+            finalTranscriptRef.current.trim();
+
+          if (message.languageCode) {
+            setDetectedLanguage(message.languageCode);
+          }
+
+          setIsListening(false);
+          setIsProcessing(false);
+
+          if (transcript) {
+            onChange(transcript);
+            onSearch?.(transcript);
+          } else if (mountedRef.current) {
+            setVoiceError(
+              "No speech was detected. Please try again."
+            );
+          }
+
+          if (socketRef.current === socket) {
+            socketRef.current = null;
+          }
+
+          if (
+            socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING
+          ) {
+            socket.close();
+          }
+        }
+
+        if (message.type === "error") {
+          setVoiceError(
+            message.message ||
+              "Voice search failed. Please try again."
+          );
+
+          setIsListening(false);
+          setIsProcessing(false);
+          cleanupAudio();
+
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.close();
+          }
+        }
+      };
+
+      socket.onerror = () => {
+        if (!mountedRef.current) return;
+
+        setVoiceError(
+          "Unable to connect to voice search. Check the backend WebSocket and ECS deployment."
+        );
+
+        setIsListening(false);
+        setIsProcessing(false);
+        cleanupAudio();
+      };
+
+      socket.onclose = () => {
+        cleanupAudio();
+
+        if (socketRef.current === socket) {
+          socketRef.current = null;
+        }
+
+        if (mountedRef.current) {
+          setIsListening(false);
+          setIsProcessing(false);
+        }
+      };
+    } catch (error) {
+      await cleanupAudio();
+
+      setIsListening(false);
+      setIsProcessing(false);
+
+      if (error.name === "NotAllowedError") {
+        setVoiceError(
+          "Please allow microphone access to use voice search."
+        );
+      } else if (error.name === "NotFoundError") {
+        setVoiceError(
+          "No microphone was found on this device."
+        );
+      } else {
+        setVoiceError(
+          error.message ||
+            "Unable to start voice search. Please try again."
+        );
+      }
+    }
+  }, [cleanupAudio, onChange, onSearch]);
+
+  const toggleListening = () => {
     if (isListening) {
       stopListening();
       return;
     }
 
-    try {
-      const recognition = new SpeechRecognition();
+    if (isProcessing) return;
 
-      recognitionRef.current = recognition;
-      recognition.lang = language;
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onresult = (event) => {
-        let transcript = "";
-
-        for (
-          let i = event.resultIndex;
-          i < event.results.length;
-          i += 1
-        ) {
-          transcript += event.results[i][0].transcript;
-        }
-
-        const cleaned = transcript.trim();
-
-        if (cleaned) {
-          onChange(cleaned);
-
-          const lastResult =
-            event.results[event.results.length - 1];
-
-          if (lastResult?.isFinal) {
-            onSearch?.(cleaned);
-          }
-        }
-      };
-
-      recognition.onerror = (event) => {
-        setIsListening(false);
-
-        if (
-          event.error === "not-allowed" ||
-          event.error === "service-not-allowed"
-        ) {
-          setVoiceError(
-            "Allow microphone access in your browser to use voice search."
-          );
-        } else if (event.error === "no-speech") {
-          setVoiceError(
-            "No speech detected. Please try again."
-          );
-        } else if (event.error !== "aborted") {
-          setVoiceError(
-            "Voice search couldn't hear that. Please try again."
-          );
-        }
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-
-        if (recognitionRef.current === recognition) {
-          recognitionRef.current = null;
-        }
-      };
-
-      recognition.start();
-    } catch {
-      setIsListening(false);
-      recognitionRef.current = null;
-
-      setVoiceError(
-        "Unable to start voice search. Please try again."
-      );
-    }
+    startListening();
   };
-
-  /* =======================================================
-     SUBMIT TYPED SEARCH
-  ======================================================= */
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const query = String(value || "").trim();
+    const searchText = String(value || "").trim();
 
-    if (query) {
-      onSearch?.(query);
+    if (searchText) {
+      onSearch?.(searchText);
     }
   };
 
-  /* =======================================================
-     CLEAR SEARCH
-  ======================================================= */
-
   const clearSearch = () => {
+    if (isListening) {
+      stopListening();
+    }
+
     onChange("");
     setVoiceError("");
+    setDetectedLanguage("");
+    finalTranscriptRef.current = "";
   };
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
+  useEffect(() => {
+    mountedRef.current = true;
 
-  const selectedLanguage = LANGUAGES.find(
-    (item) => item.value === language
-  );
+    return () => {
+      mountedRef.current = false;
+      isStoppingRef.current = true;
+
+      cleanupAudio();
+
+      const socket = socketRef.current;
+
+      if (socket) {
+        try {
+          socket.close();
+        } catch {}
+
+        socketRef.current = null;
+      }
+    };
+  }, [cleanupAudio]);
 
   return (
     <div className="keerthana-voice-search">
-      {/* SEARCH INPUT */}
-
       <form
         className={`voice-search-bar ${
           isListening ? "is-listening" : ""
@@ -276,17 +514,20 @@ function VoiceSearch({
             isListening ? "is-active" : ""
           }`}
           onClick={toggleListening}
+          disabled={isProcessing}
           aria-label={
             isListening
               ? "Stop voice search"
-              : "Start voice search"
+              : isProcessing
+                ? "Processing voice search"
+                : "Start voice search"
           }
           aria-pressed={isListening}
           title={
-            !supported
-              ? "Voice search is not supported in this browser"
-              : isListening
-                ? "Stop listening"
+            isListening
+              ? "Stop listening"
+              : isProcessing
+                ? "Processing speech"
                 : "Search by voice"
           }
         >
@@ -298,39 +539,6 @@ function VoiceSearch({
         </button>
       </form>
 
-      {/* LANGUAGE SELECTOR BELOW SEARCH BAR */}
-
-      <div className="voice-search-options">
-        <label htmlFor="voice-search-language">
-          Voice search language
-        </label>
-
-        <select
-          id="voice-search-language"
-          value={language}
-          onChange={(event) => {
-            onLanguageChange?.(event.target.value);
-            setVoiceError("");
-
-            if (isListening) {
-              stopListening();
-            }
-          }}
-          aria-label="Voice search language"
-        >
-          {LANGUAGES.map((item) => (
-            <option
-              key={item.value}
-              value={item.value}
-            >
-              {item.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* VOICE SEARCH STATUS */}
-
       <div
         className="voice-search-feedback"
         aria-live="polite"
@@ -339,21 +547,17 @@ function VoiceSearch({
         {isListening ? (
           <>
             <span className="voice-search-pulse" />
-
-            Listening in{" "}
-            {selectedLanguage?.label || language}
+            Listening… speak in your language
           </>
+        ) : isProcessing ? (
+          "Processing your speech…"
         ) : voiceError ? (
           <span className="voice-search-error">
             {voiceError}
           </span>
-        ) : (
-          <span>
-            {/* {supported
-              ? "Type a playlist name or tap the microphone to speak."
-              : "Type to search. Voice search is unavailable in this browser."} */}
-          </span>
-        )}
+        ) : detectedLanguage ? (
+          `Detected language: ${detectedLanguage}`
+        ) : null}
       </div>
     </div>
   );
