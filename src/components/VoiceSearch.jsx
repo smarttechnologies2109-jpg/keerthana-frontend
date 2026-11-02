@@ -1,3 +1,4 @@
+
 import React, {
   useCallback,
   useEffect,
@@ -37,7 +38,7 @@ function downsampleToPcm16(input, inputSampleRate) {
 
   const pcm = new Int16Array(outputLength);
 
-  for (let i = 0; i < outputLength; i += 1) {
+  for (let i = 0; i < outputLength; i++) {
     const start = Math.floor(i * ratio);
     const end = Math.min(
       Math.floor((i + 1) * ratio),
@@ -47,9 +48,9 @@ function downsampleToPcm16(input, inputSampleRate) {
     let total = 0;
     let count = 0;
 
-    for (let j = start; j < end; j += 1) {
+    for (let j = start; j < end; j++) {
       total += input[j];
-      count += 1;
+      count++;
     }
 
     const sample = count ? total / count : 0;
@@ -86,6 +87,7 @@ function VoiceSearch({
   const finalTranscriptRef = useRef("");
   const isStoppingRef = useRef(false);
   const mountedRef = useRef(true);
+  const audioFrameCountRef = useRef(0);
 
   const cleanupAudio = useCallback(async () => {
     if (processorRef.current) {
@@ -115,9 +117,9 @@ function VoiceSearch({
     }
 
     if (mediaStreamRef.current) {
-      mediaStreamRef.current
-        .getTracks()
-        .forEach((track) => track.stop());
+      mediaStreamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
 
       mediaStreamRef.current = null;
     }
@@ -162,6 +164,7 @@ function VoiceSearch({
     setVoiceError("");
     setDetectedLanguage("");
     finalTranscriptRef.current = "";
+    audioFrameCountRef.current = 0;
     isStoppingRef.current = false;
 
     if (
@@ -169,15 +172,13 @@ function VoiceSearch({
       !navigator.mediaDevices.getUserMedia
     ) {
       setVoiceError(
-        "Microphone access requires a supported browser and a secure connection."
+        "Microphone access requires a supported browser and secure connection."
       );
       return;
     }
 
     if (typeof WebSocket === "undefined") {
-      setVoiceError(
-        "Live voice search is not supported in this browser."
-      );
+      setVoiceError("Voice search is not supported in this browser.");
       return;
     }
 
@@ -200,9 +201,13 @@ function VoiceSearch({
 
       socket.onopen = async () => {
         try {
+          if (isStoppingRef.current) {
+            socket.close();
+            return;
+          }
+
           const AudioContextClass =
-            window.AudioContext ||
-            window.webkitAudioContext;
+            window.AudioContext || window.webkitAudioContext;
 
           if (!AudioContextClass) {
             throw new Error(
@@ -247,6 +252,28 @@ function VoiceSearch({
 
             if (pcmBuffer.byteLength > 0) {
               socket.send(pcmBuffer);
+
+              // Log one audio frame approximately every second.
+              audioFrameCountRef.current++;
+
+              if (audioFrameCountRef.current % 12 === 0) {
+                let maxAmplitude = 0;
+
+                const pcm = new Int16Array(pcmBuffer);
+
+                for (let i = 0; i < pcm.length; i++) {
+                  maxAmplitude = Math.max(
+                    maxAmplitude,
+                    Math.abs(pcm[i])
+                  );
+                }
+
+                console.log("KEERTHANA microphone diagnostic:", {
+                  sampleRate: TARGET_SAMPLE_RATE,
+                  bytes: pcmBuffer.byteLength,
+                  maxAmplitude,
+                });
+              }
             }
           };
 
@@ -261,8 +288,7 @@ function VoiceSearch({
         } catch (error) {
           if (mountedRef.current) {
             setVoiceError(
-              error.message ||
-                "Unable to start microphone audio."
+              error.message || "Unable to start microphone audio."
             );
           }
 
@@ -350,8 +376,7 @@ function VoiceSearch({
 
         if (message.type === "error") {
           setVoiceError(
-            message.message ||
-              "Voice search failed. Please try again."
+            message.message || "Voice search failed. Please try again."
           );
 
           setIsListening(false);
@@ -361,6 +386,11 @@ function VoiceSearch({
           if (socket.readyState === WebSocket.OPEN) {
             socket.close();
           }
+        }
+
+        if (message.type === "limit") {
+          setVoiceError(message.message || "Voice search limit reached.");
+          stopListening();
         }
       };
 
@@ -399,17 +429,14 @@ function VoiceSearch({
           "Please allow microphone access to use voice search."
         );
       } else if (error.name === "NotFoundError") {
-        setVoiceError(
-          "No microphone was found on this device."
-        );
+        setVoiceError("No microphone was found on this device.");
       } else {
         setVoiceError(
-          error.message ||
-            "Unable to start voice search. Please try again."
+          error.message || "Unable to start voice search."
         );
       }
     }
-  }, [cleanupAudio, onChange, onSearch]);
+  }, [cleanupAudio, onChange, onSearch, stopListening]);
 
   const toggleListening = () => {
     if (isListening) {
@@ -488,9 +515,7 @@ function VoiceSearch({
             setVoiceError("");
           }}
           placeholder={
-            isListening
-              ? "Listening… speak now"
-              : placeholder
+            isListening ? "Listening… speak now" : placeholder
           }
           aria-label={ariaLabel}
           autoComplete="off"
@@ -547,7 +572,7 @@ function VoiceSearch({
         {isListening ? (
           <>
             <span className="voice-search-pulse" />
-            Listening… speak in your language
+            Listening… speak in Telugu
           </>
         ) : isProcessing ? (
           "Processing your speech…"
