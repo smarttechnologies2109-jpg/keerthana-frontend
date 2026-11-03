@@ -51,13 +51,35 @@ export function AuthProvider({
      CLEAR SESSION
   ======================================================= */
 
- const clearSession = () => {
+const clearSession = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem("user");
 
   setUser(null);
 };
+
+/* =======================================================
+   HANDLE AUTOMATIC SESSION EXPIRY
+======================================================= */
+
+useEffect(() => {
+  const handleSessionExpired = () => {
+    clearSession();
+  };
+
+  window.addEventListener(
+    "keerthana:session-expired",
+    handleSessionExpired
+  );
+
+  return () => {
+    window.removeEventListener(
+      "keerthana:session-expired",
+      handleSessionExpired
+    );
+  };
+}, []);
 
 
   /* =======================================================
@@ -205,26 +227,29 @@ export function AuthProvider({
            *
            * Do NOT overwrite that new session.
            */
-          const currentToken =
-            localStorage.getItem(
-              TOKEN_KEY
-            );
+     const currentToken =
+  localStorage.getItem(TOKEN_KEY);
 
+const authorizationHeader =
+  response.config?.headers?.Authorization ||
+  response.config?.headers?.authorization;
 
-          if (
-            currentToken !==
-            requestToken
-          ) {
+const responseToken =
+  typeof authorizationHeader === "string"
+    ? authorizationHeader.replace(/^Bearer\s+/i, "")
+    : authorizationHeader;
 
-            console.log(
-              "Auth restore skipped because a new session was created."
-            );
+if (
+  currentToken !== requestToken &&
+  currentToken !== responseToken
+) {
+  console.log(
+    "Auth restore skipped because a different session was created."
+  );
 
-            setLoading(false);
-
-            return;
-
-          }
+  setLoading(false);
+  return;
+}
 
 
           const restoredUser =

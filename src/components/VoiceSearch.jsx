@@ -1,3 +1,4 @@
+
 import React, {
   useCallback,
   useEffect,
@@ -21,23 +22,33 @@ const VOICE_WS_URL =
   import.meta.env.VITE_VOICE_SEARCH_WS_URL ||
   DEFAULT_VOICE_WS_URL;
 
-const TARGET_SAMPLE_RATE = 16_000;
+const TARGET_SAMPLE_RATE = 16000;
 
-const SUPPORTED_LANGUAGES = new Set([
-  "te-IN",
-  "hi-IN",
-  "en-IN",
-  "ml-IN",
-  "kn-IN",
-  "ta-IN",
-]);
+const LANGUAGE_LABELS = {
+  "te-IN": "తెలుగు (Telugu)",
+  "hi-IN": "हिन्दी (Hindi)",
+  "en-IN": "English (India)",
+  "ml-IN": "മലയാളം (Malayalam)",
+  "kn-IN": "ಕನ್ನಡ (Kannada)",
+  "ta-IN": "தமிழ் (Tamil)",
+};
 
-function normalizeLanguage(language) {
-  const candidate = String(language || "te-IN").trim();
-  return SUPPORTED_LANGUAGES.has(candidate) ? candidate : "te-IN";
+function getLanguageLabel(code) {
+  return LANGUAGE_LABELS[code] || code;
 }
 
-// Convert browser Float32 audio to mono, signed 16-bit PCM at 16 kHz.
+// Connect without forcing any language.
+// AWS automatically identifies the spoken language.
+function buildVoiceSocketUrl() {
+  const url = new URL(VOICE_WS_URL);
+
+  url.searchParams.delete("language");
+
+  return url.toString();
+}
+
+// Convert browser Float32 audio to mono,
+// signed 16-bit PCM at 16 kHz.
 function downsampleToPcm16(input, inputSampleRate) {
   if (!input?.length || !inputSampleRate) {
     return new ArrayBuffer(0);
@@ -48,6 +59,7 @@ function downsampleToPcm16(input, inputSampleRate) {
 
     for (let i = 0; i < input.length; i++) {
       const sample = Math.max(-1, Math.min(1, input[i]));
+
       pcm[i] =
         sample < 0
           ? Math.round(sample * 0x8000)
@@ -60,12 +72,15 @@ function downsampleToPcm16(input, inputSampleRate) {
   const ratio = inputSampleRate / TARGET_SAMPLE_RATE;
   const outputLength = Math.floor(input.length / ratio);
 
-  if (outputLength <= 0) return new ArrayBuffer(0);
+  if (outputLength <= 0) {
+    return new ArrayBuffer(0);
+  }
 
   const pcm = new Int16Array(outputLength);
 
   for (let i = 0; i < outputLength; i++) {
     const start = Math.floor(i * ratio);
+
     const end = Math.min(
       Math.floor((i + 1) * ratio),
       input.length
@@ -91,17 +106,10 @@ function downsampleToPcm16(input, inputSampleRate) {
   return pcm.buffer;
 }
 
-function buildVoiceSocketUrl(language) {
-  const url = new URL(VOICE_WS_URL);
-  url.searchParams.set("language", normalizeLanguage(language));
-  return url.toString();
-}
-
 function VoiceSearch({
   value = "",
   onChange = () => {},
   onSearch,
-  language = "te-IN",
   placeholder = "Search songs, artists, albums, lyrics...",
   ariaLabel = "Search songs, artists, albums and lyrics",
 }) {
@@ -122,12 +130,15 @@ function VoiceSearch({
   const mountedRef = useRef(true);
   const audioFrameCountRef = useRef(0);
 
+  // Clean up microphone and audio processing.
   const cleanupAudio = useCallback(async () => {
     if (processorRef.current) {
       processorRef.current.onaudioprocess = null;
+
       try {
         processorRef.current.disconnect();
       } catch {}
+
       processorRef.current = null;
     }
 
@@ -135,6 +146,7 @@ function VoiceSearch({
       try {
         sourceRef.current.disconnect();
       } catch {}
+
       sourceRef.current = null;
     }
 
@@ -142,13 +154,15 @@ function VoiceSearch({
       try {
         silentGainRef.current.disconnect();
       } catch {}
+
       silentGainRef.current = null;
     }
 
     if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => {
-        track.stop();
-      });
+      mediaStreamRef.current
+        .getTracks()
+        .forEach((track) => track.stop());
+
       mediaStreamRef.current = null;
     }
 
@@ -164,6 +178,7 @@ function VoiceSearch({
     }
   }, []);
 
+  // Stop recording and ask AWS to finish transcription.
   const stopListening = useCallback(async () => {
     isStoppingRef.current = true;
 
@@ -172,28 +187,33 @@ function VoiceSearch({
       setIsProcessing(true);
     }
 
-    // Stop sending new audio before asking AWS to finish the stream.
     await cleanupAudio();
 
     const socket = socketRef.current;
 
     if (socket?.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type: "stop" }));
-    } else if (
-      socket &&
-      socket.readyState !== WebSocket.CLOSED
-    ) {
-      socket.close();
-    } else if (mountedRef.current) {
-      setIsProcessing(false);
+    } else {
+      if (
+        socket &&
+        socket.readyState !== WebSocket.CLOSED
+      ) {
+        socket.close();
+      }
+
+      if (mountedRef.current) {
+        setIsProcessing(false);
+      }
     }
   }, [cleanupAudio]);
 
+  // Start automatic voice recognition.
   const startListening = useCallback(async () => {
     if (isListening || isProcessing) return;
 
     setVoiceError("");
     setDetectedLanguage("");
+
     finalTranscriptRef.current = "";
     audioFrameCountRef.current = 0;
     isStoppingRef.current = false;
@@ -209,15 +229,15 @@ function VoiceSearch({
     }
 
     if (typeof WebSocket === "undefined") {
-      setVoiceError("Voice search is not supported in this browser.");
+      setVoiceError(
+        "Voice search is not supported in this browser."
+      );
       return;
     }
 
     let socket;
 
     try {
-      // Keep Chrome's normal microphone processing enabled.
-      // Disabling autoGainControl previously resulted in extremely low PCM levels.
       const mediaStream =
         await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -239,9 +259,16 @@ function VoiceSearch({
         settings: track?.getSettings?.(),
       });
 
-      socket = new WebSocket(
-        buildVoiceSocketUrl(language)
-      );
+      // No language query parameter.
+      // AWS detects the language automatically.
+      const socketUrl = buildVoiceSocketUrl();
+
+      console.log("KEERTHANA automatic voice detection:", {
+        socketUrl,
+        supportedLanguages: Object.keys(LANGUAGE_LABELS),
+      });
+
+      socket = new WebSocket(socketUrl);
 
       socket.binaryType = "arraybuffer";
       socketRef.current = socket;
@@ -254,7 +281,8 @@ function VoiceSearch({
           }
 
           const AudioContextClass =
-            window.AudioContext || window.webkitAudioContext;
+            window.AudioContext ||
+            window.webkitAudioContext;
 
           if (!AudioContextClass) {
             throw new Error(
@@ -263,23 +291,24 @@ function VoiceSearch({
           }
 
           const audioContext = new AudioContextClass();
+
           audioContextRef.current = audioContext;
 
           await audioContext.resume();
 
           const source =
             audioContext.createMediaStreamSource(mediaStream);
+
           sourceRef.current = source;
 
-          // 4096 input frames become approximately 85 ms at 16 kHz
-          // when the browser input sample rate is 48 kHz.
           const processor =
             audioContext.createScriptProcessor(4096, 1, 1);
+
           processorRef.current = processor;
 
-          // Keep the processor running without playing microphone audio
-          // through the laptop speakers.
+          // Keep the processor running silently.
           const silentGain = audioContext.createGain();
+
           silentGain.gain.value = 0;
           silentGainRef.current = silentGain;
 
@@ -301,15 +330,19 @@ function VoiceSearch({
 
             if (pcmBuffer.byteLength === 0) return;
 
-            // Diagnostic: raw microphone and PCM levels, once per ~second.
             audioFrameCountRef.current += 1;
 
+            // Audio diagnostics approximately once per second.
             if (audioFrameCountRef.current % 12 === 0) {
               let rawMax = 0;
               let rawSumSquares = 0;
 
               for (let i = 0; i < input.length; i++) {
-                rawMax = Math.max(rawMax, Math.abs(input[i]));
+                rawMax = Math.max(
+                  rawMax,
+                  Math.abs(input[i])
+                );
+
                 rawSumSquares += input[i] * input[i];
               }
 
@@ -320,12 +353,15 @@ function VoiceSearch({
               let pcmMin = 32767;
               let pcmMax = -32768;
               let pcmSumSquares = 0;
+
               const pcm = new Int16Array(pcmBuffer);
 
               for (let i = 0; i < pcm.length; i++) {
                 const sample = pcm[i];
+
                 pcmMin = Math.min(pcmMin, sample);
                 pcmMax = Math.max(pcmMax, sample);
+
                 pcmSumSquares += sample * sample;
               }
 
@@ -342,6 +378,7 @@ function VoiceSearch({
                 pcmMin,
                 pcmMax,
                 pcmRms: Math.round(pcmRms),
+                languageDetection: "AWS automatic",
               });
             }
 
@@ -357,12 +394,19 @@ function VoiceSearch({
             setIsProcessing(false);
           }
         } catch (error) {
-          console.error("KEERTHANA audio setup error:", error);
+          console.error(
+            "KEERTHANA audio setup error:",
+            error
+          );
 
           if (mountedRef.current) {
             setVoiceError(
-              error.message || "Unable to start microphone audio."
+              error.message ||
+              "Unable to start microphone audio."
             );
+
+            setIsListening(false);
+            setIsProcessing(false);
           }
 
           await cleanupAudio();
@@ -376,6 +420,7 @@ function VoiceSearch({
         }
       };
 
+      // Receive AWS transcription and detected language.
       socket.onmessage = (event) => {
         let message;
 
@@ -389,7 +434,10 @@ function VoiceSearch({
           const transcriptText =
             String(message.text || "").trim();
 
-          if (message.languageCode) {
+          if (
+            message.languageCode &&
+            mountedRef.current
+          ) {
             setDetectedLanguage(message.languageCode);
           }
 
@@ -422,12 +470,17 @@ function VoiceSearch({
           const transcript =
             finalTranscriptRef.current.trim();
 
-          if (message.languageCode) {
+          if (
+            message.languageCode &&
+            mountedRef.current
+          ) {
             setDetectedLanguage(message.languageCode);
           }
 
-          setIsListening(false);
-          setIsProcessing(false);
+          if (mountedRef.current) {
+            setIsListening(false);
+            setIsProcessing(false);
+          }
 
           if (transcript) {
             onChange(transcript);
@@ -456,6 +509,7 @@ function VoiceSearch({
               message.message ||
               "Voice search failed. Please try again."
             );
+
             setIsListening(false);
             setIsProcessing(false);
           }
@@ -468,9 +522,13 @@ function VoiceSearch({
         }
 
         if (message.type === "limit") {
-          setVoiceError(
-            message.message || "Voice search limit reached."
-          );
+          if (mountedRef.current) {
+            setVoiceError(
+              message.message ||
+              "Voice search limit reached."
+            );
+          }
+
           stopListening();
         }
       };
@@ -481,8 +539,10 @@ function VoiceSearch({
         setVoiceError(
           "Unable to connect to voice search. Check the backend WebSocket and ECS deployment."
         );
+
         setIsListening(false);
         setIsProcessing(false);
+
         cleanupAudio();
       };
 
@@ -499,7 +559,10 @@ function VoiceSearch({
         }
       };
     } catch (error) {
-      console.error("KEERTHANA voice-search startup error:", error);
+      console.error(
+        "KEERTHANA voice-search startup error:",
+        error
+      );
 
       await cleanupAudio();
 
@@ -512,10 +575,13 @@ function VoiceSearch({
             "Please allow microphone access in Chrome site settings."
           );
         } else if (error.name === "NotFoundError") {
-          setVoiceError("No microphone was found on this device.");
+          setVoiceError(
+            "No microphone was found on this device."
+          );
         } else {
           setVoiceError(
-            error.message || "Unable to start voice search."
+            error.message ||
+            "Unable to start voice search."
           );
         }
       }
@@ -524,7 +590,6 @@ function VoiceSearch({
     cleanupAudio,
     isListening,
     isProcessing,
-    language,
     onChange,
     onSearch,
     stopListening,
@@ -556,9 +621,11 @@ function VoiceSearch({
     onChange("");
     setVoiceError("");
     setDetectedLanguage("");
+
     finalTranscriptRef.current = "";
   };
 
+  // Component cleanup.
   useEffect(() => {
     mountedRef.current = true;
 
@@ -574,6 +641,7 @@ function VoiceSearch({
         try {
           socket.close();
         } catch {}
+
         socketRef.current = null;
       }
     };
@@ -581,6 +649,8 @@ function VoiceSearch({
 
   return (
     <div className="keerthana-voice-search">
+
+      {/* Search bar */}
       <form
         className={`voice-search-bar ${
           isListening ? "is-listening" : ""
@@ -603,7 +673,9 @@ function VoiceSearch({
             setVoiceError("");
           }}
           placeholder={
-            isListening ? "Listening… speak now" : placeholder
+            isListening
+              ? "Listening… speak in any supported language"
+              : placeholder
           }
           aria-label={ariaLabel}
           autoComplete="off"
@@ -652,6 +724,7 @@ function VoiceSearch({
         </button>
       </form>
 
+      {/* Voice feedback */}
       <div
         className="voice-search-feedback"
         aria-live="polite"
@@ -660,7 +733,8 @@ function VoiceSearch({
         {isListening ? (
           <>
             <span className="voice-search-pulse" />
-            Listening… speak now
+            Listening… Speak in Telugu, Hindi, English,
+            Malayalam, Kannada or Tamil.
           </>
         ) : isProcessing ? (
           "Processing your speech…"
@@ -669,7 +743,9 @@ function VoiceSearch({
             {voiceError}
           </span>
         ) : detectedLanguage ? (
-          `Recognized language: ${detectedLanguage}`
+          `Detected language: ${getLanguageLabel(
+            detectedLanguage
+          )}`
         ) : null}
       </div>
     </div>
