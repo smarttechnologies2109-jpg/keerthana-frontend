@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -17,50 +17,55 @@ function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const submitLock = useRef(false);
 
-    setError("");
+ const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    const cleanName = name.trim();
-    const cleanContact = contact.trim();
+  // Prevent multiple registration requests
+  if (submitLock.current) return;
 
-    if (!cleanName) {
-      setError("Please enter your name");
-      return;
-    }
+  submitLock.current = true;
+  setError("");
 
-    if (!cleanContact) {
-      setError("Please enter your email or phone number");
-      return;
-    }
+  const cleanName = name.trim();
+  const cleanContact = contact.trim();
 
-    if (!language) {
-      setError("Please select your preferred language");
-      return;
-    }
+  if (!cleanName) {
+    setError("Please enter your name");
+    submitLock.current = false;
+    return;
+  }
 
-    setLoading(true);
+  if (!cleanContact) {
+    setError("Please enter your email or phone number");
+    submitLock.current = false;
+    return;
+  }
 
-    try {
-      await register(
-        cleanName,
-        cleanContact,
-        language
-      );
+  if (!language) {
+    setError("Please select your preferred language");
+    submitLock.current = false;
+    return;
+  }
 
-      navigate("/");
-    } catch (error) {
-      console.error(error);
+  setLoading(true);
 
-      setError(
-        error.response?.data?.message ||
-          "Unable to create account"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    await register(cleanName, cleanContact, language);
+    navigate("/");
+  } catch (error) {
+    console.error("Registration failed:", error);
+
+    setError(
+      error.response?.data?.message ||
+      "Unable to create account"
+    );
+  } finally {
+    submitLock.current = false;
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-page">

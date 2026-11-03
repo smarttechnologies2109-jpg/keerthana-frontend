@@ -374,7 +374,7 @@ function App() {
             ============================================= */}
 
             <Route
-              path="/admin"
+              path="/admin/dashbaord"
               element={
                 <AdminRoute>
                   <AdminLayout />

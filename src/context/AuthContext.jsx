@@ -20,6 +20,8 @@ const AuthContext =
 const TOKEN_KEY =
   "keerthana_token";
 
+  const REFRESH_TOKEN_KEY = "keerthana_refresh_token";
+
 
 /* =========================================================
    AUTH PROVIDER
@@ -49,65 +51,49 @@ export function AuthProvider({
      CLEAR SESSION
   ======================================================= */
 
-  const clearSession = () => {
+ const clearSession = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem("user");
 
-    localStorage.removeItem(
-      TOKEN_KEY
-    );
-
-    localStorage.removeItem(
-      "user"
-    );
-
-    setUser(null);
-
-  };
+  setUser(null);
+};
 
 
   /* =======================================================
      SAVE SESSION
   ======================================================= */
-
   const saveSession = (
-    token,
-    userData
-  ) => {
+  token,
+  userData,
+  refreshToken = null
+) => {
+  if (!token) {
+    throw new Error("Authentication token is missing");
+  }
 
-    if (!token) {
+  if (!userData) {
+    throw new Error("User data is missing");
+  }
 
-      throw new Error(
-        "Authentication token is missing"
-      );
+  localStorage.setItem(TOKEN_KEY, token);
 
-    }
-
-
-    if (!userData) {
-
-      throw new Error(
-        "User data is missing"
-      );
-
-    }
-
-
+  if (refreshToken) {
     localStorage.setItem(
-      TOKEN_KEY,
-      token
+      REFRESH_TOKEN_KEY,
+      refreshToken
     );
+  } else {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  }
 
+  localStorage.setItem(
+    "user",
+    JSON.stringify(userData)
+  );
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify(userData)
-    );
-
-
-    setUser(
-      userData
-    );
-
-  };
+  setUser(userData);
+};
 
 
   /* =======================================================
@@ -358,19 +344,20 @@ export function AuthProvider({
         );
 
 
-      const {
-        token,
-        user: loggedInUser,
-      } = response.data;
+    const {
+  token,
+  accessToken,
+  refreshToken,
+  user: loggedInUser,
+} = response.data;
 
+const finalToken = accessToken || token;
 
-      if (!token) {
-
-        throw new Error(
-          "Login did not return an authentication token."
-        );
-
-      }
+    if (!finalToken) {
+  throw new Error(
+    "Login did not return an authentication token."
+  );
+}
 
 
       if (!loggedInUser) {
@@ -383,8 +370,9 @@ export function AuthProvider({
 
 
       saveSession(
-        token,
-        loggedInUser
+        finalToken,
+        loggedInUser,
+        refreshToken
       );
 
 
@@ -462,19 +450,21 @@ export function AuthProvider({
         );
 
 
-      const {
-        token,
-        user: registeredUser,
-      } = response.data;
+const {
+  token,
+  accessToken,
+  refreshToken,
+  user: registeredUser,
+} = response.data;
+
+const finalToken = accessToken || token;
 
 
-      if (!token) {
-
-        throw new Error(
-          "Registration did not return an authentication token."
-        );
-
-      }
+   if (!finalToken) {
+  throw new Error(
+    "Registration did not return an authentication token."
+  );
+}
 
 
       if (!registeredUser) {
@@ -486,10 +476,11 @@ export function AuthProvider({
       }
 
 
-      saveSession(
-        token,
-        registeredUser
-      );
+   saveSession(
+  finalToken,
+  registeredUser,
+  refreshToken
+);
 
 
       return registeredUser;
