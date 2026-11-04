@@ -161,179 +161,151 @@ useEffect(() => {
      RESTORE LOGIN
   ======================================================= */
 
-  useEffect(() => {
+  
+useEffect(() => {
+  let active = true;
 
-    let active = true;
+  const loadUser = async () => {
+    let requestToken = localStorage.getItem(TOKEN_KEY);
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
 
+    // If there is no access token but a refresh token exists,
+    // attempt to restore the access token first.
+    if (!requestToken && refreshToken) {
+      try {
+        const refreshResponse = await API.post("/auth/refresh", {
+          refreshToken,
+        });
 
-    const loadUser =
-      async () => {
+        const data = refreshResponse.data || {};
+        const newAccessToken = data.accessToken || data.token;
+        const newRefreshToken = data.refreshToken;
 
-        /*
-         * Capture the token used for this request.
-         *
-         * This is important because the user may log in
-         * while /auth/me is still running.
-         */
-        const requestToken =
-          localStorage.getItem(
-            TOKEN_KEY
-          );
-
-
-        /* ---------------------------------------------------
-           NO SAVED TOKEN
-        --------------------------------------------------- */
-
-        if (!requestToken) {
-
-          if (active) {
-
-            setUser(null);
-
-            setLoading(false);
-
-          }
-
-          return;
-
+        if (!newAccessToken || !newRefreshToken) {
+          throw new Error("Invalid refresh response.");
         }
 
+        localStorage.setItem(TOKEN_KEY, newAccessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
 
-        /* ---------------------------------------------------
-           RESTORE FROM BACKEND
-        --------------------------------------------------- */
+        requestToken = newAccessToken;
+      } catch (error) {
+        const status = error.response?.status;
 
-        try {
+        console.error(
+          "Startup session refresh failed:",
+          status || error.message
+        );
 
-          const response =
-            await API.get(
-              "/auth/me"
-            );
+        // Only clear the session when the server definitively
+        // rejects the refresh token.
+        if (status === 401) {
+          clearSession();
+        }
 
+        if (active) {
+          try {
+            const cachedUser = localStorage.getItem("user");
 
-          if (!active) {
-            return;
-          }
-
-
-          /*
-           * IMPORTANT:
-           *
-           * Check the current token again.
-           *
-           * If it changed while /auth/me was running,
-           * a new login has happened.
-           *
-           * Do NOT overwrite that new session.
-           */
-     const currentToken =
-  localStorage.getItem(TOKEN_KEY);
-
-const authorizationHeader =
-  response.config?.headers?.Authorization ||
-  response.config?.headers?.authorization;
-
-const responseToken =
-  typeof authorizationHeader === "string"
-    ? authorizationHeader.replace(/^Bearer\s+/i, "")
-    : authorizationHeader;
-
-if (
-  currentToken !== requestToken &&
-  currentToken !== responseToken
-) {
-  console.log(
-    "Auth restore skipped because a different session was created."
-  );
-
-  setLoading(false);
-  return;
-}
-
-
-          const restoredUser =
-            response.data?.user;
-
-
-          if (!restoredUser) {
-
-            throw new Error(
-              "User data was not returned"
-            );
-
-          }
-
-
-          /*
-           * Only restore the user if the token is still
-           * the same token that started this request.
-           */
-          setUser(
-            restoredUser
-          );
-
-
-          localStorage.setItem(
-            "user",
-            JSON.stringify(
-              restoredUser
-            )
-          );
-      
-        } catch (error) {
-          console.error(
-            "Restore login failed:",
-            error.response?.data || error.message
-          );
-
-          const currentToken =
-            localStorage.getItem(TOKEN_KEY);
-
-          if (
-            active &&
-            currentToken === requestToken
-          ) {
-            const status = error.response?.status;
-
-            if (status === 401 || status === 403) {
-              // The server rejected the saved session.
-              clearSession();
-            } else {
-              // A network/server error is not proof
-              // that the saved session is invalid.
-              try {
-                const cachedUser =
-                  localStorage.getItem("user");
-
-                if (cachedUser) {
-                  setUser(JSON.parse(cachedUser));
-                }
-              } catch {
-                setUser(null);
-              }
+            if (cachedUser) {
+              setUser(JSON.parse(cachedUser));
             }
+          } catch {
+            setUser(null);
           }
-        } finally {
-          if (active) {
-            setLoading(false);
-          }
+
+          setLoading(false);
         }
 
+        return;
+      }
+    }
 
-      };
+    // No usable token available.
+    if (!requestToken) {
+      if (active) {
+        setUser(null);
+        setLoading(false);
+      }
+      return;
+    }
 
+    try {
+      const response = await API.get("/auth/me");
 
-    loadUser();
+      if (!active) return;
 
+      const currentToken = localStorage.getItem(TOKEN_KEY);
 
-    return () => {
+      const authorizationHeader =
+        response.config?.headers?.Authorization ||
+        response.config?.headers?.authorization;
 
-      active = false;
+      const responseToken =
+        typeof authorizationHeader === "string"
+          ? authorizationHeader.replace(/^Bearer\s+/i, "")
+          : authorizationHeader;
 
-    };
+      if (
+        currentToken !== requestToken &&
+        currentToken !== responseToken
+      ) {
+        console.log("Auth restore skipped: session changed.");
+        setLoading(false);
+        return;
+      }
 
-  }, []);
+      const restoredUser = response.data?.user;
+
+      if (!restoredUser) {
+        throw new Error("User data was not returned.");
+      }
+
+      setUser(restoredUser);
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(restoredUser)
+      );
+    } catch (error) {
+      console.error(
+        "Restore login failed:",
+        error.response?.data || error.message
+      );
+
+      const currentToken = localStorage.getItem(TOKEN_KEY);
+
+      if (active && currentToken === requestToken) {
+        const status = error.response?.status;
+
+        if (status === 401 || status === 403) {
+          clearSession();
+        } else {
+          try {
+            const cachedUser = localStorage.getItem("user");
+
+            if (cachedUser) {
+              setUser(JSON.parse(cachedUser));
+            }
+          } catch {
+            setUser(null);
+          }
+        }
+      }
+    } finally {
+      if (active) {
+        setLoading(false);
+      }
+    }
+  };
+
+  loadUser();
+
+  return () => {
+    active = false;
+  };
+}, []);
+
 
 
   /* =======================================================
