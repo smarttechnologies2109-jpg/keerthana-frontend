@@ -7,661 +7,374 @@ import {
   Route,
 } from "react-router-dom";
 
-
 /* =========================================================
-   PLAYER
+   CONTEXT PROVIDERS
 ========================================================= */
 
-import {
-  PlayerProvider,
-} from "./context/PlayerContext";
-
-
-/* =========================================================
-   LIKED SONGS
-========================================================= */
-
-import {
-  LikedSongsProvider,
-} from "./context/LikedSongsContext";
-
-
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-import {
-  NotificationsProvider,
-} from "./context/NotificationsContext";
-
+import { PlayerProvider } from "./context/PlayerContext";
+import { LikedSongsProvider } from "./context/LikedSongsContext";
+import { NotificationsProvider } from "./context/NotificationsContext";
 
 /* =========================================================
    AUTH
 ========================================================= */
 
-import {
-  useAuth,
-} from "./context/AuthContext";
-
+import { useAuth } from "./context/AuthContext";
 
 /* =========================================================
-   LAYOUTS
+   LAYOUTS AND PROTECTED ROUTES
 ========================================================= */
 
-import AppLayout
-  from "./components/AppLayout";
-
-import AdminLayout
-  from "./components/admin/AdminLayout";
-
-import AdminRoute
-  from "./components/admin/AdminRoute";
-
-import OwnerRoute
-  from "./components/businessOwner/OwnerRoute";
-
+import AppLayout from "./components/AppLayout";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminRoute from "./components/admin/AdminRoute";
+import OwnerRoute from "./components/businessOwner/OwnerRoute";
 
 /* =========================================================
-   AUTH PAGES
+   USER AUTHENTICATION
 ========================================================= */
 
-import Login
-  from "./pages/Login";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
-import Register
-  from "./pages/Register";
+/* =========================================================
+   ADMIN AUTHENTICATION
+========================================================= */
 
-import AdminLogin
-  from "./pages/admin/AdminLogin";
-
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminForgotPassword from "./pages/admin/AdminForgotPassword";
 
 /* =========================================================
    USER PAGES
 ========================================================= */
 
-import Home
-  from "./pages/Home";
-
-import Search
-  from "./pages/Search";
-
-import Library
-  from "./pages/Library";
-
-import LikedSongs
-  from "./pages/LikedSongs";
-
-import Playlists
-  from "./pages/Playlists";
-
-import PlaylistDetails
-  from "./pages/PlaylistDetails";
-
-import Artists
-  from "./pages/Artists";
-
-import ArtistDetails
-  from "./pages/ArtistDetails";
-
-import Albums
-  from "./pages/Albums";
-
-import AlbumDetails
-  from "./pages/AlbumDetails";
-
-import SongDetails
-  from "./pages/SongDetails";
-
-import Premium
-  from "./pages/Premium";
-
-import History
-  from "./pages/History";
-
-import Profile
-  from "./pages/Profile";
-
-import KeerthanaAIPage
-  from "./pages/KeerthanaAI";
-
-import MoodPlaylists
-  from "./pages/MoodPlaylists";
-
-import MoodSongs
-  from "./pages/MoodSongs";
-
-import Statistics
-  from "./pages/Statistics";
-
-import Ministries
-  from "./pages/Ministries";
-
-import MinistryDetails
-  from "./pages/MinistryDetails";
-
-import DownloadManager
-  from "./pages/DownloadManager";
-
-import AllSongs
-  from "./pages/AllSongs";
-
-import Notifications
-  from "./pages/Notifications";
-
-import Favorites
-  from "./pages/Favorites";
-
+import Home from "./pages/Home";
+import Search from "./pages/Search";
+import Library from "./pages/Library";
+import LikedSongs from "./pages/LikedSongs";
+import Playlists from "./pages/Playlists";
+import PlaylistDetails from "./pages/PlaylistDetails";
+import Artists from "./pages/Artists";
+import ArtistDetails from "./pages/ArtistDetails";
+import Albums from "./pages/Albums";
+import AlbumDetails from "./pages/AlbumDetails";
+import SongDetails from "./pages/SongDetails";
+import Premium from "./pages/Premium";
+import History from "./pages/History";
+import Profile from "./pages/Profile";
+import KeerthanaAIPage from "./pages/KeerthanaAI";
+import MoodPlaylists from "./pages/MoodPlaylists";
+import MoodSongs from "./pages/MoodSongs";
+import Statistics from "./pages/Statistics";
+import Ministries from "./pages/Ministries";
+import MinistryDetails from "./pages/MinistryDetails";
+import DownloadManager from "./pages/DownloadManager";
+import AllSongs from "./pages/AllSongs";
+import Notifications from "./pages/Notifications";
+import Favorites from "./pages/Favorites";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 /* =========================================================
-   ADMIN PAGES
+   ADMIN MANAGEMENT PAGES
 ========================================================= */
 
-import AdminDashboard
-  from "./pages/admin/AdminDashboard";
-
-import ManageSongs
-  from "./pages/admin/ManageSongs";
-
-import AddSong
-  from "./pages/admin/AddSong";
-
-import EditSong
-  from "./pages/admin/EditSong";
-
-import ManageArtists
-  from "./pages/admin/ManageArtists";
-
-import ManageAlbums
-  from "./pages/admin/ManageAlbums";
-
-import ManageCategories
-  from "./pages/admin/ManageCategories";
-
-import ManageUsers
-  from "./pages/admin/ManageUsers";
-
-import ManageMinistries
-  from "./pages/admin/ManageMinistries";
-
-import AdminForgotPassword
-  from "./pages/admin/AdminForgotPassword";
-
-import AdminSongReports
-  from "./pages/admin/AdminSongReports";
-
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageSongs from "./pages/admin/ManageSongs";
+import AddSong from "./pages/admin/AddSong";
+import EditSong from "./pages/admin/EditSong";
+import AdminSongReports from "./pages/admin/AdminSongReports";
+import ManageArtists from "./pages/admin/ManageArtists";
+import ManageAlbums from "./pages/admin/ManageAlbums";
+import ManageCategories from "./pages/admin/ManageCategories";
+import ManageUsers from "./pages/admin/ManageUsers";
+import ManageMinistries from "./pages/admin/ManageMinistries";
 
 /* =========================================================
    BUSINESS OWNER PAGES
 ========================================================= */
 
-import BusinessOwnerLogin
-  from "./pages/businessOwner/BusinessOwnerLogin";
-
-import BusinessOwnerDashboard
-  from "./pages/businessOwner/BusinessOwnerDashboard";
-
-import BusinessOwnerUsers
-  from "./pages/businessOwner/BusinessOwnerUsers";
-
-import BusinessOwnerStatistics
-  from "./pages/businessOwner/BusinessOwnerStatistics";
-
-import BusinessOwnerMusic
-  from "./pages/businessOwner/BusinessOwnerMusic";
-
-import BusinessOwnerSongs
-  from "./pages/businessOwner/BusinessOwnerSongs";
-
-import BusinessOwnerAlbums
-  from "./pages/businessOwner/BusinessOwnerAlbums";
-
-import BusinessOwnerArtists
-  from "./pages/businessOwner/BusinessOwnerArtists";
-
-import BusinessOwnerCategories
-  from "./pages/businessOwner/BusinessOwnerCategories";
-
-import BusinessOwnerMinistries
-  from "./pages/businessOwner/BusinessOwnerMinistries";
-
-import BusinessOwnerForgotPassword
-  from "./pages/businessOwner/BusinessOwnerForgotPassword";
-
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-
-import useAndroidBackButton from "./hooks/useAndroidBackButton";
-
-
-
+import BusinessOwnerLogin from "./pages/businessOwner/BusinessOwnerLogin";
+import BusinessOwnerForgotPassword from "./pages/businessOwner/BusinessOwnerForgotPassword";
+import BusinessOwnerDashboard from "./pages/businessOwner/BusinessOwnerDashboard";
+import BusinessOwnerUsers from "./pages/businessOwner/BusinessOwnerUsers";
+import BusinessOwnerStatistics from "./pages/businessOwner/BusinessOwnerStatistics";
+import BusinessOwnerMusic from "./pages/businessOwner/BusinessOwnerMusic";
+import BusinessOwnerSongs from "./pages/businessOwner/BusinessOwnerSongs";
+import BusinessOwnerAlbums from "./pages/businessOwner/BusinessOwnerAlbums";
+import BusinessOwnerArtists from "./pages/businessOwner/BusinessOwnerArtists";
+import BusinessOwnerCategories from "./pages/businessOwner/BusinessOwnerCategories";
+import BusinessOwnerMinistries from "./pages/businessOwner/BusinessOwnerMinistries";
 
 /* =========================================================
-   ANDROID BACK BUTTON HANDLER
+   ANDROID BACK BUTTON
 ========================================================= */
+
+import useAndroidBackButton from "./hooks/useAndroidBackButton";
 
 function AndroidBackButtonHandler() {
   useAndroidBackButton();
   return null;
 }
 
-
 /* =========================================================
    USER HOME REDIRECT
-=========================================================
 
-   "/" behavior:
-
-   NOT LOGGED IN
-        ↓
-     /login
-
-   LOGGED IN
-        ↓
-     /home
-
+   "/" -> "/login" when logged out
+   "/" -> "/home" when logged in
 ========================================================= */
 
 function UserHomeRedirect() {
-
-  const {
-    user,
-    loading,
-  } = useAuth();
-
-
-  /* -------------------------------------------------------
-     WAIT FOR AUTH
-  ------------------------------------------------------- */
+  const { user, loading } = useAuth();
 
   if (loading) {
-
     return null;
-
   }
-
-
-  /* -------------------------------------------------------
-     LOGGED IN
-  ------------------------------------------------------- */
 
   if (user) {
-
-    return (
-      <Navigate
-        to="/home"
-        replace
-      />
-    );
-
+    return <Navigate to="/home" replace />;
   }
 
-
-  /* -------------------------------------------------------
-     NOT LOGGED IN
-  ------------------------------------------------------- */
-
-  return (
-    <Navigate
-      to="/login"
-      replace
-    />
-  );
-
+  return <Navigate to="/login" replace />;
 }
 
-
 /* =========================================================
-   APP
+   MAIN APP
 ========================================================= */
 
 function App() {
-
   return (
-
     <PlayerProvider>
-
       <LikedSongsProvider>
-
         <NotificationsProvider>
 
-           <AndroidBackButtonHandler />
+          <AndroidBackButtonHandler />
 
           <Routes>
 
-
-            {/* =================================================
-                NORMAL USER AUTH
-            ================================================= */}
+            {/* =========================================
+                USER AUTHENTICATION
+            ========================================= */}
 
             <Route
               path="/login"
-              element={
-                <Login />
-              }
+              element={<Login />}
             />
 
             <Route
               path="/register"
-              element={
-                <Register />
-              }
+              element={<Register />}
             />
 
-
-            {/* =================================================
+            {/* =========================================
                 ADMIN LOGIN
-
-                OUTSIDE AdminRoute
-            ================================================= */}
+                OUTSIDE ADMIN PROTECTION
+            ========================================= */}
 
             <Route
               path="/admin/login"
-              element={
-                <AdminLogin />
-              }
+              element={<AdminLogin />}
             />
 
-
-            {/* =================================================
-                NORMAL KEERTHANA APP
-            ================================================= */}
-
             <Route
-              element={
-                <AppLayout />
-              }
-            >
+              path="/admin/forgot-password"
+              element={<AdminForgotPassword />}
+            />
 
+            {/* =========================================
+                NORMAL KEERTHANA MUSIC APP
+            ========================================= */}
 
-              {/* =================================================
-                  ROOT
-              ================================================= */}
+            <Route element={<AppLayout />}>
+
+              {/* ROOT */}
 
               <Route
                 path="/"
-                element={
-                  <UserHomeRedirect />
-                }
+                element={<UserHomeRedirect />}
               />
 
-
-              {/* =================================================
-                  HOME
-              ================================================= */}
+              {/* HOME */}
 
               <Route
                 path="/home"
-                element={
-                  <Home />
-                }
+                element={<Home />}
               />
 
-
-              {/* =================================================
-                  ALL SONGS
-              ================================================= */}
+              {/* ALL SONGS */}
 
               <Route
                 path="/songs"
-                element={
-                  <AllSongs />
-                }
+                element={<AllSongs />}
               />
 
+              {/* SONG DETAILS */}
 
-              {/* =================================================
-                  SEARCH
-              ================================================= */}
+              <Route
+                path="/songs/:id"
+                element={<SongDetails />}
+              />
+
+              {/* SEARCH */}
 
               <Route
                 path="/search"
-                element={
-                  <Search />
-                }
+                element={<Search />}
               />
 
-
-              {/* =================================================
-                  FAVORITES
-              ================================================= */}
-
-              <Route
-                path="/favorites"
-                element={
-                  <Favorites />
-                }
-              />
-
-
-              {/* =================================================
-                  LIBRARY
-              ================================================= */}
+              {/* LIBRARY */}
 
               <Route
                 path="/library"
-                element={
-                  <Library />
-                }
+                element={<Library />}
               />
-        
 
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-
-              {/* =================================================
-                  LIKED SONGS
-              ================================================= */}
+              {/* LIKED SONGS */}
 
               <Route
                 path="/liked-songs"
-                element={
-                  <LikedSongs />
-                }
+                element={<LikedSongs />}
               />
 
+              {/* FAVORITES */}
 
-              {/* =================================================
-                  PLAYLISTS
-              ================================================= */}
+              <Route
+                path="/favorites"
+                element={<Favorites />}
+              />
+
+              {/* PLAYLISTS */}
 
               <Route
                 path="/playlists"
-                element={
-                  <Playlists />
-                }
+                element={<Playlists />}
               />
 
               <Route
                 path="/playlists/:id"
-                element={
-                  <PlaylistDetails />
-                }
+                element={<PlaylistDetails />}
               />
 
-
-              {/* =================================================
-                  DOWNLOAD MANAGER
-              ================================================= */}
+              {/* DOWNLOADS */}
 
               <Route
                 path="/downloads"
-                element={
-                  <DownloadManager />
-                }
+                element={<DownloadManager />}
               />
 
-
-              {/* =================================================
-                  ARTISTS
-              ================================================= */}
+              {/* ARTISTS */}
 
               <Route
                 path="/artists"
-                element={
-                  <Artists />
-                }
+                element={<Artists />}
               />
 
               <Route
                 path="/artists/:id"
-                element={
-                  <ArtistDetails />
-                }
+                element={<ArtistDetails />}
               />
 
-
-              {/* =================================================
-                  ALBUMS
-              ================================================= */}
+              {/* ALBUMS */}
 
               <Route
                 path="/albums"
-                element={
-                  <Albums />
-                }
+                element={<Albums />}
               />
 
               <Route
                 path="/albums/:id"
-                element={
-                  <AlbumDetails />
-                }
+                element={<AlbumDetails />}
               />
 
-
-              {/* =================================================
-                  SONG DETAILS
-              ================================================= */}
-
-              <Route
-                path="/songs/:id"
-                element={
-                  <SongDetails />
-                }
-              />
-
-
-              {/* =================================================
-                  PREMIUM
-              ================================================= */}
-
-              <Route
-                path="/premium"
-                element={
-                  <Premium />
-                }
-              />
-
-
-              {/* =================================================
-                  HISTORY
-              ================================================= */}
-
-              <Route
-                path="/history"
-                element={
-                  <History />
-                }
-              />
-
-
-              {/* =================================================
-                  PROFILE
-              ================================================= */}
-
-              <Route
-                path="/profile"
-                element={
-                  <Profile />
-                }
-              />
-
-
-              {/* =================================================
-                  NOTIFICATIONS
-              ================================================= */}
-
-              <Route
-                path="/notifications"
-                element={
-                  <Notifications />
-                }
-              />
-
-
-              {/* =================================================
-                  KEERTHANA AI
-              ================================================= */}
-
-              <Route
-                path="/keerthana-ai"
-                element={
-                  <KeerthanaAIPage />
-                }
-              />
-
-
-              {/* =================================================
-                  MOOD PLAYLISTS
-              ================================================= */}
-
-              <Route
-                path="/mood-playlists"
-                element={
-                  <MoodPlaylists />
-                }
-              />
-
-
-              {/* =================================================
-                  MOOD SONGS
-              ================================================= */}
-
-              <Route
-                path="/moods/:mood"
-                element={
-                  <MoodSongs />
-                }
-              />
-
-
-              {/* =================================================
-                  USER STATISTICS
-              ================================================= */}
-
-              <Route
-                path="/statistics"
-                element={
-                  <Statistics />
-                }
-              />
-
-
-              {/* =================================================
-                  USER MINISTRIES
-              ================================================= */}
+              {/* MINISTRIES */}
 
               <Route
                 path="/ministries"
-                element={
-                  <Ministries />
-                }
+                element={<Ministries />}
               />
 
               <Route
                 path="/ministries/:id"
-                element={
-                  <MinistryDetails />
-                }
+                element={<MinistryDetails />}
+              />
+
+              {/* PREMIUM */}
+
+              <Route
+                path="/premium"
+                element={<Premium />}
+              />
+
+              {/* HISTORY */}
+
+              <Route
+                path="/history"
+                element={<History />}
+              />
+
+              {/* PROFILE */}
+
+              <Route
+                path="/profile"
+                element={<Profile />}
+              />
+
+              {/* NOTIFICATIONS */}
+
+              <Route
+                path="/notifications"
+                element={<Notifications />}
+              />
+
+              {/* KEERTHANA AI */}
+
+              <Route
+                path="/keerthana-ai"
+                element={<KeerthanaAIPage />}
+              />
+
+              {/* MOOD PLAYLISTS */}
+
+              <Route
+                path="/mood-playlists"
+                element={<MoodPlaylists />}
+              />
+
+              {/* MOOD SONGS */}
+
+              <Route
+                path="/moods/:mood"
+                element={<MoodSongs />}
+              />
+
+              {/* USER STATISTICS */}
+
+              <Route
+                path="/statistics"
+                element={<Statistics />}
+              />
+
+              {/* PRIVACY POLICY */}
+
+              <Route
+                path="/privacy-policy"
+                element={<PrivacyPolicy />}
               />
 
             </Route>
 
+            {/* =========================================
+                ADMIN PROTECTED AREA
 
-            {/* =================================================
-                PROTECTED ADMIN AREA
-            ================================================= */}
+                PARENT: /admin
+
+                DASHBOARD: /admin/dashboard
+                SONGS: /admin/songs
+                ARTISTS: /admin/artists
+                ALBUMS: /admin/albums
+            ========================================= */}
 
             <Route
-              path="/admin/dashboard"
+              path="/admin"
               element={
                 <AdminRoute>
                   <AdminLayout />
@@ -669,174 +382,107 @@ function App() {
               }
             >
 
-
-              {/* =================================================
-                  ADMIN DASHBOARD
-              ================================================= */}
+              {/* DEFAULT ADMIN REDIRECT */}
 
               <Route
                 index
                 element={
-                  <AdminDashboard />
+                  <Navigate
+                    to="/admin/dashboard"
+                    replace
+                  />
                 }
               />
 
+              {/* ADMIN DASHBOARD */}
 
-              {/* =================================================
-                  ADMIN SONGS
-              ================================================= */}
+              <Route
+                path="dashboard"
+                element={<AdminDashboard />}
+              />
+
+              {/* MANAGE SONGS */}
 
               <Route
                 path="songs"
-                element={
-                  <ManageSongs />
-                }
+                element={<ManageSongs />}
               />
 
-
-              {/* =================================================
-                  ADD SONG
-              ================================================= */}
+              {/* ADD SONG */}
 
               <Route
                 path="songs/add"
-                element={
-                  <AddSong />
-                }
+                element={<AddSong />}
               />
 
-
-              {/* =================================================
-                  EDIT SONG
-              ================================================= */}
+              {/* EDIT SONG */}
 
               <Route
                 path="songs/:id/edit"
-                element={
-                  <EditSong />
-                }
+                element={<EditSong />}
               />
 
-
-              {/* =================================================
-                  ADMIN SONG REPORTS
-              ================================================= */}
+              {/* SONG REPORTS */}
 
               <Route
                 path="songs/reports"
-                element={
-                  <AdminSongReports />
-                }
+                element={<AdminSongReports />}
               />
 
-
-              {/* =================================================
-                  ADMIN ARTISTS
-              ================================================= */}
+              {/* MANAGE ARTISTS */}
 
               <Route
                 path="artists"
-                element={
-                  <ManageArtists />
-                }
+                element={<ManageArtists />}
               />
 
-
-              {/* =================================================
-                  ADMIN ALBUMS
-              ================================================= */}
+              {/* MANAGE ALBUMS */}
 
               <Route
                 path="albums"
-                element={
-                  <ManageAlbums />
-                }
+                element={<ManageAlbums />}
               />
 
-
-              {/* =================================================
-                  ADMIN CATEGORIES
-              ================================================= */}
+              {/* MANAGE CATEGORIES */}
 
               <Route
                 path="categories"
-                element={
-                  <ManageCategories />
-                }
+                element={<ManageCategories />}
               />
 
-
-              {/* =================================================
-                  ADMIN USERS
-              ================================================= */}
+              {/* MANAGE USERS */}
 
               <Route
                 path="users"
-                element={
-                  <ManageUsers />
-                }
+                element={<ManageUsers />}
               />
 
-
-              {/* =================================================
-                  ADMIN MINISTRIES
-              ================================================= */}
+              {/* MANAGE MINISTRIES */}
 
               <Route
                 path="ministries"
-                element={
-                  <ManageMinistries />
-                }
+                element={<ManageMinistries />}
               />
 
             </Route>
 
-
-            {/* =================================================
-                ADMIN FORGOT PASSWORD
-
-                OUTSIDE AdminRoute
-            ================================================= */}
-
-            <Route
-              path="/admin/forgot-password"
-              element={
-                <AdminForgotPassword />
-              }
-            />
-
-
-            {/* =================================================
-                BUSINESS OWNER LOGIN
-
-                OUTSIDE OwnerRoute
-            ================================================= */}
+            {/* =========================================
+                BUSINESS OWNER AUTHENTICATION
+            ========================================= */}
 
             <Route
               path="/owner/login"
-              element={
-                <BusinessOwnerLogin />
-              }
+              element={<BusinessOwnerLogin />}
             />
-
-
-            {/* =================================================
-                BUSINESS OWNER FORGOT PASSWORD
-
-                OUTSIDE OwnerRoute
-            ================================================= */}
 
             <Route
               path="/owner/forgot-password"
-              element={
-                <BusinessOwnerForgotPassword />
-              }
+              element={<BusinessOwnerForgotPassword />}
             />
 
-
-            {/* =================================================
-                BUSINESS OWNER DASHBOARD
-            ================================================= */}
+            {/* =========================================
+                BUSINESS OWNER PROTECTED PAGES
+            ========================================= */}
 
             <Route
               path="/owner/dashboard"
@@ -847,11 +493,6 @@ function App() {
               }
             />
 
-
-            {/* =================================================
-                BUSINESS OWNER USERS
-            ================================================= */}
-
             <Route
               path="/owner/users"
               element={
@@ -860,11 +501,6 @@ function App() {
                 </OwnerRoute>
               }
             />
-
-
-            {/* =================================================
-                BUSINESS OWNER STATISTICS
-            ================================================= */}
 
             <Route
               path="/owner/statistics"
@@ -875,11 +511,6 @@ function App() {
               }
             />
 
-
-            {/* =================================================
-                BUSINESS OWNER MUSIC HOME
-            ================================================= */}
-
             <Route
               path="/owner/music"
               element={
@@ -888,11 +519,6 @@ function App() {
                 </OwnerRoute>
               }
             />
-
-
-            {/* =================================================
-                BUSINESS OWNER SONGS
-            ================================================= */}
 
             <Route
               path="/owner/music/songs"
@@ -903,11 +529,6 @@ function App() {
               }
             />
 
-
-            {/* =================================================
-                BUSINESS OWNER ALBUMS
-            ================================================= */}
-
             <Route
               path="/owner/music/albums"
               element={
@@ -916,11 +537,6 @@ function App() {
                 </OwnerRoute>
               }
             />
-
-
-            {/* =================================================
-                BUSINESS OWNER ARTISTS
-            ================================================= */}
 
             <Route
               path="/owner/music/artists"
@@ -931,11 +547,6 @@ function App() {
               }
             />
 
-
-            {/* =================================================
-                BUSINESS OWNER CATEGORIES
-            ================================================= */}
-
             <Route
               path="/owner/music/categories"
               element={
@@ -944,11 +555,6 @@ function App() {
                 </OwnerRoute>
               }
             />
-
-
-            {/* =================================================
-                BUSINESS OWNER MINISTRIES
-            ================================================= */}
 
             <Route
               path="/owner/music/ministries"
@@ -959,19 +565,59 @@ function App() {
               }
             />
 
+            {/* =========================================
+                404 FALLBACK
+            ========================================= */}
+
+            <Route
+              path="*"
+              element={
+                <div
+                  style={{
+                    minHeight: "100vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#101827",
+                    color: "#ffffff",
+                    textAlign: "center",
+                    padding: "24px",
+                  }}
+                >
+                  <h1>404</h1>
+                  <h2>Page Not Found</h2>
+
+                  <p>
+                    The requested KEERTHANA page does not exist.
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      window.location.href = "/home";
+                    }}
+                    style={{
+                      padding: "12px 24px",
+                      borderRadius: "8px",
+                      border: "none",
+                      background: "#d4af65",
+                      color: "#101827",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Go to Home
+                  </button>
+                </div>
+              }
+            />
 
           </Routes>
 
         </NotificationsProvider>
-
       </LikedSongsProvider>
-
     </PlayerProvider>
-
   );
-
 }
 
-
 export default App;
-
