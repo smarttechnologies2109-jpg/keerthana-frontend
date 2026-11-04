@@ -121,7 +121,7 @@ function AdminSidebar() {
         {/* DASHBOARD */}
 
         <NavLink
-          to="/admin"
+          to="/admin/dashboard"
           end
           className={navClass}
         >
