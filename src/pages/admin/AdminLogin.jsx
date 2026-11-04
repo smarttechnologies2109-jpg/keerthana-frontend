@@ -77,7 +77,7 @@ const AdminLogin = () => {
       */
       await refreshUser();
 
-      navigate("/admin/dashbaord");
+      navigate("/admin/dashboard");
 
     } catch (err) {
       console.error(
