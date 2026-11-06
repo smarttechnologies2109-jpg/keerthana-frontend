@@ -9,8 +9,10 @@ import {
   FaChevronRight,
   FaChurch,
   FaCompactDisc,
+  FaCrown,
   FaDownload,
   FaHeart,
+ FaHandsHelping,
   FaHistory,
   FaHome,
   FaListUl,
@@ -120,11 +122,30 @@ const MUSIC_LINKS = [
     label: "Notifications",
     Icon: FaBell,
   },
+  // {
+  //   to: "/keerthana-ai",
+  //   label: "Keerthana AI",
+  //   Icon: FaRobot,
+  // },
+];
+
+/* =========================================================
+   KEERTHANA MUSIC — MEMBERSHIP & SUPPORT
+========================================================= */
+
+const MEMBERSHIP_LINKS = [
   {
-    to: "/keerthana-ai",
-    label: "Keerthana AI",
-    Icon: FaRobot,
+    to: "/premium",
+    label: "KEERTHANA Premium",
+    Icon: FaCrown,
+    iconClass: "sidebar-premium-icon",
   },
+ {
+  to: "/donations",
+  label: "Support Our Ministry",
+  Icon: FaHandsHelping,
+  iconClass: "sidebar-support-icon",
+},
 ];
 
 /* =========================================================
@@ -201,13 +222,14 @@ function SidebarSection({
 /* =========================================================
    KEERTHANA MUSIC — MAIN SIDEBAR
 
-   Profile, Premium and Logout are handled in Header.jsx.
+   Profile and Logout are handled in Header.jsx.
+   Premium and Donations are handled here.
 ========================================================= */
 
 function Sidebar({ isOpen, onToggle }) {
   const navigate = useNavigate();
 
-  /* Close the sidebar after navigation on mobile */
+  // Close sidebar after navigation on mobile
   const handleNavigation = useCallback(() => {
     if (window.innerWidth <= 700) {
       onToggle?.();
@@ -216,7 +238,7 @@ function Sidebar({ isOpen, onToggle }) {
 
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* MOBILE BACKDROP */}
       <button
         type="button"
         className={`sidebar-overlay${
@@ -228,16 +250,15 @@ function Sidebar({ isOpen, onToggle }) {
         tabIndex={isOpen ? 0 : -1}
       />
 
-      {/* Main sidebar */}
+      {/* MAIN SIDEBAR */}
       <aside
         className={`sidebar ${
-          isOpen
-            ? "sidebar-open"
-            : "sidebar-closed"
+          isOpen ? "sidebar-open" : "sidebar-closed"
         }`}
         aria-label="Main sidebar"
       >
-        {/* Mobile close button */}
+
+        {/* MOBILE CLOSE BUTTON */}
         <button
           type="button"
           className="sidebar-mobile-close"
@@ -247,7 +268,7 @@ function Sidebar({ isOpen, onToggle }) {
           <FaTimes aria-hidden="true" />
         </button>
 
-        {/* Brand */}
+        {/* BRAND */}
         <button
           type="button"
           className="sidebar-brand"
@@ -270,22 +291,33 @@ function Sidebar({ isOpen, onToggle }) {
           </span>
         </button>
 
-        {/* Navigation */}
+        {/* NAVIGATION */}
         <div className="sidebar-content">
+
+          {/* EXPLORE */}
           <SidebarSection
             title="EXPLORE"
             links={EXPLORE_LINKS}
             onNavigate={handleNavigation}
           />
 
+          {/* YOUR MUSIC */}
           <SidebarSection
             title="YOUR MUSIC"
             links={MUSIC_LINKS}
             onNavigate={handleNavigation}
           />
+
+          {/* MEMBERSHIP & SUPPORT */}
+          <SidebarSection
+            title="MEMBERSHIP & SUPPORT"
+            links={MEMBERSHIP_LINKS}
+            onNavigate={handleNavigation}
+          />
+
         </div>
 
-        {/* Footer */}
+        {/* FOOTER */}
         <div className="sidebar-bottom">
           <footer className="sidebar-footer">
             <span>
@@ -293,6 +325,7 @@ function Sidebar({ isOpen, onToggle }) {
             </span>
           </footer>
         </div>
+
       </aside>
     </>
   );

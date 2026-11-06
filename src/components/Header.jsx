@@ -1,27 +1,33 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import {
   FaBars,
   FaBell,
   FaChevronDown,
   FaChevronLeft,
   FaChevronRight,
-  FaCrown,
   FaMicrophone,
   FaMicrophoneSlash,
   FaMusic,
   FaSearch,
   FaSignInAlt,
   FaSignOutAlt,
-  FaUser,
   FaUserCircle,
 } from "react-icons/fa";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 import { useNotifications } from "../context/NotificationsContext";
+
 import "../assets/css/header.css";
 
+// Page titles
 const PAGE_TITLES = [
   { paths: ["/", "/home"], title: "Home", exact: true },
   { paths: ["/search"], title: "Explore" },
@@ -30,7 +36,8 @@ const PAGE_TITLES = [
   { paths: ["/favorites"], title: "Favorites" },
   { paths: ["/playlists"], title: "Playlists" },
   { paths: ["/history"], title: "Listening History" },
-  { paths: ["/premium"], title: "Premium" },
+  { paths: ["/premium"], title: "KEERTHANA Premium" },
+  { paths: ["/donations"], title: "Support Our Ministry" },
   { paths: ["/profile"], title: "Profile" },
   { paths: ["/offline-songs", "/downloads"], title: "Offline Songs" },
   { paths: ["/notifications"], title: "Notifications" },
@@ -52,7 +59,7 @@ function getPageTitle(pathname) {
     )
   );
 
-  return page?.title ?? "KEERTHANA";
+  return page?.title || "KEERTHANA";
 }
 
 function Header({ onToggleSidebar }) {
@@ -80,6 +87,7 @@ function Header({ onToggleSidebar }) {
 
   const avatarLetter = displayName.charAt(0).toUpperCase();
 
+  // Search submit
   const handleSearchSubmit = useCallback(
     (event) => {
       event.preventDefault();
@@ -87,12 +95,15 @@ function Header({ onToggleSidebar }) {
       const query = searchValue.trim();
 
       navigate(
-        query ? `/search?q=${encodeURIComponent(query)}` : "/search"
+        query
+          ? `/search?q=${encodeURIComponent(query)}`
+          : "/search"
       );
     },
     [navigate, searchValue]
   );
 
+  // Stop voice search
   const stopVoiceSearch = useCallback(() => {
     try {
       recognitionRef.current?.stop();
@@ -103,15 +114,17 @@ function Header({ onToggleSidebar }) {
     setIsListening(false);
   }, []);
 
+  // Start voice search
   const handleVoiceSearch = useCallback(() => {
     const recognition = recognitionRef.current;
 
     if (!recognition) {
       if (!voiceSupported) {
         window.alert(
-          "Voice search is not supported in this browser. Try Chrome or Edge."
+          "Voice search is not supported. Please use Chrome or Edge."
         );
       }
+
       return;
     }
 
@@ -127,10 +140,11 @@ function Header({ onToggleSidebar }) {
     }
   }, [isListening, stopVoiceSearch, voiceSupported]);
 
-  // Voice search
+  // Voice recognition
   useEffect(() => {
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       setVoiceSupported(false);
@@ -144,8 +158,13 @@ function Header({ onToggleSidebar }) {
     recognition.maxAlternatives = 1;
     recognition.lang = "en-IN";
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
 
     recognition.onerror = (event) => {
       console.warn("Voice search error:", event.error);
@@ -162,7 +181,7 @@ function Header({ onToggleSidebar }) {
         index += 1
       ) {
         const result = event.results[index];
-        const transcript = result[0]?.transcript ?? "";
+        const transcript = result[0]?.transcript || "";
 
         if (result.isFinal) {
           finalTranscript += transcript;
@@ -172,14 +191,18 @@ function Header({ onToggleSidebar }) {
       }
 
       const finalQuery = finalTranscript.trim();
-      const currentQuery = `${finalTranscript} ${interimTranscript}`.trim();
+
+      const currentQuery =
+        `${finalTranscript} ${interimTranscript}`.trim();
 
       if (currentQuery) {
         setSearchValue(currentQuery);
       }
 
       if (finalQuery) {
-        navigate(`/search?q=${encodeURIComponent(finalQuery)}`);
+        navigate(
+          `/search?q=${encodeURIComponent(finalQuery)}`
+        );
       }
     };
 
@@ -201,15 +224,17 @@ function Header({ onToggleSidebar }) {
     };
   }, [navigate]);
 
-  // Keyboard shortcut: focus search with /
+  // Keyboard shortcut: /
   useEffect(() => {
     const handleKeyDown = (event) => {
       const target = event.target;
 
       const isTyping =
         target instanceof HTMLElement &&
-        (target.matches("input, textarea, select") ||
-          target.isContentEditable);
+        (
+          target.matches("input, textarea, select") ||
+          target.isContentEditable
+        );
 
       if (
         event.key !== "/" ||
@@ -232,7 +257,7 @@ function Header({ onToggleSidebar }) {
     };
   }, []);
 
-  // Close the profile menu when clicking outside or pressing Escape
+  // Close profile menu on outside click or Escape
   useEffect(() => {
     if (!profileMenuOpen) return undefined;
 
@@ -260,11 +285,12 @@ function Header({ onToggleSidebar }) {
     };
   }, [profileMenuOpen]);
 
-  // Close the dropdown when changing pages
+  // Close dropdown when navigating
   useEffect(() => {
     setProfileMenuOpen(false);
   }, [location.pathname]);
 
+  // Logout
   const handleLogout = () => {
     setProfileMenuOpen(false);
     logout();
@@ -273,7 +299,10 @@ function Header({ onToggleSidebar }) {
 
   return (
     <header className="keerthana-header">
+
+      {/* LEFT SECTION */}
       <div className="keerthana-header-left">
+
         <button
           type="button"
           className="header-menu-button"
@@ -281,10 +310,12 @@ function Header({ onToggleSidebar }) {
           aria-label="Toggle sidebar"
           title="Menu"
         >
-          <FaBars aria-hidden="true" />
+          <FaBars />
         </button>
 
+        {/* BACK AND FORWARD */}
         <div className="header-history-buttons">
+
           <button
             type="button"
             className="header-circle-button"
@@ -292,7 +323,7 @@ function Header({ onToggleSidebar }) {
             aria-label="Go back"
             title="Go back"
           >
-            <FaChevronLeft aria-hidden="true" />
+            <FaChevronLeft />
           </button>
 
           <button
@@ -302,16 +333,18 @@ function Header({ onToggleSidebar }) {
             aria-label="Go forward"
             title="Go forward"
           >
-            <FaChevronRight aria-hidden="true" />
+            <FaChevronRight />
           </button>
+
         </div>
 
+        {/* BRAND */}
         <Link
           to="/home"
           className="header-brand"
           aria-label="KEERTHANA home"
         >
-          <span className="header-brand-mark" aria-hidden="true">
+          <span className="header-brand-mark">
             <FaMusic />
           </span>
 
@@ -321,13 +354,18 @@ function Header({ onToggleSidebar }) {
           </span>
         </Link>
 
+        {/* PAGE TITLE */}
         <div className="header-page-info" aria-live="polite">
           <span>NOW EXPLORING</span>
           <h2>{pageTitle}</h2>
         </div>
+
       </div>
 
+      {/* RIGHT SECTION */}
       <div className="keerthana-header-right">
+
+        {/* SEARCH */}
         <form
           className={`header-search-box ${
             isListening ? "header-search-listening" : ""
@@ -335,7 +373,7 @@ function Header({ onToggleSidebar }) {
           onSubmit={handleSearchSubmit}
           role="search"
         >
-          <FaSearch className="header-search-icon" aria-hidden="true" />
+          <FaSearch className="header-search-icon" />
 
           <input
             ref={searchInputRef}
@@ -357,19 +395,27 @@ function Header({ onToggleSidebar }) {
             <button
               type="button"
               className={`header-voice-button ${
-                isListening ? "header-voice-button-active" : ""
+                isListening
+                  ? "header-voice-button-active"
+                  : ""
               }`}
               onClick={handleVoiceSearch}
               aria-label={
-                isListening ? "Stop listening" : "Start voice search"
+                isListening
+                  ? "Stop listening"
+                  : "Start voice search"
               }
               aria-pressed={isListening}
-              title={isListening ? "Stop listening" : "Voice search"}
+              title={
+                isListening
+                  ? "Stop listening"
+                  : "Voice search"
+              }
             >
               {isListening ? (
-                <FaMicrophoneSlash aria-hidden="true" />
+                <FaMicrophoneSlash />
               ) : (
-                <FaMicrophone aria-hidden="true" />
+                <FaMicrophone />
               )}
             </button>
           )}
@@ -377,39 +423,48 @@ function Header({ onToggleSidebar }) {
           <kbd aria-hidden="true">/</kbd>
         </form>
 
+        {/* NOTIFICATIONS */}
         <Link
           to="/notifications"
           className="header-notification-button"
           title="Notifications"
           aria-label={`Notifications${
-            unreadCount > 0 ? `, ${unreadCount} unread` : ""
+            unreadCount > 0
+              ? `, ${unreadCount} unread`
+              : ""
           }`}
         >
-          <FaBell aria-hidden="true" />
+          <FaBell />
 
           {unreadCount > 0 && (
-            <span
-              className="header-notification-badge"
-              aria-hidden="true"
-            >
+            <span className="header-notification-badge">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </Link>
 
+        {/* PROFILE */}
         {user ? (
-          <div className="header-profile" ref={profileMenuRef}>
+          <div
+            className="header-profile"
+            ref={profileMenuRef}
+          >
+
             <button
               type="button"
               className={`header-profile-trigger ${
-                profileMenuOpen ? "header-profile-trigger-open" : ""
+                profileMenuOpen
+                  ? "header-profile-trigger-open"
+                  : ""
               }`}
-              onClick={() => setProfileMenuOpen((open) => !open)}
+              onClick={() =>
+                setProfileMenuOpen((open) => !open)
+              }
               aria-expanded={profileMenuOpen}
               aria-haspopup="menu"
               aria-label={`Open account menu for ${displayName}`}
             >
-              <span className="header-profile-avatar" aria-hidden="true">
+              <span className="header-profile-avatar">
                 {avatarLetter}
               </span>
 
@@ -417,10 +472,7 @@ function Header({ onToggleSidebar }) {
                 {displayName}
               </span>
 
-              <FaChevronDown
-                className="header-profile-chevron"
-                aria-hidden="true"
-              />
+              <FaChevronDown className="header-profile-chevron" />
             </button>
 
             {profileMenuOpen && (
@@ -429,7 +481,10 @@ function Header({ onToggleSidebar }) {
                 role="menu"
                 aria-label="Account menu"
               >
+
+                {/* ACCOUNT DETAILS */}
                 <div className="header-profile-dropdown-heading">
+
                   <span className="header-profile-avatar header-profile-avatar-large">
                     {avatarLetter}
                   </span>
@@ -438,46 +493,36 @@ function Header({ onToggleSidebar }) {
                     <strong>{displayName}</strong>
                     <small>KEERTHANA account</small>
                   </span>
+
                 </div>
 
                 <div className="header-profile-divider" />
 
+                {/* PROFILE */}
                 <Link
                   to="/profile"
                   className="header-profile-menu-item"
                   role="menuitem"
                   onClick={() => setProfileMenuOpen(false)}
                 >
-                  <FaUserCircle aria-hidden="true" />
+                  <FaUserCircle />
                   <span>View Profile</span>
-                  <FaChevronRight className="header-profile-item-arrow" aria-hidden="true" />
-                </Link>
-
-                <Link
-                  to="/premium"
-                  className="header-profile-menu-item header-profile-premium-item"
-                  role="menuitem"
-                  onClick={() => setProfileMenuOpen(false)}
-                >
-                  <FaCrown aria-hidden="true" />
-                  <span>
-                    <strong>Premium</strong>
-                    <small>Enjoy more music</small>
-                  </span>
-                  <FaChevronRight className="header-profile-item-arrow" aria-hidden="true" />
+                  <FaChevronRight className="header-profile-item-arrow" />
                 </Link>
 
                 <div className="header-profile-divider" />
 
+                {/* LOGOUT */}
                 <button
                   type="button"
                   className="header-profile-menu-item header-profile-logout"
                   role="menuitem"
                   onClick={handleLogout}
                 >
-                  <FaSignOutAlt aria-hidden="true" />
+                  <FaSignOutAlt />
                   <span>Logout</span>
                 </button>
+
               </div>
             )}
           </div>
@@ -487,10 +532,11 @@ function Header({ onToggleSidebar }) {
             className="header-login-button"
             onClick={() => navigate("/login")}
           >
-            <FaSignInAlt aria-hidden="true" />
+            <FaSignInAlt />
             <span>Login</span>
           </button>
         )}
+
       </div>
     </header>
   );

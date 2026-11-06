@@ -73,6 +73,7 @@ import AllSongs from "./pages/AllSongs";
 import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Donations from "./pages/Donations";
 
 /* =========================================================
    ADMIN MANAGEMENT PAGES
@@ -360,6 +361,13 @@ function App() {
                 element={<PrivacyPolicy />}
               />
 
+
+
+           {/* DONATIONS / SUPPORT OUR MINISTRY */}
+<Route
+  path="/donations"
+  element={<Donations />}
+/>
             </Route>
 
             {/* =========================================

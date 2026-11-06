@@ -946,3 +946,34 @@
     animation: none !important;
   }
 }
+
+/* =========================================
+   MEMBERSHIP & SUPPORT
+========================================= */
+
+.sidebar-premium-icon {
+  color: #d6b66f;
+}
+
+.sidebar-support-icon {
+  color: #d6b66f;
+}
+
+/* Premium and support hover */
+.sidebar-nav-item:hover .sidebar-premium-icon,
+.sidebar-nav-item:hover .sidebar-support-icon {
+  color: #f0d99c;
+}
+
+/* Active membership links */
+.sidebar-nav-item.active .sidebar-premium-icon,
+.sidebar-nav-item.active .sidebar-support-icon {
+  color: #f0d99c;
+}
+
+/* Membership heading */
+.sidebar-section[aria-label="MEMBERSHIP & SUPPORT"]
+.sidebar-section-heading {
+  color: #d6b66f;
+  letter-spacing: 1.2px;
+}
