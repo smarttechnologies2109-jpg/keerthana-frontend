@@ -435,11 +435,24 @@ function Premium() {
 
       setPaymentSuccess(false);
 
-      setPaymentMessage(
-        error.response?.data?.message ||
-        error.message ||
-        "Unable to start payment. Please try again."
-      );
+   const errorCode = error.response?.data?.code;
+const backendMessage = error.response?.data?.message;
+
+if (errorCode === "MOBILE_REQUIRED") {
+  setPaymentMessage(
+    "Please add your mobile number to continue with your Premium subscription. Email is optional."
+  );
+} else if (errorCode === "INVALID_MOBILE") {
+  setPaymentMessage(
+    "Please enter a valid 10-digit Indian mobile number."
+  );
+} else {
+  setPaymentMessage(
+    backendMessage ||
+    error.message ||
+    "Unable to start payment. Please try again."
+  );
+}
 
       setPayingPlan(null);
     }
