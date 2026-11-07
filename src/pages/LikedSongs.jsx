@@ -711,8 +711,8 @@ function LikedSongs() {
                       <button
                         type="button"
                         className="liked-row-info"
-                        onClick={() => handleSongDetails(song)}
-                        title={`View ${getSongTitle(song)} details`}
+                        onClick={() => handlePlayPause(song)}
+                        title={songIsPlaying ? `Pause ${getSongTitle(song)}` : `Play ${getSongTitle(song)}`}
                       >
                         <strong>{getSongTitle(song)}</strong>
 

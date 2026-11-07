@@ -21,12 +21,15 @@ import {
   FaGlobe,
   FaListUl,
   FaExclamationCircle,
+  FaBible,
   FaHeadphones,
-  FaArrowRight,
+  FaCross,
 } from "react-icons/fa";
 
 import API from "../services/api";
 import { usePlayer } from "../context/usePlayer";
+import { useLikedSongs } from "../context/LikedSongsContext";
+
 import {
   getSongCover,
   getAlbumCover,
@@ -47,11 +50,7 @@ const MOODS = [
   { name: "Prayer", icon: FaHandsHelping, color: "mood-prayer" },
   { name: "Hope", icon: FaSun, color: "mood-hope" },
   { name: "Peace", icon: FaDove, color: "mood-peace" },
-  {
-    name: "Thanksgiving",
-    icon: FaHeart,
-    color: "mood-thanksgiving",
-  },
+  { name: "Thanksgiving", icon: FaHeart, color: "mood-thanksgiving" },
 ];
 
 const LANGUAGES = [
@@ -64,6 +63,62 @@ const LANGUAGES = [
 ];
 
 /* =========================================================
+   DAILY BIBLE VERSES
+   Public-domain KJV wording
+========================================================= */
+
+const DAILY_VERSES = [
+  {
+    text: "The LORD is my shepherd; I shall not want.",
+    reference: "Psalm 23:1",
+  },
+  {
+    text: "I can do all things through Christ which strengtheneth me.",
+    reference: "Philippians 4:13",
+  },
+  {
+    text: "Be still, and know that I am God.",
+    reference: "Psalm 46:10",
+  },
+  {
+    text: "The LORD is my light and my salvation; whom shall I fear?",
+    reference: "Psalm 27:1",
+  },
+  {
+    text: "Trust in the LORD with all thine heart.",
+    reference: "Proverbs 3:5",
+  },
+  {
+    text: "With God all things are possible.",
+    reference: "Matthew 19:26",
+  },
+  {
+    text: "Rejoice evermore.",
+    reference: "1 Thessalonians 5:16",
+  },
+  {
+    text: "The joy of the LORD is your strength.",
+    reference: "Nehemiah 8:10",
+  },
+  {
+    text: "God is our refuge and strength, a very present help in trouble.",
+    reference: "Psalm 46:1",
+  },
+  {
+    text: "Let everything that hath breath praise the LORD.",
+    reference: "Psalm 150:6",
+  },
+  {
+    text: "The LORD is good to all: and his tender mercies are over all his works.",
+    reference: "Psalm 145:9",
+  },
+  {
+    text: "Pray without ceasing.",
+    reference: "1 Thessalonians 5:17",
+  },
+];
+
+/* =========================================================
    RESPONSE HELPERS
 ========================================================= */
 
@@ -72,12 +127,13 @@ function getArray(response) {
 
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.songs)) return data.songs;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.items)) return data.items;
   if (Array.isArray(data?.artists)) return data.artists;
   if (Array.isArray(data?.albums)) return data.albums;
   if (Array.isArray(data?.categories)) return data.categories;
+  if (Array.isArray(data?.ministries)) return data.ministries;
   if (Array.isArray(data?.history)) return data.history;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.data)) return data.data;
 
   return [];
 }
@@ -116,6 +172,28 @@ function getEntityName(item) {
   );
 }
 
+function normalizeText(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function getSongLanguage(song) {
+  return normalizeText(song?.language || "Telugu");
+}
+
+function getSongMoods(song) {
+  const moods = song?.moods;
+
+  if (Array.isArray(moods)) {
+    return moods.map(normalizeText);
+  }
+
+  if (typeof moods === "string") {
+    return moods.split(",").map(normalizeText);
+  }
+
+  return [];
+}
+
 function sortNewestFirst(items) {
   return [...items].sort((a, b) => {
     const dateA = new Date(
@@ -142,6 +220,132 @@ function isFeatured(song) {
   );
 }
 
+function unwrapSong(item) {
+  return item?.song || item;
+}
+
+function uniqueSongs(items) {
+  const seen = new Set();
+
+  return items.filter((song) => {
+    const id = getId(song);
+
+    if (id == null) return false;
+
+    const key = String(id);
+
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
+}
+
+/* =========================================================
+   MADE FOR YOU RECOMMENDATION ENGINE
+   Frontend only — no new backend endpoint required
+========================================================= */
+
+function buildRecommendations(
+  allSongs,
+  likedSongs,
+  recentlyPlayed
+) {
+  const liked = likedSongs.map(unwrapSong);
+  const history = recentlyPlayed.map(unwrapSong);
+
+  const preferenceSongs = [...liked, ...history];
+
+  if (!preferenceSongs.length) {
+    return sortNewestFirst(allSongs)
+      .filter((song) => !isFeatured(song))
+      .slice(0, 12);
+  }
+
+  const preferredLanguages = new Set(
+    preferenceSongs.map(getSongLanguage)
+  );
+
+  const preferredArtists = new Set(
+    preferenceSongs.map((song) =>
+      normalizeText(getArtistName(song))
+    )
+  );
+
+  const preferredMoods = new Set(
+    preferenceSongs.flatMap(getSongMoods)
+  );
+
+  const preferredCategories = new Set(
+    preferenceSongs.map((song) =>
+      normalizeText(
+        song?.category_name || song?.category?.name
+      )
+    ).filter(Boolean)
+  );
+
+  const excludedIds = new Set(
+    preferenceSongs.map((song) => String(getId(song)))
+  );
+
+  return allSongs
+    .filter((song) => {
+      const id = getId(song);
+      return id != null && !excludedIds.has(String(id));
+    })
+    .map((song) => {
+      let score = 0;
+
+      if (preferredLanguages.has(getSongLanguage(song))) {
+        score += 3;
+      }
+
+      if (
+        preferredArtists.has(
+          normalizeText(getArtistName(song))
+        )
+      ) {
+        score += 2;
+      }
+
+      if (
+        preferredCategories.has(
+          normalizeText(
+            song?.category_name || song?.category?.name
+          )
+        )
+      ) {
+        score += 2;
+      }
+
+      const songMoods = getSongMoods(song);
+
+      if (
+        songMoods.some((mood) => preferredMoods.has(mood))
+      ) {
+        score += 3;
+      }
+
+      if (isFeatured(song)) {
+        score += 1;
+      }
+
+      return { song, score };
+    })
+    .sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+
+      return (
+        new Date(b.song?.created_at || 0).getTime() -
+        new Date(a.song?.created_at || 0).getTime()
+      );
+    })
+    .slice(0, 12)
+    .map((item) => item.song);
+}
+
 /* =========================================================
    HOME COMPONENT
 ========================================================= */
@@ -156,10 +360,18 @@ export default function Home() {
     isPlaying,
   } = player;
 
+  const {
+    likedSongs = [],
+    loading: likedLoading = false,
+  } = useLikedSongs();
+
   const [songs, setSongs] = useState([]);
   const [artists, setArtists] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [ministries, setMinistries] = useState([]);
+
+  const [ministriesError, setMinistriesError] = useState("");
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
   const [worshipSongs, setWorshipSongs] = useState([]);
 
@@ -180,6 +392,7 @@ export default function Home() {
         API.get("/artists"),
         API.get("/albums"),
         API.get("/categories"),
+        API.get("/ministries"),
         API.get("/history"),
         API.get("/moods/worship/songs"),
       ]);
@@ -189,65 +402,107 @@ export default function Home() {
         artistsResult,
         albumsResult,
         categoriesResult,
+        ministriesResult,
         historyResult,
         worshipResult,
       ] = results;
 
+      /* SONGS */
+
       if (songsResult.status === "fulfilled") {
         setSongs(getArray(songsResult.value));
       } else {
+        console.error("Songs API error:", songsResult.reason);
+        setSongs([]);
         setError("Unable to load songs. Please try again.");
       }
+
+      /* ARTISTS */
 
       if (artistsResult.status === "fulfilled") {
         setArtists(getArray(artistsResult.value));
       } else {
+        console.error("Artists API error:", artistsResult.reason);
         setArtists([]);
       }
+
+      /* ALBUMS */
 
       if (albumsResult.status === "fulfilled") {
         setAlbums(getArray(albumsResult.value));
       } else {
+        console.error("Albums API error:", albumsResult.reason);
         setAlbums([]);
       }
+
+      /* CATEGORIES */
 
       if (categoriesResult.status === "fulfilled") {
         setCategories(getArray(categoriesResult.value));
       } else {
+        console.error(
+          "Categories API error:",
+          categoriesResult.reason
+        );
         setCategories([]);
       }
+
+      /* MINISTRIES */
+
+      if (ministriesResult.status === "fulfilled") {
+        const ministryData = getArray(ministriesResult.value);
+
+        setMinistries(ministryData);
+        setMinistriesError("");
+
+        console.log("Ministries loaded:", ministryData);
+      } else {
+        console.error(
+          "Ministries API error:",
+          ministriesResult.reason
+        );
+
+        setMinistries([]);
+        setMinistriesError("Unable to load ministries.");
+      }
+
+      /* LISTENING HISTORY */
 
       if (historyResult.status === "fulfilled") {
         const history = getArray(historyResult.value);
 
         const historySongs = history
-          .map((item) => item?.song || item)
+          .map(unwrapSong)
           .filter((song) => getId(song));
 
-        const uniqueSongs = [];
-        const seen = new Set();
-
-        for (const song of historySongs) {
-          const id = String(getId(song));
-
-          if (!seen.has(id)) {
-            seen.add(id);
-            uniqueSongs.push(song);
-          }
-        }
-
-        setRecentlyPlayed(uniqueSongs);
+        setRecentlyPlayed(uniqueSongs(historySongs));
       } else {
+        console.error(
+          "History API error:",
+          historyResult.reason
+        );
+
         setRecentlyPlayed([]);
       }
+
+      /* WORSHIP SONGS */
 
       if (worshipResult.status === "fulfilled") {
         setWorshipSongs(getArray(worshipResult.value));
       } else {
+        console.error(
+          "Worship API error:",
+          worshipResult.reason
+        );
+
         setWorshipSongs([]);
       }
-    } catch {
-      setError("Something went wrong while loading your music.");
+    } catch (err) {
+      console.error("Home loading error:", err);
+
+      setError(
+        "Something went wrong while loading your music."
+      );
     } finally {
       setLoading(false);
     }
@@ -286,93 +541,104 @@ export default function Home() {
     [albums]
   );
 
+  const likedSongList = useMemo(
+    () =>
+      uniqueSongs(
+        likedSongs
+          .map(unwrapSong)
+          .filter((song) => getId(song))
+      ),
+    [likedSongs]
+  );
+
+  const madeForYou = useMemo(
+    () =>
+      buildRecommendations(
+        newestSongs,
+        likedSongList,
+        recentlyPlayed
+      ),
+    [newestSongs, likedSongList, recentlyPlayed]
+  );
+
+  const dailyWorshipSongs = useMemo(() => {
+    const source =
+      worshipSongs.length > 0
+        ? worshipSongs
+        : featuredSongs;
+
+    return uniqueSongs(source).slice(0, 12);
+  }, [worshipSongs, featuredSongs]);
+
+  const dailyVerse = useMemo(() => {
+    const today = new Date();
+
+    const dayNumber = Math.floor(
+      Date.UTC(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      ) / 86400000
+    );
+
+    return DAILY_VERSES[
+      dayNumber % DAILY_VERSES.length
+    ];
+  }, []);
+
   /* =======================================================
      PLAYBACK
   ======================================================= */
 
-  
-const handlePlaySong = useCallback(
-  (song, list = songs) => {
-    if (!song || !getId(song)) return;
+  const handlePlaySong = useCallback(
+    (song, list = songs) => {
+      if (!song || !getId(song)) return;
 
-    const songId = String(getId(song));
-    const currentId = String(getId(currentSong) ?? "");
+      const songId = String(getId(song));
+      const currentId = String(getId(currentSong) ?? "");
 
-    // Clicking the currently playing song toggles playback.
-    if (songId === currentId) {
-      if (typeof player.togglePlayPause === "function") {
-        player.togglePlayPause();
-        return;
-      }
-
-      if (isPlaying) {
-        if (typeof player.pauseSong === "function") {
-          player.pauseSong();
+      if (songId === currentId) {
+        if (typeof player.togglePlayPause === "function") {
+          player.togglePlayPause();
           return;
         }
 
-        if (typeof player.pause === "function") {
-          player.pause();
+        if (isPlaying) {
+          if (typeof player.pauseSong === "function") {
+            player.pauseSong();
+            return;
+          }
+
+          if (typeof player.pause === "function") {
+            player.pause();
+            return;
+          }
+
+          if (typeof player.togglePlayback === "function") {
+            player.togglePlayback();
+            return;
+          }
+
           return;
         }
 
-        if (typeof player.togglePlayback === "function") {
-          player.togglePlayback();
+        if (typeof player.resumeSong === "function") {
+          player.resumeSong();
           return;
         }
 
-        return;
+        if (typeof player.resume === "function") {
+          player.resume();
+          return;
+        }
       }
 
-      // If the song is paused, use the player's resume method
-      // when available to preserve its current position.
-      if (typeof player.resumeSong === "function") {
-        player.resumeSong();
-        return;
+      if (typeof playSong === "function") {
+        playSong(song, list);
       }
-
-      if (typeof player.resume === "function") {
-        player.resume();
-        return;
-      }
-
-      // Fall through to playSong if no resume method is exposed.
-    }
-
-    // A different song was selected: start that song.
-    if (typeof playSong === "function") {
-      playSong(song, list);
-    }
-  },
-  [songs, currentSong, isPlaying, player, playSong]
-);
-
-
-  const handleStartListening = useCallback(() => {
-    const firstSong =
-      recentlyPlayed[0] ||
-      featuredSongs[0] ||
-      newestSongs[0];
-
-    if (firstSong) {
-      const playList = recentlyPlayed.length
-        ? recentlyPlayed
-        : featuredSongs.length
-          ? featuredSongs
-          : newestSongs;
-
-      handlePlaySong(firstSong, playList);
-      return;
-    }
-
-    navigate("/search");
-  }, [
-    recentlyPlayed,
-    featuredSongs,
-    newestSongs,
-    handlePlaySong,
-    navigate,
-  ]);
+    },
+    [songs, currentSong, isPlaying, player, playSong]
+  );
 
   /* =======================================================
      NAVIGATION
@@ -382,7 +648,9 @@ const handlePlaySong = useCallback(
     (song) => {
       const id = getId(song);
 
-      if (id) navigate(`/songs/${id}`);
+      if (id) {
+        navigate(`/songs/${id}`);
+      }
     },
     [navigate]
   );
@@ -413,16 +681,33 @@ const handlePlaySong = useCallback(
     [navigate]
   );
 
-  const openCategory = (category) => {
-  const categoryId = category?.id;
+  const openCategory = useCallback(
+    (category) => {
+      const id = category?.id;
 
-  if (!categoryId) {
-    console.error("Category ID is missing:", category);
-    return;
-  }
+      if (!id) {
+        console.error("Category ID is missing:", category);
+        return;
+      }
 
-  navigate(`/categories/${categoryId}`);
-};
+      navigate(`/categories/${id}`);
+    },
+    [navigate]
+  );
+
+  const openMinistry = useCallback(
+    (ministry) => {
+      const id = ministry?.id ?? ministry?.ministry_id;
+
+      if (!id) {
+        console.error("Ministry ID missing:", ministry);
+        return;
+      }
+
+      navigate(`/ministries/${id}`);
+    },
+    [navigate]
+  );
 
   const openLanguage = useCallback(
     (language) => {
@@ -438,6 +723,36 @@ const handlePlaySong = useCallback(
     [navigate]
   );
 
+  const handleStartListening = useCallback(() => {
+    const firstSong =
+      recentlyPlayed[0] ||
+      likedSongList[0] ||
+      madeForYou[0] ||
+      newestSongs[0];
+
+    if (!firstSong) {
+      navigate("/search");
+      return;
+    }
+
+    const list = recentlyPlayed.length
+      ? recentlyPlayed
+      : likedSongList.length
+        ? likedSongList
+        : madeForYou.length
+          ? madeForYou
+          : newestSongs;
+
+    handlePlaySong(firstSong, list);
+  }, [
+    recentlyPlayed,
+    likedSongList,
+    madeForYou,
+    newestSongs,
+    handlePlaySong,
+    navigate,
+  ]);
+
   /* =======================================================
      LOADING
   ======================================================= */
@@ -450,6 +765,7 @@ const handlePlaySong = useCallback(
             <div className="home-loading-spinner" />
             <FaMusic className="home-loading-note" />
           </div>
+
           <h2>Preparing your worship experience</h2>
           <p>Getting your music ready...</p>
         </div>
@@ -464,131 +780,179 @@ const handlePlaySong = useCallback(
   return (
     <main className="home-page">
       <div className="home-content">
+
         {error && (
           <div className="home-error" role="alert">
             <FaExclamationCircle />
             <span>{error}</span>
+
             <button type="button" onClick={loadHomeData}>
               Retry
             </button>
           </div>
         )}
 
-      
+   
 
-       
-
-        {/* 1. RECENTLY PLAYED */}
-
-       
-{/* 1. RECENTLY PLAYED */}
-
-{/* =========================================================
-    1. RECENTLY PLAYED
-========================================================= */}
-
-<HomeSection
-  title="Recently Played"
-  subtitle="Return to the songs that stay with you"
-  icon={<FaMusic />}
-  onViewAll={() => navigate("/history")}
->
-  {recentlyPlayed.length > 0 ? (
-    <div className="home-square-song-grid">
-      {recentlyPlayed.slice(0, 12).map((song, index) => (
-        <SongCard
-          key={getId(song) ?? `recent-${index}`}
-          song={song}
-          songs={recentlyPlayed}
-          onPlay={handlePlaySong}
-          onOpen={openSong}
-          currentSong={currentSong}
-          isPlaying={isPlaying}
-          clickToPlay
-          showPlayButton
-        />
-      ))}
-    </div>
-  ) : (
-    <EmptySection message="Your listening history will appear here after you play some songs." />
-  )}
-</HomeSection>
-
-{/* =========================================================
-    2. RECENTLY ADDED
-========================================================= */}
-
-<HomeSection
-  title="Recently Added"
-  subtitle="Fresh additions to your music collection"
-  icon={<FaCompactDisc />}
-  onViewAll={() => navigate("/recently-added")}
->
-  {recentlyAdded.length > 0 ? (
-    <div className="home-square-song-grid">
-      {recentlyAdded.map((song, index) => (
-        <SongCard
-          key={getId(song) ?? `added-${index}`}
-          song={song}
-          songs={newestSongs}
-          onPlay={handlePlaySong}
-          onOpen={openSong}
-          currentSong={currentSong}
-          isPlaying={isPlaying}
-          clickToPlay
-          showPlayButton
-        />
-      ))}
-    </div>
-  ) : (
-    <EmptySection message="New songs will appear here when available." />
-  )}
-</HomeSection>
-
-
-        {/* 3. BROWSE MOODS */}
+        {/* =================================================
+            1. RECENTLY PLAYED
+        ================================================= */}
 
         <HomeSection
-          title="Browse Moods"
-          subtitle="Find the right song for every moment"
-          icon={<FaHeart />}
+          title="Recently Played"
+          subtitle="Return to the songs that stay with you"
+          icon={<FaMusic />}
+          onViewAll={() => navigate("/history")}
         >
-          <div className="home-card-grid home-mood-grid">
-            {MOODS.map((mood, index) => {
-              const MoodIcon = mood.icon;
-
-              return (
-                <button
-                  type="button"
-                  key={mood.name}
-                  className={`home-entity-card home-mood-card ${mood.color}`}
-                  onClick={() => openMood(mood.name)}
-                  aria-label={`Browse ${mood.name} songs`}
-                  style={{ "--mood-index": index }}
-                >
-                  <div className="home-mood-art">
-                    <span className="home-mood-number">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <MoodIcon />
-                    <span className="home-mood-glow" />
-                  </div>
-
-                  <div className="home-entity-info">
-                    <h3>{mood.name}</h3>
-                    <p>Explore songs</p>
-                  </div>
-
-                  <span className="home-card-arrow">
-                    <FaChevronRight />
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {recentlyPlayed.length > 0 ? (
+            <div className="home-square-song-grid">
+              {recentlyPlayed.slice(0, 12).map((song, index) => (
+                <SongCard
+                  key={getId(song) ?? `recent-${index}`}
+                  song={song}
+                  songs={recentlyPlayed}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="Your listening history will appear here after you play some songs." />
+          )}
         </HomeSection>
 
-        {/* 4. FEATURED WORSHIP */}
+        {/* =================================================
+            2. LIKED SONGS
+        ================================================= */}
+
+        <HomeSection
+          title="Your Liked Songs"
+          subtitle="The worship songs you love"
+          icon={<FaHeart />}
+          onViewAll={() => navigate("/liked-songs")}
+        >
+          {likedSongList.length > 0 ? (
+            <div className="home-square-song-grid">
+              {likedSongList.slice(0, 12).map((song, index) => (
+                <SongCard
+                  key={getId(song) ?? `liked-${index}`}
+                  song={song}
+                  songs={likedSongList}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection
+              message={
+                likedLoading
+                  ? "Loading your liked songs..."
+                  : "Songs you like will appear here. Explore music and tap the heart icon."
+              }
+            />
+          )}
+        </HomeSection>
+
+        {/* =================================================
+            3. MADE FOR YOU
+        ================================================= */}
+
+        <HomeSection
+          title="Made for You"
+          subtitle="Music inspired by your listening taste"
+          icon={<FaHeart />}
+          onViewAll={() => navigate("/search")}
+        >
+          {madeForYou.length > 0 ? (
+            <div className="home-square-song-grid">
+              {madeForYou.map((song, index) => (
+                <SongCard
+                  key={getId(song) ?? `recommended-${index}`}
+                  song={song}
+                  songs={madeForYou}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="More personalized recommendations will appear as you listen to music." />
+          )}
+        </HomeSection>
+
+        {/* =================================================
+            4. DAILY WORSHIP
+        ================================================= */}
+
+        <HomeSection
+          title="Daily Worship"
+          subtitle="Spend a moment in praise and worship"
+          icon={<FaPrayingHands />}
+          onViewAll={() => navigate("/moods/worship")}
+        >
+          {dailyWorshipSongs.length > 0 ? (
+            <div className="home-square-song-grid">
+              {dailyWorshipSongs.map((song, index) => (
+                <SongCard
+                  key={getId(song) ?? `worship-${index}`}
+                  song={song}
+                  songs={dailyWorshipSongs}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="Worship songs will appear here when available." />
+          )}
+        </HomeSection>
+
+        {/* =================================================
+            5. RECENTLY ADDED
+        ================================================= */}
+
+        <HomeSection
+          title="Recently Added"
+          subtitle="Fresh additions to your music collection"
+          icon={<FaCompactDisc />}
+          onViewAll={() => navigate("/recently-added")}
+        >
+          {recentlyAdded.length > 0 ? (
+            <div className="home-square-song-grid">
+              {recentlyAdded.map((song, index) => (
+                <SongCard
+                  key={getId(song) ?? `added-${index}`}
+                  song={song}
+                  songs={newestSongs}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="New songs will appear here when available." />
+          )}
+        </HomeSection>
+
+        {/* =================================================
+            6. FEATURED WORSHIP
+        ================================================= */}
 
         <HomeSection
           title="Featured Worship"
@@ -616,10 +980,57 @@ const handlePlaySong = useCallback(
           )}
         </HomeSection>
 
-        {/* 5. POPULAR ARTISTS */}
+        {/* =================================================
+            7. BROWSE MOODS
+        ================================================= */}
 
         <HomeSection
-          title="Artists to discover"
+          title="Browse Moods"
+          subtitle="Find the right song for every moment"
+          icon={<FaHeart />}
+        >
+          <div className="home-card-grid home-mood-grid">
+            {MOODS.map((mood, index) => {
+              const MoodIcon = mood.icon;
+
+              return (
+                <button
+                  type="button"
+                  key={mood.name}
+                  className={`home-entity-card home-mood-card ${mood.color}`}
+                  onClick={() => openMood(mood.name)}
+                  aria-label={`Browse ${mood.name} songs`}
+                  style={{ "--mood-index": index }}
+                >
+                  <div className="home-mood-art">
+                    <span className="home-mood-number">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <MoodIcon />
+                    <span className="home-mood-glow" />
+                  </div>
+
+                  <div className="home-entity-info">
+                    <h3>{mood.name}</h3>
+                    <p>Explore songs</p>
+                  </div>
+
+                  <span className="home-card-arrow">
+                    <FaChevronRight />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </HomeSection>
+
+        {/* =================================================
+            8. ARTISTS
+        ================================================= */}
+
+        <HomeSection
+          title="Artists to Discover"
           subtitle="Voices behind the songs you love"
           icon={<FaMicrophone />}
           onViewAll={() => navigate("/artists")}
@@ -643,10 +1054,12 @@ const handlePlaySong = useCallback(
           )}
         </HomeSection>
 
-        {/* 6. POPULAR ALBUMS */}
+        {/* =================================================
+            9. ALBUMS
+        ================================================= */}
 
         <HomeSection
-          title="Albums for your playlist"
+          title="Albums for Your Playlist"
           subtitle="Discover collections of Christian music"
           icon={<FaCompactDisc />}
           onViewAll={() => navigate("/albums")}
@@ -674,10 +1087,99 @@ const handlePlaySong = useCallback(
           )}
         </HomeSection>
 
-        {/* 7. BROWSE BY LANGUAGE */}
+        {/* =================================================
+            10. EXPLORE MINISTRIES
+        ================================================= */}
 
         <HomeSection
-          title="Music in your language"
+          title="Explore Ministries"
+          subtitle="Discover Christian music from different ministries"
+          icon={<FaPrayingHands />}
+          onViewAll={() => navigate("/ministries")}
+        >
+          {ministriesError ? (
+            <div className="home-empty" role="alert">
+              <p>{ministriesError}</p>
+
+              <button
+                type="button"
+                onClick={loadHomeData}
+                className="home-view-all"
+              >
+                Retry
+              </button>
+            </div>
+          ) : ministries.length > 0 ? (
+            <div className="home-card-grid home-category-grid">
+              {ministries.map((ministry, index) => {
+                const image =
+                  ministry?.image_url ||
+                  ministry?.image ||
+                  ministry?.logo ||
+                  ministry?.profile_image ||
+                  null;
+
+                return (
+                  <EntityCard
+                    key={
+                      ministry?.id ??
+                      ministry?.ministry_id ??
+                      `ministry-${index}`
+                    }
+                    title={
+                      ministry?.name ||
+                      ministry?.title ||
+                      "Unnamed Ministry"
+                    }
+                    subtitle="Explore music"
+                    image={image}
+                    fallbackIcon={<FaPrayingHands />}
+                    className="home-ministry-card"
+                    onClick={() => openMinistry(ministry)}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <EmptySection message="No ministries have been added yet." />
+          )}
+        </HomeSection>
+
+        {/* =================================================
+            11. CATEGORIES
+        ================================================= */}
+
+        <HomeSection
+          title="Explore Categories"
+          subtitle="Find music by collection and theme"
+          icon={<FaListUl />}
+          onViewAll={() => navigate("/categories")}
+        >
+          {categories.length > 0 ? (
+            <div className="home-card-grid home-category-grid">
+              {categories.map((category, index) => (
+                <EntityCard
+                  key={category.id ?? `category-${index}`}
+                  title={getEntityName(category)}
+                  subtitle="Explore collection"
+                  image={getCategoryImage(category)}
+                  fallbackIcon={<FaMusic />}
+                  className="home-category-card"
+                  onClick={() => openCategory(category)}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="Categories will appear here when available." />
+          )}
+        </HomeSection>
+
+        {/* =================================================
+            12. LANGUAGES
+        ================================================= */}
+
+        <HomeSection
+          title="Music in Your Language"
           subtitle="Explore worship from across languages"
           icon={<FaGlobe />}
         >
@@ -704,6 +1206,7 @@ const handlePlaySong = useCallback(
                               ? "த"
                               : "Aa"}
                   </span>
+
                   <FaGlobe className="home-language-globe" />
                 </div>
 
@@ -720,32 +1223,6 @@ const handlePlaySong = useCallback(
           </div>
         </HomeSection>
 
-        {/* 8. BROWSE CATEGORIES */}
-
-        <HomeSection
-          title="Explore categories"
-          subtitle="Find music by collection and theme"
-          icon={<FaListUl />}
-          onViewAll={() => navigate("/categories")}
-         >
-          {categories.length > 0 ? (
-            <div className="home-card-grid home-category-grid">
-              {categories.map((category, index) => (
-                <EntityCard
-                  key={category.id ?? `category-${index}`}
-                  title={getEntityName(category)}
-                  subtitle="Explore collection"
-                  image={getCategoryImage(category)}
-                  fallbackIcon={<FaMusic />}
-                  className="home-category-card"
-                  onClick={() => openCategory(category)}
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptySection message="Categories will appear here when available." />
-          )}
-        </HomeSection>
       </div>
     </main>
   );
@@ -792,7 +1269,7 @@ function HomeSection({
 }
 
 /* =========================================================
-   SONG ROW
+   SONG CARD
 ========================================================= */
 
 function SongCard({
@@ -803,7 +1280,6 @@ function SongCard({
   currentSong,
   isPlaying,
   clickToPlay = false,
-  showPlayButton = true,
 }) {
   const id = getId(song);
   const title = getSongTitle(song);
@@ -822,29 +1298,10 @@ function SongCard({
     }
   };
 
-
-const handlePlayClick = (event) => {
-  event.stopPropagation();
-  onPlay(song, songs);
-
-
-
-    if (activeSong && isPlaying) {
-      if (typeof playerPauseFallback === "function") {
-        playerPauseFallback();
-      }
-      return;
-    }
-
+  const handlePlayClick = (event) => {
+    event.stopPropagation();
     onPlay(song, songs);
   };
-
-  /*
-   * Playback pause behavior belongs to the existing player context.
-   * This row uses the existing playSong callback without assuming
-   * a pause method name that may not exist in your context.
-   */
-  const playerPauseFallback = null;
 
   return (
     <article
@@ -872,24 +1329,25 @@ const handlePlayClick = (event) => {
           }}
         />
 
-<button
-  type="button"
-  className="home-song-play"
-  onClick={handlePlayClick}
-  aria-label={
-    activeSong && isPlaying
-      ? `Pause ${title}`
-      : `Play ${title}`
-  }
->
-  {playingThisSong ? <FaPause /> : <FaPlay />}
-</button>
-
+        <button
+          type="button"
+          className="home-song-play"
+          onClick={handlePlayClick}
+          aria-label={
+            playingThisSong
+              ? `Pause ${title}`
+              : `Play ${title}`
+          }
+        >
+          {playingThisSong ? <FaPause /> : <FaPlay />}
+        </button>
 
         {activeSong && (
           <span
             className="home-song-active-indicator"
-            aria-label={playingThisSong ? "Now playing" : "Selected song"}
+            aria-label={
+              playingThisSong ? "Now playing" : "Selected song"
+            }
           >
             <span />
             <span />
@@ -911,7 +1369,7 @@ const handlePlayClick = (event) => {
 }
 
 /* =========================================================
-   ARTIST / ALBUM / CATEGORY CARD
+   ARTIST / ALBUM / CATEGORY / MINISTRY CARD
 ========================================================= */
 
 function EntityCard({
@@ -974,6 +1432,7 @@ function EmptySection({ message }) {
       <span className="home-empty-icon">
         <FaMusic />
       </span>
+
       <p>{message}</p>
     </div>
   );

@@ -1750,3 +1750,252 @@
     font-size: 12px;
   }
 }
+.home-ministry-card {
+  min-width: 0;
+  cursor: pointer;
+}
+
+.home-ministry-card .home-entity-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================================================
+   KEERTHANA HOME — NEW PREMIUM SECTIONS
+========================================================= */
+
+.home-welcome-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 260px;
+  padding: 38px 44px;
+  margin-bottom: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 101, 0.22);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 80% 30%,
+      rgba(50, 92, 170, 0.38),
+      transparent 38%
+    ),
+    linear-gradient(120deg, #07152d, #102c59 65%, #142c50);
+  color: #fff;
+}
+
+.home-welcome-content {
+  position: relative;
+  z-index: 2;
+  max-width: 560px;
+}
+
+.home-welcome-eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #e3c27f;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.home-welcome-content h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.16;
+  font-weight: 800;
+}
+
+.home-welcome-content p {
+  margin: 14px 0 22px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 14px;
+}
+
+.home-welcome-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #e6c783, #c59a4b);
+  color: #101b30;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-welcome-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+}
+
+.home-welcome-art {
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(230, 199, 131, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(230, 199, 131, 0.85);
+  transform: translateY(-50%);
+}
+
+.home-welcome-art svg:first-child {
+  font-size: 100px;
+  opacity: 0.75;
+}
+
+.home-welcome-art svg:last-child {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  font-size: 36px;
+  color: #fff;
+}
+
+/* Bible verse */
+
+.home-bible-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 230px;
+  padding: 34px 38px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 101, 0.3);
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(212, 175, 101, 0.17),
+      transparent 35%
+    ),
+    linear-gradient(120deg, #09172f, #142d52);
+  color: #fff;
+}
+
+.home-bible-content {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+}
+
+.home-bible-label {
+  color: #e5c47f;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.home-bible-content blockquote {
+  margin: 18px 0 12px;
+  color: #fff;
+  font-size: clamp(19px, 2.5vw, 27px);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.home-bible-reference {
+  margin: 0 0 22px;
+  color: #e5c47f;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.home-bible-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1px solid rgba(229, 196, 127, 0.5);
+  border-radius: 24px;
+  background: rgba(229, 196, 127, 0.12);
+  color: #f1d99f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.home-bible-button:hover {
+  background: rgba(229, 196, 127, 0.22);
+}
+
+.home-bible-decoration {
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  color: rgba(229, 196, 127, 0.12);
+  font-size: 150px;
+  transform: translateY(-50%);
+}
+
+/* Ministry cards */
+
+.home-ministry-card {
+  min-width: 0;
+  cursor: pointer;
+}
+
+.home-ministry-card .home-entity-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive */
+
+@media (max-width: 700px) {
+  .home-welcome-banner {
+    min-height: 230px;
+    padding: 28px 22px;
+  }
+
+  .home-welcome-content {
+    max-width: 75%;
+  }
+
+  .home-welcome-art {
+    right: -45px;
+    width: 145px;
+    height: 145px;
+    opacity: 0.55;
+  }
+
+  .home-welcome-art svg:first-child {
+    font-size: 76px;
+  }
+
+  .home-bible-card {
+    min-height: 210px;
+    padding: 26px 22px;
+  }
+
+  .home-bible-decoration {
+    right: -20px;
+    font-size: 110px;
+  }
+}
+
+@media (max-width: 420px) {
+  .home-welcome-content {
+    max-width: 100%;
+  }
+
+  .home-welcome-art {
+    right: -75px;
+    opacity: 0.22;
+  }
+
+  .home-welcome-content h1 {
+    font-size: 29px;
+  }
+}
