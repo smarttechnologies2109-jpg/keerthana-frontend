@@ -21,9 +21,6 @@ import {
   FaGlobe,
   FaListUl,
   FaExclamationCircle,
-  FaBible,
-  FaHeadphones,
-  FaCross,
 } from "react-icons/fa";
 
 import API from "../services/api";
