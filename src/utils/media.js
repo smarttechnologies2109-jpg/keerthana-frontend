@@ -14,7 +14,7 @@ const CLOUDFRONT_URL =
 // DEFAULT IMAGES
 // =====================================================
 
-export const DEFAULT_COVER = "/images/default-cover.png";
+export const DEFAULT_SONG_COVER = "/images/default-song-cover.png";
 export const DEFAULT_ALBUM = "/images/default-album.png";
 export const DEFAULT_ARTIST = "/images/default-artist.png";
 export const DEFAULT_MINISTRY = "/images/default-ministry.png";
@@ -168,10 +168,10 @@ export function getMediaUrl(path) {
 
 export function getSongCover(song) {
   if (!song?.cover_url) {
-    return DEFAULT_COVER;
+    return DEFAULT_SONG_COVER;
   }
 
-  return getMediaUrl(song.cover_url) || DEFAULT_COVER;
+  return getMediaUrl(song.cover_url) || DEFAULT_SONG_COVER;
 }
 
 // =====================================================
