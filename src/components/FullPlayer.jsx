@@ -48,7 +48,7 @@ import {
 
   getSongCover,
 
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 
   getMediaUrl,
 
@@ -354,7 +354,7 @@ export default function FullPlayer({ onCollapse }) {
 
   const liked = currentSong.id ? isLiked(currentSong.id) : false;
 
-  const cover = getSongCover(currentSong) || DEFAULT_COVER;
+  const cover = getSongCover(currentSong) || DEFAULT_SONG_COVER;
   const handleLike = async () => {
 
     if (!user) {
@@ -511,7 +511,7 @@ export default function FullPlayer({ onCollapse }) {
 
       event.currentTarget.onerror = null;
 
-      event.currentTarget.src = DEFAULT_COVER;
+      event.currentTarget.src = DEFAULT_SONG_COVER;
 
     }}
 
@@ -1032,7 +1032,7 @@ export default function FullPlayer({ onCollapse }) {
 
                         ? getMediaUrl(song.cover_url)
 
-                        : getSongCover(song) || DEFAULT_COVER
+                        : getSongCover(song) || DEFAULT_SONG_COVER
 
                     }
 
@@ -1042,7 +1042,7 @@ export default function FullPlayer({ onCollapse }) {
 
                       event.currentTarget.onerror = null;
 
-                      event.currentTarget.src = DEFAULT_COVER;
+                      event.currentTarget.src = DEFAULT_SONG_COVER;
 
                     }}
 

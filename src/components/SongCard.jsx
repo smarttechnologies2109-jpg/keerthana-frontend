@@ -14,7 +14,7 @@ import {
 
 import {
   getSongCover,
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import "../assets/css/songCard.css";
@@ -260,7 +260,7 @@ const openSongDetails = (event) => {
             ) {
 
               event.currentTarget.src =
-                DEFAULT_COVER;
+                DEFAULT_SONG_COVER;
 
             }
 

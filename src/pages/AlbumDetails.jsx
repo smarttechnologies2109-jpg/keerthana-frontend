@@ -18,7 +18,7 @@ import { usePlayer } from "../context/usePlayer";
 
 import {
   getAlbumCover,
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import VoiceSearch from "../components/VoiceSearch";
@@ -310,7 +310,7 @@ function AlbumDetails() {
               alt={album.title || "Album cover"}
               onError={(event) => {
                 event.currentTarget.onerror = null;
-                event.currentTarget.src = DEFAULT_COVER;
+                event.currentTarget.src = DEFAULT_SONG_COVER;
               }}
             />
           ) : (
@@ -477,12 +477,12 @@ function AlbumDetails() {
                       src={
                         song.cover_url
                           ? song.cover_url
-                          : cover || DEFAULT_COVER
+                          : cover || DEFAULT_SONG_COVER
                       }
                       alt=""
                       onError={(event) => {
                         event.currentTarget.onerror = null;
-                        event.currentTarget.src = DEFAULT_COVER;
+                        event.currentTarget.src = DEFAULT_SONG_COVER;
                       }}
                     />
                   </button>

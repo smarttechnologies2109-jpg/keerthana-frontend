@@ -32,7 +32,7 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import {
   getSongCover,
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import "../assets/css/likedSongs.css";
@@ -630,12 +630,12 @@ function LikedSongs() {
                   const songIsCurrent = isCurrentSong(song);
                   const songIsPlaying = songIsCurrent && isPlaying;
 
-                  let cover = DEFAULT_COVER;
+                  let cover = DEFAULT_SONG_COVER;
 
                   try {
-                    cover = getSongCover(song) || DEFAULT_COVER;
+                    cover = getSongCover(song) || DEFAULT_SONG_COVER;
                   } catch {
-                    cover = DEFAULT_COVER;
+                    cover = DEFAULT_SONG_COVER;
                   }
 
                   const albumName = getAlbumName(song);
@@ -701,7 +701,7 @@ function LikedSongs() {
                           loading="lazy"
                           onError={(event) => {
                             event.currentTarget.onerror = null;
-                            event.currentTarget.src = DEFAULT_COVER;
+                            event.currentTarget.src = DEFAULT_SONG_COVER;
                           }}
                         />
                       </button>

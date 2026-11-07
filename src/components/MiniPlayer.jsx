@@ -46,7 +46,7 @@ import {
 
   getSongCover,
 
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 
   getMediaUrl,
 
@@ -285,9 +285,9 @@ export default function MiniPlayer({ onExpand }) {
 
   const cover = currentSong
 
-    ? getSongCover(currentSong) || DEFAULT_COVER
+    ? getSongCover(currentSong) || DEFAULT_SONG_COVER
 
-    : DEFAULT_COVER;
+    : DEFAULT_SONG_COVER;
 
   const liked = currentSong?.id
 
@@ -733,7 +733,7 @@ export default function MiniPlayer({ onExpand }) {
 
               event.currentTarget.onerror = null;
 
-              event.currentTarget.src = DEFAULT_COVER;
+              event.currentTarget.src = DEFAULT_SONG_COVER;
 
             }}
 
@@ -789,7 +789,7 @@ export default function MiniPlayer({ onExpand }) {
 
               ? getMediaUrl(song.cover_url)
 
-              : getSongCover(song) || DEFAULT_COVER;
+              : getSongCover(song) || DEFAULT_SONG_COVER;
 
             return (
 
@@ -823,7 +823,7 @@ export default function MiniPlayer({ onExpand }) {
 
                     event.currentTarget.onerror = null;
 
-                    event.currentTarget.src = DEFAULT_COVER;
+                    event.currentTarget.src = DEFAULT_SONG_COVER;
 
                   }}
 
@@ -991,7 +991,7 @@ export default function MiniPlayer({ onExpand }) {
 
                     event.currentTarget.onerror = null;
 
-                    event.currentTarget.src = DEFAULT_COVER;
+                    event.currentTarget.src = DEFAULT_SONG_COVER;
 
                   }}
 

@@ -23,7 +23,7 @@ import "../assets/css/history.css";
    KEERTHANA — LISTENING HISTORY
 ========================================================= */
 
-const DEFAULT_COVER = "/images/default-cover.png";
+const DEFAULT_SONG_COVER = "/images/default-cover.png";
 
 /* =========================================================
    HELPERS
@@ -353,12 +353,12 @@ export default function History() {
       song?.album_cover ||
       song?.image_url;
 
-    if (!cover) return DEFAULT_COVER;
+    if (!cover) return DEFAULT_SONG_COVER;
 
     try {
-      return getMediaUrl(cover) || DEFAULT_COVER;
+      return getMediaUrl(cover) || DEFAULT_SONG_COVER;
     } catch {
-      return DEFAULT_COVER;
+      return DEFAULT_SONG_COVER;
     }
   };
 
@@ -630,7 +630,7 @@ export default function History() {
                         loading="lazy"
                         onError={(event) => {
                           event.currentTarget.onerror = null;
-                          event.currentTarget.src = DEFAULT_COVER;
+                          event.currentTarget.src = DEFAULT_SONG_COVER;
                         }}
                       />
 

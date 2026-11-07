@@ -31,7 +31,7 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 import {
   getSongCover,
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import "../assets/css/search.css";
@@ -705,7 +705,7 @@ const handleVoiceSearch = (spokenText) => {
 
                 const liked = songIsLiked(song);
                 const cover =
-                  getSongCover(song) || DEFAULT_COVER;
+                  getSongCover(song) || DEFAULT_SONG_COVER;
 
                 return (
                   <article
@@ -747,7 +747,7 @@ const handleVoiceSearch = (spokenText) => {
                         onError={(event) => {
                           event.currentTarget.onerror = null;
                           event.currentTarget.src =
-                            DEFAULT_COVER;
+                            DEFAULT_SONG_COVER;
                         }}
                       />
                     </button>

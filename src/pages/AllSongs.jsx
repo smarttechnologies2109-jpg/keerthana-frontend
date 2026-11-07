@@ -26,7 +26,7 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 import {
   getSongCover,
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import VoiceSearch from "../components/VoiceSearch";
@@ -802,14 +802,14 @@ export default function AllSongs() {
 
               const albumName = getAlbumName(song);
 
-              let cover = DEFAULT_COVER;
+              let cover = DEFAULT_SONG_COVER;
 
               try {
                 cover =
                   getSongCover(song) ||
-                  DEFAULT_COVER;
+                  DEFAULT_SONG_COVER;
               } catch {
-                cover = DEFAULT_COVER;
+                cover = DEFAULT_SONG_COVER;
               }
 
               return (
@@ -840,7 +840,7 @@ export default function AllSongs() {
                         event.currentTarget.onerror = null;
 
                         event.currentTarget.src =
-                          DEFAULT_COVER;
+                          DEFAULT_SONG_COVER;
                       }}
                     />
 

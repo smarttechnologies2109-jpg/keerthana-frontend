@@ -27,7 +27,7 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/playlistDetails.css";
 
-const DEFAULT_COVER = "/images/default-cover.png";
+const DEFAULT_SONG_COVER = "/images/default-cover.png";
 
 const VOICE_LANGUAGES = [
   { value: "te-IN", label: "Telugu" },
@@ -600,12 +600,12 @@ function PlaylistDetails() {
             src={
               playlist.cover_url
                 ? getMediaUrl(playlist.cover_url)
-                : DEFAULT_COVER
+                : DEFAULT_SONG_COVER
             }
             alt={`${playlist.name} cover`}
             onError={(event) => {
               event.currentTarget.onerror = null;
-              event.currentTarget.src = DEFAULT_COVER;
+              event.currentTarget.src = DEFAULT_SONG_COVER;
             }}
           />
         </div>
@@ -875,13 +875,13 @@ function PlaylistDetails() {
                       src={
                         song.cover_url
                           ? getMediaUrl(song.cover_url)
-                          : DEFAULT_COVER
+                          : DEFAULT_SONG_COVER
                       }
                       alt={`${title} cover`}
                       loading="lazy"
                       onError={(event) => {
                         event.currentTarget.onerror = null;
-                        event.currentTarget.src = DEFAULT_COVER;
+                        event.currentTarget.src = DEFAULT_SONG_COVER;
                       }}
                     />
 
@@ -1073,13 +1073,13 @@ function PlaylistDetails() {
                         src={
                           song.cover_url
                             ? getMediaUrl(song.cover_url)
-                            : DEFAULT_COVER
+                            : DEFAULT_SONG_COVER
                         }
                         alt={`${title} cover`}
                         loading="lazy"
                         onError={(event) => {
                           event.currentTarget.onerror = null;
-                          event.currentTarget.src = DEFAULT_COVER;
+                          event.currentTarget.src = DEFAULT_SONG_COVER;
                         }}
                       />
 

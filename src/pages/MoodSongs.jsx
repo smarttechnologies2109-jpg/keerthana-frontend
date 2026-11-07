@@ -40,7 +40,7 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import {
   getSongCover,
-  DEFAULT_COVER,
+  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import "../assets/css/MoodSongs.css";
@@ -1015,12 +1015,12 @@ const MoodSongs = () => {
 
                 const albumName = getAlbumName(song);
 
-                let cover = DEFAULT_COVER;
+                let cover = DEFAULT_SONG_COVER;
 
                 try {
-                  cover = getSongCover(song) || DEFAULT_COVER;
+                  cover = getSongCover(song) || DEFAULT_SONG_COVER;
                 } catch {
-                  cover = DEFAULT_COVER;
+                  cover = DEFAULT_SONG_COVER;
                 }
 
                 return (
@@ -1104,7 +1104,7 @@ const MoodSongs = () => {
                         loading="lazy"
                         onError={(event) => {
                           event.currentTarget.onerror = null;
-                          event.currentTarget.src = DEFAULT_COVER;
+                          event.currentTarget.src = DEFAULT_SONG_COVER;
                         }}
                       />
                     </button>
@@ -1370,13 +1370,13 @@ const MoodSongs = () => {
                   const isAdding = addingId === songId;
                   const isRemoving = removingId === songId;
 
-                  let browserCover = DEFAULT_COVER;
+                  let browserCover = DEFAULT_SONG_COVER;
 
                   try {
                     browserCover =
-                      getSongCover(song) || DEFAULT_COVER;
+                      getSongCover(song) || DEFAULT_SONG_COVER;
                   } catch {
-                    browserCover = DEFAULT_COVER;
+                    browserCover = DEFAULT_SONG_COVER;
                   }
 
                   return (
@@ -1395,7 +1395,7 @@ const MoodSongs = () => {
                           loading="lazy"
                           onError={(event) => {
                             event.currentTarget.onerror = null;
-                            event.currentTarget.src = DEFAULT_COVER;
+                            event.currentTarget.src = DEFAULT_SONG_COVER;
                           }}
                         />
                       </div>
