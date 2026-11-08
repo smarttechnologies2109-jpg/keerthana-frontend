@@ -1275,3 +1275,69 @@
     transition: none;
   }
 }
+
+/* =========================================
+   PROFILE DROPDOWN - INFORMATION & POLICIES
+========================================= */
+
+.header-profile-dropdown {
+  max-height: min(80vh, 620px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-profile-section-title {
+  flex-shrink: 0;
+  padding: 12px 15px 8px;
+  color: #c9a66b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.header-profile-information-list {
+  max-height: 340px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #9b7b49 transparent;
+}
+
+.header-profile-information-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.header-profile-information-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.header-profile-information-list::-webkit-scrollbar-thumb {
+  background: #9b7b49;
+  border-radius: 10px;
+}
+
+.header-profile-information-list .header-profile-menu-item {
+  min-height: 42px;
+  font-size: 13px;
+}
+
+.header-profile-information-list .header-profile-menu-item > svg:first-child {
+  flex-shrink: 0;
+  color: #c9a66b;
+  font-size: 14px;
+}
+
+.header-profile-information-list .header-profile-menu-item > span {
+  flex: 1;
+}
+
+.header-profile-information-list .header-profile-menu-item:hover {
+  background: rgba(201, 166, 107, 0.10);
+}
+
+/* Keep logout visible at the bottom */
+.header-profile-logout {
+  flex-shrink: 0;
+}
+

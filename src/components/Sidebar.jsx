@@ -134,12 +134,12 @@ const MUSIC_LINKS = [
 ========================================================= */
 
 const MEMBERSHIP_LINKS = [
-  {
-    to: "/premium",
-    label: "KEERTHANA Premium",
-    Icon: FaCrown,
-    iconClass: "sidebar-premium-icon",
-  },
+  // {
+  //   to: "/premium",
+  //   label: "KEERTHANA Premium",
+  //   Icon: FaCrown,
+  //   iconClass: "sidebar-premium-icon",
+  // },
  {
   to: "/donations",
   label: "Support Our Ministry",

@@ -1,0 +1,146 @@
+
+.refund-page {
+  min-height: 100vh;
+  padding: 40px 20px 130px;
+  background: #080f20;
+  color: #e8edf7;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.refund-container {
+  max-width: 950px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.refund-header {
+  padding: 35px;
+  margin-bottom: 25px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #101e3c, #172d55);
+  border: 1px solid rgba(229, 197, 139, 0.25);
+}
+
+.refund-brand {
+  display: inline-block;
+  color: #e5c58b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  margin-bottom: 15px;
+}
+
+.refund-header h1 {
+  color: #ffffff;
+  font-size: clamp(27px, 5vw, 40px);
+  line-height: 1.25;
+  margin: 0 0 15px;
+}
+
+.refund-header p {
+  color: #bdc9dc;
+  font-size: 15px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.refund-date {
+  display: inline-block;
+  margin-top: 20px;
+  color: #e5c58b;
+  font-size: 13px;
+}
+
+.refund-section {
+  padding: 25px 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.refund-section h2 {
+  color: #e5c58b;
+  font-size: 21px;
+  margin: 0 0 15px;
+}
+
+.refund-section p {
+  color: #c5cede;
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 10px 0;
+}
+
+.refund-section ul {
+  padding-left: 23px;
+  color: #c5cede;
+  font-size: 14px;
+  line-height: 2;
+  margin: 12px 0;
+}
+
+.refund-contact-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 21px;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e5c58b, #c99b53);
+  color: #101a2c;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.25s ease;
+}
+
+.refund-contact-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(229, 197, 139, 0.2);
+}
+
+.refund-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px 24px;
+  margin-top: 35px;
+}
+
+.refund-links a {
+  color: #b5c2d8;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.refund-links a:hover {
+  color: #e5c58b;
+}
+
+.refund-footer {
+  text-align: center;
+  padding-top: 30px;
+  color: #8795ac;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .refund-page {
+    padding: 25px 15px 120px;
+  }
+
+  .refund-header {
+    padding: 25px 20px;
+  }
+
+  .refund-section {
+    padding: 22px 2px;
+  }
+
+  .refund-section h2 {
+    font-size: 19px;
+  }
+
+  .refund-links {
+    gap: 15px 18px;
+  }
+}

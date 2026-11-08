@@ -74,6 +74,8 @@ import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Donations from "./pages/Donations";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
 
 /* =========================================================
    ADMIN MANAGEMENT PAGES
@@ -105,7 +107,10 @@ import BusinessOwnerAlbums from "./pages/businessOwner/BusinessOwnerAlbums";
 import BusinessOwnerArtists from "./pages/businessOwner/BusinessOwnerArtists";
 import BusinessOwnerCategories from "./pages/businessOwner/BusinessOwnerCategories";
 import BusinessOwnerMinistries from "./pages/businessOwner/BusinessOwnerMinistries";
-
+import TermsAndConditions from "./pages/TermsAndConditions";
+import Pricing from "./pages/Pricing";
+import RefundCancellation from "./pages/RefundCancellation";
+import CopyrightPolicy from "./pages/CopyrightPolicy";
 /* =========================================================
    ANDROID BACK BUTTON
 ========================================================= */
@@ -119,9 +124,6 @@ function AndroidBackButtonHandler() {
 
 /* =========================================================
    USER HOME REDIRECT
-
-   "/" -> "/login" when logged out
-   "/" -> "/home" when logged in
 ========================================================= */
 
 function UserHomeRedirect() {
@@ -152,9 +154,7 @@ function App() {
 
           <Routes>
 
-            {/* =========================================
-                USER AUTHENTICATION
-            ========================================= */}
+            {/* USER AUTHENTICATION */}
 
             <Route
               path="/login"
@@ -166,10 +166,7 @@ function App() {
               element={<Register />}
             />
 
-            {/* =========================================
-                ADMIN LOGIN
-                OUTSIDE ADMIN PROTECTION
-            ========================================= */}
+            {/* ADMIN LOGIN */}
 
             <Route
               path="/admin/login"
@@ -181,9 +178,7 @@ function App() {
               element={<AdminForgotPassword />}
             />
 
-            {/* =========================================
-                NORMAL KEERTHANA MUSIC APP
-            ========================================= */}
+            {/* NORMAL KEERTHANA MUSIC APP */}
 
             <Route element={<AppLayout />}>
 
@@ -361,25 +356,34 @@ function App() {
                 element={<PrivacyPolicy />}
               />
 
+              {/* ABOUT US */}
 
+              <Route
+                path="/about-us"
+                element={<AboutUs />}
+              />
 
-           {/* DONATIONS / SUPPORT OUR MINISTRY */}
-<Route
-  path="/donations"
-  element={<Donations />}
+              {/* DONATIONS */}
+
+              <Route
+                path="/donations"
+                element={<Donations />}
+              />
+              <Route path="/pricing" element={<Pricing />} />
+
+              <Route
+  path="/refund-cancellation"
+  element={<RefundCancellation />}
 />
+
+<Route
+  path="/copyright-policy"
+  element={<CopyrightPolicy />}
+/>
+
             </Route>
 
-            {/* =========================================
-                ADMIN PROTECTED AREA
-
-                PARENT: /admin
-
-                DASHBOARD: /admin/dashboard
-                SONGS: /admin/songs
-                ARTISTS: /admin/artists
-                ALBUMS: /admin/albums
-            ========================================= */}
+            {/* ADMIN PROTECTED AREA */}
 
             <Route
               path="/admin"
@@ -389,8 +393,6 @@ function App() {
                 </AdminRoute>
               }
             >
-
-              {/* DEFAULT ADMIN REDIRECT */}
 
               <Route
                 index
@@ -402,70 +404,50 @@ function App() {
                 }
               />
 
-              {/* ADMIN DASHBOARD */}
-
               <Route
                 path="dashboard"
                 element={<AdminDashboard />}
               />
-
-              {/* MANAGE SONGS */}
 
               <Route
                 path="songs"
                 element={<ManageSongs />}
               />
 
-              {/* ADD SONG */}
-
               <Route
                 path="songs/add"
                 element={<AddSong />}
               />
-
-              {/* EDIT SONG */}
 
               <Route
                 path="songs/:id/edit"
                 element={<EditSong />}
               />
 
-              {/* SONG REPORTS */}
-
               <Route
                 path="songs/reports"
                 element={<AdminSongReports />}
               />
-
-              {/* MANAGE ARTISTS */}
 
               <Route
                 path="artists"
                 element={<ManageArtists />}
               />
 
-              {/* MANAGE ALBUMS */}
-
               <Route
                 path="albums"
                 element={<ManageAlbums />}
               />
-
-              {/* MANAGE CATEGORIES */}
 
               <Route
                 path="categories"
                 element={<ManageCategories />}
               />
 
-              {/* MANAGE USERS */}
-
               <Route
                 path="users"
                 element={<ManageUsers />}
               />
-
-              {/* MANAGE MINISTRIES */}
 
               <Route
                 path="ministries"
@@ -474,9 +456,7 @@ function App() {
 
             </Route>
 
-            {/* =========================================
-                BUSINESS OWNER AUTHENTICATION
-            ========================================= */}
+            {/* BUSINESS OWNER AUTHENTICATION */}
 
             <Route
               path="/owner/login"
@@ -488,9 +468,7 @@ function App() {
               element={<BusinessOwnerForgotPassword />}
             />
 
-            {/* =========================================
-                BUSINESS OWNER PROTECTED PAGES
-            ========================================= */}
+            {/* BUSINESS OWNER PROTECTED PAGES */}
 
             <Route
               path="/owner/dashboard"
@@ -572,10 +550,15 @@ function App() {
                 </OwnerRoute>
               }
             />
-
-            {/* =========================================
-                404 FALLBACK
-            ========================================= */}
+         <Route
+  path="/contact-us"
+  element={<ContactUs />}
+/>
+<Route
+  path="/terms"
+  element={<TermsAndConditions />}
+/>
+            {/* 404 FALLBACK */}
 
             <Route
               path="*"

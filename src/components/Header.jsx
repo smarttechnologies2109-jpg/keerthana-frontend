@@ -14,6 +14,14 @@ import {
   FaSignInAlt,
   FaSignOutAlt,
   FaUserCircle,
+  FaInfoCircle,
+  FaEnvelope,
+  FaTags,
+  FaCrown,
+  FaFileAlt,
+  FaShieldAlt,
+  FaUndo,
+  FaCopyright,
 } from "react-icons/fa";
 
 import {
@@ -27,7 +35,7 @@ import { useNotifications } from "../context/NotificationsContext";
 
 import "../assets/css/header.css";
 
-// Page titles
+// PAGE TITLES
 const PAGE_TITLES = [
   { paths: ["/", "/home"], title: "Home", exact: true },
   { paths: ["/search"], title: "Explore" },
@@ -36,7 +44,20 @@ const PAGE_TITLES = [
   { paths: ["/favorites"], title: "Favorites" },
   { paths: ["/playlists"], title: "Playlists" },
   { paths: ["/history"], title: "Listening History" },
-  { paths: ["/premium"], title: "KEERTHANA Premium" },
+
+  { paths: ["/pricing"], title: "Pricing" },
+  { paths: ["/about-us"], title: "About Us" },
+  { paths: ["/contact-us"], title: "Contact Us" },
+  { paths: ["/terms"], title: "Terms & Conditions" },
+  { paths: ["/privacy-policy"], title: "Privacy Policy" },
+  {
+    paths: ["/refund-cancellation"],
+    title: "Refund & Cancellation",
+  },
+  {
+    paths: ["/copyright-policy"],
+    title: "Copyright & Music Licensing",
+  },
   { paths: ["/donations"], title: "Support Our Ministry" },
   { paths: ["/profile"], title: "Profile" },
   { paths: ["/offline-songs", "/downloads"], title: "Offline Songs" },
@@ -50,6 +71,47 @@ const PAGE_TITLES = [
   { paths: ["/keerthana-ai"], title: "Keerthana AI" },
 ];
 
+// PROFILE MENU INFORMATION LINKS
+const INFORMATION_LINKS = [
+  {
+    label: "About Us",
+    path: "/about-us",
+    icon: FaInfoCircle,
+  },
+  {
+    label: "Contact Us",
+    path: "/contact-us",
+    icon: FaEnvelope,
+  },
+  {
+    label: "Pricing",
+    path: "/pricing",
+    icon: FaTags,
+  },
+
+  {
+    label: "Terms & Conditions",
+    path: "/terms",
+    icon: FaFileAlt,
+  },
+  {
+    label: "Privacy Policy",
+    path: "/privacy-policy",
+    icon: FaShieldAlt,
+  },
+  {
+    label: "Refund & Cancellation",
+    path: "/refund-cancellation",
+    icon: FaUndo,
+  },
+  {
+    label: "Copyright & Music Licensing",
+    path: "/copyright-policy",
+    icon: FaCopyright,
+  },
+];
+
+// GET CURRENT PAGE TITLE
 function getPageTitle(pathname) {
   const page = PAGE_TITLES.find(({ paths, exact }) =>
     paths.some((path) =>
@@ -87,7 +149,7 @@ function Header({ onToggleSidebar }) {
 
   const avatarLetter = displayName.charAt(0).toUpperCase();
 
-  // Search submit
+  // SEARCH SUBMIT
   const handleSearchSubmit = useCallback(
     (event) => {
       event.preventDefault();
@@ -103,7 +165,7 @@ function Header({ onToggleSidebar }) {
     [navigate, searchValue]
   );
 
-  // Stop voice search
+  // STOP VOICE SEARCH
   const stopVoiceSearch = useCallback(() => {
     try {
       recognitionRef.current?.stop();
@@ -114,7 +176,7 @@ function Header({ onToggleSidebar }) {
     setIsListening(false);
   }, []);
 
-  // Start voice search
+  // START VOICE SEARCH
   const handleVoiceSearch = useCallback(() => {
     const recognition = recognitionRef.current;
 
@@ -140,7 +202,7 @@ function Header({ onToggleSidebar }) {
     }
   }, [isListening, stopVoiceSearch, voiceSupported]);
 
-  // Voice recognition
+  // VOICE RECOGNITION
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition ||
@@ -224,7 +286,7 @@ function Header({ onToggleSidebar }) {
     };
   }, [navigate]);
 
-  // Keyboard shortcut: /
+  // KEYBOARD SHORTCUT: /
   useEffect(() => {
     const handleKeyDown = (event) => {
       const target = event.target;
@@ -257,7 +319,7 @@ function Header({ onToggleSidebar }) {
     };
   }, []);
 
-  // Close profile menu on outside click or Escape
+  // CLOSE PROFILE MENU ON OUTSIDE CLICK OR ESCAPE
   useEffect(() => {
     if (!profileMenuOpen) return undefined;
 
@@ -285,12 +347,12 @@ function Header({ onToggleSidebar }) {
     };
   }, [profileMenuOpen]);
 
-  // Close dropdown when navigating
+  // CLOSE DROPDOWN WHEN NAVIGATING
   useEffect(() => {
     setProfileMenuOpen(false);
   }, [location.pathname]);
 
-  // Logout
+  // LOGOUT
   const handleLogout = () => {
     setProfileMenuOpen(false);
     logout();
@@ -475,6 +537,7 @@ function Header({ onToggleSidebar }) {
               <FaChevronDown className="header-profile-chevron" />
             </button>
 
+            {/* PROFILE DROPDOWN */}
             {profileMenuOpen && (
               <div
                 className="header-profile-dropdown"
@@ -512,6 +575,36 @@ function Header({ onToggleSidebar }) {
 
                 <div className="header-profile-divider" />
 
+                {/* INFORMATION AND POLICIES HEADING */}
+                <div className="header-profile-section-title">
+                  INFORMATION & POLICIES
+                </div>
+
+                {/* INFORMATION AND LEGAL LINKS */}
+                <div className="header-profile-information-list">
+
+                  {INFORMATION_LINKS.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className="header-profile-menu-item"
+                        role="menuitem"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        <Icon />
+                        <span>{item.label}</span>
+                        <FaChevronRight className="header-profile-item-arrow" />
+                      </Link>
+                    );
+                  })}
+
+                </div>
+
+                <div className="header-profile-divider" />
+
                 {/* LOGOUT */}
                 <button
                   type="button"
@@ -525,6 +618,7 @@ function Header({ onToggleSidebar }) {
 
               </div>
             )}
+
           </div>
         ) : (
           <button

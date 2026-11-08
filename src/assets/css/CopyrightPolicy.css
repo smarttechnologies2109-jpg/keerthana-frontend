@@ -1,0 +1,146 @@
+
+.copyright-page {
+  min-height: 100vh;
+  padding: 40px 20px 130px;
+  background: #080f20;
+  color: #e8edf7;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.copyright-container {
+  width: 100%;
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+.copyright-header {
+  padding: 35px;
+  margin-bottom: 25px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #101e3c, #172d55);
+  border: 1px solid rgba(229, 197, 139, 0.25);
+}
+
+.copyright-brand {
+  display: inline-block;
+  color: #e5c58b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  margin-bottom: 15px;
+}
+
+.copyright-header h1 {
+  color: #ffffff;
+  font-size: clamp(27px, 5vw, 40px);
+  line-height: 1.25;
+  margin: 0 0 15px;
+}
+
+.copyright-header p {
+  color: #bdc9dc;
+  font-size: 15px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.copyright-date {
+  display: inline-block;
+  margin-top: 20px;
+  color: #e5c58b;
+  font-size: 13px;
+}
+
+.copyright-section {
+  padding: 25px 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.copyright-section h2 {
+  color: #e5c58b;
+  font-size: 21px;
+  margin: 0 0 15px;
+}
+
+.copyright-section p {
+  color: #c5cede;
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 10px 0;
+}
+
+.copyright-section ul {
+  padding-left: 23px;
+  color: #c5cede;
+  font-size: 14px;
+  line-height: 2;
+  margin: 12px 0;
+}
+
+.copyright-contact-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 21px;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e5c58b, #c99b53);
+  color: #101a2c;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.25s ease;
+}
+
+.copyright-contact-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(229, 197, 139, 0.2);
+}
+
+.copyright-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px 24px;
+  margin-top: 35px;
+}
+
+.copyright-links a {
+  color: #b5c2d8;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.copyright-links a:hover {
+  color: #e5c58b;
+}
+
+.copyright-footer {
+  text-align: center;
+  padding-top: 30px;
+  color: #8795ac;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .copyright-page {
+    padding: 25px 15px 120px;
+  }
+
+  .copyright-header {
+    padding: 25px 20px;
+  }
+
+  .copyright-section {
+    padding: 22px 2px;
+  }
+
+  .copyright-section h2 {
+    font-size: 19px;
+  }
+
+  .copyright-links {
+    gap: 15px 18px;
+  }
+}
