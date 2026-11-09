@@ -6,7 +6,6 @@ import "../assets/css/Footer.css";
 const Footer = () => {
   return (
     <footer className="keerthana-footer">
-
       <div className="footer-main">
 
         {/* Brand */}
@@ -30,7 +29,6 @@ const Footer = () => {
         {/* Company */}
         <div className="footer-column">
           <h3>Company</h3>
-
           <Link to="/about-us">About Us</Link>
           <Link to="/contact-us">Contact Us</Link>
           <Link to="/pricing">Pricing</Link>
@@ -39,10 +37,13 @@ const Footer = () => {
         {/* Legal */}
         <div className="footer-column">
           <h3>Legal & Policies</h3>
-
-          <Link to="/terms">Terms & Conditions</Link>
-          <Link to="/privacy-policy">Privacy Policy</Link>
-          <Link to="/refund-policy">
+          <Link to="/terms-and-conditions">
+            Terms & Conditions
+          </Link>
+          <Link to="/privacy-policy">
+            Privacy Policy
+          </Link>
+          <Link to="/refund-cancellation">
             Refund & Cancellation
           </Link>
           <Link to="/copyright-policy">
@@ -53,16 +54,14 @@ const Footer = () => {
         {/* Support */}
         <div className="footer-column">
           <h3>Support</h3>
-
           <Link to="/contact-us">Help & Support</Link>
-          <Link to="/all-songs">Explore Songs</Link>
+          <Link to="/songs">Explore Songs</Link>
         </div>
 
       </div>
 
       {/* Bottom */}
       <div className="footer-bottom">
-
         <p>
           © {new Date().getFullYear()} KEERTHANA MUSIC.
           All rights reserved.
@@ -71,9 +70,7 @@ const Footer = () => {
         <p className="footer-tagline">
           Made with ♡ for Praise & Worship
         </p>
-
       </div>
-
     </footer>
   );
 };

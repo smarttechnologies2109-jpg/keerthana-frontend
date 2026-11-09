@@ -48,7 +48,7 @@ const PAGE_TITLES = [
   { paths: ["/pricing"], title: "Pricing" },
   { paths: ["/about-us"], title: "About Us" },
   { paths: ["/contact-us"], title: "Contact Us" },
-  { paths: ["/terms"], title: "Terms & Conditions" },
+ { paths: ["/terms-and-conditions"], title: "Terms & Conditions" },
   { paths: ["/privacy-policy"], title: "Privacy Policy" },
   {
     paths: ["/refund-cancellation"],
@@ -90,10 +90,10 @@ const INFORMATION_LINKS = [
   },
 
   {
-    label: "Terms & Conditions",
-    path: "/terms",
-    icon: FaFileAlt,
-  },
+  label: "Terms & Conditions",
+  path: "/terms-and-conditions",
+  icon: FaFileAlt,
+},
   {
     label: "Privacy Policy",
     path: "/privacy-policy",

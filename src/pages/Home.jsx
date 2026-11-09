@@ -21,6 +21,7 @@ import {
   FaGlobe,
   FaListUl,
   FaExclamationCircle,
+  FaBookOpen,
 } from "react-icons/fa";
 
 import API from "../services/api";
@@ -790,6 +791,85 @@ export default function Home() {
         )}
 
    
+ 
+{/* ================================================
+    PUBLIC WELCOME BANNER
+================================================ */}
+
+<section className="home-welcome-banner">
+  <div className="home-welcome-content">
+    <span className="home-welcome-eyebrow">
+      TELUGU CHRISTIAN MUSIC • PRAISE • WORSHIP
+    </span>
+
+    <h1>
+      Welcome to KEERTHANA MUSIC
+    </h1>
+
+    <p>
+      Discover Christian songs, worship, praise and
+      inspiring music in Telugu and other languages.
+      Find songs that encourage faith, bring hope
+      and help you spend meaningful moments in worship.
+    </p>
+
+    <button
+      type="button"
+      className="home-welcome-button"
+      onClick={() => navigate("/songs")}
+    >
+      <FaPlay />
+      Explore Songs
+      <FaChevronRight />
+    </button>
+  </div>
+
+  <div className="home-welcome-art" aria-hidden="true">
+    <FaMusic />
+    <FaPrayingHands />
+  </div>
+</section>
+
+{/* ================================================
+    DAILY BIBLE VERSE
+================================================ */}
+
+<section
+  className="home-bible-card"
+  aria-labelledby="home-bible-heading"
+>
+  <div className="home-bible-content">
+    <span
+      className="home-bible-label"
+      id="home-bible-heading"
+    >
+      DAILY WORD OF GOD
+    </span>
+
+    <blockquote>
+      “{dailyVerse.text}”
+    </blockquote>
+
+    <p className="home-bible-reference">
+      — {dailyVerse.reference}
+    </p>
+
+    <button
+      type="button"
+      className="home-bible-button"
+      onClick={() => navigate("/about-us")}
+    >
+      <FaBookOpen />
+      Grow in Faith
+      <FaChevronRight />
+    </button>
+  </div>
+
+  <FaBookOpen
+    className="home-bible-decoration"
+    aria-hidden="true"
+  />
+</section>
 
         {/* =================================================
             1. RECENTLY PLAYED

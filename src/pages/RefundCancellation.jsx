@@ -178,7 +178,7 @@ const RefundCancellation = () => {
           <Link to="/about-us">About Us</Link>
           <Link to="/pricing">Pricing</Link>
           <Link to="/premium">Premium</Link>
-          <Link to="/terms">Terms & Conditions</Link>
+          <Link to="/terms-and-conditions">Terms & Conditions</Link>
           <Link to="/privacy-policy">Privacy Policy</Link>
         </nav>
 

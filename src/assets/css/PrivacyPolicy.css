@@ -1,0 +1,268 @@
+/* =====================================================
+   KEERTHANA MUSIC — PRIVACY POLICY
+   Midnight Navy • Royal Blue • Champagne Gold
+===================================================== */
+
+.privacy-page {
+  min-height: 100vh;
+  padding: 40px 20px 120px;
+  background:
+    radial-gradient(
+      ellipse at 15% 0%,
+      rgba(57, 120, 246, 0.10),
+      transparent 45%
+    ),
+    linear-gradient(145deg, #080d1a 0%, #0b1426 55%, #101b30 100%);
+  color: #e8edf7;
+  font-family:
+    "Inter",
+    "Noto Sans Telugu",
+    Arial,
+    sans-serif;
+  box-sizing: border-box;
+}
+
+.privacy-page *,
+.privacy-page *::before,
+.privacy-page *::after {
+  box-sizing: border-box;
+}
+
+.privacy-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.privacy-header {
+  margin-bottom: 35px;
+  padding: 30px;
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      ellipse at 90% 0%,
+      rgba(57, 120, 246, 0.15),
+      transparent 50%
+    ),
+    linear-gradient(135deg, #101e3c, #172d55);
+  border: 1px solid rgba(220, 185, 115, 0.25);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.20);
+}
+
+.privacy-brand {
+  margin-bottom: 12px;
+  color: #e5c58b;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.privacy-title {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-family: "Outfit", "Inter", sans-serif;
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.privacy-subtitle {
+  margin: 0;
+  color: #bdc9dc;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.privacy-date {
+  margin-top: 18px;
+  color: #e5c58b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* POLICY SECTIONS */
+
+.privacy-section {
+  padding: 25px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.privacy-heading {
+  margin: 0 0 15px;
+  color: #e5c58b;
+  font-family: "Outfit", "Inter", sans-serif;
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.privacy-subheading {
+  margin: 20px 0 8px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.privacy-paragraph {
+  margin: 10px 0;
+  color: #c5cede;
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+/* LISTS */
+
+.privacy-list {
+  margin: 12px 0;
+  padding-left: 23px;
+  color: #c5cede;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.privacy-list li {
+  padding-left: 3px;
+  margin-bottom: 3px;
+}
+
+.privacy-list li::marker {
+  color: #d6b66d;
+}
+
+/* LINKS */
+
+.privacy-link {
+  color: #e5c58b;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+.privacy-link:hover {
+  color: #ffffff;
+}
+
+.privacy-link:focus-visible {
+  outline: 2px solid #e5c58b;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* IMPORTANT NOTE */
+
+.privacy-note {
+  margin-top: 25px;
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(229, 197, 139, 0.08);
+  border: 1px solid rgba(229, 197, 139, 0.25);
+  color: #e8d7b6;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.privacy-note strong {
+  color: #f4d99e;
+}
+
+/* FOOTER */
+
+.privacy-footer {
+  padding-top: 30px;
+  color: #8795ac;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.7;
+}
+
+/* TABLET */
+
+@media (max-width: 768px) {
+  .privacy-page {
+    padding: 28px 16px 110px;
+  }
+
+  .privacy-header {
+    padding: 25px 22px;
+    border-radius: 15px;
+  }
+
+  .privacy-heading {
+    font-size: 20px;
+  }
+
+  .privacy-paragraph,
+  .privacy-list {
+    font-size: 14px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 480px) {
+  .privacy-page {
+    padding: 20px 13px 105px;
+  }
+
+  .privacy-header {
+    padding: 22px 17px;
+    margin-bottom: 22px;
+  }
+
+  .privacy-brand {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .privacy-title {
+    font-size: 30px;
+  }
+
+  .privacy-subtitle {
+    font-size: 14px;
+    line-height: 1.75;
+  }
+
+  .privacy-date {
+    font-size: 12px;
+  }
+
+  .privacy-section {
+    padding: 21px 0;
+  }
+
+  .privacy-heading {
+    font-size: 18px;
+  }
+
+  .privacy-subheading {
+    font-size: 15px;
+  }
+
+  .privacy-paragraph,
+  .privacy-list {
+    font-size: 14px;
+    line-height: 1.85;
+  }
+
+  .privacy-note {
+    padding: 15px;
+    font-size: 13px;
+  }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  .privacy-page *,
+  .privacy-page *::before,
+  .privacy-page *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

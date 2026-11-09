@@ -6,7 +6,11 @@ import {
   useState,
 } from "react";
 
-import API from "../services/api";
+import API, {
+  getFreshAccessToken,
+} from "../services/api";
+
+
 
 
 const AuthContext =
@@ -171,55 +175,42 @@ useEffect(() => {
 
     // If there is no access token but a refresh token exists,
     // attempt to restore the access token first.
-    if (!requestToken && refreshToken) {
-      try {
-        const refreshResponse = await API.post("/auth/refresh", {
-          refreshToken,
-        });
+   
+if (!requestToken && refreshToken) {
+  try {
+    requestToken = await getFreshAccessToken();
 
-        const data = refreshResponse.data || {};
-        const newAccessToken = data.accessToken || data.token;
-        const newRefreshToken = data.refreshToken;
+  } catch (error) {
+    const status = error.response?.status;
 
-        if (!newAccessToken || !newRefreshToken) {
-          throw new Error("Invalid refresh response.");
-        }
+    console.error(
+      "Startup session refresh failed:",
+      status || error.message
+    );
 
-        localStorage.setItem(TOKEN_KEY, newAccessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
-
-        requestToken = newAccessToken;
-      } catch (error) {
-        const status = error.response?.status;
-
-        console.error(
-          "Startup session refresh failed:",
-          status || error.message
-        );
-
-        // Only clear the session when the server definitively
-        // rejects the refresh token.
-        if (status === 401) {
-          clearSession();
-        }
-
-        if (active) {
-          try {
-            const cachedUser = localStorage.getItem("user");
-
-            if (cachedUser) {
-              setUser(JSON.parse(cachedUser));
-            }
-          } catch {
-            setUser(null);
-          }
-
-          setLoading(false);
-        }
-
-        return;
-      }
+    // Clear session only if refresh token is rejected.
+    if (status === 401) {
+      clearSession();
     }
+
+    if (active) {
+      try {
+        const cachedUser = localStorage.getItem("user");
+
+        if (cachedUser) {
+          setUser(JSON.parse(cachedUser));
+        }
+      } catch {
+        setUser(null);
+      }
+
+      setLoading(false);
+    }
+
+    return;
+  }
+}
+
 
     // No usable token available.
     if (!requestToken) {

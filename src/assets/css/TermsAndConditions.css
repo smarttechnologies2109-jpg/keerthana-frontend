@@ -1,39 +1,55 @@
-
 .legal-page {
-  min-height: 100vh;
-  padding: 35px 20px;
-  background: #080D1A;
+  width: 100%;
+  min-height: calc(100vh - 220px);
+  padding: 24px 20px;
+  background: transparent;
   color: #e6eaf2;
   font-family: Inter, Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.legal-page *,
+.legal-page *::before,
+.legal-page *::after {
+  box-sizing: border-box;
 }
 
 .legal-container {
-  max-width: 950px;
-  margin: auto;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
   padding: 40px;
-  background: #101d32;
-  border: 1px solid rgba(214,182,110,.2);
+  background: linear-gradient(145deg, #101d32, #0c1729);
+  border: 1px solid rgba(214, 182, 110, 0.2);
   border-radius: 16px;
   line-height: 1.9;
   overflow-wrap: anywhere;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
 }
 
 .legal-back {
+  display: inline-block;
   color: #d6b66e;
   text-decoration: none;
   font-weight: 600;
 }
 
+.legal-back:hover {
+  color: #f2d38d;
+}
+
 .legal-container h1 {
   color: #f2d38d;
   font-size: clamp(30px, 5vw, 42px);
-  margin-top: 28px;
+  line-height: 1.25;
+  margin: 28px 0 22px;
 }
 
 .legal-container h2 {
   color: #f2d38d;
   font-size: 19px;
   margin-top: 32px;
+  margin-bottom: 10px;
 }
 
 .legal-container p,
@@ -44,6 +60,10 @@
 
 .legal-container li {
   margin-bottom: 8px;
+}
+
+.legal-container ul {
+  padding-left: 24px;
 }
 
 .legal-contact {
@@ -57,18 +77,42 @@
   font-weight: 700;
 }
 
+.legal-contact:hover {
+  background: #f2d38d;
+}
+
+.legal-back:focus-visible,
+.legal-contact:focus-visible {
+  outline: 2px solid #f2d38d;
+  outline-offset: 4px;
+}
+
 .legal-footer {
   border-top: 1px solid #34435a;
   padding-top: 20px;
   margin-top: 40px;
 }
 
-@media(max-width:600px) {
+@media (max-width: 700px) {
   .legal-page {
-    padding: 20px 12px;
+    padding: 12px 0;
   }
 
   .legal-container {
-    padding: 23px 18px;
+    padding: 25px 18px;
+    border-radius: 12px;
+  }
+
+  .legal-container h1 {
+    font-size: 30px;
+  }
+
+  .legal-container h2 {
+    font-size: 17px;
+  }
+
+  .legal-container p,
+  .legal-container li {
+    font-size: 13px;
   }
 }

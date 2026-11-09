@@ -1,134 +1,50 @@
-
 import React from "react";
+import "../assets/css/PrivacyPolicy.css";
 
 const PrivacyPolicy = () => {
   const effectiveDate = "8 November 2026";
 
-  const styles = {
-    page: {
-      minHeight: "100vh",
-      padding: "40px 20px 120px",
-      background: "#080f20",
-      color: "#e8edf7",
-      fontFamily: "Inter, Arial, sans-serif",
-    },
-    container: {
-      maxWidth: "1000px",
-      margin: "0 auto",
-    },
-    header: {
-      marginBottom: "35px",
-      padding: "30px",
-      borderRadius: "18px",
-      background:
-        "linear-gradient(135deg, #101e3c, #172d55)",
-      border: "1px solid rgba(220, 185, 115, 0.25)",
-    },
-    brand: {
-      color: "#e5c58b",
-      fontSize: "14px",
-      fontWeight: 700,
-      letterSpacing: "3px",
-      marginBottom: "12px",
-    },
-    title: {
-      fontSize: "clamp(28px, 5vw, 42px)",
-      margin: "0 0 12px",
-      color: "#ffffff",
-    },
-    subtitle: {
-      color: "#bdc9dc",
-      lineHeight: 1.7,
-      margin: 0,
-    },
-    date: {
-      marginTop: "18px",
-      fontSize: "13px",
-      color: "#e5c58b",
-    },
-    section: {
-      padding: "25px 0",
-      borderBottom: "1px solid rgba(255,255,255,0.10)",
-    },
-    heading: {
-      color: "#e5c58b",
-      fontSize: "21px",
-      margin: "0 0 15px",
-    },
-    subheading: {
-      color: "#ffffff",
-      fontSize: "16px",
-      margin: "20px 0 8px",
-    },
-    paragraph: {
-      color: "#c5cede",
-      fontSize: "15px",
-      lineHeight: 1.85,
-      margin: "10px 0",
-    },
-    list: {
-      color: "#c5cede",
-      fontSize: "15px",
-      lineHeight: 1.9,
-      paddingLeft: "23px",
-    },
-    link: {
-      color: "#e5c58b",
-      textDecoration: "underline",
-      overflowWrap: "anywhere",
-    },
-    note: {
-      marginTop: "20px",
-      padding: "18px",
-      borderRadius: "12px",
-      background: "rgba(229, 197, 139, 0.08)",
-      border: "1px solid rgba(229, 197, 139, 0.25)",
-      color: "#e8d7b6",
-      lineHeight: 1.8,
-      fontSize: "14px",
-    },
-    footer: {
-      textAlign: "center",
-      paddingTop: "30px",
-      color: "#8795ac",
-      fontSize: "13px",
-    },
-  };
-
   const Section = ({ title, children }) => (
-    <section style={styles.section}>
-      <h2 style={styles.heading}>{title}</h2>
+    <section className="privacy-section">
+      <h2 className="privacy-heading">{title}</h2>
       {children}
     </section>
   );
 
   const Paragraph = ({ children }) => (
-    <p style={styles.paragraph}>{children}</p>
+    <p className="privacy-paragraph">{children}</p>
   );
 
   const Subheading = ({ children }) => (
-    <h3 style={styles.subheading}>{children}</h3>
+    <h3 className="privacy-subheading">{children}</h3>
   );
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <header style={styles.header}>
-          <div style={styles.brand}>KEERTHANA MUSIC</div>
+    <main className="privacy-page">
+      <div className="privacy-container">
 
-          <h1 style={styles.title}>Privacy Policy</h1>
+        {/* PAGE HEADER */}
+        <header className="privacy-header">
+          <div className="privacy-brand">
+            KEERTHANA MUSIC
+          </div>
 
-          <p style={styles.subtitle}>
+          <h1 className="privacy-title">
+            Privacy Policy
+          </h1>
+
+          <p className="privacy-subtitle">
             Your privacy matters to us. This Privacy Policy explains
             how KEERTHANA MUSIC collects, uses, stores and protects
             information when you use our website and mobile application.
           </p>
 
-          <div style={styles.date}>
+          <div className="privacy-date">
             Effective Date: {effectiveDate}
           </div>
         </header>
 
+        {/* 1. INTRODUCTION */}
         <Section title="1. Introduction">
           <Paragraph>
             Welcome to KEERTHANA MUSIC. We provide a platform for
@@ -149,6 +65,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 2. INFORMATION WE COLLECT */}
         <Section title="2. Information We Collect">
           <Paragraph>
             Depending on how you use KEERTHANA MUSIC, we may collect
@@ -156,14 +73,16 @@ const PrivacyPolicy = () => {
           </Paragraph>
 
           <Subheading>Account Information</Subheading>
-          <ul style={styles.list}>
+
+          <ul className="privacy-list">
             <li>Mobile number used for registration or login.</li>
             <li>Name or profile information you choose to provide.</li>
             <li>Account identifiers and authentication information.</li>
           </ul>
 
           <Subheading>Music Activity</Subheading>
-          <ul style={styles.list}>
+
+          <ul className="privacy-list">
             <li>Songs you like or add to favorites.</li>
             <li>Listening history and playback activity.</li>
             <li>Playlists and music preferences.</li>
@@ -171,7 +90,8 @@ const PrivacyPolicy = () => {
           </ul>
 
           <Subheading>Technical Information</Subheading>
-          <ul style={styles.list}>
+
+          <ul className="privacy-list">
             <li>Device type and operating system.</li>
             <li>Application version and browser information.</li>
             <li>IP address and diagnostic information.</li>
@@ -179,6 +99,7 @@ const PrivacyPolicy = () => {
           </ul>
 
           <Subheading>Information You Send Us</Subheading>
+
           <Paragraph>
             If you contact us, we may collect your email address,
             message and any information you voluntarily provide
@@ -186,12 +107,13 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 3. HOW WE USE INFORMATION */}
         <Section title="3. How We Use Your Information">
           <Paragraph>
             We may use collected information for the following purposes:
           </Paragraph>
 
-          <ul style={styles.list}>
+          <ul className="privacy-list">
             <li>To create and manage user accounts.</li>
             <li>To authenticate users through supported login methods.</li>
             <li>To provide music streaming and playback services.</li>
@@ -205,6 +127,7 @@ const PrivacyPolicy = () => {
           </ul>
         </Section>
 
+        {/* 4. ADVERTISING */}
         <Section title="4. Advertising Services">
           <Paragraph>
             KEERTHANA MUSIC is designed to provide free access to
@@ -213,6 +136,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
 
           <Subheading>Google AdMob – Android Application</Subheading>
+
           <Paragraph>
             Our Android application may use Google AdMob to display
             advertisements. Depending on the implementation and
@@ -220,7 +144,7 @@ const PrivacyPolicy = () => {
             may collect or process information such as:
           </Paragraph>
 
-          <ul style={styles.list}>
+          <ul className="privacy-list">
             <li>Advertising identifiers and device identifiers.</li>
             <li>IP address and approximate location information.</li>
             <li>Device and application information.</li>
@@ -229,6 +153,7 @@ const PrivacyPolicy = () => {
           </ul>
 
           <Subheading>Google AdSense – Website</Subheading>
+
           <Paragraph>
             Our website, https://keerthana.co, may use Google AdSense
             to display advertisements. Depending on user settings,
@@ -237,7 +162,7 @@ const PrivacyPolicy = () => {
             browser information and similar technologies to:
           </Paragraph>
 
-          <ul style={styles.list}>
+          <ul className="privacy-list">
             <li>Display advertisements.</li>
             <li>Measure advertising performance.</li>
             <li>Limit repeated advertisements.</li>
@@ -245,6 +170,7 @@ const PrivacyPolicy = () => {
           </ul>
 
           <Subheading>Personalized Advertising</Subheading>
+
           <Paragraph>
             Advertising personalization may depend on your location,
             consent choices, browser settings and applicable laws.
@@ -254,38 +180,41 @@ const PrivacyPolicy = () => {
           </Paragraph>
 
           <Subheading>Google Privacy Information</Subheading>
+
           <Paragraph>
             For more information about how Google processes information,
             please review:
           </Paragraph>
 
-          <ul style={styles.list}>
+          <ul className="privacy-list">
             <li>
               <a
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={styles.link}
+                className="privacy-link"
               >
                 Google Privacy Policy
               </a>
             </li>
+
             <li>
               <a
                 href="https://policies.google.com/technologies/partner-sites"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={styles.link}
+                className="privacy-link"
               >
                 How Google uses information from sites or apps
               </a>
             </li>
+
             <li>
               <a
                 href="https://adssettings.google.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={styles.link}
+                className="privacy-link"
               >
                 Google Ads Settings
               </a>
@@ -293,6 +222,7 @@ const PrivacyPolicy = () => {
           </ul>
         </Section>
 
+        {/* 5. COOKIES */}
         <Section title="5. Cookies and Similar Technologies">
           <Paragraph>
             Our website and third-party services may use cookies,
@@ -312,6 +242,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 6. INFORMATION SHARING */}
         <Section title="6. Sharing of Information">
           <Paragraph>
             We do not sell users' personal information to advertisers.
@@ -320,7 +251,8 @@ const PrivacyPolicy = () => {
           </Paragraph>
 
           <Subheading>Service Providers</Subheading>
-          <ul style={styles.list}>
+
+          <ul className="privacy-list">
             <li>
               Google AdMob and Google AdSense for advertising services.
             </li>
@@ -334,6 +266,7 @@ const PrivacyPolicy = () => {
           </ul>
 
           <Subheading>Legal Requirements</Subheading>
+
           <Paragraph>
             We may disclose information where required by applicable
             law, a valid legal request or to protect the rights,
@@ -341,6 +274,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 7. DATA SECURITY */}
         <Section title="7. Data Storage and Security">
           <Paragraph>
             We use appropriate technical and organizational measures
@@ -360,6 +294,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 8. DATA RETENTION */}
         <Section title="8. Data Retention">
           <Paragraph>
             We retain personal information for as long as necessary
@@ -375,6 +310,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 9. ACCOUNT DELETION */}
         <Section title="9. Account Deletion">
           <Paragraph>
             Users may request deletion of their KEERTHANA MUSIC
@@ -401,6 +337,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 10. CHILDREN */}
         <Section title="10. Children's Privacy">
           <Paragraph>
             KEERTHANA MUSIC is not intended to knowingly collect
@@ -421,6 +358,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 11. THIRD-PARTY SERVICES */}
         <Section title="11. Third-Party Services and Links">
           <Paragraph>
             KEERTHANA MUSIC may contain links to third-party websites,
@@ -439,12 +377,13 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 12. PRIVACY RIGHTS */}
         <Section title="12. Your Privacy Rights">
           <Paragraph>
             Subject to applicable law, you may have the right to:
           </Paragraph>
 
-          <ul style={styles.list}>
+          <ul className="privacy-list">
             <li>Request access to your personal information.</li>
             <li>Request correction of inaccurate information.</li>
             <li>Request deletion of your account and personal data.</li>
@@ -458,6 +397,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 13. INTERNATIONAL PROCESSING */}
         <Section title="13. International Data Processing">
           <Paragraph>
             Some service providers may process or store information
@@ -467,6 +407,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 14. POLICY CHANGES */}
         <Section title="14. Changes to This Privacy Policy">
           <Paragraph>
             We may update this Privacy Policy from time to time
@@ -480,6 +421,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
+        {/* 15. CONTACT */}
         <Section title="15. Contact Us">
           <Paragraph>
             If you have questions, concerns or requests relating
@@ -494,7 +436,7 @@ const PrivacyPolicy = () => {
               href="https://keerthana.co"
               target="_blank"
               rel="noopener noreferrer"
-              style={styles.link}
+              className="privacy-link"
             >
               https://keerthana.co
             </a>
@@ -506,7 +448,8 @@ const PrivacyPolicy = () => {
           </Paragraph>
         </Section>
 
-        <div style={styles.note}>
+        {/* IMPORTANT NOTE */}
+        <div className="privacy-note">
           <strong>Important:</strong> This Privacy Policy is a
           general draft for KEERTHANA MUSIC. Before publishing,
           verify that it matches your actual login system,
@@ -516,12 +459,14 @@ const PrivacyPolicy = () => {
           control is active unless it has actually been implemented.
         </div>
 
-        <div style={styles.footer}>
+        {/* FOOTER */}
+        <footer className="privacy-footer">
           © {new Date().getFullYear()} KEERTHANA MUSIC.
           All rights reserved.
-        </div>
+        </footer>
+
       </div>
-    </div>
+    </main>
   );
 };
 

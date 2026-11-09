@@ -1340,4 +1340,64 @@
 .header-profile-logout {
   flex-shrink: 0;
 }
+/* =====================================================
+   KEERTHANA HEADER — MOBILE BRAND VISIBILITY FIX
+   Midnight Navy • Royal Blue • Champagne Gold
+===================================================== */
 
+@media (max-width: 760px) {
+  .keerthana-header .header-brand {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .keerthana-header .header-brand-mark {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 11px;
+    font-size: 15px;
+  }
+
+  .keerthana-header .header-brand-copy {
+    display: flex !important;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .keerthana-header .header-brand-copy strong {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+    color: #F8FAFF;
+  }
+
+  .keerthana-header .header-brand-copy small {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    color: #E8C98A;
+  }
+
+  .keerthana-header .header-mobile-brand {
+    display: none !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .keerthana-header .header-brand-copy strong {
+    font-size: 11px;
+    letter-spacing: 0.8px;
+  }
+
+  .keerthana-header .header-brand-copy small {
+    font-size: 7px;
+  }
+}

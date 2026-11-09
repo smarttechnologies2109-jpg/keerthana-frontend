@@ -15,7 +15,7 @@ import "../assets/css/ContactUs.css";
 const CONTACT = {
   email: "smarttechnologies2109@gmail.com",
   phone: "+91 9866816611",
-  address: "Khammam, Telanaga, India",
+  address: "Khammam, Telangana, India",
 };
 
 function ContactUs() {

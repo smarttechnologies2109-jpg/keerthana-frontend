@@ -16,12 +16,6 @@ import { LikedSongsProvider } from "./context/LikedSongsContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
 
 /* =========================================================
-   AUTH
-========================================================= */
-
-import { useAuth } from "./context/AuthContext";
-
-/* =========================================================
    LAYOUTS AND PROTECTED ROUTES
 ========================================================= */
 
@@ -76,6 +70,14 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Donations from "./pages/Donations";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import Pricing from "./pages/Pricing";
+import RefundCancellation from "./pages/RefundCancellation";
+import CopyrightPolicy from "./pages/CopyrightPolicy";
+
+import Categories from "./pages/Categories";
+import CategoryDetails from "./pages/CategoryDetails";
+import RecentlyAdded from "./pages/RecentlyAdded";
 
 /* =========================================================
    ADMIN MANAGEMENT PAGES
@@ -92,6 +94,7 @@ import ManageCategories from "./pages/admin/ManageCategories";
 import ManageUsers from "./pages/admin/ManageUsers";
 import ManageMinistries from "./pages/admin/ManageMinistries";
 
+
 /* =========================================================
    BUSINESS OWNER PAGES
 ========================================================= */
@@ -107,10 +110,9 @@ import BusinessOwnerAlbums from "./pages/businessOwner/BusinessOwnerAlbums";
 import BusinessOwnerArtists from "./pages/businessOwner/BusinessOwnerArtists";
 import BusinessOwnerCategories from "./pages/businessOwner/BusinessOwnerCategories";
 import BusinessOwnerMinistries from "./pages/businessOwner/BusinessOwnerMinistries";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import Pricing from "./pages/Pricing";
-import RefundCancellation from "./pages/RefundCancellation";
-import CopyrightPolicy from "./pages/CopyrightPolicy";
+
+
+
 /* =========================================================
    ANDROID BACK BUTTON
 ========================================================= */
@@ -123,21 +125,13 @@ function AndroidBackButtonHandler() {
 }
 
 /* =========================================================
-   USER HOME REDIRECT
+   PUBLIC HOME REDIRECT
+
+   Visitors can access the homepage without login.
 ========================================================= */
 
 function UserHomeRedirect() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return null;
-  }
-
-  if (user) {
-    return <Navigate to="/home" replace />;
-  }
-
-  return <Navigate to="/login" replace />;
+  return <Navigate to="/home" replace />;
 }
 
 /* =========================================================
@@ -154,7 +148,9 @@ function App() {
 
           <Routes>
 
-            {/* USER AUTHENTICATION */}
+            {/* =========================================
+                USER AUTHENTICATION
+            ========================================= */}
 
             <Route
               path="/login"
@@ -166,7 +162,9 @@ function App() {
               element={<Register />}
             />
 
-            {/* ADMIN LOGIN */}
+            {/* =========================================
+                ADMIN LOGIN
+            ========================================= */}
 
             <Route
               path="/admin/login"
@@ -178,18 +176,28 @@ function App() {
               element={<AdminForgotPassword />}
             />
 
-            {/* NORMAL KEERTHANA MUSIC APP */}
+            {/* =========================================
+                NORMAL KEERTHANA MUSIC APP
+            ========================================= */}
 
             <Route element={<AppLayout />}>
 
-              {/* ROOT */}
+              {/* ROOT - PUBLIC HOMEPAGE */}
 
+               <Route
+    path="/terms-and-conditions"
+    element={<TermsAndConditions />}
+  />
+  <Route
+              path="/contact-us"
+              element={<ContactUs />}
+            />
               <Route
                 path="/"
                 element={<UserHomeRedirect />}
               />
 
-              {/* HOME */}
+              {/* HOME - PUBLIC */}
 
               <Route
                 path="/home"
@@ -202,7 +210,12 @@ function App() {
                 path="/songs"
                 element={<AllSongs />}
               />
+               {/* RECENTLY ADDED */}
 
+<Route
+  path="/recently-added"
+  element={<RecentlyAdded />}
+/>
               {/* SONG DETAILS */}
 
               <Route
@@ -280,7 +293,17 @@ function App() {
                 path="/albums/:id"
                 element={<AlbumDetails />}
               />
+{/* CATEGORIES */}
 
+<Route
+  path="/categories"
+  element={<Categories />}
+/>
+
+<Route
+  path="/categories/:id"
+  element={<CategoryDetails />}
+/>
               {/* MINISTRIES */}
 
               <Route
@@ -369,21 +392,33 @@ function App() {
                 path="/donations"
                 element={<Donations />}
               />
-              <Route path="/pricing" element={<Pricing />} />
+
+              {/* PRICING */}
 
               <Route
-  path="/refund-cancellation"
-  element={<RefundCancellation />}
-/>
+                path="/pricing"
+                element={<Pricing />}
+              />
 
-<Route
-  path="/copyright-policy"
-  element={<CopyrightPolicy />}
-/>
+              {/* REFUND AND CANCELLATION */}
+
+              <Route
+                path="/refund-cancellation"
+                element={<RefundCancellation />}
+              />
+
+              {/* COPYRIGHT POLICY */}
+
+              <Route
+                path="/copyright-policy"
+                element={<CopyrightPolicy />}
+              />
 
             </Route>
 
-            {/* ADMIN PROTECTED AREA */}
+            {/* =========================================
+                ADMIN PROTECTED AREA
+            ========================================= */}
 
             <Route
               path="/admin"
@@ -456,7 +491,9 @@ function App() {
 
             </Route>
 
-            {/* BUSINESS OWNER AUTHENTICATION */}
+            {/* =========================================
+                BUSINESS OWNER AUTHENTICATION
+            ========================================= */}
 
             <Route
               path="/owner/login"
@@ -468,7 +505,9 @@ function App() {
               element={<BusinessOwnerForgotPassword />}
             />
 
-            {/* BUSINESS OWNER PROTECTED PAGES */}
+            {/* =========================================
+                BUSINESS OWNER PROTECTED PAGES
+            ========================================= */}
 
             <Route
               path="/owner/dashboard"
@@ -550,15 +589,16 @@ function App() {
                 </OwnerRoute>
               }
             />
-         <Route
-  path="/contact-us"
-  element={<ContactUs />}
-/>
-<Route
-  path="/terms"
-  element={<TermsAndConditions />}
-/>
-            {/* 404 FALLBACK */}
+
+         
+
+          
+
+
+
+            {/* =========================================
+                404 FALLBACK
+            ========================================= */}
 
             <Route
               path="*"
@@ -577,6 +617,7 @@ function App() {
                   }}
                 >
                   <h1>404</h1>
+
                   <h2>Page Not Found</h2>
 
                   <p>

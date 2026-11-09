@@ -48,7 +48,7 @@ function saveTokens(accessToken, refreshToken) {
   );
 }
 
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
   const refreshToken = localStorage.getItem(
     "keerthana_refresh_token"
   );
@@ -71,6 +71,16 @@ async function refreshAccessToken() {
   saveTokens(accessToken, newRefreshToken);
 
   return accessToken;
+}
+
+export async function getFreshAccessToken() {
+  if (!refreshPromise) {
+    refreshPromise = refreshAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+
+  return refreshPromise;
 }
 
 // Attach the current access token to API requests.
@@ -178,12 +188,7 @@ API.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      // Share one refresh operation between simultaneous requests.
-      if (!refreshPromise) {
-        refreshPromise = refreshAccessToken().finally(() => {
-          refreshPromise = null;
-        });
-      }
+  
 
       const newAccessToken = await refreshPromise;
 
