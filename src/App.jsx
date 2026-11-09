@@ -207,7 +207,7 @@ function App() {
               {/* ALL SONGS */}
 
               <Route
-                path="/songs"
+                path="/all-songs"
                 element={<AllSongs />}
               />
                {/* RECENTLY ADDED */}

@@ -39,7 +39,7 @@ const EXPLORE_LINKS = [
     end: true,
   },
   {
-    to: "/songs",
+    to: "/all-songs",
     label: "All Songs",
     Icon: FaMusic,
   },

@@ -55,7 +55,7 @@ const Footer = () => {
         <div className="footer-column">
           <h3>Support</h3>
           <Link to="/contact-us">Help & Support</Link>
-          <Link to="/songs">Explore Songs</Link>
+          <Link to="/all-songs">Explore Songs</Link>
         </div>
 
       </div>

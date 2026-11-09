@@ -816,7 +816,7 @@ export default function Home() {
     <button
       type="button"
       className="home-welcome-button"
-      onClick={() => navigate("/songs")}
+      onClick={() => navigate("/all-songs")}
     >
       <FaPlay />
       Explore Songs
