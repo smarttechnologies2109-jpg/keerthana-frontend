@@ -74,4 +74,3 @@ function AppLayout() {
 }
 
 export default AppLayout;
-S
