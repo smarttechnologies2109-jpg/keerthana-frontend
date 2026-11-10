@@ -16,7 +16,6 @@ import API from "../../services/api";
 import "../../assets/css/admin/manageMinistries.css";
 
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import AdminHeader from "../../components/admin/AdminHeader.jsx";
 
 // =========================================================
 // SUPPORTED LANGUAGES
@@ -30,8 +29,6 @@ const LANGUAGES = [
   { value: "Kannada", label: "ಕನ್ನಡ" },
   { value: "Tamil", label: "தமிழ்" },
 ];
-
-
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -84,6 +81,7 @@ function ManageMinistries() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -119,6 +117,7 @@ function ManageMinistries() {
     return () => {
       if (previewUrlRef.current) {
         URL.revokeObjectURL(previewUrlRef.current);
+        previewUrlRef.current = "";
       }
     };
   }, []);
@@ -151,6 +150,8 @@ function ManageMinistries() {
 
   useEffect(() => {
     loadMinistries();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // -------------------------------------------------------
@@ -173,14 +174,13 @@ function ManageMinistries() {
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     setError("");
     setSuccess("");
 
     // Validate image MIME type.
+
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       setError("Please select a JPG, PNG or WEBP image.");
 
@@ -189,6 +189,7 @@ function ManageMinistries() {
     }
 
     // Validate image size.
+
     if (file.size > MAX_IMAGE_SIZE) {
       setError("Image size must be less than 5 MB.");
 
@@ -197,6 +198,7 @@ function ManageMinistries() {
     }
 
     // Remove previous temporary preview.
+
     clearImagePreview();
 
     const previewUrl = URL.createObjectURL(file);
@@ -263,9 +265,10 @@ function ManageMinistries() {
 
     setImageFile(null);
 
-    setImagePreview(
-      ministry.image_url || DEFAULT_MINISTRY_IMAGE
-    );
+    // Show only the actual uploaded ministry image.
+    // No default image is used.
+
+    setImagePreview(ministry.image_url || "");
 
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
@@ -289,6 +292,7 @@ function ManageMinistries() {
     setSuccess("");
 
     // Validate ministry name.
+
     const cleanName = form.name.trim();
 
     if (!cleanName) {
@@ -297,6 +301,7 @@ function ManageMinistries() {
     }
 
     // Validate language.
+
     const validLanguage = LANGUAGES.some(
       (language) => language.value === form.language
     );
@@ -310,6 +315,7 @@ function ManageMinistries() {
       setSaving(true);
 
       // Create multipart form data.
+
       const formData = new FormData();
 
       formData.append("name", cleanName);
@@ -322,13 +328,12 @@ function ManageMinistries() {
       formData.append("language", form.language);
 
       // Add image only if a new image was selected.
+
       if (imageFile) {
         formData.append("image", imageFile);
       }
 
-      // ---------------------------------------------------
       // UPDATE MINISTRY
-      // ---------------------------------------------------
 
       if (editingId) {
         await API.put(
@@ -339,9 +344,7 @@ function ManageMinistries() {
         setSuccess("Ministry updated successfully.");
       }
 
-      // ---------------------------------------------------
       // CREATE MINISTRY
-      // ---------------------------------------------------
 
       else {
         await API.post(
@@ -353,6 +356,7 @@ function ManageMinistries() {
       }
 
       // Clear form and reload data.
+
       resetForm();
 
       await loadMinistries();
@@ -378,11 +382,11 @@ function ManageMinistries() {
       "Are you sure you want to delete this ministry?"
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
+      setDeletingId(id);
+
       setError("");
       setSuccess("");
 
@@ -398,6 +402,8 @@ function ManageMinistries() {
         error.response?.data?.message ||
           "Failed to delete ministry. Please try again."
       );
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -406,15 +412,47 @@ function ManageMinistries() {
   // -------------------------------------------------------
 
   const handleImageError = (event) => {
-    if (
-      event.currentTarget.src.endsWith(
-        DEFAULT_MINISTRY_IMAGE
-      )
-    ) {
-      return;
+    event.currentTarget.style.display = "none";
+
+    const fallback =
+      event.currentTarget.parentElement?.querySelector(
+        ".ministry-image-fallback"
+      );
+
+    if (fallback) {
+      fallback.style.display = "flex";
+    }
+  };
+
+  // -------------------------------------------------------
+  // IMAGE DISPLAY
+  // -------------------------------------------------------
+
+  const renderMinistryImage = (imageUrl, altText) => {
+    if (!imageUrl) {
+      return (
+        <div className="ministry-image-fallback">
+          <FaChurch />
+        </div>
+      );
     }
 
-    event.currentTarget.src = DEFAULT_MINISTRY_IMAGE;
+    return (
+      <>
+        <img
+          src={imageUrl}
+          alt={altText}
+          onError={handleImageError}
+        />
+
+        <div
+          className="ministry-image-fallback"
+          style={{ display: "none" }}
+        >
+          <FaChurch />
+        </div>
+      </>
+    );
   };
 
   // -------------------------------------------------------
@@ -455,7 +493,6 @@ function ManageMinistries() {
             disabled={saving}
           >
             <FaPlus />
-
             <span>Add Ministry</span>
           </button>
 
@@ -464,13 +501,19 @@ function ManageMinistries() {
         {/* ALERTS */}
 
         {error && (
-          <div className="admin-ministry-alert error" role="alert">
+          <div
+            className="admin-ministry-alert error"
+            role="alert"
+          >
             {error}
           </div>
         )}
 
         {success && (
-          <div className="admin-ministry-alert success" role="status">
+          <div
+            className="admin-ministry-alert success"
+            role="status"
+          >
             {success}
           </div>
         )}
@@ -611,7 +654,6 @@ function ManageMinistries() {
                     className="admin-ministry-upload-button"
                   >
                     <FaUpload />
-
                     <span>Browse Image</span>
                   </label>
 
@@ -632,14 +674,16 @@ function ManageMinistries() {
 
                 <div className="admin-ministry-image-preview">
 
-                  <img
-                    src={
-                      imagePreview ||
-                      DEFAULT_MINISTRY_IMAGE
-                    }
-                    alt="Ministry preview"
-                    onError={handleImageError}
-                  />
+                  {renderMinistryImage(
+                    imagePreview,
+                    "Ministry preview"
+                  )}
+
+                  {!imagePreview && (
+                    <span className="ministry-no-image-text">
+                      No image selected
+                    </span>
+                  )}
 
                 </div>
 
@@ -656,7 +700,6 @@ function ManageMinistries() {
                   disabled={saving}
                 >
                   <FaTimes />
-
                   Cancel
                 </button>
 
@@ -665,7 +708,6 @@ function ManageMinistries() {
                   className="admin-ministry-save-button"
                   disabled={saving}
                 >
-
                   {saving ? (
                     "Saving..."
                   ) : (
@@ -677,7 +719,6 @@ function ManageMinistries() {
                         : "Save Ministry"}
                     </>
                   )}
-
                 </button>
 
               </div>
@@ -685,7 +726,6 @@ function ManageMinistries() {
             </form>
 
           </div>
-
         )}
 
         {/* MINISTRY LIST */}
@@ -699,7 +739,6 @@ function ManageMinistries() {
 
               <span>
                 {ministries.length}{" "}
-
                 {ministries.length === 1
                   ? "Ministry"
                   : "Ministries"}
@@ -741,7 +780,6 @@ function ManageMinistries() {
                 className="admin-ministry-empty-button"
               >
                 <FaPlus />
-
                 Add Ministry
               </button>
 
@@ -764,14 +802,10 @@ function ManageMinistries() {
 
                   <div className="admin-ministry-card-image">
 
-                    <img
-                      src={
-                        ministry.image_url ||
-                        DEFAULT_MINISTRY_IMAGE
-                      }
-                      alt={ministry.name || "Ministry"}
-                      onError={handleImageError}
-                    />
+                    {renderMinistryImage(
+                      ministry.image_url,
+                      ministry.name || "Ministry"
+                    )}
 
                   </div>
 
@@ -835,6 +869,7 @@ function ManageMinistries() {
                           onClick={() => handleDelete(ministry.id)}
                           title="Delete Ministry"
                           aria-label={`Delete ${ministry.name}`}
+                          disabled={deletingId === ministry.id}
                         >
                           <FaTrash />
                         </button>

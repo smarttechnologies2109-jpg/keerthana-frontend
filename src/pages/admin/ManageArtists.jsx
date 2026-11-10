@@ -1,7 +1,5 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+
+import { useEffect, useState } from "react";
 
 import {
   FaEdit,
@@ -17,154 +15,99 @@ import API from "../../services/api";
 
 import "../../assets/css/admin/manageArtists.css";
 
-
-const DEFAULT_ARTIST =
-  "/images/default-artist.png";
-
-
-/* =========================================================
-   LANGUAGES
-========================================================= */
+// =====================================================
+// LANGUAGES
+// =====================================================
 
 const LANGUAGES = [
-  {
-    value: "Telugu",
-    label: "తెలుగు",
-  },
-  {
-    value: "Hindi",
-    label: "हिन्दी",
-  },
-  {
-    value: "English",
-    label: "English",
-  },
-  {
-    value: "Malayalam",
-    label: "മലയാളം",
-  },
-  {
-    value: "Kannada",
-    label: "ಕನ್ನಡ",
-  },
-  {
-    value: "Tamil",
-    label: "தமிழ்",
-  },
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "English", label: "English" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
 ];
 
-
 function ManageArtists() {
+  // ===================================================
+  // STATE
+  // ===================================================
 
-  /* =====================================================
-     STATE
-  ===================================================== */
+  const [artists, setArtists] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const [artists, setArtists] =
-    useState([]);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [loading, setLoading] =
-    useState(true);
+  const [search, setSearch] = useState("");
 
-  const [saving, setSaving] =
-    useState(false);
+  // ===================================================
+  // FORM STATE
+  // ===================================================
 
-  const [error, setError] =
-    useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingArtist, setEditingArtist] = useState(null);
 
-  const [success, setSuccess] =
-    useState("");
+  const [form, setForm] = useState({
+    name: "",
+    bio: "",
+    language: "Telugu",
+    image_url: "",
+  });
 
-  const [search, setSearch] =
-    useState("");
+  // ===================================================
+  // IMAGE STATE
+  // ===================================================
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  /* =====================================================
-     FORM
-  ===================================================== */
-
-  const [showForm, setShowForm] =
-    useState(false);
-
-  const [
-    editingArtist,
-    setEditingArtist,
-  ] = useState(null);
-
-
-  const [form, setForm] =
-    useState({
-      name: "",
-      bio: "",
-      language: "Telugu",
-      image_url: "",
-    });
-
-
-  /* =====================================================
-     IMAGE
-  ===================================================== */
-
-  const [imageFile, setImageFile] =
-    useState(null);
-
-
-
-
-  /* =====================================================
-     LOAD ARTISTS
-  ===================================================== */
+  // ===================================================
+  // LOAD ARTISTS
+  // ===================================================
 
   const loadArtists = async () => {
-
     try {
-
       setLoading(true);
       setError("");
 
-      const response =
-        await API.get(
-          "/admin/artists"
-        );
+      const response = await API.get("/admin/artists");
 
-      setArtists(
-        response.data.artists || []
-      );
-
+      setArtists(response.data.artists || []);
     } catch (error) {
-
-      console.error(
-        "Load artists error:",
-        error
-      );
+      console.error("Load artists error:", error);
 
       setError(
         error.response?.data?.message ||
-        "Unable to load artists."
+          "Unable to load artists."
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
-
   useEffect(() => {
-
     loadArtists();
-
   }, []);
 
+  // ===================================================
+  // CLEAN IMAGE PREVIEW URL
+  // ===================================================
 
-  /* =====================================================
-     OPEN ADD
-  ===================================================== */
+  const clearImagePreview = () => {
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setImagePreview(null);
+  };
+
+  // ===================================================
+  // OPEN ADD FORM
+  // ===================================================
 
   const openAdd = () => {
-
     setEditingArtist(null);
 
     setForm({
@@ -175,116 +118,78 @@ function ManageArtists() {
     });
 
     setImageFile(null);
-
-    setImagePreview(
-      DEFAULT_ARTIST
-    );
+    clearImagePreview();
 
     setError("");
     setSuccess("");
     setShowForm(true);
-
   };
 
-
-  /* =====================================================
-     OPEN EDIT
-  ===================================================== */
+  // ===================================================
+  // OPEN EDIT FORM
+  // ===================================================
 
   const openEdit = (artist) => {
-
-    setEditingArtist(
-      artist
-    );
+    setEditingArtist(artist);
 
     setForm({
-
-      name:
-        artist.name || "",
-
-      bio:
-        artist.bio || "",
-
-      language:
-        artist.language || "Telugu",
-
-      image_url:
-        artist.image_url || "",
-
+      name: artist.name || "",
+      bio: artist.bio || "",
+      language: artist.language || "Telugu",
+      image_url: artist.image_url || "",
     });
 
     setImageFile(null);
+    clearImagePreview();
 
-    setImagePreview(
-      artist.image_url ||
-      DEFAULT_ARTIST
-    );
+    setImagePreview(artist.image_url || null);
 
     setError("");
     setSuccess("");
     setShowForm(true);
-
   };
 
-
-  /* =====================================================
-     CLOSE FORM
-  ===================================================== */
+  // ===================================================
+  // CLOSE FORM
+  // ===================================================
 
   const closeForm = () => {
-
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     setShowForm(false);
-
     setEditingArtist(null);
-
     setImageFile(null);
+    clearImagePreview();
 
-    setImagePreview(
-      DEFAULT_ARTIST
-    );
-
+    setForm({
+      name: "",
+      bio: "",
+      language: "Telugu",
+      image_url: "",
+    });
   };
 
-
-  /* =====================================================
-     TEXT CHANGE
-  ===================================================== */
+  // ===================================================
+  // TEXT CHANGE
+  // ===================================================
 
   const handleChange = (event) => {
+    const { name, value } = event.target;
 
-    const {
-      name,
-      value,
-    } = event.target;
-
-    setForm(
-      (previous) => ({
-        ...previous,
-        [name]: value,
-      })
-    );
-
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   };
 
+  // ===================================================
+  // IMAGE CHANGE
+  // ===================================================
 
-  /* =====================================================
-     IMAGE CHANGE
-  ===================================================== */
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0];
 
-  const handleImageChange = (
-    event
-  ) => {
-
-    const file =
-      event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     const allowedTypes = [
       "image/jpeg",
@@ -292,459 +197,260 @@ function ManageArtists() {
       "image/webp",
     ];
 
-    if (
-      !allowedTypes.includes(
-        file.type
-      )
-    ) {
-
+    if (!allowedTypes.includes(file.type)) {
       setError(
         "Only JPG, PNG or WebP images are allowed."
       );
 
       event.target.value = "";
-
       return;
     }
 
-    if (
-      file.size >
-      5 * 1024 * 1024
-    ) {
-
+    if (file.size > 5 * 1024 * 1024) {
       setError(
         "Artist image must be smaller than 5 MB."
       );
 
       event.target.value = "";
-
       return;
     }
 
     setError("");
 
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
     setImageFile(file);
 
-    const previewUrl =
-      URL.createObjectURL(
-        file
-      );
+    const previewUrl = URL.createObjectURL(file);
 
-    setImagePreview(
-      previewUrl
-    );
-
+    setImagePreview(previewUrl);
   };
 
+  // ===================================================
+  // SAVE ARTIST
+  // ===================================================
 
-  /* =====================================================
-     SAVE ARTIST
-  ===================================================== */
-
-  const handleSubmit = async (
-    event
-  ) => {
-
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    /* NAME */
-
-    if (
-      !form.name.trim()
-    ) {
-
-      setError(
-        "Artist name is required."
-      );
-
+    if (!form.name.trim()) {
+      setError("Artist name is required.");
       return;
     }
 
-
-    /* LANGUAGE */
-
-    const selectedLanguage =
-      LANGUAGES.some(
-        (language) =>
-          language.value ===
-          form.language
-      );
+    const selectedLanguage = LANGUAGES.some(
+      (language) => language.value === form.language
+    );
 
     if (!selectedLanguage) {
-
-      setError(
-        "Please select a valid language."
-      );
-
+      setError("Please select a valid language.");
       return;
     }
 
-
     try {
-
       setSaving(true);
-
       setError("");
       setSuccess("");
 
+      const formData = new FormData();
 
-      const formData =
-        new FormData();
+      formData.append("name", form.name.trim());
+      formData.append("bio", form.bio.trim());
+      formData.append("language", form.language);
 
-
-      formData.append(
-        "name",
-        form.name.trim()
-      );
-
-
-      formData.append(
-        "bio",
-        form.bio.trim()
-      );
-
-
-      formData.append(
-        "language",
-        form.language
-      );
-
-
+      // Upload image only when a new file is selected.
       if (imageFile) {
-
-        formData.append(
-          "cover",
-          imageFile
-        );
-
+        formData.append("cover", imageFile);
       }
 
-
-      /* UPDATE */
-
+      // UPDATE ARTIST
       if (editingArtist) {
-
         await API.put(
           `/admin/artists/${editingArtist.id}`,
           formData
         );
 
-        setSuccess(
-          "Artist updated successfully!"
-        );
-
+        setSuccess("Artist updated successfully!");
       }
 
-
-      /* CREATE */
-
+      // CREATE ARTIST
       else {
+        await API.post("/admin/artists", formData);
 
-        await API.post(
-          "/admin/artists",
-          formData
-        );
-
-        setSuccess(
-          "Artist created successfully!"
-        );
-
+        setSuccess("Artist created successfully!");
       }
-
 
       await loadArtists();
 
-
       setShowForm(false);
-
       setEditingArtist(null);
-
       setImageFile(null);
-
-      setImagePreview(
-        DEFAULT_ARTIST
-      );
-
+      clearImagePreview();
 
     } catch (error) {
-
-      console.error(
-        "Save artist error:",
-        error
-      );
+      console.error("Save artist error:", error);
 
       setError(
         error.response?.data?.message ||
-        "Unable to save artist."
+          "Unable to save artist."
       );
-
     } finally {
-
       setSaving(false);
-
     }
-
   };
 
+  // ===================================================
+  // DELETE ARTIST
+  // ===================================================
 
-  /* =====================================================
-     DELETE
-  ===================================================== */
+  const handleDelete = async (artist) => {
+    const confirmed = window.confirm(
+      `Delete artist "${artist.name}"?`
+    );
 
-  const handleDelete = async (
-    artist
-  ) => {
-
-    const confirmed =
-      window.confirm(
-        `Delete artist "${artist.name}"?`
-      );
-
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
-
       setError("");
       setSuccess("");
 
-      await API.delete(
-        `/admin/artists/${artist.id}`
+      await API.delete(`/admin/artists/${artist.id}`);
+
+      setArtists((previous) =>
+        previous.filter((item) => item.id !== artist.id)
       );
 
-      setArtists(
-        (previous) =>
-          previous.filter(
-            (item) =>
-              item.id !== artist.id
-          )
-      );
-
-      setSuccess(
-        "Artist deleted successfully!"
-      );
+      setSuccess("Artist deleted successfully!");
 
     } catch (error) {
-
-      console.error(
-        "Delete artist error:",
-        error
-      );
+      console.error("Delete artist error:", error);
 
       setError(
         error.response?.data?.message ||
-        "Unable to delete artist."
+          "Unable to delete artist."
       );
-
     }
-
   };
 
+  // ===================================================
+  // SEARCH ARTISTS
+  // ===================================================
 
-  /* =====================================================
-     SEARCH
-  ===================================================== */
+  const filteredArtists = artists.filter((artist) => {
+    const query = search.trim().toLowerCase();
 
-  const filteredArtists =
-    artists.filter(
-      (artist) => {
-
-        const query =
-          search
-            .trim()
-            .toLowerCase();
-
-        if (!query) {
-          return true;
-        }
-
-        return (
-          artist.name
-            ?.toLowerCase()
-            .includes(query) ||
-
-          artist.bio
-            ?.toLowerCase()
-            .includes(query) ||
-
-          artist.language
-            ?.toLowerCase()
-            .includes(query)
-        );
-
-      }
-    );
-
-
-  /* =====================================================
-     LOADING
-  ===================================================== */
-
-  if (loading) {
+    if (!query) return true;
 
     return (
-
-      <div className="admin-page">
-
-        <div className="admin-loading">
-
-          Loading Artists...
-
-        </div>
-
-      </div>
-
+      artist.name?.toLowerCase().includes(query) ||
+      artist.bio?.toLowerCase().includes(query) ||
+      artist.language?.toLowerCase().includes(query)
     );
+  });
 
+  // ===================================================
+  // LOADING
+  // ===================================================
+
+  if (loading) {
+    return (
+      <div className="admin-page">
+        <div className="admin-loading">
+          Loading Artists...
+        </div>
+      </div>
+    );
   }
 
-
-  /* =====================================================
-     PAGE
-  ===================================================== */
+  // ===================================================
+  // PAGE
+  // ===================================================
 
   return (
-
     <div className="admin-page">
-
 
       {/* HEADER */}
 
       <div className="admin-header">
-
         <div>
+          <span>KEERTHANA ADMIN</span>
 
-          <span>
-            KEERTHANA ADMIN
-          </span>
-
-          <h1>
-            Manage Artists
-          </h1>
+          <h1>Manage Artists</h1>
 
           <p>
-            Add, edit and manage
-            Christian music artists.
+            Add, edit and manage Christian music artists.
           </p>
-
         </div>
-
 
         <button
           type="button"
           className="admin-primary-button"
           onClick={openAdd}
         >
-
           <FaPlus />
-
           Add Artist
-
         </button>
-
       </div>
-
 
       {/* MESSAGES */}
 
       {error && (
-
         <div className="admin-error">
           {error}
         </div>
-
       )}
 
-
       {success && (
-
         <div className="admin-success">
           {success}
         </div>
-
       )}
-
 
       {/* SEARCH */}
 
       <div className="admin-song-toolbar">
-
         <div className="admin-song-search">
-
           <FaSearch />
 
           <input
             type="text"
             value={search}
             onChange={(event) =>
-              setSearch(
-                event.target.value
-              )
+              setSearch(event.target.value)
             }
             placeholder="Search artists..."
           />
-
         </div>
 
-
         <div className="admin-song-count">
-
           <FaMicrophone />
 
           <span>
-
-            {filteredArtists.length}
-            {" Artists"}
-
+            {filteredArtists.length} Artists
           </span>
-
         </div>
-
       </div>
 
-
-      {/* TABLE */}
+      {/* ARTISTS TABLE */}
 
       <div className="admin-table-wrapper">
-
         <table className="admin-song-table">
 
           <thead>
-
             <tr>
-
-              <th>
-                Artist
-              </th>
-
-              <th>
-                Language
-              </th>
-
-              <th>
-                Bio
-              </th>
-
-              <th>
-                Songs
-              </th>
-
-              <th>
-                Actions
-              </th>
-
+              <th>Artist</th>
+              <th>Language</th>
+              <th>Bio</th>
+              <th>Songs</th>
+              <th>Actions</th>
             </tr>
-
           </thead>
 
-
           <tbody>
-
             {filteredArtists.length === 0 ? (
-
               <tr>
-
                 <td
                   colSpan="5"
                   style={{
@@ -754,166 +460,104 @@ function ManageArtists() {
                 >
                   No artists found.
                 </td>
-
               </tr>
-
             ) : (
+              filteredArtists.map((artist) => (
+                <tr key={artist.id}>
 
-              filteredArtists.map(
-                (artist) => (
+                  <td>
+                    <div className="admin-artist-cell">
 
-                  <tr
-                    key={
-                      artist.id
-                    }
-                  >
-
-                    <td>
-
-                      <div className="admin-artist-cell">
-
-                        <div className="admin-artist-avatar">
-
+                      <div className="admin-artist-avatar">
+                        {artist.image_url ? (
                           <img
-                            src={
-                              artist.image_url ||
-                              DEFAULT_ARTIST
-                            }
-                            alt={
-                              artist.name
-                            }
-                            onError={(
-                              event
-                            ) => {
-
-                              event.currentTarget.src =
-                                DEFAULT_ARTIST;
-
+                            src={artist.image_url}
+                            alt={artist.name}
+                            onError={(event) => {
+                              event.currentTarget.style.display =
+                                "none";
                             }}
                           />
-
-                        </div>
-
-
-                        <strong>
-                          {artist.name}
-                        </strong>
-
+                        ) : (
+                          <FaMicrophone />
+                        )}
                       </div>
 
-                    </td>
+                      <strong>{artist.name}</strong>
+                    </div>
+                  </td>
 
+                  <td>
+                    {
+                      LANGUAGES.find(
+                        (language) =>
+                          language.value === artist.language
+                      )?.label || artist.language || "—"
+                    }
+                  </td>
 
-                    <td>
+                  <td>
+                    <span className="admin-table-bio">
+                      {artist.bio || "—"}
+                    </span>
+                  </td>
 
-                      {
-                        LANGUAGES.find(
-                          (language) =>
-                            language.value ===
-                            artist.language
-                        )?.label ||
-                        "తెలుగు"
-                      }
+                  <td>
+                    {artist.song_count ?? 0}
+                  </td>
 
-                    </td>
+                  <td>
+                    <div className="admin-table-actions">
 
+                      <button
+                        type="button"
+                        className="admin-action-button edit"
+                        title="Edit Artist"
+                        onClick={() => openEdit(artist)}
+                      >
+                        <FaEdit />
+                      </button>
 
-                    <td>
+                      <button
+                        type="button"
+                        className="admin-action-button delete"
+                        title="Delete Artist"
+                        onClick={() => handleDelete(artist)}
+                      >
+                        <FaTrash />
+                      </button>
 
-                      <span className="admin-table-bio">
+                    </div>
+                  </td>
 
-                        {artist.bio ||
-                          "—"}
-
-                      </span>
-
-                    </td>
-
-
-                    <td>
-
-                      {artist.song_count ??
-                        0}
-
-                    </td>
-
-
-                    <td>
-
-                      <div className="admin-table-actions">
-
-                        <button
-                          type="button"
-                          className="admin-action-button edit"
-                          title="Edit Artist"
-                          onClick={() =>
-                            openEdit(
-                              artist
-                            )
-                          }
-                        >
-                          <FaEdit />
-                        </button>
-
-
-                        <button
-                          type="button"
-                          className="admin-action-button delete"
-                          title="Delete Artist"
-                          onClick={() =>
-                            handleDelete(
-                              artist
-                            )
-                          }
-                        >
-                          <FaTrash />
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                )
-              )
-
+                </tr>
+              ))
             )}
-
           </tbody>
 
         </table>
-
       </div>
 
-
-      {/* MODAL */}
+      {/* ADD / EDIT MODAL */}
 
       {showForm && (
-
         <div className="admin-modal-overlay">
 
           <div className="admin-modal">
 
+            {/* MODAL HEADER */}
 
             <div className="admin-modal-header">
 
               <div>
-
-                <span>
-                  KEERTHANA ADMIN
-                </span>
+                <span>KEERTHANA ADMIN</span>
 
                 <h2>
-
                   {editingArtist
                     ? "Edit Artist"
                     : "Add Artist"}
-
                 </h2>
-
               </div>
-
 
               <button
                 type="button"
@@ -921,245 +565,166 @@ function ManageArtists() {
                 onClick={closeForm}
                 disabled={saving}
               >
-
                 <FaTimes />
-
               </button>
 
             </div>
 
+            {/* FORM */}
 
-            <form
-              onSubmit={
-                handleSubmit
-              }
-            >
-
+            <form onSubmit={handleSubmit}>
 
               {/* ARTIST NAME */}
 
               <div className="admin-field">
-
-                <label>
-                  Artist Name *
-                </label>
+                <label>Artist Name *</label>
 
                 <input
                   type="text"
                   name="name"
-                  value={
-                    form.name
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.name}
+                  onChange={handleChange}
                   placeholder="Artist name"
                   required
                 />
-
               </div>
-
 
               {/* LANGUAGE */}
 
               <div className="admin-field">
-
-                <label>
-                  Artist Language *
-                </label>
+                <label>Artist Language *</label>
 
                 <select
                   name="language"
-                  value={
-                    form.language
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.language}
+                  onChange={handleChange}
                   required
                 >
-
-                  {LANGUAGES.map(
-                    (language) => (
-
-                      <option
-                        key={
-                          language.value
-                        }
-                        value={
-                          language.value
-                        }
-                      >
-
-                        {language.label}
-
-                      </option>
-
-                    )
-                  )}
-
+                  {LANGUAGES.map((language) => (
+                    <option
+                      key={language.value}
+                      value={language.value}
+                    >
+                      {language.label}
+                    </option>
+                  ))}
                 </select>
-
               </div>
-
 
               {/* BIO */}
 
               <div className="admin-field">
-
-                <label>
-                  Biography
-                </label>
+                <label>Biography</label>
 
                 <textarea
                   name="bio"
                   rows="6"
-                  value={
-                    form.bio
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.bio}
+                  onChange={handleChange}
                   placeholder="Short artist biography..."
                 />
-
               </div>
 
-
-              {/* IMAGE */}
+              {/* ARTIST IMAGE */}
 
               <div className="admin-field">
-
-                <label>
-                  Artist Cover Image
-                </label>
-
+                <label>Artist Cover Image</label>
 
                 <div className="artist-image-upload">
 
+                  {/* IMAGE PREVIEW */}
 
                   <div className="artist-image-preview">
-
-                    <img
-                      src={
-                        imagePreview ||
-                        DEFAULT_ARTIST
-                      }
-                      alt="Artist preview"
-                      onError={(
-                        event
-                      ) => {
-
-                        event.currentTarget.src =
-                          DEFAULT_ARTIST;
-
-                      }}
-                    />
-
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Artist preview"
+                        onError={(event) => {
+                          event.currentTarget.style.display =
+                            "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="artist-empty-preview">
+                        <FaImage />
+                        <span>No image selected</span>
+                      </div>
+                    )}
                   </div>
 
+                  {/* CHOOSE IMAGE */}
 
                   <label
                     htmlFor="artist-cover-input"
                     className="artist-file-button"
                   >
-
                     <FaImage />
 
                     {imageFile
                       ? "Change Image"
                       : "Choose Image"}
-
                   </label>
-
 
                   <input
                     id="artist-cover-input"
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    onChange={
-                      handleImageChange
-                    }
-                    style={{
-                      display:
-                        "none",
-                    }}
+                    onChange={handleImageChange}
+                    style={{ display: "none" }}
                   />
 
+                  {/* FILE NAME */}
 
                   <div className="artist-file-name">
-
                     {imageFile
                       ? imageFile.name
                       : editingArtist?.image_url
                         ? "Current image"
-                        : "No file chosen — default image will be used"}
-
+                        : "No image selected"}
                   </div>
 
-
                   <small>
-
-                    JPG, PNG or WebP.
-                    Maximum 5 MB.
-
+                    JPG, PNG or WebP. Maximum 5 MB.
                   </small>
 
                 </div>
-
               </div>
 
-
-              {/* ACTIONS */}
+              {/* FORM ACTIONS */}
 
               <div className="admin-form-actions">
 
                 <button
                   type="button"
                   className="admin-cancel-button"
-                  onClick={
-                    closeForm
-                  }
-                  disabled={
-                    saving
-                  }
+                  onClick={closeForm}
+                  disabled={saving}
                 >
                   Cancel
                 </button>
 
-
                 <button
                   type="submit"
                   className="admin-primary-button"
-                  disabled={
-                    saving
-                  }
+                  disabled={saving}
                 >
-
                   {saving
                     ? "Saving..."
                     : editingArtist
                       ? "Update Artist"
                       : "Add Artist"}
-
                 </button>
 
               </div>
 
-
             </form>
 
           </div>
-
         </div>
-
       )}
 
     </div>
-
   );
-
 }
-
 
 export default ManageArtists;

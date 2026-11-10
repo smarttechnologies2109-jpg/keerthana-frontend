@@ -29,10 +29,8 @@ const LANGUAGES = [
 ];
 
 // =====================================================
-// DEFAULT IMAGE
+// IMAGE VALIDATION
 // =====================================================
-
-
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -54,15 +52,12 @@ function ManageCategories() {
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
-
   const [saving, setSaving] = useState(false);
-
   const [deletingId, setDeletingId] = useState(null);
 
   const [search, setSearch] = useState("");
 
   const [error, setError] = useState("");
-
   const [success, setSuccess] = useState("");
 
   // ===================================================
@@ -70,16 +65,13 @@ function ManageCategories() {
   // ===================================================
 
   const [showForm, setShowForm] = useState(false);
-
-  const [editingCategory, setEditingCategory] =
-    useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   // ===================================================
   // FORM
   // ===================================================
 
   const [name, setName] = useState("");
-
   const [language, setLanguage] = useState("Telugu");
 
   // ===================================================
@@ -87,7 +79,6 @@ function ManageCategories() {
   // ===================================================
 
   const [imageFile, setImageFile] = useState(null);
-
   const [imagePreview, setImagePreview] = useState("");
 
   // ===================================================
@@ -102,26 +93,19 @@ function ManageCategories() {
 
       setError("");
 
-      const response = await API.get(
-        "/admin/categories"
-      );
+      const response = await API.get("/admin/categories");
 
       if (response.data?.success) {
-        setCategories(
-          response.data.categories || []
-        );
+        setCategories(response.data.categories || []);
       } else {
         setCategories([]);
       }
     } catch (err) {
-      console.error(
-        "Load categories error:",
-        err
-      );
+      console.error("Load categories error:", err);
 
       setError(
         err.response?.data?.message ||
-        "Unable to load categories."
+          "Unable to load categories."
       );
     } finally {
       if (showLoader) {
@@ -141,7 +125,7 @@ function ManageCategories() {
   }, []);
 
   // ===================================================
-  // CLEANUP IMAGE PREVIEW
+  // CLEANUP IMAGE PREVIEW URL
   // ===================================================
 
   useEffect(() => {
@@ -160,17 +144,12 @@ function ManageCategories() {
     setEditingCategory(null);
 
     setName("");
-
     setLanguage("Telugu");
 
     setImageFile(null);
-
-    setImagePreview(
-      DEFAULT_CATEGORY_IMAGE
-    );
+    setImagePreview("");
 
     setError("");
-
     setSuccess("");
 
     setShowForm(true);
@@ -184,20 +163,15 @@ function ManageCategories() {
     setEditingCategory(category);
 
     setName(category.name || "");
-
-    setLanguage(
-      category.language || "Telugu"
-    );
+    setLanguage(category.language || "Telugu");
 
     setImageFile(null);
 
-    setImagePreview(
-      category.image_url ||
-      DEFAULT_CATEGORY_IMAGE
-    );
+    // Use only the category's actual uploaded image.
+    // No default image is assigned.
+    setImagePreview(category.image_url || "");
 
     setError("");
-
     setSuccess("");
 
     setShowForm(true);
@@ -208,20 +182,15 @@ function ManageCategories() {
   // ===================================================
 
   const closeForm = () => {
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     setShowForm(false);
-
     setEditingCategory(null);
 
     setName("");
-
     setLanguage("Telugu");
 
     setImageFile(null);
-
     setImagePreview("");
 
     setError("");
@@ -234,9 +203,7 @@ function ManageCategories() {
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     // FILE TYPE VALIDATION
 
@@ -252,19 +219,18 @@ function ManageCategories() {
     // FILE SIZE VALIDATION
 
     if (file.size > MAX_IMAGE_SIZE) {
-      setError(
-        "Image size must be less than 5 MB."
-      );
+      setError("Image size must be less than 5 MB.");
 
       event.target.value = "";
       return;
     }
 
     setError("");
+    setSuccess("");
 
     setImageFile(file);
 
-    // PREVIEW
+    // CREATE IMAGE PREVIEW
 
     const preview = URL.createObjectURL(file);
 
@@ -299,7 +265,6 @@ function ManageCategories() {
       setSaving(true);
 
       setError("");
-
       setSuccess("");
 
       // CREATE FORMDATA
@@ -307,7 +272,6 @@ function ManageCategories() {
       const formData = new FormData();
 
       formData.append("name", cleanName);
-
       formData.append("language", language);
 
       // ADD IMAGE ONLY IF SELECTED
@@ -324,9 +288,7 @@ function ManageCategories() {
           formData
         );
 
-        setSuccess(
-          "Category updated successfully!"
-        );
+        setSuccess("Category updated successfully!");
       }
 
       // CREATE CATEGORY
@@ -337,9 +299,7 @@ function ManageCategories() {
           formData
         );
 
-        setSuccess(
-          "Category created successfully!"
-        );
+        setSuccess("Category created successfully!");
       }
 
       // REFRESH CATEGORIES
@@ -349,27 +309,20 @@ function ManageCategories() {
       // RESET FORM
 
       setShowForm(false);
-
       setEditingCategory(null);
 
       setName("");
-
       setLanguage("Telugu");
 
       setImageFile(null);
-
       setImagePreview("");
-
     } catch (err) {
-      console.error(
-        "Save category error:",
-        err
-      );
+      console.error("Save category error:", err);
 
       setError(
         err.response?.data?.message ||
-        err.message ||
-        "Unable to save category."
+          err.message ||
+          "Unable to save category."
       );
     } finally {
       setSaving(false);
@@ -385,15 +338,12 @@ function ManageCategories() {
       `Delete category "${category.name}"?`
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       setDeletingId(category.id);
 
       setError("");
-
       setSuccess("");
 
       await API.delete(
@@ -406,21 +356,14 @@ function ManageCategories() {
         )
       );
 
-      setSuccess(
-        "Category deleted successfully!"
-      );
-
+      setSuccess("Category deleted successfully!");
     } catch (err) {
-      console.error(
-        "Delete category error:",
-        err
-      );
+      console.error("Delete category error:", err);
 
       setError(
         err.response?.data?.message ||
-        "Unable to delete category."
+          "Unable to delete category."
       );
-
     } finally {
       setDeletingId(null);
     }
@@ -434,17 +377,11 @@ function ManageCategories() {
 
   const filteredCategories = categories.filter(
     (category) => {
-      if (!query) {
-        return true;
-      }
+      if (!query) return true;
 
       return (
-        category.name
-          ?.toLowerCase()
-          .includes(query) ||
-        category.language
-          ?.toLowerCase()
-          .includes(query)
+        category.name?.toLowerCase().includes(query) ||
+        category.language?.toLowerCase().includes(query)
       );
     }
   );
@@ -457,7 +394,7 @@ function ManageCategories() {
     return (
       LANGUAGES.find(
         (item) => item.value === value
-      )?.label || "తెలుగు"
+      )?.label || value || "తెలుగు"
     );
   };
 
@@ -512,7 +449,7 @@ function ManageCategories() {
       ========================================= */}
 
       {error && (
-        <div className="admin-error">
+        <div className="admin-error" role="alert">
           {error}
         </div>
       )}
@@ -522,7 +459,7 @@ function ManageCategories() {
       ========================================= */}
 
       {success && (
-        <div className="admin-success">
+        <div className="admin-success" role="status">
           {success}
         </div>
       )}
@@ -566,7 +503,6 @@ function ManageCategories() {
       {filteredCategories.length === 0 ? (
 
         <div className="admin-empty-state">
-
           <FaTags />
 
           <h2>No Categories Found</h2>
@@ -587,7 +523,6 @@ function ManageCategories() {
               Add Category
             </button>
           )}
-
         </div>
 
       ) : (
@@ -618,17 +553,36 @@ function ManageCategories() {
 
                       <div className="admin-category-icon">
 
-                        <img
-                          src={
-                            category.image_url ||
-                            DEFAULT_CATEGORY_IMAGE
-                          }
-                          alt={category.name}
-                          onError={(event) => {
-                            event.currentTarget.src =
-                              DEFAULT_CATEGORY_IMAGE;
-                          }}
-                        />
+                        {category.image_url ? (
+                          <>
+                            <img
+                              src={category.image_url}
+                              alt={category.name}
+                              onError={(event) => {
+                                event.currentTarget.style.display =
+                                  "none";
+
+                                const fallback =
+                                  event.currentTarget.parentElement.querySelector(
+                                    ".category-image-fallback"
+                                  );
+
+                                if (fallback) {
+                                  fallback.style.display = "flex";
+                                }
+                              }}
+                            />
+
+                            <div
+                              className="category-image-fallback"
+                              style={{ display: "none" }}
+                            >
+                              <FaTags />
+                            </div>
+                          </>
+                        ) : (
+                          <FaTags />
+                        )}
 
                       </div>
 
@@ -660,9 +614,7 @@ function ManageCategories() {
                         type="button"
                         className="admin-action-button edit"
                         title="Edit Category"
-                        onClick={() =>
-                          openEdit(category)
-                        }
+                        onClick={() => openEdit(category)}
                       >
                         <FaEdit />
                       </button>
@@ -693,7 +645,6 @@ function ManageCategories() {
           </table>
 
         </div>
-
       )}
 
       {/* =========================================
@@ -749,6 +700,7 @@ function ManageCategories() {
                     setLanguage(event.target.value)
                   }
                   required
+                  disabled={saving}
                 >
 
                   {LANGUAGES.map((item) => (
@@ -795,6 +747,7 @@ function ManageCategories() {
                   }
                   autoFocus
                   required
+                  disabled={saving}
                 />
 
               </div>
@@ -837,17 +790,21 @@ function ManageCategories() {
 
                 <div className="admin-category-image-preview">
 
-                  <img
-                    src={
-                      imagePreview ||
-                      DEFAULT_CATEGORY_IMAGE
-                    }
-                    alt="Category preview"
-                    onError={(event) => {
-                      event.currentTarget.src =
-                        DEFAULT_CATEGORY_IMAGE;
-                    }}
-                  />
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Category preview"
+                      onError={(event) => {
+                        event.currentTarget.style.display =
+                          "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="category-empty-preview">
+                      <FaTags />
+                      <span>No image selected</span>
+                    </div>
+                  )}
 
                 </div>
 
@@ -885,7 +842,6 @@ function ManageCategories() {
           </div>
 
         </div>
-
       )}
 
     </div>
