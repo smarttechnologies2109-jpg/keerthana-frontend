@@ -39,7 +39,7 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 import { useAuth } from "../context/AuthContext";
 
-import SleepTimer from "../components/SleepTimer";
+
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
 
 import {
@@ -1268,12 +1268,12 @@ export default function MiniPlayer({ onExpand }) {
                 <span>Queue</span>
 
               </button>
-
+{/* 
               <div className="mini-player-sleep">
 
                 <SleepTimer />
 
-              </div>
+              </div> */}
 
               <VerticalVolumeControl
                 volume={volume}
