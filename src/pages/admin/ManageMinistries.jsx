@@ -31,7 +31,7 @@ const LANGUAGES = [
   { value: "Tamil", label: "தமிழ்" },
 ];
 
-const DEFAULT_MINISTRY_IMAGE = "/images/default-ministry.png";
+
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 

@@ -127,8 +127,7 @@ function ManageAlbums() {
   const [coverFile, setCoverFile] =
     useState(null);
 
-  const [coverPreview, setCoverPreview] =
-    useState(DEFAULT_ALBUM);
+
 
 
   /* =====================================================

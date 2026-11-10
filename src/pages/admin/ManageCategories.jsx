@@ -32,8 +32,7 @@ const LANGUAGES = [
 // DEFAULT IMAGE
 // =====================================================
 
-const DEFAULT_CATEGORY_IMAGE =
-  "/images/default-category.png";
+
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 

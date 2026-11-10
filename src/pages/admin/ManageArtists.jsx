@@ -108,8 +108,7 @@ function ManageArtists() {
   const [imageFile, setImageFile] =
     useState(null);
 
-  const [imagePreview, setImagePreview] =
-    useState(DEFAULT_ARTIST);
+
 
 
   /* =====================================================
