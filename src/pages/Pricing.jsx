@@ -119,7 +119,7 @@ const Pricing = () => {
           <Link to="/about-us">About Us</Link>
           <Link to="/contact-us">Contact Us</Link>
           <Link to="/privacy-policy">Privacy Policy</Link>
-          <Link to="/terms">Terms & Conditions</Link>
+          <Link to="/terms-and-conditions">Terms & Conditions</Link>
         </nav>
 
       </div>
