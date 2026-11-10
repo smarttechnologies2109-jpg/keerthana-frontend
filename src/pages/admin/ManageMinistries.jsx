@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   FaChurch,
@@ -8,7 +9,6 @@ import {
   FaTimes,
   FaSave,
   FaUpload,
-  FaImage,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -18,64 +18,72 @@ import "../../assets/css/admin/manageMinistries.css";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminHeader from "../../components/admin/AdminHeader.jsx";
 
-
-/* =========================================================
-   SUPPORTED LANGUAGES
-========================================================= */
+// =========================================================
+// SUPPORTED LANGUAGES
+// =========================================================
 
 const LANGUAGES = [
-  {
-    value: "Telugu",
-    label: "తెలుగు",
-  },
-  {
-    value: "Hindi",
-    label: "हिन्दी",
-  },
-  {
-    value: "English",
-    label: "English",
-  },
-  {
-    value: "Malayalam",
-    label: "മലയാളം",
-  },
-  {
-    value: "Kannada",
-    label: "ಕನ್ನಡ",
-  },
-  {
-    value: "Tamil",
-    label: "தமிழ்",
-  },
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "English", label: "English" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
 ];
 
+const DEFAULT_MINISTRY_IMAGE = "/images/default-ministry.png";
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
+
+// =========================================================
+// HELPERS
+// =========================================================
 
 const getLanguageLabel = (value) => {
-
   const language = LANGUAGES.find(
-    (item) => item.value === value
+    (item) =>
+      item.value.toLowerCase() ===
+      String(value || "").toLowerCase()
   );
 
   return language?.label || value || "తెలుగు";
 };
 
+const getMinistryList = (responseData) => {
+  if (Array.isArray(responseData)) {
+    return responseData;
+  }
 
-/* =========================================================
-   DEFAULT MINISTRY IMAGE
-========================================================= */
+  if (Array.isArray(responseData?.ministries)) {
+    return responseData.ministries;
+  }
 
-const DEFAULT_MINISTRY_IMAGE =
-  "/images/default-ministry.png";
+  if (Array.isArray(responseData?.data)) {
+    return responseData.data;
+  }
 
+  return [];
+};
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 function ManageMinistries() {
+  // -------------------------------------------------------
+  // STATE
+  // -------------------------------------------------------
 
   const [ministries, setMinistries] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -86,6 +94,9 @@ function ManageMinistries() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
+  const imageInputRef = useRef(null);
+  const previewUrlRef = useRef("");
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -93,231 +104,115 @@ function ManageMinistries() {
     language: "Telugu",
   });
 
+  // -------------------------------------------------------
+  // IMAGE PREVIEW CLEANUP
+  // -------------------------------------------------------
 
-  /* =========================================================
-     LOAD MINISTRIES
-  ========================================================= */
+  const clearImagePreview = () => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = "";
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
+
+  // -------------------------------------------------------
+  // LOAD MINISTRIES
+  // -------------------------------------------------------
 
   const loadMinistries = async () => {
-
     try {
-
       setLoading(true);
       setError("");
 
       const response = await API.get("/ministries");
 
-      setMinistries(response.data || []);
+      const ministryList = getMinistryList(response.data);
 
+      setMinistries(ministryList);
     } catch (error) {
-
-      console.error(
-        "Load ministries error:",
-        error
-      );
+      console.error("Load ministries error:", error);
 
       setError(
         error.response?.data?.message ||
-          "Failed to load ministries."
+          "Failed to load ministries. Please try again."
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
-
   useEffect(() => {
-
     loadMinistries();
-
   }, []);
 
-
-  /* =========================================================
-     INPUT CHANGE
-  ========================================================= */
+  // -------------------------------------------------------
+  // INPUT CHANGE
+  // -------------------------------------------------------
 
   const handleChange = (event) => {
-
-    const {
-      name,
-      value,
-    } = event.target;
-
+    const { name, value } = event.target;
 
     setForm((previous) => ({
       ...previous,
       [name]: value,
     }));
-
   };
 
-
-  /* =========================================================
-     IMAGE SELECT
-  ========================================================= */
+  // -------------------------------------------------------
+  // IMAGE SELECTION
+  // -------------------------------------------------------
 
   const handleImageChange = (event) => {
-
-    const file =
-      event.target.files?.[0];
+    const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-
-    /* -------------------------------------------------------
-       VALIDATE FILE TYPE
-    ------------------------------------------------------- */
-
-    if (!file.type.startsWith("image/")) {
-
-      setError(
-        "Please select a valid image file."
-      );
-
-      event.target.value = "";
-
-      return;
-    }
-
-
-    /* -------------------------------------------------------
-       VALIDATE FILE SIZE
-       Maximum 5 MB
-    ------------------------------------------------------- */
-
-    if (file.size > 5 * 1024 * 1024) {
-
-      setError(
-        "Image size must be less than 5 MB."
-      );
-
-      event.target.value = "";
-
-      return;
-    }
-
-
     setError("");
+    setSuccess("");
+
+    // Validate image MIME type.
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError("Please select a JPG, PNG or WEBP image.");
+
+      event.target.value = "";
+      return;
+    }
+
+    // Validate image size.
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError("Image size must be less than 5 MB.");
+
+      event.target.value = "";
+      return;
+    }
+
+    // Remove previous temporary preview.
+    clearImagePreview();
+
+    const previewUrl = URL.createObjectURL(file);
+
+    previewUrlRef.current = previewUrl;
+
     setImageFile(file);
-
-
-    /* -------------------------------------------------------
-       CREATE PREVIEW
-    ------------------------------------------------------- */
-
-    const previewUrl =
-      URL.createObjectURL(file);
-
     setImagePreview(previewUrl);
-
   };
 
-
-  /* =========================================================
-     UPLOAD IMAGE
-  ========================================================= */
-
-  const uploadImage = async () => {
-
-    if (!imageFile) {
-      return form.image_url || "";
-    }
-
-
-    try {
-
-      setUploadingImage(true);
-
-
-      const formData =
-        new FormData();
-
-      formData.append(
-        "image",
-        imageFile
-      );
-
-
-      const response =
-        await API.post(
-          "/admin/upload",
-          formData,
-          {
-            headers: {
-              "Content-Type":
-                "multipart/form-data",
-            },
-          }
-        );
-
-
-      /*
-        Expected backend response:
-
-        {
-          "url": "/uploads/ministries/example.jpg"
-        }
-      */
-
-      const uploadedUrl =
-        response.data?.url ||
-        response.data?.image_url ||
-        response.data?.path;
-
-
-      if (!uploadedUrl) {
-
-        throw new Error(
-          "Image upload response did not contain an image URL."
-        );
-
-      }
-
-
-      return uploadedUrl;
-
-    } catch (error) {
-
-      console.error(
-        "Upload ministry image error:",
-        error
-      );
-
-      throw new Error(
-        error.response?.data?.message ||
-          "Failed to upload ministry image."
-      );
-
-    } finally {
-
-      setUploadingImage(false);
-
-    }
-
-  };
-
-
-  /* =========================================================
-     RESET FORM
-  ========================================================= */
+  // -------------------------------------------------------
+  // RESET FORM
+  // -------------------------------------------------------
 
   const resetForm = () => {
-
-    if (imagePreview) {
-
-      URL.revokeObjectURL(
-        imagePreview
-      );
-
-    }
-
+    clearImagePreview();
 
     setForm({
       name: "",
@@ -332,40 +227,30 @@ function ManageMinistries() {
     setEditingId(null);
     setShowForm(false);
 
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
   };
 
-
-  /* =========================================================
-     OPEN ADD FORM
-  ========================================================= */
+  // -------------------------------------------------------
+  // OPEN ADD FORM
+  // -------------------------------------------------------
 
   const handleAdd = () => {
-
-    setEditingId(null);
-
-    setForm({
-      name: "",
-      description: "",
-      image_url: "",
-      language: "Telugu",
-    });
-
-    setImageFile(null);
-    setImagePreview("");
+    resetForm();
 
     setError("");
     setSuccess("");
 
     setShowForm(true);
-
   };
 
-
-  /* =========================================================
-     OPEN EDIT FORM
-  ========================================================= */
+  // -------------------------------------------------------
+  // OPEN EDIT FORM
+  // -------------------------------------------------------
 
   const handleEdit = (ministry) => {
+    clearImagePreview();
 
     setEditingId(ministry.id);
 
@@ -379,235 +264,171 @@ function ManageMinistries() {
     setImageFile(null);
 
     setImagePreview(
-      ministry.image_url ||
-        DEFAULT_MINISTRY_IMAGE
+      ministry.image_url || DEFAULT_MINISTRY_IMAGE
     );
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
 
     setError("");
     setSuccess("");
 
     setShowForm(true);
-
   };
 
-
-  /* =========================================================
-     SAVE MINISTRY
-  ========================================================= */
+  // -------------------------------------------------------
+  // SAVE MINISTRY
+  // DIRECT MULTIPART UPLOAD TO BACKEND
+  // -------------------------------------------------------
 
   const handleSubmit = async (event) => {
-
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
+    // Validate ministry name.
+    const cleanName = form.name.trim();
 
-    /* -------------------------------------------------------
-       VALIDATE NAME
-    ------------------------------------------------------- */
-
-    if (!form.name.trim()) {
-
-      setError(
-        "Ministry name is required."
-      );
-
+    if (!cleanName) {
+      setError("Ministry name is required.");
       return;
     }
 
+    // Validate language.
+    const validLanguage = LANGUAGES.some(
+      (language) => language.value === form.language
+    );
 
-    /* -------------------------------------------------------
-       VALIDATE LANGUAGE
-    ------------------------------------------------------- */
-
-    if (
-      !LANGUAGES.some(
-        (language) =>
-          language.value ===
-          form.language
-      )
-    ) {
-
-      setError(
-        "Please select a valid ministry language."
-      );
-
+    if (!validLanguage) {
+      setError("Please select a valid ministry language.");
       return;
     }
-
 
     try {
-
       setSaving(true);
 
+      // Create multipart form data.
+      const formData = new FormData();
 
-      /* -----------------------------------------------------
-         UPLOAD IMAGE FIRST
-      ----------------------------------------------------- */
+      formData.append("name", cleanName);
 
-      let imageUrl =
-        form.image_url.trim();
+      formData.append(
+        "description",
+        form.description.trim()
+      );
 
+      formData.append("language", form.language);
 
+      // Add image only if a new image was selected.
       if (imageFile) {
-
-        imageUrl =
-          await uploadImage();
-
+        formData.append("image", imageFile);
       }
 
-
-      /* -----------------------------------------------------
-         MINISTRY DATA
-      ----------------------------------------------------- */
-
-      const ministryData = {
-
-        name:
-          form.name.trim(),
-
-        description:
-          form.description.trim(),
-
-        image_url:
-          imageUrl,
-
-        language:
-          form.language,
-
-      };
-
-
-      /* -----------------------------------------------------
-         UPDATE
-      ----------------------------------------------------- */
+      // ---------------------------------------------------
+      // UPDATE MINISTRY
+      // ---------------------------------------------------
 
       if (editingId) {
-
         await API.put(
           `/admin/ministries/${editingId}`,
-          ministryData
+          formData
         );
 
-        setSuccess(
-          "Ministry updated successfully."
-        );
-
+        setSuccess("Ministry updated successfully.");
       }
 
-
-      /* -----------------------------------------------------
-         CREATE
-      ----------------------------------------------------- */
+      // ---------------------------------------------------
+      // CREATE MINISTRY
+      // ---------------------------------------------------
 
       else {
-
         await API.post(
           "/admin/ministries",
-          ministryData
+          formData
         );
 
-        setSuccess(
-          "Ministry added successfully."
-        );
-
+        setSuccess("Ministry added successfully.");
       }
 
-
+      // Clear form and reload data.
       resetForm();
 
       await loadMinistries();
-
     } catch (error) {
-
-      console.error(
-        "Save ministry error:",
-        error
-      );
+      console.error("Save ministry error:", error);
 
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Failed to save ministry."
+          "Failed to save ministry. Please try again."
       );
-
     } finally {
-
       setSaving(false);
-
     }
-
   };
 
-
-  /* =========================================================
-     DELETE MINISTRY
-  ========================================================= */
+  // -------------------------------------------------------
+  // DELETE MINISTRY
+  // -------------------------------------------------------
 
   const handleDelete = async (id) => {
-
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to delete this ministry?"
-      );
-
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this ministry?"
+    );
 
     if (!confirmed) {
       return;
     }
 
-
     try {
-
       setError("");
       setSuccess("");
 
-      await API.delete(
-        `/admin/ministries/${id}`
-      );
+      await API.delete(`/admin/ministries/${id}`);
 
-      setSuccess(
-        "Ministry deleted successfully."
-      );
+      setSuccess("Ministry deleted successfully.");
 
       await loadMinistries();
-
     } catch (error) {
-
-      console.error(
-        "Delete ministry error:",
-        error
-      );
+      console.error("Delete ministry error:", error);
 
       setError(
         error.response?.data?.message ||
-          "Failed to delete ministry."
+          "Failed to delete ministry. Please try again."
       );
-
     }
-
   };
 
+  // -------------------------------------------------------
+  // IMAGE ERROR HANDLER
+  // -------------------------------------------------------
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
+  const handleImageError = (event) => {
+    if (
+      event.currentTarget.src.endsWith(
+        DEFAULT_MINISTRY_IMAGE
+      )
+    ) {
+      return;
+    }
+
+    event.currentTarget.src = DEFAULT_MINISTRY_IMAGE;
+  };
+
+  // -------------------------------------------------------
+  // RENDER
+  // -------------------------------------------------------
 
   return (
-
     <div className="admin-ministries-page">
 
       <AdminSidebar />
 
       <div className="admin-ministries-main">
 
-        {/* <AdminHeader /> */}
-
-
-        {/* =====================================================
-            PAGE HEADER
-        ===================================================== */}
+        {/* PAGE HEADER */}
 
         <div className="admin-ministries-header">
 
@@ -618,62 +439,43 @@ function ManageMinistries() {
             </div>
 
             <div>
-
-              <h1>
-                Ministries
-              </h1>
+              <h1>Ministries</h1>
 
               <p>
                 Create and manage song ministries.
               </p>
-
             </div>
 
           </div>
-
 
           <button
             type="button"
             className="admin-ministry-add-button"
             onClick={handleAdd}
+            disabled={saving}
           >
-
             <FaPlus />
 
-            <span>
-              Add Ministry
-            </span>
-
+            <span>Add Ministry</span>
           </button>
 
         </div>
 
-
-        {/* =====================================================
-            ALERTS
-        ===================================================== */}
+        {/* ALERTS */}
 
         {error && (
-
-          <div className="admin-ministry-alert error">
+          <div className="admin-ministry-alert error" role="alert">
             {error}
           </div>
-
         )}
-
 
         {success && (
-
-          <div className="admin-ministry-alert success">
+          <div className="admin-ministry-alert success" role="status">
             {success}
           </div>
-
         )}
 
-
-        {/* =====================================================
-            FORM
-        ===================================================== */}
+        {/* MINISTRY FORM */}
 
         {showForm && (
 
@@ -682,56 +484,42 @@ function ManageMinistries() {
             <div className="admin-ministry-form-header">
 
               <div>
-
                 <h2>
-
                   {editingId
                     ? "Edit Ministry"
                     : "Add New Ministry"}
-
                 </h2>
 
                 <p>
                   Enter the ministry information below.
                 </p>
-
               </div>
-
 
               <button
                 type="button"
                 className="admin-ministry-close-button"
                 onClick={resetForm}
-                disabled={
-                  saving ||
-                  uploadingImage
-                }
+                disabled={saving}
+                aria-label="Close form"
               >
                 <FaTimes />
               </button>
 
             </div>
 
-
             <form
               onSubmit={handleSubmit}
               className="admin-ministry-form"
+              encType="multipart/form-data"
             >
 
-              {/* =================================================
-                  MINISTRY NAME
-              ================================================= */}
+              {/* MINISTRY NAME */}
 
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-name">
-
-                  Ministry Name
-
-                  <span>*</span>
-
+                  Ministry Name <span>*</span>
                 </label>
-
 
                 <input
                   id="ministry-name"
@@ -742,25 +530,18 @@ function ManageMinistries() {
                   placeholder="Example: Hosanna Ministries"
                   maxLength={255}
                   required
+                  disabled={saving}
                 />
 
               </div>
 
-
-              {/* =================================================
-                  MINISTRY LANGUAGE
-              ================================================= */}
+              {/* LANGUAGE */}
 
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-language">
-
-                  Ministry Language
-
-                  <span>*</span>
-
+                  Ministry Language <span>*</span>
                 </label>
-
 
                 <select
                   id="ministry-language"
@@ -768,23 +549,17 @@ function ManageMinistries() {
                   value={form.language}
                   onChange={handleChange}
                   required
+                  disabled={saving}
                 >
-
-                  {LANGUAGES.map(
-                    (language) => (
-
-                      <option
-                        key={language.value}
-                        value={language.value}
-                      >
-                        {language.label}
-                      </option>
-
-                    )
-                  )}
-
+                  {LANGUAGES.map((language) => (
+                    <option
+                      key={language.value}
+                      value={language.value}
+                    >
+                      {language.label}
+                    </option>
+                  ))}
                 </select>
-
 
                 <small>
                   Select the language of this ministry.
@@ -792,17 +567,13 @@ function ManageMinistries() {
 
               </div>
 
-
-              {/* =================================================
-                  DESCRIPTION
-              ================================================= */}
+              {/* DESCRIPTION */}
 
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-description">
                   Description
                 </label>
-
 
                 <textarea
                   id="ministry-description"
@@ -811,65 +582,53 @@ function ManageMinistries() {
                   onChange={handleChange}
                   placeholder="Enter ministry description..."
                   rows={4}
+                  disabled={saving}
                 />
 
               </div>
 
-
-              {/* =================================================
-                  MINISTRY IMAGE
-              ================================================= */}
+              {/* MINISTRY IMAGE */}
 
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-image">
-
                   Ministry Image
-
                 </label>
-
 
                 <div className="admin-ministry-upload-box">
 
                   <input
+                    ref={imageInputRef}
                     id="ministry-image"
                     type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    accept="image/png,image/jpeg,image/webp"
                     onChange={handleImageChange}
-                    disabled={
-                      saving ||
-                      uploadingImage
-                    }
+                    disabled={saving}
                   />
-
 
                   <label
                     htmlFor="ministry-image"
                     className="admin-ministry-upload-button"
                   >
-
                     <FaUpload />
 
-                    <span>
-                      Browse Image
-                    </span>
-
+                    <span>Browse Image</span>
                   </label>
 
-
                   <small>
-
                     PNG, JPG, JPEG or WEBP.
                     Maximum 5 MB.
-
                   </small>
+
+                  {imageFile && (
+                    <small>
+                      Selected: {imageFile.name}
+                    </small>
+                  )}
 
                 </div>
 
-
-                {/* =================================================
-                    IMAGE PREVIEW
-                ================================================= */}
+                {/* IMAGE PREVIEW */}
 
                 <div className="admin-ministry-image-preview">
 
@@ -879,24 +638,14 @@ function ManageMinistries() {
                       DEFAULT_MINISTRY_IMAGE
                     }
                     alt="Ministry preview"
-                    onError={(
-                      event
-                    ) => {
-
-                      event.currentTarget.src =
-                        DEFAULT_MINISTRY_IMAGE;
-
-                    }}
+                    onError={handleImageError}
                   />
 
                 </div>
 
               </div>
 
-
-              {/* =================================================
-                  BUTTONS
-              ================================================= */}
+              {/* FORM BUTTONS */}
 
               <div className="admin-ministry-form-actions">
 
@@ -904,47 +653,29 @@ function ManageMinistries() {
                   type="button"
                   className="admin-ministry-cancel-button"
                   onClick={resetForm}
-                  disabled={
-                    saving ||
-                    uploadingImage
-                  }
+                  disabled={saving}
                 >
-
                   <FaTimes />
 
                   Cancel
-
                 </button>
-
 
                 <button
                   type="submit"
                   className="admin-ministry-save-button"
-                  disabled={
-                    saving ||
-                    uploadingImage
-                  }
+                  disabled={saving}
                 >
 
-                  {saving ||
-                  uploadingImage ? (
-
-                    uploadingImage
-                      ? "Uploading..."
-                      : "Saving..."
-
+                  {saving ? (
+                    "Saving..."
                   ) : (
-
                     <>
-
                       <FaSave />
 
                       {editingId
                         ? "Update Ministry"
                         : "Save Ministry"}
-
                     </>
-
                   )}
 
                 </button>
@@ -957,39 +688,27 @@ function ManageMinistries() {
 
         )}
 
-
-        {/* =====================================================
-            MINISTRY LIST
-        ===================================================== */}
+        {/* MINISTRY LIST */}
 
         <div className="admin-ministry-list-card">
 
           <div className="admin-ministry-list-header">
 
             <div>
-
-              <h2>
-                All Ministries
-              </h2>
+              <h2>All Ministries</h2>
 
               <span>
-
                 {ministries.length}{" "}
 
                 {ministries.length === 1
                   ? "Ministry"
                   : "Ministries"}
-
               </span>
-
             </div>
 
           </div>
 
-
-          {/* ===================================================
-              LOADING
-          =================================================== */}
+          {/* LOADING */}
 
           {loading ? (
 
@@ -997,25 +716,19 @@ function ManageMinistries() {
 
               <div className="admin-ministry-spinner" />
 
-              <p>
-                Loading ministries...
-              </p>
+              <p>Loading ministries...</p>
 
             </div>
 
           ) : ministries.length === 0 ? (
 
-            /* =================================================
-               EMPTY
-            ================================================= */
+            /* EMPTY STATE */
 
             <div className="admin-ministry-empty">
 
               <FaChurch />
 
-              <h3>
-                No Ministries Yet
-              </h3>
+              <h3>No Ministries Yet</h3>
 
               <p>
                 Add your first ministry to start
@@ -1027,128 +740,104 @@ function ManageMinistries() {
                 onClick={handleAdd}
                 className="admin-ministry-empty-button"
               >
-
                 <FaPlus />
 
                 Add Ministry
-
               </button>
 
             </div>
 
           ) : (
 
-            /* =================================================
-               MINISTRY CARDS
-            ================================================= */
+            /* MINISTRY CARDS */
 
             <div className="admin-ministry-grid">
 
-              {ministries.map(
-                (ministry) => (
+              {ministries.map((ministry) => (
 
-                  <div
-                    className="admin-ministry-card"
-                    key={ministry.id}
-                  >
+                <div
+                  className="admin-ministry-card"
+                  key={ministry.id}
+                >
 
-                    {/* IMAGE */}
+                  {/* IMAGE */}
 
-                    <div className="admin-ministry-card-image">
+                  <div className="admin-ministry-card-image">
 
-                      <img
-                        src={
-                          ministry.image_url ||
-                          DEFAULT_MINISTRY_IMAGE
-                        }
-                        alt={
-                          ministry.name
-                        }
-                        onError={(
-                          event
-                        ) => {
+                    <img
+                      src={
+                        ministry.image_url ||
+                        DEFAULT_MINISTRY_IMAGE
+                      }
+                      alt={ministry.name || "Ministry"}
+                      onError={handleImageError}
+                    />
 
-                          event.currentTarget.src =
-                            DEFAULT_MINISTRY_IMAGE;
+                  </div>
 
-                        }}
-                      />
+                  {/* CONTENT */}
 
+                  <div className="admin-ministry-card-content">
+
+                    <h3>
+                      {ministry.name}
+                    </h3>
+
+                    {/* LANGUAGE */}
+
+                    <div className="admin-ministry-language">
+                      {getLanguageLabel(ministry.language)}
                     </div>
 
+                    {/* DESCRIPTION */}
 
-                    {/* CONTENT */}
+                    {ministry.description ? (
 
-                    <div className="admin-ministry-card-content">
+                      <p>
+                        {ministry.description}
+                      </p>
 
-                      <h3>
-                        {ministry.name}
-                      </h3>
+                    ) : (
 
+                      <p className="no-description">
+                        No description added.
+                      </p>
 
-                      {/* LANGUAGE */}
+                    )}
 
-                      <div className="admin-ministry-language">
+                    {/* FOOTER */}
 
-                        {getLanguageLabel(
-                          ministry.language
-                        )}
+                    <div className="admin-ministry-card-footer">
 
-                      </div>
+                      <span>
+                        Ministry #{ministry.id}
+                      </span>
 
+                      <div className="admin-ministry-card-actions">
 
-                      {ministry.description ? (
+                        {/* EDIT */}
 
-                        <p>
-                          {ministry.description}
-                        </p>
+                        <button
+                          type="button"
+                          className="admin-ministry-edit-button"
+                          onClick={() => handleEdit(ministry)}
+                          title="Edit Ministry"
+                          aria-label={`Edit ${ministry.name}`}
+                        >
+                          <FaEdit />
+                        </button>
 
-                      ) : (
+                        {/* DELETE */}
 
-                        <p className="no-description">
-                          No description added.
-                        </p>
-
-                      )}
-
-
-                      <div className="admin-ministry-card-footer">
-
-                        <span>
-                          Ministry #{ministry.id}
-                        </span>
-
-
-                        <div className="admin-ministry-card-actions">
-
-                          <button
-                            type="button"
-                            className="admin-ministry-edit-button"
-                            onClick={() =>
-                              handleEdit(
-                                ministry
-                              )
-                            }
-                            title="Edit Ministry"
-                          >
-                            <FaEdit />
-                          </button>
-
-
-                          <button
-                            type="button"
-                            className="admin-ministry-delete-button"
-                            onClick={() =>
-                              handleDelete(
-                                ministry.id
-                              )
-                            }
-                            title="Delete Ministry"
-                          >
-                            <FaTrash />
-                          </button>
-
-                        </div>
+                        <button
+                          type="button"
+                          className="admin-ministry-delete-button"
+                          onClick={() => handleDelete(ministry.id)}
+                          title="Delete Ministry"
+                          aria-label={`Delete ${ministry.name}`}
+                        >
+                          <FaTrash />
+                        </button>
 
                       </div>
 
@@ -1156,8 +845,9 @@ function ManageMinistries() {
 
                   </div>
 
-                )
-              )}
+                </div>
+
+              ))}
 
             </div>
 
@@ -1168,10 +858,7 @@ function ManageMinistries() {
       </div>
 
     </div>
-
   );
-
 }
-
 
 export default ManageMinistries;

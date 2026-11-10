@@ -1,3 +1,4 @@
+
 // =====================================================
 // utils/media.js
 // KEERTHANA MEDIA UTILITIES
@@ -11,20 +12,12 @@ const CLOUDFRONT_URL =
   "https://d1aj7yf1pvtrkq.cloudfront.net";
 
 // =====================================================
-// DEFAULT IMAGES
-// =====================================================
-
-export const DEFAULT_SONG_COVER = "/images/default-song-cover.png";
-export const DEFAULT_ALBUM = "/images/default-album.png";
-export const DEFAULT_ARTIST = "/images/default-artist.png";
-export const DEFAULT_MINISTRY = "/images/default-ministry.png";
-export const DEFAULT_CATEGORY = "/images/default-category.png";
-
-// =====================================================
-// BUILD CLOUDFRONT URL FROM AN S3 OBJECT KEY
+// BUILD CLOUDFRONT URL FROM S3 OBJECT KEY
 // =====================================================
 
 const getCloudFrontUrl = (key) => {
+  if (!key || typeof key !== "string") return null;
+
   const cleanKey = key
     .replace(/^\/+/, "")
     .split("/")
@@ -35,7 +28,7 @@ const getCloudFrontUrl = (key) => {
 };
 
 // =====================================================
-// VALIDATE MEDIA PATH
+// VALIDATE AND RESOLVE MEDIA URL
 // =====================================================
 
 export function getMediaUrl(path) {
@@ -44,7 +37,6 @@ export function getMediaUrl(path) {
   }
 
   const value = path.trim();
-
   const lowerValue = value.toLowerCase();
 
   if (
@@ -57,9 +49,9 @@ export function getMediaUrl(path) {
     return null;
   }
 
-  // ---------------------------------------------------
+  // ===================================================
   // ABSOLUTE URL
-  // ---------------------------------------------------
+  // ===================================================
 
   if (/^https?:\/\//i.test(value)) {
     try {
@@ -83,7 +75,6 @@ export function getMediaUrl(path) {
         }
       }
 
-      // Preserve existing CloudFront and other URLs.
       return value;
     } catch (error) {
       console.error("Invalid media URL:", value);
@@ -91,61 +82,62 @@ export function getMediaUrl(path) {
     }
   }
 
-  // ---------------------------------------------------
+  // ===================================================
   // NORMALIZE RELATIVE PATH
-  // ---------------------------------------------------
+  // ===================================================
 
   const cleanPath = value.startsWith("/")
     ? value
     : `/${value}`;
 
-  // ---------------------------------------------------
-  // NEW PROFILE IMAGE S3 KEY
-  // Example: profiles/profile-123.webp
-  // ---------------------------------------------------
+  // ===================================================
+  // LOCAL FRONTEND PUBLIC IMAGES
+  // Example: /images/my-cover.jpg
+  // ===================================================
 
-  if (cleanPath.startsWith("/profiles/")) {
-    const key = cleanPath.replace(/^\/+/, "");
-    return getCloudFrontUrl(key);
+  if (cleanPath.startsWith("/images/")) {
+    return cleanPath;
   }
 
-  // ---------------------------------------------------
+  // ===================================================
+  // PROFILE IMAGES
+  // ===================================================
+
+  if (cleanPath.startsWith("/profiles/")) {
+    return getCloudFrontUrl(cleanPath);
+  }
+
+  // ===================================================
   // AUDIO
-  // Existing format: /media/audio/song.mp3
-  // ---------------------------------------------------
+  // ===================================================
 
   if (cleanPath.startsWith("/media/audio/")) {
     const filename = cleanPath.slice(
       "/media/audio/".length
     );
 
-    if (!filename || filename.includes("undefined")) {
-      return null;
-    }
+    if (!filename) return null;
 
     return getCloudFrontUrl(`audio/${filename}`);
   }
 
-  // ---------------------------------------------------
-  // COVER IMAGES
-  // Existing format: /media/images/image.jpg
-  // ---------------------------------------------------
+  // ===================================================
+  // COVER IMAGES FROM S3
+  // ===================================================
 
   if (cleanPath.startsWith("/media/images/")) {
     const filename = cleanPath.slice(
       "/media/images/".length
     );
 
-    if (!filename || filename.includes("undefined")) {
-      return null;
-    }
+    if (!filename) return null;
 
     return getCloudFrontUrl(`covers/${filename}`);
   }
 
-  // ---------------------------------------------------
+  // ===================================================
   // DIRECT S3 KEYS
-  // ---------------------------------------------------
+  // ===================================================
 
   if (
     cleanPath.startsWith("/audio/") ||
@@ -154,10 +146,9 @@ export function getMediaUrl(path) {
     return getCloudFrontUrl(cleanPath);
   }
 
-  // ---------------------------------------------------
-  // LEGACY LOCAL UPLOADS AND OTHER BACKEND PATHS
-  // Example: /uploads/profile/old-photo.jpg
-  // ---------------------------------------------------
+  // ===================================================
+  // LEGACY BACKEND UPLOADS
+  // ===================================================
 
   return `${BACKEND_URL}${cleanPath}`;
 }
@@ -167,11 +158,7 @@ export function getMediaUrl(path) {
 // =====================================================
 
 export function getSongCover(song) {
-  if (!song?.cover_url) {
-    return DEFAULT_SONG_COVER;
-  }
-
-  return getMediaUrl(song.cover_url) || DEFAULT_SONG_COVER;
+  return getMediaUrl(song?.cover_url);
 }
 
 // =====================================================
@@ -179,11 +166,7 @@ export function getSongCover(song) {
 // =====================================================
 
 export function getAlbumCover(album) {
-  if (!album?.cover_url) {
-    return DEFAULT_ALBUM;
-  }
-
-  return getMediaUrl(album.cover_url) || DEFAULT_ALBUM;
+  return getMediaUrl(album?.cover_url);
 }
 
 // =====================================================
@@ -191,11 +174,7 @@ export function getAlbumCover(album) {
 // =====================================================
 
 export function getArtistImage(artist) {
-  if (!artist?.image_url) {
-    return DEFAULT_ARTIST;
-  }
-
-  return getMediaUrl(artist.image_url) || DEFAULT_ARTIST;
+  return getMediaUrl(artist?.image_url);
 }
 
 // =====================================================
@@ -203,11 +182,7 @@ export function getArtistImage(artist) {
 // =====================================================
 
 export function getMinistryImage(ministry) {
-  if (!ministry?.image_url) {
-    return DEFAULT_MINISTRY;
-  }
-
-  return getMediaUrl(ministry.image_url) || DEFAULT_MINISTRY;
+  return getMediaUrl(ministry?.image_url);
 }
 
 // =====================================================
@@ -215,9 +190,5 @@ export function getMinistryImage(ministry) {
 // =====================================================
 
 export function getCategoryImage(category) {
-  if (!category?.image_url) {
-    return DEFAULT_CATEGORY;
-  }
-
-  return getMediaUrl(category.image_url) || DEFAULT_CATEGORY;
+  return getMediaUrl(category?.image_url);
 }
