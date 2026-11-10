@@ -23,7 +23,7 @@ import "../assets/css/history.css";
    KEERTHANA — LISTENING HISTORY
 ========================================================= */
 
-const DEFAULT_SONG_COVER = "/images/default-cover.png";
+
 
 /* =========================================================
    HELPERS

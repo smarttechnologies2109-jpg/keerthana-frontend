@@ -26,7 +26,7 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 import {
   getSongCover,
-  DEFAULT_SONG_COVER,
+ 
 } from "../utils/media";
 
 import VoiceSearch from "../components/VoiceSearch";

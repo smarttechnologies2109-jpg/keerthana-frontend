@@ -20,7 +20,7 @@ import API from "../services/api";
 
 import {
   getAlbumCover,
-  DEFAULT_ALBUM,
+  
 } from "../utils/media";
 
 import VoiceSearch from "../components/VoiceSearch";

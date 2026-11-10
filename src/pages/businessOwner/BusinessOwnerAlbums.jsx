@@ -668,10 +668,7 @@ const response =
                 (album, index) => {
 
 
-                  const cover =
-                    album?.cover_url ||
-                    album?.cover ||
-                    "/images/default-album.png";
+              
 
 
                   const title =
@@ -717,7 +714,7 @@ const response =
 
                       <div className="owner-album-cover-wrapper">
 
-                        <img
+                        {/* <img
                           src={cover}
                           alt={title}
                           className="owner-album-cover"
@@ -729,7 +726,7 @@ const response =
                               "/images/default-album.png";
 
                           }}
-                        />
+                        /> */}
 
                       </div>
 

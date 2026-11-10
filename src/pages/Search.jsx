@@ -31,7 +31,7 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 import {
   getSongCover,
-  DEFAULT_SONG_COVER,
+ 
 } from "../utils/media";
 
 import "../assets/css/search.css";

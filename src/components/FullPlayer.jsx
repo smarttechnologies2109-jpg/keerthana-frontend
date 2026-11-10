@@ -48,8 +48,7 @@ import {
 
   getSongCover,
 
-  DEFAULT_SONG_COVER,
-
+ 
   getMediaUrl,
 
 } from "../utils/media";

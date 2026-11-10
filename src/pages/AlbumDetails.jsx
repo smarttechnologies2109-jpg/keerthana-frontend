@@ -18,7 +18,7 @@ import { usePlayer } from "../context/usePlayer";
 
 import {
   getAlbumCover,
-  DEFAULT_SONG_COVER,
+  
 } from "../utils/media";
 
 import VoiceSearch from "../components/VoiceSearch";

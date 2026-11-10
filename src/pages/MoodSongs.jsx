@@ -40,7 +40,7 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import {
   getSongCover,
-  DEFAULT_SONG_COVER,
+ 
 } from "../utils/media";
 
 import "../assets/css/MoodSongs.css";

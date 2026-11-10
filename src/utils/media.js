@@ -3,6 +3,7 @@
 // utils/media.js
 // KEERTHANA MEDIA UTILITIES
 // CloudFront Optimized
+// No Default Cover Images
 // =====================================================
 
 // =====================================================
@@ -14,17 +15,6 @@ const BACKEND_URL =
 
 const CLOUDFRONT_URL =
   "https://d1aj7yf1pvtrkq.cloudfront.net";
-
-// =====================================================
-// DEFAULT IMAGES
-// Make sure these files exist inside public/images/
-// =====================================================
-
-export const DEFAULT_SONG_COVER =
-  "/images/default-song.png";
-
-export const DEFAULT_ALBUM =
-  "/images/default-album.png";
 
 // =====================================================
 // BUILD CLOUDFRONT URL FROM S3 OBJECT KEY
@@ -224,83 +214,78 @@ const getFirstImage = (item, fields) => {
 
 // =====================================================
 // SONG COVER
+// NO DEFAULT IMAGE
 // =====================================================
 
 export function getSongCover(song) {
-  return (
-    getFirstImage(song, [
-      "cover_url",
-      "coverUrl",
-      "image_url",
-      "image",
-      "thumbnail",
-    ]) || DEFAULT_SONG_COVER
-  );
+  return getFirstImage(song, [
+    "cover_url",
+    "coverUrl",
+    "image_url",
+    "image",
+    "thumbnail",
+  ]);
 }
 
 // =====================================================
 // ALBUM COVER
+// NO DEFAULT IMAGE
 // =====================================================
 
 export function getAlbumCover(album) {
-  return (
-    getFirstImage(album, [
-      "cover_url",
-      "coverUrl",
-      "image_url",
-      "image",
-      "thumbnail",
-    ]) || DEFAULT_ALBUM
-  );
+  return getFirstImage(album, [
+    "cover_url",
+    "coverUrl",
+    "image_url",
+    "image",
+    "thumbnail",
+  ]);
 }
 
 // =====================================================
 // ARTIST IMAGE
+// NO DEFAULT IMAGE
 // =====================================================
 
 export function getArtistImage(artist) {
-  return (
-    getFirstImage(artist, [
-      "image_url",
-      "imageUrl",
-      "profile_image",
-      "profile_image_url",
-      "image",
-      "photo",
-    ]) || DEFAULT_SONG_COVER
-  );
+  return getFirstImage(artist, [
+    "image_url",
+    "imageUrl",
+    "profile_image",
+    "profile_image_url",
+    "image",
+    "photo",
+  ]);
 }
 
 // =====================================================
 // MINISTRY IMAGE
+// NO DEFAULT IMAGE
 // =====================================================
 
 export function getMinistryImage(ministry) {
-  return (
-    getFirstImage(ministry, [
-      "image_url",
-      "imageUrl",
-      "cover_url",
-      "image",
-      "photo",
-    ]) || DEFAULT_ALBUM
-  );
+  return getFirstImage(ministry, [
+    "image_url",
+    "imageUrl",
+    "cover_url",
+    "image",
+    "photo",
+  ]);
 }
 
 // =====================================================
 // CATEGORY IMAGE
+// NO DEFAULT IMAGE
 // =====================================================
 
 export function getCategoryImage(category) {
-  return (
-    getFirstImage(category, [
-      "image_url",
-      "imageUrl",
-      "cover_url",
-      "image",
-      "photo",
-    ]) || DEFAULT_ALBUM
-  );
+  return getFirstImage(category, [
+    "image_url",
+    "imageUrl",
+    "cover_url",
+    "image",
+    "photo",
+  ]);
 }
 
 // =====================================================

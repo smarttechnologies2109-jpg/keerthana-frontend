@@ -17,7 +17,7 @@ import API from "../../services/api";
 
 import {
   getMediaUrl,
-  DEFAULT_ALBUM,
+ 
 } from "../../utils/media";
 
 import "../../assets/css/admin/manageAlbums.css";

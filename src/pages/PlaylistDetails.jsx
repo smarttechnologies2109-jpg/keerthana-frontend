@@ -27,7 +27,7 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/playlistDetails.css";
 
-const DEFAULT_SONG_COVER = "/images/default-cover.png";
+
 
 const VOICE_LANGUAGES = [
   { value: "te-IN", label: "Telugu" },

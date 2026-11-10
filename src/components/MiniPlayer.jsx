@@ -46,7 +46,7 @@ import {
 
   getSongCover,
 
-  DEFAULT_SONG_COVER,
+  
 
   getMediaUrl,
 
