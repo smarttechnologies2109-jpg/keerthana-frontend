@@ -5,6 +5,10 @@
 // CloudFront Optimized
 // =====================================================
 
+// =====================================================
+// BASE URLS
+// =====================================================
+
 const BACKEND_URL =
   "https://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws";
 
@@ -12,11 +16,24 @@ const CLOUDFRONT_URL =
   "https://d1aj7yf1pvtrkq.cloudfront.net";
 
 // =====================================================
+// DEFAULT IMAGES
+// Make sure these files exist inside public/images/
+// =====================================================
+
+export const DEFAULT_SONG_COVER =
+  "/images/default-song.png";
+
+export const DEFAULT_ALBUM =
+  "/images/default-album.png";
+
+// =====================================================
 // BUILD CLOUDFRONT URL FROM S3 OBJECT KEY
 // =====================================================
 
 const getCloudFrontUrl = (key) => {
-  if (!key || typeof key !== "string") return null;
+  if (!key || typeof key !== "string") {
+    return null;
+  }
 
   const cleanKey = key
     .replace(/^\/+/, "")
@@ -69,7 +86,10 @@ export function getMediaUrl(path) {
         if (
           key.startsWith("audio/") ||
           key.startsWith("covers/") ||
-          key.startsWith("profiles/")
+          key.startsWith("profiles/") ||
+          key.startsWith("artists/") ||
+          key.startsWith("categories/") ||
+          key.startsWith("ministries/")
         ) {
           return getCloudFrontUrl(key);
         }
@@ -77,7 +97,7 @@ export function getMediaUrl(path) {
 
       return value;
     } catch (error) {
-      console.error("Invalid media URL:", value);
+      console.error("Invalid media URL:", value, error);
       return null;
     }
   }
@@ -100,11 +120,24 @@ export function getMediaUrl(path) {
   }
 
   // ===================================================
-  // PROFILE IMAGES
+  // S3 MEDIA FOLDERS
   // ===================================================
 
-  if (cleanPath.startsWith("/profiles/")) {
-    return getCloudFrontUrl(cleanPath);
+  const mediaFolderMappings = [
+    ["/profiles/", "profiles/"],
+    ["/artists/", "artists/"],
+    ["/categories/", "categories/"],
+    ["/ministries/", "ministries/"],
+  ];
+
+  for (const [prefix, s3Folder] of mediaFolderMappings) {
+    if (cleanPath.startsWith(prefix)) {
+      const filename = cleanPath.slice(prefix.length);
+
+      if (!filename) return null;
+
+      return getCloudFrontUrl(`${s3Folder}${filename}`);
+    }
   }
 
   // ===================================================
@@ -139,11 +172,23 @@ export function getMediaUrl(path) {
   // DIRECT S3 KEYS
   // ===================================================
 
+  const directS3Folders = [
+    "audio/",
+    "covers/",
+    "profiles/",
+    "artists/",
+    "categories/",
+    "ministries/",
+  ];
+
+  const s3Key = cleanPath.replace(/^\/+/, "");
+
   if (
-    cleanPath.startsWith("/audio/") ||
-    cleanPath.startsWith("/covers/")
+    directS3Folders.some((folder) =>
+      s3Key.startsWith(folder)
+    )
   ) {
-    return getCloudFrontUrl(cleanPath);
+    return getCloudFrontUrl(s3Key);
   }
 
   // ===================================================
@@ -154,11 +199,43 @@ export function getMediaUrl(path) {
 }
 
 // =====================================================
+// GET FIRST AVAILABLE IMAGE FIELD
+// =====================================================
+
+const getFirstImage = (item, fields) => {
+  if (!item || typeof item !== "object") {
+    return null;
+  }
+
+  for (const field of fields) {
+    const value = item[field];
+
+    if (typeof value === "string" && value.trim()) {
+      const resolved = getMediaUrl(value);
+
+      if (resolved) {
+        return resolved;
+      }
+    }
+  }
+
+  return null;
+};
+
+// =====================================================
 // SONG COVER
 // =====================================================
 
 export function getSongCover(song) {
-  return getMediaUrl(song?.cover_url);
+  return (
+    getFirstImage(song, [
+      "cover_url",
+      "coverUrl",
+      "image_url",
+      "image",
+      "thumbnail",
+    ]) || DEFAULT_SONG_COVER
+  );
 }
 
 // =====================================================
@@ -166,7 +243,15 @@ export function getSongCover(song) {
 // =====================================================
 
 export function getAlbumCover(album) {
-  return getMediaUrl(album?.cover_url);
+  return (
+    getFirstImage(album, [
+      "cover_url",
+      "coverUrl",
+      "image_url",
+      "image",
+      "thumbnail",
+    ]) || DEFAULT_ALBUM
+  );
 }
 
 // =====================================================
@@ -174,7 +259,16 @@ export function getAlbumCover(album) {
 // =====================================================
 
 export function getArtistImage(artist) {
-  return getMediaUrl(artist?.image_url);
+  return (
+    getFirstImage(artist, [
+      "image_url",
+      "imageUrl",
+      "profile_image",
+      "profile_image_url",
+      "image",
+      "photo",
+    ]) || DEFAULT_SONG_COVER
+  );
 }
 
 // =====================================================
@@ -182,7 +276,15 @@ export function getArtistImage(artist) {
 // =====================================================
 
 export function getMinistryImage(ministry) {
-  return getMediaUrl(ministry?.image_url);
+  return (
+    getFirstImage(ministry, [
+      "image_url",
+      "imageUrl",
+      "cover_url",
+      "image",
+      "photo",
+    ]) || DEFAULT_ALBUM
+  );
 }
 
 // =====================================================
@@ -190,5 +292,21 @@ export function getMinistryImage(ministry) {
 // =====================================================
 
 export function getCategoryImage(category) {
-  return getMediaUrl(category?.image_url);
+  return (
+    getFirstImage(category, [
+      "image_url",
+      "imageUrl",
+      "cover_url",
+      "image",
+      "photo",
+    ]) || DEFAULT_ALBUM
+  );
 }
+
+// =====================================================
+// EXPORTS
+// =====================================================
+
+export {
+  getCloudFrontUrl,
+};
