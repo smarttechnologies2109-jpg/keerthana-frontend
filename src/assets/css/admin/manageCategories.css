@@ -1163,3 +1163,133 @@
 .category-empty-preview span {
   font-size: 12px;
 }
+
+/* =========================================
+   CATEGORY MODAL ERROR MESSAGE
+========================================= */
+
+.admin-modal-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 14px 16px;
+  margin: 0 0 20px;
+
+  background: rgba(220, 53, 69, 0.10);
+
+  border: 1px solid rgba(220, 53, 69, 0.45);
+  border-left: 4px solid #dc3545;
+
+  border-radius: 10px;
+
+  color: #ff707b;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
+
+  animation: categoryErrorShow 0.25s ease;
+}
+
+.admin-modal-error svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  font-size: 15px;
+}
+
+.admin-modal-error span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* =========================================
+   CATEGORY PAGE ERROR
+========================================= */
+
+.admin-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 13px 16px;
+  margin: 15px 0;
+
+  color: #ff707b;
+
+  background: rgba(220, 53, 69, 0.10);
+
+  border: 1px solid rgba(220, 53, 69, 0.35);
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================
+   CATEGORY SUCCESS MESSAGE
+========================================= */
+
+.admin-success {
+  padding: 13px 16px;
+  margin: 15px 0;
+
+  color: #43c98b;
+
+  background: rgba(40, 167, 110, 0.10);
+
+  border: 1px solid rgba(40, 167, 110, 0.30);
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================
+   SELECTED IMAGE FILE
+========================================= */
+
+.category-selected-file {
+  display: block;
+  margin-top: 10px;
+
+  color: #b9c5d8;
+
+  font-size: 12px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   ERROR ANIMATION
+========================================= */
+
+@keyframes categoryErrorShow {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   MODAL ERROR RESPONSIVE
+========================================= */
+
+@media (max-width: 600px) {
+  .admin-modal-error {
+    padding: 12px;
+    font-size: 12px;
+  }
+}

@@ -9,6 +9,7 @@ import {
   FaTimes,
   FaTrash,
   FaUpload,
+  FaExclamationCircle,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -16,7 +17,7 @@ import API from "../../services/api";
 import "../../assets/css/admin/manageCategories.css";
 
 // =====================================================
-// LANGUAGES
+// SUPPORTED LANGUAGES
 // =====================================================
 
 const LANGUAGES = [
@@ -41,10 +42,45 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 // =====================================================
+// ERROR MESSAGE HELPER
+// =====================================================
+
+const getErrorMessage = (err, fallback) => {
+  const data = err.response?.data;
+
+  if (typeof data?.message === "string" && data.message.trim()) {
+    return data.message;
+  }
+
+  if (typeof data?.error === "string" && data.error.trim()) {
+    return data.error;
+  }
+
+  if (err.response?.status === 413) {
+    return "The uploaded image is too large.";
+  }
+
+  if (err.response?.status === 401) {
+    return "Your session has expired. Please log in again.";
+  }
+
+  if (err.response?.status === 403) {
+    return "You do not have permission to perform this action.";
+  }
+
+  if (err.response?.status >= 500) {
+    return "Server error. Please try again or contact the administrator.";
+  }
+
+  return err.message || fallback;
+};
+
+// =====================================================
 // COMPONENT
 // =====================================================
 
 function ManageCategories() {
+
   // ===================================================
   // STATE
   // ===================================================
@@ -57,6 +93,7 @@ function ManageCategories() {
 
   const [search, setSearch] = useState("");
 
+  // PAGE MESSAGES
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -85,33 +122,56 @@ function ManageCategories() {
   // LOAD CATEGORIES
   // ===================================================
 
-  const loadCategories = async (showLoader = true) => {
+  const loadCategories = async (
+    showLoader = true,
+    reportError = true
+  ) => {
+
     try {
+
       if (showLoader) {
         setLoading(true);
       }
 
-      setError("");
-
       const response = await API.get("/admin/categories");
 
       if (response.data?.success) {
+
         setCategories(response.data.categories || []);
+
       } else {
-        setCategories([]);
+
+        setCategories(response.data?.categories || []);
+
       }
+
+      if (reportError) {
+        setError("");
+      }
+
     } catch (err) {
+
       console.error("Load categories error:", err);
 
-      setError(
-        err.response?.data?.message ||
-          "Unable to load categories."
-      );
+      if (reportError) {
+
+        setError(
+          getErrorMessage(
+            err,
+            "Unable to load categories."
+          )
+        );
+
+      }
+
     } finally {
+
       if (showLoader) {
         setLoading(false);
       }
+
     }
+
   };
 
   // ===================================================
@@ -119,28 +179,37 @@ function ManageCategories() {
   // ===================================================
 
   useEffect(() => {
+
     loadCategories();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // ===================================================
-  // CLEANUP IMAGE PREVIEW URL
+  // IMAGE PREVIEW CLEANUP
   // ===================================================
 
   useEffect(() => {
+
     return () => {
+
       if (imagePreview?.startsWith("blob:")) {
+
         URL.revokeObjectURL(imagePreview);
+
       }
+
     };
+
   }, [imagePreview]);
 
   // ===================================================
-  // OPEN ADD
+  // OPEN ADD CATEGORY
   // ===================================================
 
   const openAdd = () => {
+
     setEditingCategory(null);
 
     setName("");
@@ -153,47 +222,54 @@ function ManageCategories() {
     setSuccess("");
 
     setShowForm(true);
+
   };
 
   // ===================================================
-  // OPEN EDIT
+  // OPEN EDIT CATEGORY
   // ===================================================
 
   const openEdit = (category) => {
+
     setEditingCategory(category);
 
     setName(category.name || "");
+
     setLanguage(category.language || "Telugu");
 
     setImageFile(null);
 
-    // Use only the category's actual uploaded image.
-    // No default image is assigned.
     setImagePreview(category.image_url || "");
 
     setError("");
     setSuccess("");
 
     setShowForm(true);
+
   };
 
   // ===================================================
-  // CLOSE FORM
+  // CLOSE MODAL
   // ===================================================
 
   const closeForm = () => {
+
     if (saving) return;
 
     setShowForm(false);
+
     setEditingCategory(null);
 
     setName("");
+
     setLanguage("Telugu");
 
     setImageFile(null);
+
     setImagePreview("");
 
     setError("");
+
   };
 
   // ===================================================
@@ -201,31 +277,45 @@ function ManageCategories() {
   // ===================================================
 
   const handleImageChange = (event) => {
+
     const file = event.target.files?.[0];
 
     if (!file) return;
 
+    setError("");
+
     // FILE TYPE VALIDATION
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+
       setError(
-        "Only JPG, JPEG, PNG and WEBP images are allowed."
+        "Invalid image format. Please select JPG, JPEG, PNG or WEBP."
       );
 
       event.target.value = "";
+
       return;
+
     }
 
     // FILE SIZE VALIDATION
 
     if (file.size > MAX_IMAGE_SIZE) {
-      setError("Image size must be less than 5 MB.");
+
+      setError(
+        "Image size must be less than 5 MB. Please select a smaller image."
+      );
 
       event.target.value = "";
+
       return;
+
     }
 
+    // CLEAR PREVIOUS ERROR
+
     setError("");
+
     setSuccess("");
 
     setImageFile(file);
@@ -235,98 +325,155 @@ function ManageCategories() {
     const preview = URL.createObjectURL(file);
 
     setImagePreview(preview);
+
   };
 
   // ===================================================
   // SAVE CATEGORY
-  // IMAGE + CATEGORY DATA IN ONE REQUEST
+  // CREATE / UPDATE
   // ===================================================
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
+
+    if (saving) return;
+
+    // CLEAR PREVIOUS ERROR
+
+    setError("");
+
+    setSuccess("");
+
+    // VALIDATE CATEGORY NAME
 
     const cleanName = name.trim();
 
     if (!cleanName) {
+
       setError("Category name is required.");
+
       return;
+
     }
+
+    // VALIDATE LANGUAGE
 
     const validLanguage = LANGUAGES.some(
       (item) => item.value === language
     );
 
     if (!validLanguage) {
+
       setError("Please select a valid language.");
+
       return;
+
     }
 
     try {
-      setSaving(true);
 
-      setError("");
-      setSuccess("");
+      setSaving(true);
 
       // CREATE FORMDATA
 
       const formData = new FormData();
 
       formData.append("name", cleanName);
+
       formData.append("language", language);
 
       // ADD IMAGE ONLY IF SELECTED
 
       if (imageFile) {
+
         formData.append("image", imageFile);
+
       }
 
+      // =============================================
       // UPDATE CATEGORY
+      // =============================================
 
       if (editingCategory) {
+
         await API.put(
           `/admin/categories/${editingCategory.id}`,
           formData
         );
 
-        setSuccess("Category updated successfully!");
       }
 
+      // =============================================
       // CREATE CATEGORY
+      // =============================================
 
       else {
+
         await API.post(
           "/admin/categories",
           formData
         );
 
-        setSuccess("Category created successfully!");
       }
 
-      // REFRESH CATEGORIES
+      // =============================================
+      // SUCCESS MESSAGE
+      // =============================================
 
-      await loadCategories(false);
+      const successMessage = editingCategory
+        ? "Category updated successfully!"
+        : "Category created successfully!";
 
-      // RESET FORM
+      // =============================================
+      // REFRESH CATEGORY LIST
+      // =============================================
+
+      await loadCategories(false, false);
+
+      // =============================================
+      // CLOSE MODAL
+      // =============================================
 
       setShowForm(false);
+
       setEditingCategory(null);
 
       setName("");
+
       setLanguage("Telugu");
 
       setImageFile(null);
+
       setImagePreview("");
+
+      setError("");
+
+      // SHOW SUCCESS ON MAIN PAGE
+
+      setSuccess(successMessage);
+
     } catch (err) {
+
       console.error("Save category error:", err);
 
+      // ERROR WILL APPEAR INSIDE THE MODAL
+
       setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Unable to save category."
+        getErrorMessage(
+          err,
+          "Unable to save category. Please try again."
+        )
       );
+
+      // DO NOT CLOSE MODAL
+
     } finally {
+
       setSaving(false);
+
     }
+
   };
 
   // ===================================================
@@ -334,21 +481,26 @@ function ManageCategories() {
   // ===================================================
 
   const handleDelete = async (category) => {
+
     const confirmed = window.confirm(
-      `Delete category "${category.name}"?`
+      `Are you sure you want to delete category "${category.name}"?`
     );
 
     if (!confirmed) return;
 
     try {
+
       setDeletingId(category.id);
 
       setError("");
+
       setSuccess("");
 
       await API.delete(
         `/admin/categories/${category.id}`
       );
+
+      // UPDATE UI WITHOUT PAGE RELOAD
 
       setCategories((previous) =>
         previous.filter(
@@ -357,16 +509,24 @@ function ManageCategories() {
       );
 
       setSuccess("Category deleted successfully!");
+
     } catch (err) {
+
       console.error("Delete category error:", err);
 
       setError(
-        err.response?.data?.message ||
+        getErrorMessage(
+          err,
           "Unable to delete category."
+        )
       );
+
     } finally {
+
       setDeletingId(null);
+
     }
+
   };
 
   // ===================================================
@@ -377,12 +537,14 @@ function ManageCategories() {
 
   const filteredCategories = categories.filter(
     (category) => {
+
       if (!query) return true;
 
       return (
         category.name?.toLowerCase().includes(query) ||
         category.language?.toLowerCase().includes(query)
       );
+
     }
   );
 
@@ -391,11 +553,13 @@ function ManageCategories() {
   // ===================================================
 
   const getLanguageLabel = (value) => {
+
     return (
       LANGUAGES.find(
         (item) => item.value === value
       )?.label || value || "తెలుగు"
     );
+
   };
 
   // ===================================================
@@ -403,13 +567,19 @@ function ManageCategories() {
   // ===================================================
 
   if (loading) {
+
     return (
+
       <div className="admin-page">
+
         <div className="admin-loading">
           Loading Categories...
         </div>
+
       </div>
+
     );
+
   }
 
   // ===================================================
@@ -417,6 +587,7 @@ function ManageCategories() {
   // ===================================================
 
   return (
+
     <div className="admin-page">
 
       {/* =========================================
@@ -424,7 +595,9 @@ function ManageCategories() {
       ========================================= */}
 
       <div className="admin-header">
+
         <div>
+
           <span>KEERTHANA ADMIN</span>
 
           <h1>Manage Categories</h1>
@@ -432,36 +605,59 @@ function ManageCategories() {
           <p>
             Create and manage song categories.
           </p>
+
         </div>
 
         <button
           type="button"
           className="admin-primary-button"
           onClick={openAdd}
+          disabled={saving}
         >
+
           <FaPlus />
+
           Add Category
+
         </button>
+
       </div>
 
       {/* =========================================
-          ERROR MESSAGE
+          PAGE ERROR
+          SHOW ONLY WHEN MODAL IS CLOSED
       ========================================= */}
 
-      {error && (
-        <div className="admin-error" role="alert">
-          {error}
+      {error && !showForm && (
+
+        <div
+          className="admin-error"
+          role="alert"
+        >
+
+          <FaExclamationCircle />
+
+          <span>{error}</span>
+
         </div>
+
       )}
 
       {/* =========================================
-          SUCCESS MESSAGE
+          PAGE SUCCESS MESSAGE
       ========================================= */}
 
-      {success && (
-        <div className="admin-success" role="status">
+      {success && !showForm && (
+
+        <div
+          className="admin-success"
+          role="status"
+        >
+
           {success}
+
         </div>
+
       )}
 
       {/* =========================================
@@ -471,6 +667,7 @@ function ManageCategories() {
       <div className="admin-song-toolbar">
 
         <div className="admin-song-search">
+
           <FaSearch />
 
           <input
@@ -481,17 +678,23 @@ function ManageCategories() {
             }
             placeholder="Search categories or language..."
           />
+
         </div>
 
         <div className="admin-song-count">
+
           <FaTags />
 
           <span>
+
             {filteredCategories.length}{" "}
+
             {filteredCategories.length === 1
               ? "Category"
               : "Categories"}
+
           </span>
+
         </div>
 
       </div>
@@ -503,26 +706,35 @@ function ManageCategories() {
       {filteredCategories.length === 0 ? (
 
         <div className="admin-empty-state">
+
           <FaTags />
 
           <h2>No Categories Found</h2>
 
           <p>
+
             {search
               ? "Try another search."
               : "Create your first song category."}
+
           </p>
 
           {!search && (
+
             <button
               type="button"
               className="admin-primary-button"
               onClick={openAdd}
             >
+
               <FaPlus />
+
               Add Category
+
             </button>
+
           )}
+
         </div>
 
       ) : (
@@ -532,12 +744,19 @@ function ManageCategories() {
           <table className="admin-song-table">
 
             <thead>
+
               <tr>
+
                 <th>Category</th>
+
                 <th>Language</th>
+
                 <th>Songs</th>
+
                 <th>Actions</th>
+
               </tr>
+
             </thead>
 
             <tbody>
@@ -549,16 +768,20 @@ function ManageCategories() {
                   {/* CATEGORY */}
 
                   <td>
+
                     <div className="admin-category-cell">
 
                       <div className="admin-category-icon">
 
                         {category.image_url ? (
+
                           <>
+
                             <img
                               src={category.image_url}
                               alt={category.name}
                               onError={(event) => {
+
                                 event.currentTarget.style.display =
                                   "none";
 
@@ -570,6 +793,7 @@ function ManageCategories() {
                                 if (fallback) {
                                   fallback.style.display = "flex";
                                 }
+
                               }}
                             />
 
@@ -577,11 +801,17 @@ function ManageCategories() {
                               className="category-image-fallback"
                               style={{ display: "none" }}
                             >
+
                               <FaTags />
+
                             </div>
+
                           </>
+
                         ) : (
+
                           <FaTags />
+
                         )}
 
                       </div>
@@ -591,23 +821,29 @@ function ManageCategories() {
                       </strong>
 
                     </div>
+
                   </td>
 
                   {/* LANGUAGE */}
 
                   <td>
+
                     {getLanguageLabel(category.language)}
+
                   </td>
 
                   {/* SONG COUNT */}
 
                   <td>
+
                     {category.song_count ?? 0}
+
                   </td>
 
                   {/* ACTIONS */}
 
                   <td>
+
                     <div className="admin-table-actions">
 
                       <button
@@ -616,7 +852,9 @@ function ManageCategories() {
                         title="Edit Category"
                         onClick={() => openEdit(category)}
                       >
+
                         <FaEdit />
+
                       </button>
 
                       <button
@@ -630,10 +868,13 @@ function ManageCategories() {
                           handleDelete(category)
                         }
                       >
+
                         <FaTrash />
+
                       </button>
 
                     </div>
+
                   </td>
 
                 </tr>
@@ -645,30 +886,40 @@ function ManageCategories() {
           </table>
 
         </div>
+
       )}
 
       {/* =========================================
-          ADD / EDIT MODAL
+          ADD / EDIT CATEGORY MODAL
       ========================================= */}
 
       {showForm && (
 
         <div className="admin-modal-overlay">
 
-          <div className="admin-modal admin-category-modal">
+          <div
+            className="admin-modal admin-category-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="category-modal-title"
+          >
 
             {/* MODAL HEADER */}
 
             <div className="admin-modal-header">
 
               <div>
+
                 <span>KEERTHANA ADMIN</span>
 
-                <h2>
+                <h2 id="category-modal-title">
+
                   {editingCategory
                     ? "Edit Category"
                     : "Add Category"}
+
                 </h2>
+
               </div>
 
               <button
@@ -676,8 +927,11 @@ function ManageCategories() {
                 className="admin-modal-close"
                 onClick={closeForm}
                 disabled={saving}
+                aria-label="Close category form"
               >
+
                 <FaTimes />
+
               </button>
 
             </div>
@@ -686,15 +940,38 @@ function ManageCategories() {
 
             <form onSubmit={handleSubmit}>
 
+              {/* =================================
+                  ERROR MESSAGE INSIDE MODAL
+              ================================= */}
+
+              {error && (
+
+                <div
+                  className="admin-modal-error"
+                  role="alert"
+                  aria-live="assertive"
+                >
+
+                  <FaExclamationCircle />
+
+                  <span>{error}</span>
+
+                </div>
+
+              )}
+
               {/* LANGUAGE */}
 
               <div className="admin-field">
 
-                <label>
+                <label htmlFor="category-language">
+
                   Category Language *
+
                 </label>
 
                 <select
+                  id="category-language"
                   value={language}
                   onChange={(event) =>
                     setLanguage(event.target.value)
@@ -709,7 +986,9 @@ function ManageCategories() {
                       key={item.value}
                       value={item.value}
                     >
+
                       {item.label}
+
                     </option>
 
                   ))}
@@ -722,16 +1001,23 @@ function ManageCategories() {
 
               <div className="admin-field">
 
-                <label>
+                <label htmlFor="category-name">
+
                   Category Name *
+
                 </label>
 
                 <input
+                  id="category-name"
                   type="text"
                   value={name}
-                  onChange={(event) =>
-                    setName(event.target.value)
-                  }
+                  onChange={(event) => {
+                    setName(event.target.value);
+
+                    if (error) {
+                      setError("");
+                    }
+                  }}
                   placeholder={
                     language === "Telugu"
                       ? "ఉదా: ఆరాధన"
@@ -746,6 +1032,7 @@ function ManageCategories() {
                               : "Example: Worship"
                   }
                   autoFocus
+                  maxLength={255}
                   required
                   disabled={saving}
                 />
@@ -756,8 +1043,10 @@ function ManageCategories() {
 
               <div className="admin-field">
 
-                <label>
+                <label htmlFor="category-image">
+
                   Category Image
+
                 </label>
 
                 <div className="admin-category-upload">
@@ -774,14 +1063,21 @@ function ManageCategories() {
                     htmlFor="category-image"
                     className="admin-category-browse-button"
                   >
+
                     <FaUpload />
+
                     Browse Image
+
                   </label>
 
                   <p>
+
                     PNG, JPG, JPEG or WEBP
+
                     <br />
+
                     Maximum 5 MB
+
                   </p>
 
                 </div>
@@ -791,6 +1087,7 @@ function ManageCategories() {
                 <div className="admin-category-image-preview">
 
                   {imagePreview ? (
+
                     <img
                       src={imagePreview}
                       alt="Category preview"
@@ -799,14 +1096,30 @@ function ManageCategories() {
                           "none";
                       }}
                     />
+
                   ) : (
+
                     <div className="category-empty-preview">
+
                       <FaTags />
+
                       <span>No image selected</span>
+
                     </div>
+
                   )}
 
                 </div>
+
+                {imageFile && (
+
+                  <small className="category-selected-file">
+
+                    Selected: {imageFile.name}
+
+                  </small>
+
+                )}
 
               </div>
 
@@ -820,7 +1133,9 @@ function ManageCategories() {
                   disabled={saving}
                   onClick={closeForm}
                 >
+
                   Cancel
+
                 </button>
 
                 <button
@@ -828,11 +1143,33 @@ function ManageCategories() {
                   className="admin-primary-button"
                   disabled={saving}
                 >
-                  {saving
-                    ? "Saving..."
-                    : editingCategory
-                      ? "Update Category"
-                      : "Add Category"}
+
+                  {saving ? (
+
+                    "Saving..."
+
+                  ) : editingCategory ? (
+
+                    <>
+
+                      <FaEdit />
+
+                      Update Category
+
+                    </>
+
+                  ) : (
+
+                    <>
+
+                      <FaPlus />
+
+                      Add Category
+
+                    </>
+
+                  )}
+
                 </button>
 
               </div>
@@ -842,10 +1179,13 @@ function ManageCategories() {
           </div>
 
         </div>
+
       )}
 
     </div>
+
   );
+
 }
 
 export default ManageCategories;
