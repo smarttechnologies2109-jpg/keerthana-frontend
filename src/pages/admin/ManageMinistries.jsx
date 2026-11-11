@@ -56,6 +56,15 @@ const getMinistryImage = (ministry) =>
   ministry?.image ||
   "";
 
+// Normalize names before comparing them so that case and extra spaces
+// do not allow duplicate ministry entries.
+const normalizeMinistryName = (value) =>
+  String(value || "")
+    .normalize("NFKC")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase();
+
 // =========================================================
 // COMPONENT
 // =========================================================
@@ -340,6 +349,54 @@ function ManageMinistries() {
 
     const cleanEnglishName = form.name_english.trim();
     const cleanTeluguName = form.name_telugu.trim();
+
+    // DUPLICATE CHECK: English names are compared with English names,
+    // and Telugu names are compared with Telugu names. During editing,
+    // the current ministry is excluded from the duplicate check.
+    const currentMinistryId = editingId == null ? null : String(editingId);
+    const duplicateEnglish = ministries.find((ministry) => {
+      const ministryId = ministry.id || ministry.ministry_id;
+      if (currentMinistryId !== null && String(ministryId) === currentMinistryId) {
+        return false;
+      }
+
+      const existingEnglishName =
+        ministry.name_english || ministry.nameEnglish || "";
+
+      return (
+        normalizeMinistryName(existingEnglishName) ===
+        normalizeMinistryName(cleanEnglishName)
+      );
+    });
+
+    if (duplicateEnglish) {
+      setError(
+        `The English ministry name "${cleanEnglishName}" already exists. Please use a different name.`
+      );
+      return;
+    }
+
+    const duplicateTelugu = ministries.find((ministry) => {
+      const ministryId = ministry.id || ministry.ministry_id;
+      if (currentMinistryId !== null && String(ministryId) === currentMinistryId) {
+        return false;
+      }
+
+      const existingTeluguName =
+        ministry.name_telugu || ministry.nameTelugu || ministry.name || "";
+
+      return (
+        normalizeMinistryName(existingTeluguName) ===
+        normalizeMinistryName(cleanTeluguName)
+      );
+    });
+
+    if (duplicateTelugu) {
+      setError(
+        `ఈ తెలుగు మినిస్ట్రీ పేరు ఇప్పటికే ఉంది: "${cleanTeluguName}". దయచేసి వేరే పేరు నమోదు చేయండి.`
+      );
+      return;
+    }
 
     // BILINGUAL MINISTRY NAME VALIDATION
     if (!cleanEnglishName) {

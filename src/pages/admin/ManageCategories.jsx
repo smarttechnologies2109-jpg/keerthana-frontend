@@ -23,6 +23,15 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ];
 
+// Normalize names before duplicate comparison.
+// This ignores letter case, repeated spaces and Unicode composition differences.
+const normalizeCategoryName = (value) =>
+  String(value || "")
+    .normalize("NFC")
+    .trim()
+    .replace(/\\s+/g, " ")
+    .toLocaleLowerCase();
+
 function ManageCategories() {
   const errorRef = useRef(null);
 
@@ -184,6 +193,8 @@ function ManageCategories() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (saving) return;
+
     const english = nameEnglish.trim();
     const telugu = nameTelugu.trim();
 
@@ -194,6 +205,65 @@ function ManageCategories() {
 
     if (!telugu) {
       setError("దయచేసి తెలుగు కేటగిరీ పేరును నమోదు చేయండి.");
+      return;
+    }
+
+    // DUPLICATE VALIDATION
+    // English names are compared with English names, and Telugu with Telugu.
+    // When editing, exclude the category currently being edited.
+    const currentCategoryId = editingCategory?.id;
+
+    const duplicateEnglish = categories.some((category) => {
+      if (
+        editingCategory &&
+        String(category.id) === String(currentCategoryId)
+      ) {
+        return false;
+      }
+
+      const existingEnglish =
+        category.name_english ||
+        category.nameEnglish ||
+        category.name ||
+        "";
+
+      return (
+        normalizeCategoryName(existingEnglish) ===
+        normalizeCategoryName(english)
+      );
+    });
+
+    if (duplicateEnglish) {
+      setError(
+        `"${english}" already exists. Please use a different English category name.`
+      );
+      return;
+    }
+
+    const duplicateTelugu = categories.some((category) => {
+      if (
+        editingCategory &&
+        String(category.id) === String(currentCategoryId)
+      ) {
+        return false;
+      }
+
+      const existingTelugu =
+        category.name_telugu ||
+        category.nameTelugu ||
+        category.name ||
+        "";
+
+      return (
+        normalizeCategoryName(existingTelugu) ===
+        normalizeCategoryName(telugu)
+      );
+    });
+
+    if (duplicateTelugu) {
+      setError(
+        `ఈ తెలుగు కేటగిరీ పేరు ఇప్పటికే ఉంది: "${telugu}". దయచేసి వేరే పేరు నమోదు చేయండి.`
+      );
       return;
     }
 

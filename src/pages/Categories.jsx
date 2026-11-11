@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 
 import API from "../services/api";
+import { getMediaUrl } from "../utils/media";
 import Sidebar from "../components/Sidebar";
 import VoiceSearch from "../components/VoiceSearch";
 
@@ -40,6 +41,24 @@ const getCategoryTeluguName = (category) => {
     return legacy;
   }
   return "";
+};
+
+const getCategoryCoverUrl = (category) => {
+  const imagePath =
+    category?.image_url ||
+    category?.imageUrl ||
+    category?.cover_url ||
+    category?.image ||
+    category?.photo;
+
+  if (!imagePath || typeof imagePath !== "string") return "";
+
+  try {
+    return getMediaUrl(imagePath) || "";
+  } catch (error) {
+    console.error("Category cover URL error:", error);
+    return "";
+  }
 };
 
 /* =========================================================
@@ -364,6 +383,7 @@ function Categories() {
                         const songCount = Number(
                           category?.song_count || 0
                         );
+                        const categoryCover = getCategoryCoverUrl(category);
 
                         return (
                           <article
@@ -396,12 +416,35 @@ function Categories() {
                               "--category-index": index % 10,
                             }}
                           >
-                            {/* CARD ICON */}
+                            {/* CATEGORY COVER IMAGE */}
 
                             <div className="category-card-top">
-                              <span className="category-card-icon">
-                                <FaMusic />
-                              </span>
+                              {categoryCover ? (
+                                <img
+                                  className="category-card-cover"
+                                  src={categoryCover}
+                                  alt={`${getCategoryEnglishName(category)} category cover`}
+                                  loading="lazy"
+                                  onError={(event) => {
+                                    console.error(
+                                      "Category cover failed to load:",
+                                      categoryCover
+                                    );
+                                    event.currentTarget.style.display = "none";
+                                  }}
+                                  style={{
+                                    display: "block",
+                                    width: "100%",
+                                    height: "150px",
+                                    objectFit: "cover",
+                                    borderRadius: "14px",
+                                  }}
+                                />
+                              ) : (
+                                <span className="category-card-icon">
+                                  <FaMusic />
+                                </span>
+                              )}
 
                               <FaArrowRight className="category-card-arrow" />
                             </div>

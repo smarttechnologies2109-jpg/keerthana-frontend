@@ -107,6 +107,26 @@ Enter the second verse...`,
 
 
 
+const normalizeDuplicateValue = (value) =>
+  String(value || "").normalize("NFKC").trim().replace(/\\s+/g, " ").toLocaleLowerCase();
+
+const getBilingualLabel = (english, telugu, fallback = "") => {
+  const en = String(english || "").trim();
+  const te = String(telugu || "").trim();
+  return en && te && normalizeDuplicateValue(en) !== normalizeDuplicateValue(te)
+    ? `${en} / ${te}` : en || te || fallback;
+};
+
+const hasDuplicateBilingualName = (items, englishValue, teluguValue, getEnglish, getTelugu) => {
+  const en = normalizeDuplicateValue(englishValue);
+  const te = normalizeDuplicateValue(teluguValue);
+  return items.some((item) => {
+    const existingEn = normalizeDuplicateValue(getEnglish(item));
+    const existingTe = normalizeDuplicateValue(getTelugu(item));
+    return Boolean((en && existingEn === en) || (te && existingTe === te));
+  });
+};
+
 const initialForm = {
   title: "",
   title_english: "",
@@ -305,19 +325,9 @@ function AddSong() {
   const [showAlbumForm, setShowAlbumForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
 
-  const [newArtist, setNewArtist] = useState({
-    name: "",
-    bio: "",
-  });
-
-  const [newAlbum, setNewAlbum] = useState({
-    title: "",
-    release_year: "",
-  });
-
-  const [newCategory, setNewCategory] = useState({
-    name: "",
-  });
+  const [newArtist, setNewArtist] = useState({ name_english: "", name_telugu: "", bio: "" });
+  const [newAlbum, setNewAlbum] = useState({ title_english: "", title_telugu: "", release_year: "" });
+  const [newCategory, setNewCategory] = useState({ name_english: "", name_telugu: "" });
 
   const [pageLoading, setPageLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -443,13 +453,13 @@ function AddSong() {
   const filteredArtists = sortAndSearch(
     artists,
     "",
-    (artist) => artist.name_english || artist.name || artist.name_telugu || ""
+    (artist) => getBilingualLabel(artist.name_english, artist.name_telugu || artist.name, "Unnamed Artist")
   );
 
   const filteredAlbums = sortAndSearch(
     albums,
     "",
-    (album) => album.title_english || album.title || album.title_telugu || ""
+    (album) => getBilingualLabel(album.title_english, album.title_telugu || album.title, "Untitled Album")
   );
 
   const filteredCategories = sortAndSearch(
@@ -534,185 +544,81 @@ const handleMinistryChangeValue = (ministryId) => {
   ===================================================== */
 
   const createArtist = async () => {
-    const name = newArtist.name.trim();
-
-    if (!name) {
-      setError("Artist name is required.");
-      return;
-    }
-
+    const nameEnglish = newArtist.name_english.trim();
+    const nameTelugu = newArtist.name_telugu.trim();
+    if (!nameEnglish || !nameTelugu) return setError("Please enter both English and Telugu artist names.");
+    if (hasDuplicateBilingualName(artists, nameEnglish, nameTelugu, x => x.name_english, x => x.name_telugu || x.name))
+      return setError("This English or Telugu artist name already exists. Please choose a unique name.");
     try {
-      setQuickSaving(true);
-      setError("");
-      setSuccess("");
-
+      setQuickSaving(true); setError(""); setSuccess("");
       const response = await API.post("/admin/artists", {
-        name,
-        bio: newArtist.bio.trim(),
-        language: form.language,
+        name: nameTelugu, name_english: nameEnglish, name_telugu: nameTelugu,
+        bio: newArtist.bio.trim(), language: form.language,
       });
-
       const artist = response.data?.artist;
-
-      if (!artist?.id) {
-        throw new Error("Artist was not returned by server.");
-      }
-
-      setArtists((previous) => [
-        ...previous.filter(
-          (item) => String(item.id) !== String(artist.id)
-        ),
-        artist,
-      ]);
-
-      setForm((previous) => ({
-        ...previous,
-        artist_id: String(artist.id),
-      }));
-
-      setNewArtist({ name: "", bio: "" });
+      if (!artist?.id) throw new Error("Artist was not returned by server.");
+      setArtists(previous => [...previous, artist]);
+      setForm(previous => ({ ...previous, artist_id: String(artist.id) }));
+      setNewArtist({ name_english: "", name_telugu: "", bio: "" });
       setShowArtistForm(false);
-      setSuccess(`Artist "${artist.name}" added successfully.`);
+      setSuccess(`Artist "${nameEnglish} / ${nameTelugu}" added successfully.`);
     } catch (err) {
       console.error("Create artist error:", err);
-
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Unable to create artist."
-      );
-    } finally {
-      setQuickSaving(false);
-    }
+      setError(err.response?.data?.message || err.message || "Unable to create artist.");
+    } finally { setQuickSaving(false); }
   };
-
-  /* =====================================================
-     QUICK CREATE ALBUM
-
-     Album creation does not depend on the selected artist.
-     The backend/database must permit a NULL artist_id.
-  ===================================================== */
 
   const createAlbum = async () => {
-    const title = newAlbum.title.trim();
-
-    if (!title) {
-      setError("Album title is required.");
-      return;
-    }
-
+    const titleEnglish = newAlbum.title_english.trim();
+    const titleTelugu = newAlbum.title_telugu.trim();
+    if (!titleEnglish || !titleTelugu) return setError("Please enter both English and Telugu album titles.");
+    if (hasDuplicateBilingualName(albums, titleEnglish, titleTelugu, x => x.title_english, x => x.title_telugu || x.title))
+      return setError("This English or Telugu album title already exists. Please choose a unique title.");
     try {
-      setQuickSaving(true);
-      setError("");
-      setSuccess("");
-
-      const payload = {
-        title,
+      setQuickSaving(true); setError(""); setSuccess("");
+      const response = await API.post("/admin/albums", {
+        title: titleTelugu, title_english: titleEnglish, title_telugu: titleTelugu,
         artist_id: null,
-        release_year: newAlbum.release_year
-          ? Number(newAlbum.release_year)
-          : null,
-        language: form.language,
-      };
-
-      const response = await API.post("/admin/albums", payload);
-      const album = response.data?.album;
-
-      if (!album?.id) {
-        throw new Error(
-          "Album was not returned by server. Check the album API response."
-        );
-      }
-
-      setAlbums((previous) => [
-        ...previous.filter(
-          (item) => String(item.id) !== String(album.id)
-        ),
-        album,
-      ]);
-
-      setForm((previous) => ({
-        ...previous,
-        album_id: String(album.id),
-      }));
-
-      setNewAlbum({ title: "", release_year: "" });
-      setShowAlbumForm(false);
-      setSuccess(`Album "${album.title}" added successfully.`);
-    } catch (err) {
-      console.error("Create album error:", err);
-
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Unable to create album."
-      );
-    } finally {
-      setQuickSaving(false);
-    }
-  };
-
-  /* =====================================================
-     QUICK CREATE CATEGORY
-
-     Category creation does not depend on a ministry.
-  ===================================================== */
-
-  const createCategory = async () => {
-    const name = newCategory.name.trim();
-
-    if (!name) {
-      setError("Category name is required.");
-      return;
-    }
-
-    try {
-      setQuickSaving(true);
-      setError("");
-      setSuccess("");
-
-      const response = await API.post("/admin/categories", {
-        name,
+        release_year: newAlbum.release_year ? Number(newAlbum.release_year) : null,
         language: form.language,
       });
-
-      const category = response.data?.category;
-
-      if (!category?.id) {
-        throw new Error("Category was not returned by server.");
-      }
-
-      setCategories((previous) => [
-        ...previous.filter(
-          (item) => String(item.id) !== String(category.id)
-        ),
-        category,
-      ]);
-
-      setForm((previous) => ({
-        ...previous,
-        category_id: String(category.id),
-      }));
-
-      setNewCategory({ name: "" });
-      setShowCategoryForm(false);
-      setSuccess(`Category "${category.name}" added successfully.`);
+      const album = response.data?.album;
+      if (!album?.id) throw new Error("Album was not returned by server. Check the album API response.");
+      setAlbums(previous => [...previous, album]);
+      setForm(previous => ({ ...previous, album_id: String(album.id) }));
+      setNewAlbum({ title_english: "", title_telugu: "", release_year: "" });
+      setShowAlbumForm(false);
+      setSuccess(`Album "${titleEnglish} / ${titleTelugu}" added successfully.`);
     } catch (err) {
-      console.error("Create category error:", err);
-
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Unable to create category."
-      );
-    } finally {
-      setQuickSaving(false);
-    }
+      console.error("Create album error:", err);
+      setError(err.response?.data?.message || err.message || "Unable to create album.");
+    } finally { setQuickSaving(false); }
   };
 
-  /* =====================================================
-     AUDIO FILE
-  ===================================================== */
+  const createCategory = async () => {
+    const nameEnglish = newCategory.name_english.trim();
+    const nameTelugu = newCategory.name_telugu.trim();
+    if (!nameEnglish || !nameTelugu) return setError("Please enter both English and Telugu category names.");
+    if (hasDuplicateBilingualName(categories, nameEnglish, nameTelugu, x => x.name_english, x => x.name_telugu || x.name))
+      return setError("This English or Telugu category name already exists. Please choose a unique name.");
+    try {
+      setQuickSaving(true); setError(""); setSuccess("");
+      const response = await API.post("/admin/categories", {
+        name: nameTelugu, name_english: nameEnglish, name_telugu: nameTelugu,
+        language: form.language,
+      });
+      const category = response.data?.category;
+      if (!category?.id) throw new Error("Category was not returned by server.");
+      setCategories(previous => [...previous, category]);
+      setForm(previous => ({ ...previous, category_id: String(category.id) }));
+      setNewCategory({ name_english: "", name_telugu: "" });
+      setShowCategoryForm(false);
+      setSuccess(`Category "${nameEnglish} / ${nameTelugu}" added successfully.`);
+    } catch (err) {
+      console.error("Create category error:", err);
+      setError(err.response?.data?.message || err.message || "Unable to create category.");
+    } finally { setQuickSaving(false); }
+  };
 
   const handleAudioChange = (event) => {
     const file = event.target.files?.[0];
@@ -1089,10 +995,7 @@ if (form.ministry_id) {
                 searchPlaceholder="Search artists..."
                 emptyText="No artists found. Please create an artist."
                 getLabel={(artist) =>
-                  artist.name_english ||
-                  artist.name ||
-                  artist.name_telugu ||
-                  "Unnamed Artist"
+                  getBilingualLabel(artist.name_english, artist.name_telugu || artist.name, "Unnamed Artist")
                 }
                 getSearchText={(artist) =>
                   [
@@ -1116,17 +1019,10 @@ if (form.ministry_id) {
                 <div className="admin-quick-create">
                   <h4>Add New Artist</h4>
 
-                  <input
-                    type="text"
-                    placeholder="Artist name"
-                    value={newArtist.name}
-                    onChange={(event) =>
-                      setNewArtist((previous) => ({
-                        ...previous,
-                        name: event.target.value,
-                      }))
-                    }
-                  />
+                  <input type="text" placeholder="Artist name (English) *" value={newArtist.name_english}
+                    onChange={(event) => setNewArtist(previous => ({ ...previous, name_english: event.target.value }))} />
+                  <input type="text" placeholder="కళాకారుడి పేరు (తెలుగు) *" value={newArtist.name_telugu}
+                    onChange={(event) => setNewArtist(previous => ({ ...previous, name_telugu: event.target.value }))} />
 
                   <textarea
                     rows="3"
@@ -1194,10 +1090,7 @@ if (form.ministry_id) {
                 searchPlaceholder="Search albums..."
                 emptyText="No matching albums found."
                 getLabel={(album) =>
-                  album.title_english ||
-                  album.title ||
-                  album.title_telugu ||
-                  "Untitled Album"
+                  getBilingualLabel(album.title_english, album.title_telugu || album.title, "Untitled Album")
                 }
                 getSearchText={(album) =>
                   [
@@ -1224,17 +1117,10 @@ if (form.ministry_id) {
                 <div className="admin-quick-create">
                   <h4>Add New Album</h4>
 
-                  <input
-                    type="text"
-                    placeholder="Album title"
-                    value={newAlbum.title}
-                    onChange={(event) =>
-                      setNewAlbum((previous) => ({
-                        ...previous,
-                        title: event.target.value,
-                      }))
-                    }
-                  />
+                  <input type="text" placeholder="Album title (English) *" value={newAlbum.title_english}
+                    onChange={(event) => setNewAlbum(previous => ({ ...previous, title_english: event.target.value }))} />
+                  <input type="text" placeholder="ఆల్బమ్ పేరు (తెలుగు) *" value={newAlbum.title_telugu}
+                    onChange={(event) => setNewAlbum(previous => ({ ...previous, title_telugu: event.target.value }))} />
 
                   <input
                     type="number"
@@ -1309,10 +1195,7 @@ if (form.ministry_id) {
                 searchPlaceholder="Search categories..."
                 emptyText="No categories found. Please create a category."
                 getLabel={(category) =>
-                  category.name_english ||
-                  category.name ||
-                  category.name_telugu ||
-                  "Unnamed Category"
+                  getBilingualLabel(category.name_english, category.name_telugu || category.name, "Unnamed Category")
                 }
                 getSearchText={(category) =>
                   [
@@ -1337,14 +1220,10 @@ if (form.ministry_id) {
                 <div className="admin-quick-create">
                   <h4>Add New Category</h4>
 
-                  <input
-                    type="text"
-                    placeholder="Category name"
-                    value={newCategory.name}
-                    onChange={(event) =>
-                      setNewCategory({ name: event.target.value })
-                    }
-                  />
+                  <input type="text" placeholder="Category name (English) *" value={newCategory.name_english}
+                    onChange={(event) => setNewCategory(previous => ({ ...previous, name_english: event.target.value }))} />
+                  <input type="text" placeholder="వర్గం పేరు (తెలుగు) *" value={newCategory.name_telugu}
+                    onChange={(event) => setNewCategory(previous => ({ ...previous, name_telugu: event.target.value }))} />
 
                   <div className="admin-quick-actions">
                     <button
@@ -1387,10 +1266,7 @@ if (form.ministry_id) {
     searchPlaceholder="Search ministries..."
     emptyText="No matching ministries found."
     getLabel={(ministry) =>
-      ministry.name_english ||
-      ministry.name ||
-      ministry.name_telugu ||
-      "Unnamed Ministry"
+      getBilingualLabel(ministry.name_english, ministry.name_telugu || ministry.name, "Unnamed Ministry")
     }
     getSearchText={(ministry) =>
       [

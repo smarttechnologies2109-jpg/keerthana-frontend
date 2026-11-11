@@ -47,12 +47,6 @@ const getEnglishTitle = (album) =>
 const getTeluguTitle = (album) =>
   album?.title_telugu || album?.title || "";
 
-const getEnglishArtist = (artist) =>
-  artist?.name_english || artist?.name || "";
-
-const getTeluguArtist = (artist) =>
-  artist?.name_telugu || artist?.name || "";
-
 // =====================================================
 // COMPONENT
 // =====================================================
@@ -63,7 +57,6 @@ function ManageAlbums() {
   // ===================================================
 
   const [albums, setAlbums] = useState([]);
-  const [artists, setArtists] = useState([]);
 
   // ===================================================
   // PAGE STATE
@@ -93,7 +86,6 @@ function ManageAlbums() {
     title_english: "",
     title_telugu: "",
     language: "Telugu",
-    artist_id: "",
     release_year: "",
     cover_url: "",
   };
@@ -136,9 +128,17 @@ function ManageAlbums() {
   // ===================================================
 
   const getCover = (coverUrl) => {
-    if (!coverUrl) return null;
+    if (!coverUrl || typeof coverUrl !== "string") return "";
 
-    return getMediaUrl(coverUrl);
+    try {
+      // Keep absolute URLs and data/blob URLs intact; normalize stored S3 keys
+      // through the shared media utility.
+      if (/^(https?:|data:|blob:)/i.test(coverUrl)) return coverUrl;
+      return getMediaUrl(coverUrl) || "";
+    } catch (error) {
+      console.error("Album cover URL error:", error);
+      return "";
+    }
   };
 
   // ===================================================
@@ -150,19 +150,8 @@ function ManageAlbums() {
       setLoading(true);
       setError("");
 
-      const [albumsResponse, artistsResponse] =
-        await Promise.all([
-          API.get("/admin/albums"),
-          API.get("/admin/artists"),
-        ]);
-
-      setAlbums(
-        albumsResponse.data?.albums || []
-      );
-
-      setArtists(
-        artistsResponse.data?.artists || []
-      );
+      const albumsResponse = await API.get("/admin/albums");
+      setAlbums(albumsResponse.data?.albums || []);
     } catch (error) {
       console.error("Load albums error:", error);
 
@@ -218,9 +207,6 @@ function ManageAlbums() {
       title_english: getEnglishTitle(album),
       title_telugu: getTeluguTitle(album),
       language: album.language || "Telugu",
-      artist_id: album.artist_id
-        ? String(album.artist_id)
-        : "",
       release_year: album.release_year
         ? String(album.release_year)
         : "",
@@ -261,8 +247,7 @@ function ManageAlbums() {
       setForm((previous) => ({
         ...previous,
         language: value,
-        artist_id: "",
-      }));
+          }));
 
       return;
     }
@@ -331,6 +316,65 @@ function ManageAlbums() {
       return;
     }
 
+    // DUPLICATE ALBUM TITLE VALIDATION
+    // Normalize Unicode, ignore case, and collapse extra spaces.
+    const normalizeAlbumTitle = (value) =>
+      String(value || "")
+        .normalize("NFKC")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLocaleLowerCase();
+
+    const currentAlbumId = editingAlbum?.id;
+
+    const duplicateEnglish = albums.some((album) => {
+      if (
+        currentAlbumId != null &&
+        String(album.id) === String(currentAlbumId)
+      ) {
+        return false;
+      }
+
+      const existingEnglish =
+        album.title_english || album.titleEnglish || album.title || "";
+
+      return (
+        normalizeAlbumTitle(existingEnglish) ===
+        normalizeAlbumTitle(englishTitle)
+      );
+    });
+
+    if (duplicateEnglish) {
+      setError(
+        `The English album title "${englishTitle}" already exists. Please use a unique title.`
+      );
+      return;
+    }
+
+    const duplicateTelugu = albums.some((album) => {
+      if (
+        currentAlbumId != null &&
+        String(album.id) === String(currentAlbumId)
+      ) {
+        return false;
+      }
+
+      const existingTelugu =
+        album.title_telugu || album.titleTelugu || album.title || "";
+
+      return (
+        normalizeAlbumTitle(existingTelugu) ===
+        normalizeAlbumTitle(teluguTitle)
+      );
+    });
+
+    if (duplicateTelugu) {
+      setError(
+        `The Telugu album title "${teluguTitle}" already exists. Please use a unique title.`
+      );
+      return;
+    }
+
     const validLanguage = LANGUAGES.some(
       (language) =>
         language.value === form.language
@@ -370,7 +414,6 @@ function ManageAlbums() {
       formData.append("title", teluguTitle);
 
       formData.append("language", form.language);
-      formData.append("artist_id", form.artist_id || "");
       formData.append("release_year", form.release_year || "");
 
       // Upload only when a new image is selected.
@@ -472,9 +515,6 @@ function ManageAlbums() {
           album.title,
           album.title_english,
           album.title_telugu,
-          album.artist_name,
-          album.artist_name_english,
-          album.artist_name_telugu,
           album.language,
           album.release_year,
         ]
@@ -497,15 +537,6 @@ function ManageAlbums() {
   }, [albums, search]);
 
   // ===================================================
-  // LANGUAGE MATCHING ARTISTS
-  // ===================================================
-
-  const filteredArtists = artists.filter(
-    (artist) =>
-      (artist.language || "Telugu") === form.language
-  );
-
-  // ===================================================
   // LANGUAGE LABEL
   // ===================================================
 
@@ -515,21 +546,6 @@ function ManageAlbums() {
         (language) => language.value === value
       )?.label || value || "—"
     );
-  };
-
-  // ===================================================
-  // ARTIST DISPLAY
-  // ===================================================
-
-  const getArtistDisplay = (artist) => {
-    const english = getEnglishArtist(artist);
-    const telugu = getTeluguArtist(artist);
-
-    if (english && telugu && english !== telugu) {
-      return `${english} / ${telugu}`;
-    }
-
-    return english || telugu || "—";
   };
 
   // ===================================================
@@ -616,7 +632,7 @@ function ManageAlbums() {
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="Search English or Telugu albums, artists..."
+            placeholder="Search English or Telugu album titles..."
             aria-label="Search albums"
           />
 
@@ -679,7 +695,6 @@ function ManageAlbums() {
                 <th className="admin-album-number-column">No.</th>
                 <th>Album</th>
                 <th>Language</th>
-                <th>Artist</th>
                 <th>Release Year</th>
                 <th>Songs</th>
                 <th>Actions</th>
@@ -689,6 +704,7 @@ function ManageAlbums() {
             <tbody>
               {filteredAlbums.map((album, index) => {
                 const albumNames = getAlbumDisplay(album);
+                const coverSrc = getCover(album.cover_url);
 
                 return (
                   <tr key={album.id}>
@@ -702,13 +718,16 @@ function ManageAlbums() {
                       <div className="admin-album-cell">
 
                         <div className="admin-album-cover">
-                          {getCover(album.cover_url) && (
+                          {coverSrc && (
                             <img
-                              src={getCover(album.cover_url)}
+                              src={coverSrc}
                               alt={albumNames.english}
                               onError={(event) => {
-                                event.currentTarget.style.display =
-                                  "none";
+                                console.error(
+                                  "Album cover failed to load:",
+                                  coverSrc
+                                );
+                                event.currentTarget.style.display = "none";
                               }}
                             />
                           )}
@@ -731,24 +750,6 @@ function ManageAlbums() {
 
                     <td>
                       {getLanguageLabel(album.language)}
-                    </td>
-
-                    {/* ARTIST */}
-
-                    <td>
-                      <div className="admin-album-names">
-                        <strong>
-                          {album.artist_name_english ||
-                            album.artist_name ||
-                            "—"}
-                        </strong>
-
-                        {album.artist_name_telugu && (
-                          <span>
-                            {album.artist_name_telugu}
-                          </span>
-                        )}
-                      </div>
                     </td>
 
                     {/* YEAR */}
@@ -885,43 +886,6 @@ function ManageAlbums() {
                   maxLength={255}
                   required
                 />
-              </div>
-
-              {/* ARTIST */}
-
-              <div className="admin-field">
-                <label>Artist</label>
-
-                <select
-                  name="artist_id"
-                  value={form.artist_id}
-                  onChange={handleChange}
-                >
-                  <option value="">
-                    No Artist
-                  </option>
-
-                  {filteredArtists.length === 0 ? (
-                    <option value="" disabled>
-                      No {form.language} artists available
-                    </option>
-                  ) : (
-                    filteredArtists.map((artist) => (
-                      <option
-                        key={artist.id}
-                        value={artist.id}
-                      >
-                        {getArtistDisplay(artist)}
-                      </option>
-                    ))
-                  )}
-                </select>
-
-                <small>
-                  Only{" "}
-                  {getLanguageLabel(form.language)}{" "}
-                  artists are shown.
-                </small>
               </div>
 
               {/* RELEASE YEAR */}
