@@ -816,3 +816,10 @@
     transition-duration: 0.01ms !important;
   }
 }
+.admin-ministry-telugu-name {
+  color: #d6b66b;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 6px 0 10px;
+  line-height: 1.6;
+}

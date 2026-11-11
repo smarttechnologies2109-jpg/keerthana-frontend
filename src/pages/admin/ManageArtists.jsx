@@ -28,6 +28,19 @@ const LANGUAGES = [
   { value: "Tamil", label: "தமிழ்" },
 ];
 
+// =====================================================
+// EMPTY FORM
+// =====================================================
+
+const EMPTY_FORM = {
+  name: "",
+  name_english: "",
+  name_telugu: "",
+  bio: "",
+  language: "Telugu",
+  image_url: "",
+};
+
 function ManageArtists() {
   // ===================================================
   // STATE
@@ -49,12 +62,7 @@ function ManageArtists() {
   const [showForm, setShowForm] = useState(false);
   const [editingArtist, setEditingArtist] = useState(null);
 
-  const [form, setForm] = useState({
-    name: "",
-    bio: "",
-    language: "Telugu",
-    image_url: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
 
   // ===================================================
   // IMAGE STATE
@@ -96,11 +104,13 @@ function ManageArtists() {
   // ===================================================
 
   const clearImagePreview = () => {
-    if (imagePreview?.startsWith("blob:")) {
-      URL.revokeObjectURL(imagePreview);
-    }
+    setImagePreview((previous) => {
+      if (previous?.startsWith("blob:")) {
+        URL.revokeObjectURL(previous);
+      }
 
-    setImagePreview(null);
+      return null;
+    });
   };
 
   // ===================================================
@@ -110,18 +120,14 @@ function ManageArtists() {
   const openAdd = () => {
     setEditingArtist(null);
 
-    setForm({
-      name: "",
-      bio: "",
-      language: "Telugu",
-      image_url: "",
-    });
+    setForm({ ...EMPTY_FORM });
 
     setImageFile(null);
     clearImagePreview();
 
     setError("");
     setSuccess("");
+
     setShowForm(true);
   };
 
@@ -134,6 +140,13 @@ function ManageArtists() {
 
     setForm({
       name: artist.name || "",
+
+      name_english:
+        artist.name_english || artist.name || "",
+
+      name_telugu:
+        artist.name_telugu || artist.name || "",
+
       bio: artist.bio || "",
       language: artist.language || "Telugu",
       image_url: artist.image_url || "",
@@ -146,6 +159,7 @@ function ManageArtists() {
 
     setError("");
     setSuccess("");
+
     setShowForm(true);
   };
 
@@ -158,15 +172,11 @@ function ManageArtists() {
 
     setShowForm(false);
     setEditingArtist(null);
+
     setImageFile(null);
     clearImagePreview();
 
-    setForm({
-      name: "",
-      bio: "",
-      language: "Telugu",
-      image_url: "",
-    });
+    setForm({ ...EMPTY_FORM });
   };
 
   // ===================================================
@@ -217,9 +227,7 @@ function ManageArtists() {
 
     setError("");
 
-    if (imagePreview?.startsWith("blob:")) {
-      URL.revokeObjectURL(imagePreview);
-    }
+    clearImagePreview();
 
     setImageFile(file);
 
@@ -235,8 +243,16 @@ function ManageArtists() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!form.name.trim()) {
-      setError("Artist name is required.");
+    const englishName = form.name_english.trim();
+    const teluguName = form.name_telugu.trim();
+
+    if (!englishName) {
+      setError("English artist name is required.");
+      return;
+    }
+
+    if (!teluguName) {
+      setError("Telugu artist name is required.");
       return;
     }
 
@@ -256,16 +272,25 @@ function ManageArtists() {
 
       const formData = new FormData();
 
-      formData.append("name", form.name.trim());
+      // Keep legacy name field for compatibility.
+      // Telugu is stored in the existing name column.
+
+      formData.append("name", teluguName);
+
+      formData.append("name_english", englishName);
+      formData.append("name_telugu", teluguName);
+
       formData.append("bio", form.bio.trim());
       formData.append("language", form.language);
 
       // Upload image only when a new file is selected.
+
       if (imageFile) {
         formData.append("cover", imageFile);
       }
 
       // UPDATE ARTIST
+
       if (editingArtist) {
         await API.put(
           `/admin/artists/${editingArtist.id}`,
@@ -276,6 +301,7 @@ function ManageArtists() {
       }
 
       // CREATE ARTIST
+
       else {
         await API.post("/admin/artists", formData);
 
@@ -286,8 +312,11 @@ function ManageArtists() {
 
       setShowForm(false);
       setEditingArtist(null);
+
       setImageFile(null);
       clearImagePreview();
+
+      setForm({ ...EMPTY_FORM });
 
     } catch (error) {
       console.error("Save artist error:", error);
@@ -306,8 +335,13 @@ function ManageArtists() {
   // ===================================================
 
   const handleDelete = async (artist) => {
+    const displayName =
+      artist.name_english ||
+      artist.name ||
+      "this artist";
+
     const confirmed = window.confirm(
-      `Delete artist "${artist.name}"?`
+      `Delete artist "${displayName}"?`
     );
 
     if (!confirmed) return;
@@ -319,7 +353,9 @@ function ManageArtists() {
       await API.delete(`/admin/artists/${artist.id}`);
 
       setArtists((previous) =>
-        previous.filter((item) => item.id !== artist.id)
+        previous.filter(
+          (item) => item.id !== artist.id
+        )
       );
 
       setSuccess("Artist deleted successfully!");
@@ -345,6 +381,8 @@ function ManageArtists() {
 
     return (
       artist.name?.toLowerCase().includes(query) ||
+      artist.name_english?.toLowerCase().includes(query) ||
+      artist.name_telugu?.toLowerCase().includes(query) ||
       artist.bio?.toLowerCase().includes(query) ||
       artist.language?.toLowerCase().includes(query)
     );
@@ -420,7 +458,7 @@ function ManageArtists() {
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="Search artists..."
+            placeholder="Search English or Telugu artist names..."
           />
         </div>
 
@@ -468,19 +506,37 @@ function ManageArtists() {
                   <td>
                     <div className="admin-artist-cell">
 
-                   <div className="admin-artist-avatar">
-  {artist.image_url && (
-    <img
-      src={artist.image_url}
-      alt={artist.name}
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  )}
-</div>
+                      <div className="admin-artist-avatar">
+                        {artist.image_url && (
+                          <img
+                            src={artist.image_url}
+                            alt={
+                              artist.name_english ||
+                              artist.name ||
+                              "Artist"
+                            }
+                            onError={(event) => {
+                              event.currentTarget.style.display =
+                                "none";
+                            }}
+                          />
+                        )}
+                      </div>
 
-                      <strong>{artist.name}</strong>
+                      <div className="admin-artist-names">
+                        <strong>
+                          {artist.name_english ||
+                            artist.name ||
+                            "—"}
+                        </strong>
+
+                        <small>
+                          {artist.name_telugu ||
+                            artist.name ||
+                            "—"}
+                        </small>
+                      </div>
+
                     </div>
                   </td>
 
@@ -571,17 +627,32 @@ function ManageArtists() {
 
             <form onSubmit={handleSubmit}>
 
-              {/* ARTIST NAME */}
+              {/* ENGLISH ARTIST NAME */}
 
               <div className="admin-field">
-                <label>Artist Name *</label>
+                <label>Artist Name (English) *</label>
 
                 <input
                   type="text"
-                  name="name"
-                  value={form.name}
+                  name="name_english"
+                  value={form.name_english}
                   onChange={handleChange}
-                  placeholder="Artist name"
+                  placeholder="Example: Pr. John Wesley"
+                  required
+                />
+              </div>
+
+              {/* TELUGU ARTIST NAME */}
+
+              <div className="admin-field">
+                <label>Artist Name (Telugu) *</label>
+
+                <input
+                  type="text"
+                  name="name_telugu"
+                  value={form.name_telugu}
+                  onChange={handleChange}
+                  placeholder="ఉదాహరణ: బ్రదర్ జాన్ వెస్లీ"
                   required
                 />
               </div>
@@ -631,17 +702,18 @@ function ManageArtists() {
 
                   {/* IMAGE PREVIEW */}
 
-                 <div className="artist-image-preview">
-  {imagePreview && (
-    <img
-      src={imagePreview}
-      alt="Artist preview"
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  )}
-</div>
+                  <div className="artist-image-preview">
+                    {imagePreview && (
+                      <img
+                        src={imagePreview}
+                        alt="Artist preview"
+                        onError={(event) => {
+                          event.currentTarget.style.display =
+                            "none";
+                        }}
+                      />
+                    )}
+                  </div>
 
                   {/* CHOOSE IMAGE */}
 

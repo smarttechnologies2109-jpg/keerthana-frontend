@@ -13,25 +13,7 @@ import {
 } from "react-icons/fa";
 
 import API from "../../services/api";
-
 import "../../assets/css/admin/manageCategories.css";
-
-// =====================================================
-// LANGUAGES
-// =====================================================
-
-const LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు" },
-  { value: "Hindi", label: "हिन्दी" },
-  { value: "English", label: "English" },
-  { value: "Malayalam", label: "മലയാളം" },
-  { value: "Kannada", label: "ಕನ್ನಡ" },
-  { value: "Tamil", label: "தமிழ்" },
-];
-
-// =====================================================
-// IMAGE VALIDATION
-// =====================================================
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -41,61 +23,41 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-// =====================================================
-// COMPONENT
-// =====================================================
-
 function ManageCategories() {
-  // ===================================================
-  // REFS
-  // ===================================================
-
   const errorRef = useRef(null);
 
-  // ===================================================
-  // STATE
-  // ===================================================
-
+  // DATA
   const [categories, setCategories] = useState([]);
 
+  // LOADING
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
+  // SEARCH
   const [search, setSearch] = useState("");
 
+  // MESSAGES
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ===================================================
   // MODAL
-  // ===================================================
-
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
-  // ===================================================
-  // FORM
-  // ===================================================
+  // BILINGUAL CATEGORY NAMES
+  const [nameEnglish, setNameEnglish] = useState("");
+  const [nameTelugu, setNameTelugu] = useState("");
 
-  const [name, setName] = useState("");
-  const [language, setLanguage] = useState("Telugu");
-
-  // ===================================================
   // IMAGE
-  // ===================================================
-
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  // ===================================================
-  // AUTOMATIC SCROLL TO ERROR
-  // ===================================================
-
+  // SCROLL TO ERROR
   useEffect(() => {
     if (error && showForm && errorRef.current) {
       requestAnimationFrame(() => {
-        errorRef.current?.scrollIntoView({
+        errorRef.current.scrollIntoView({
           behavior: "smooth",
           block: "center",
         });
@@ -103,15 +65,10 @@ function ManageCategories() {
     }
   }, [error, showForm]);
 
-  // ===================================================
   // LOAD CATEGORIES
-  // ===================================================
-
   const loadCategories = async (showLoader = true) => {
     try {
-      if (showLoader) {
-        setLoading(true);
-      }
+      if (showLoader) setLoading(true);
 
       setError("");
 
@@ -127,18 +84,12 @@ function ManageCategories() {
 
       setError(
         err.response?.data?.message ||
-          "Unable to load categories."
+        "Unable to load categories."
       );
     } finally {
-      if (showLoader) {
-        setLoading(false);
-      }
+      if (showLoader) setLoading(false);
     }
   };
-
-  // ===================================================
-  // INITIAL LOAD
-  // ===================================================
 
   useEffect(() => {
     loadCategories();
@@ -146,10 +97,7 @@ function ManageCategories() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ===================================================
-  // CLEANUP IMAGE PREVIEW URL
-  // ===================================================
-
+  // CLEAN IMAGE PREVIEW
   useEffect(() => {
     return () => {
       if (imagePreview?.startsWith("blob:")) {
@@ -158,70 +106,52 @@ function ManageCategories() {
     };
   }, [imagePreview]);
 
-  // ===================================================
-  // OPEN ADD
-  // ===================================================
-
-  const openAdd = () => {
+  // RESET FORM
+  const resetForm = () => {
     setEditingCategory(null);
-
-    setName("");
-    setLanguage("Telugu");
-
+    setNameEnglish("");
+    setNameTelugu("");
     setImageFile(null);
     setImagePreview("");
-
     setError("");
-    setSuccess("");
+  };
 
+  // ADD CATEGORY
+  const openAdd = () => {
+    resetForm();
+    setSuccess("");
     setShowForm(true);
   };
 
-  // ===================================================
-  // OPEN EDIT
-  // ===================================================
-
+  // EDIT CATEGORY
   const openEdit = (category) => {
     setEditingCategory(category);
 
-    setName(category.name || "");
-    setLanguage(category.language || "Telugu");
+    setNameEnglish(
+      category.name_english || category.nameEnglish || category.name || ""
+    );
+
+    setNameTelugu(
+      category.name_telugu || category.nameTelugu || category.name || ""
+    );
 
     setImageFile(null);
-
-    // Use only the category's actual uploaded image.
-    // No default image is assigned.
     setImagePreview(category.image_url || "");
 
     setError("");
     setSuccess("");
-
     setShowForm(true);
   };
 
-  // ===================================================
-  // CLOSE FORM
-  // ===================================================
-
+  // CLOSE MODAL
   const closeForm = () => {
     if (saving) return;
 
     setShowForm(false);
-    setEditingCategory(null);
-
-    setName("");
-    setLanguage("Telugu");
-
-    setImageFile(null);
-    setImagePreview("");
-
-    setError("");
+    resetForm();
   };
 
-  // ===================================================
-  // IMAGE SELECTION
-  // ===================================================
-
+  // IMAGE VALIDATION
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
 
@@ -247,52 +177,41 @@ function ManageCategories() {
     setSuccess("");
 
     setImageFile(file);
-
-    const preview = URL.createObjectURL(file);
-
-    setImagePreview(preview);
+    setImagePreview(URL.createObjectURL(file));
   };
 
-  // ===================================================
   // SAVE CATEGORY
-  // IMAGE + CATEGORY DATA IN ONE REQUEST
-  // ===================================================
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const cleanName = name.trim();
+    const english = nameEnglish.trim();
+    const telugu = nameTelugu.trim();
 
-    if (!cleanName) {
-      setError("Category name is required.");
+    if (!english) {
+      setError("Please enter the English category name.");
       return;
     }
 
-    const validLanguage = LANGUAGES.some(
-      (item) => item.value === language
-    );
-
-    if (!validLanguage) {
-      setError("Please select a valid language.");
+    if (!telugu) {
+      setError("దయచేసి తెలుగు కేటగిరీ పేరును నమోదు చేయండి.");
       return;
     }
 
     try {
       setSaving(true);
-
       setError("");
       setSuccess("");
 
       const formData = new FormData();
 
-      formData.append("name", cleanName);
-      formData.append("language", language);
+      // BILINGUAL FIELDS
+      formData.append("name", telugu);
+      formData.append("name_english", english);
+      formData.append("name_telugu", telugu);
 
       if (imageFile) {
         formData.append("image", imageFile);
       }
-
-      // UPDATE CATEGORY
 
       if (editingCategory) {
         await API.put(
@@ -301,33 +220,16 @@ function ManageCategories() {
         );
 
         setSuccess("Category updated successfully!");
-      }
-
-      // CREATE CATEGORY
-
-      else {
-        await API.post(
-          "/admin/categories",
-          formData
-        );
+      } else {
+        await API.post("/admin/categories", formData);
 
         setSuccess("Category created successfully!");
       }
 
-      // REFRESH CATEGORIES
-
       await loadCategories(false);
 
-      // RESET FORM AFTER SUCCESS
-
       setShowForm(false);
-      setEditingCategory(null);
-
-      setName("");
-      setLanguage("Telugu");
-
-      setImageFile(null);
-      setImagePreview("");
+      resetForm();
 
     } catch (err) {
       console.error("Save category error:", err);
@@ -341,7 +243,7 @@ function ManageCategories() {
         "Unable to save category.";
 
       if (status === 413) {
-        message = "Image is too large. Please upload an image smaller than 5 MB.";
+        message = "Image is too large. Maximum size is 5 MB.";
       } else if (status === 401) {
         message = "Your session has expired. Please log in again.";
       } else if (status === 403) {
@@ -349,43 +251,32 @@ function ManageCategories() {
       } else if (status >= 500) {
         message =
           err.response?.data?.message ||
-          "Server error. Please check the backend logs and try again.";
+          "Server error. Please check backend logs.";
       }
 
-      // KEEP MODAL OPEN AND DISPLAY ERROR
-
       setError(message);
-
     } finally {
       setSaving(false);
     }
   };
 
-  // ===================================================
   // DELETE CATEGORY
-  // ===================================================
-
   const handleDelete = async (category) => {
     const confirmed = window.confirm(
-      `Delete category "${category.name}"?`
+      `Delete category "${category.name_english || category.name}"?`
     );
 
     if (!confirmed) return;
 
     try {
       setDeletingId(category.id);
-
       setError("");
       setSuccess("");
 
-      await API.delete(
-        `/admin/categories/${category.id}`
-      );
+      await API.delete(`/admin/categories/${category.id}`);
 
       setCategories((previous) =>
-        previous.filter(
-          (item) => item.id !== category.id
-        )
+        previous.filter((item) => item.id !== category.id)
       );
 
       setSuccess("Category deleted successfully!");
@@ -395,48 +286,31 @@ function ManageCategories() {
 
       setError(
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Unable to delete category."
+        err.response?.data?.error ||
+        "Unable to delete category."
       );
-
     } finally {
       setDeletingId(null);
     }
   };
 
-  // ===================================================
-  // SEARCH
-  // ===================================================
-
+  // SEARCH BOTH LANGUAGES
   const query = search.trim().toLowerCase();
 
-  const filteredCategories = categories.filter(
-    (category) => {
-      if (!query) return true;
+  const filteredCategories = categories.filter((category) => {
+    if (!query) return true;
 
-      return (
-        category.name?.toLowerCase().includes(query) ||
-        category.language?.toLowerCase().includes(query)
-      );
-    }
-  );
-
-  // ===================================================
-  // LANGUAGE LABEL
-  // ===================================================
-
-  const getLanguageLabel = (value) => {
     return (
-      LANGUAGES.find(
-        (item) => item.value === value
-      )?.label || value || "తెలుగు"
+      (category.name_english || category.name || "")
+        .toLowerCase()
+        .includes(query) ||
+      (category.name_telugu || category.name || "")
+        .toLowerCase()
+        .includes(query)
     );
-  };
+  });
 
-  // ===================================================
   // LOADING
-  // ===================================================
-
   if (loading) {
     return (
       <div className="admin-page">
@@ -447,10 +321,6 @@ function ManageCategories() {
     );
   }
 
-  // ===================================================
-  // UI
-  // ===================================================
-
   return (
     <div className="admin-page">
 
@@ -460,10 +330,10 @@ function ManageCategories() {
         <div>
           <span>KEERTHANA ADMIN</span>
 
-          <h1>Manage Categories</h1>
+          <h1>Manage Music Categories</h1>
 
           <p>
-            Create and manage song categories.
+            Manage Christian music categories in English and Telugu.
           </p>
         </div>
 
@@ -477,7 +347,7 @@ function ManageCategories() {
         </button>
       </div>
 
-      {/* PAGE ERROR - ONLY WHEN MODAL IS CLOSED */}
+      {/* PAGE ERROR */}
 
       {error && !showForm && (
         <div className="admin-error" role="alert">
@@ -486,7 +356,7 @@ function ManageCategories() {
         </div>
       )}
 
-      {/* SUCCESS MESSAGE */}
+      {/* SUCCESS */}
 
       {success && !showForm && (
         <div className="admin-success" role="status">
@@ -494,20 +364,17 @@ function ManageCategories() {
         </div>
       )}
 
-      {/* SEARCH TOOLBAR */}
+      {/* SEARCH */}
 
       <div className="admin-song-toolbar">
-
         <div className="admin-song-search">
           <FaSearch />
 
           <input
             type="text"
             value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-            placeholder="Search categories or language..."
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search English or Telugu categories..."
           />
         </div>
 
@@ -515,19 +382,14 @@ function ManageCategories() {
           <FaTags />
 
           <span>
-            {filteredCategories.length}{" "}
-            {filteredCategories.length === 1
-              ? "Category"
-              : "Categories"}
+            {filteredCategories.length} Categories
           </span>
         </div>
-
       </div>
 
       {/* CATEGORY TABLE */}
 
       {filteredCategories.length === 0 ? (
-
         <div className="admin-empty-state">
           <FaTags />
 
@@ -536,7 +398,7 @@ function ManageCategories() {
           <p>
             {search
               ? "Try another search."
-              : "Create your first song category."}
+              : "Create your first Christian music category."}
           </p>
 
           {!search && (
@@ -550,71 +412,61 @@ function ManageCategories() {
             </button>
           )}
         </div>
-
       ) : (
-
         <div className="admin-table-wrapper">
-
           <table className="admin-song-table">
-
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Language</th>
+                <th>Category Image</th>
+                <th>English Name</th>
+                <th>Telugu Name</th>
                 <th>Songs</th>
                 <th>Actions</th>
               </tr>
             </thead>
 
             <tbody>
-
               {filteredCategories.map((category) => (
-
                 <tr key={category.id}>
-
-                  {/* CATEGORY */}
 
                   <td>
                     <div className="admin-category-cell">
-
-                    
-<div className="admin-category-icon">
-  {category.image_url && (
-    <img
-      src={category.image_url}
-      alt={category.name}
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  )}
-</div>
-
-
-                      <strong>
-                        {category.name}
-                      </strong>
-
+                      <div className="admin-category-icon">
+                        {category.image_url && (
+                          <img
+                            src={category.image_url}
+                            alt={
+                              category.name_english ||
+                              category.name ||
+                              "Category"
+                            }
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
                   </td>
 
-                  {/* LANGUAGE */}
-
                   <td>
-                    {getLanguageLabel(category.language)}
+                    <strong>
+                      {category.name_english || category.name || "-"}
+                    </strong>
                   </td>
 
-                  {/* SONG COUNT */}
+                  <td>
+                    <strong>
+                      {category.name_telugu || category.name || "-"}
+                    </strong>
+                  </td>
 
                   <td>
                     {category.song_count ?? 0}
                   </td>
 
-                  {/* ACTIONS */}
-
                   <td>
                     <div className="admin-table-actions">
-
                       <button
                         type="button"
                         className="admin-action-button edit"
@@ -628,49 +480,37 @@ function ManageCategories() {
                         type="button"
                         className="admin-action-button delete"
                         title="Delete Category"
-                        disabled={
-                          deletingId === category.id
-                        }
-                        onClick={() =>
-                          handleDelete(category)
-                        }
+                        disabled={deletingId === category.id}
+                        onClick={() => handleDelete(category)}
                       >
                         <FaTrash />
                       </button>
-
                     </div>
                   </td>
 
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
       )}
 
       {/* ADD / EDIT MODAL */}
 
       {showForm && (
-
         <div className="admin-modal-overlay">
-
           <div className="admin-modal admin-category-modal">
 
             {/* MODAL HEADER */}
 
             <div className="admin-modal-header">
-
               <div>
                 <span>KEERTHANA ADMIN</span>
 
                 <h2>
                   {editingCategory
-                    ? "Edit Category"
-                    : "Add Category"}
+                    ? "Edit Music Category"
+                    : "Add Music Category"}
                 </h2>
               </div>
 
@@ -682,10 +522,9 @@ function ManageCategories() {
               >
                 <FaTimes />
               </button>
-
             </div>
 
-            {/* MODAL ERROR - AUTOMATIC SCROLL TARGET */}
+            {/* ERROR */}
 
             {error && (
               <div
@@ -696,91 +535,57 @@ function ManageCategories() {
                 tabIndex={-1}
               >
                 <FaExclamationCircle />
-
                 <span>{error}</span>
               </div>
             )}
 
-            {/* FORM */}
-
             <form onSubmit={handleSubmit}>
 
-              {/* LANGUAGE */}
+              {/* ENGLISH NAME */}
 
               <div className="admin-field">
-
                 <label>
-                  Category Language *
-                </label>
-
-                <select
-                  value={language}
-                  onChange={(event) =>
-                    setLanguage(event.target.value)
-                  }
-                  required
-                  disabled={saving}
-                >
-
-                  {LANGUAGES.map((item) => (
-
-                    <option
-                      key={item.value}
-                      value={item.value}
-                    >
-                      {item.label}
-                    </option>
-
-                  ))}
-
-                </select>
-
-              </div>
-
-              {/* CATEGORY NAME */}
-
-              <div className="admin-field">
-
-                <label>
-                  Category Name *
+                  Category Name (English) *
                 </label>
 
                 <input
                   type="text"
-                  value={name}
+                  value={nameEnglish}
                   onChange={(event) =>
-                    setName(event.target.value)
+                    setNameEnglish(event.target.value)
                   }
-                  placeholder={
-                    language === "Telugu"
-                      ? "ఉదా: ఆరాధన"
-                      : language === "Hindi"
-                        ? "उदाहरण: आराधना"
-                        : language === "Malayalam"
-                          ? "ഉദാ: ആരാധന"
-                          : language === "Kannada"
-                            ? "ಉದಾ: ಆರಾಧನೆ"
-                            : language === "Tamil"
-                              ? "உதா: ஆராதனை"
-                              : "Example: Worship"
-                  }
+                  placeholder="Example: Worship"
+                  required
                   autoFocus
+                  disabled={saving}
+                />
+              </div>
+
+              {/* TELUGU NAME */}
+
+              <div className="admin-field">
+                <label>
+                  కేటగిరీ పేరు (తెలుగు) *
+                </label>
+
+                <input
+                  type="text"
+                  value={nameTelugu}
+                  onChange={(event) =>
+                    setNameTelugu(event.target.value)
+                  }
+                  placeholder="ఉదాహరణ: ఆరాధన"
                   required
                   disabled={saving}
                 />
-
               </div>
 
-              {/* CATEGORY IMAGE */}
+              {/* IMAGE UPLOAD */}
 
               <div className="admin-field">
-
-                <label>
-                  Category Image
-                </label>
+                <label>Category Image</label>
 
                 <div className="admin-category-upload">
-
                   <input
                     id="category-image"
                     type="file"
@@ -802,31 +607,40 @@ function ManageCategories() {
                     <br />
                     Maximum 5 MB
                   </p>
-
                 </div>
 
-                {/* IMAGE PREVIEW */}
+                {/* NO DEFAULT IMAGE */}
 
-              
-<div className="admin-category-image-preview">
-  {imagePreview && (
-    <img
-      src={imagePreview}
-      alt="Category preview"
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  )}
-</div>
-
-
+                <div className="admin-category-image-preview">
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Category preview"
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
+                    />
+                  )}
+                </div>
               </div>
 
-              {/* FORM ACTIONS */}
+              {/* PREVIEW */}
+
+              <div className="admin-category-name-preview">
+                <span>Category Preview</span>
+
+                <strong>
+                  {nameEnglish || "English Name"}
+                </strong>
+
+                <strong>
+                  {nameTelugu || "తెలుగు పేరు"}
+                </strong>
+              </div>
+
+              {/* ACTIONS */}
 
               <div className="admin-form-actions">
-
                 <button
                   type="button"
                   className="admin-cancel-button"
@@ -847,13 +661,10 @@ function ManageCategories() {
                       ? "Update Category"
                       : "Add Category"}
                 </button>
-
               </div>
 
             </form>
-
           </div>
-
         </div>
       )}
 

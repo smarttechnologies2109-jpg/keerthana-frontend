@@ -79,7 +79,10 @@ function ManageMinistries() {
   const errorRef = useRef(null);
 
   const [form, setForm] = useState({
+    // Keep name as the legacy Telugu name for backward compatibility.
     name: "",
+    name_english: "",
+    name_telugu: "",
     description: "",
     image_url: "",
     language: "",
@@ -156,6 +159,8 @@ function ManageMinistries() {
 
     setForm({
       name: "",
+      name_english: "",
+      name_telugu: "",
       description: "",
       image_url: "",
       language: "",
@@ -293,7 +298,12 @@ function ManageMinistries() {
     setEditingId(id);
 
     setForm({
-      name: ministry.name || "",
+      // Fall back to the legacy name for categories created before bilingual support.
+      name: ministry.name_telugu || ministry.name || "",
+      name_english:
+        ministry.name_english || ministry.nameEnglish || ministry.name || "",
+      name_telugu:
+        ministry.name_telugu || ministry.nameTelugu || ministry.name || "",
       description: ministry.description || "",
       image_url: existingImage,
       language: ministry.language || "",
@@ -325,11 +335,17 @@ function ManageMinistries() {
     setError("");
     setSuccess("");
 
-    const cleanName = form.name.trim();
+    const cleanEnglishName = form.name_english.trim();
+    const cleanTeluguName = form.name_telugu.trim();
 
-    // MINISTRY NAME VALIDATION
-    if (!cleanName) {
-      setError("Ministry name is required.");
+    // BILINGUAL MINISTRY NAME VALIDATION
+    if (!cleanEnglishName) {
+      setError("English ministry name is required.");
+      return;
+    }
+
+    if (!cleanTeluguName) {
+      setError("దయచేసి తెలుగు మినిస్ట్రీ పేరు నమోదు చేయండి.");
       return;
     }
 
@@ -350,7 +366,10 @@ function ManageMinistries() {
 
       const formData = new FormData();
 
-      formData.append("name", cleanName);
+      // Keep the legacy name field populated for existing backend consumers.
+      formData.append("name", cleanTeluguName);
+      formData.append("name_english", cleanEnglishName);
+      formData.append("name_telugu", cleanTeluguName);
       formData.append(
         "description",
         form.description.trim()
@@ -446,7 +465,8 @@ function ManageMinistries() {
       return;
     }
 
-    const ministryName = ministry.name || "this ministry";
+    const ministryName =
+      ministry.name_english || ministry.name || "this ministry";
 
     const confirmed = window.confirm(
       `Are you sure you want to delete "${ministryName}"? This action cannot be undone.`
@@ -671,15 +691,25 @@ function ManageMinistries() {
                       {imageUrl &&
                         renderMinistryImage(
                           imageUrl,
-                          ministry.name || "Ministry"
+                          ministry.name_english || ministry.name || "Ministry"
                         )}
                     </div>
 
                     <div className="admin-ministry-card-content">
 
                       <h3>
-                        {ministry.name || "Untitled Ministry"}
+                        {ministry.name_english ||
+                          ministry.nameEnglish ||
+                          ministry.name ||
+                          "Untitled Ministry"}
                       </h3>
+
+                      <p className="admin-ministry-telugu-name">
+                        {ministry.name_telugu ||
+                          ministry.nameTelugu ||
+                          ministry.name ||
+                          ""}
+                      </p>
 
                       <span className="admin-ministry-language">
                         {ministry.language || "Language not specified"}
@@ -865,21 +895,43 @@ function ManageMinistries() {
               encType="multipart/form-data"
             >
 
-              {/* MINISTRY NAME - KEPT */}
+              {/* ENGLISH MINISTRY NAME */}
 
               <div className="admin-ministry-field">
 
-                <label htmlFor="ministry-name">
-                  Ministry Name <span>*</span>
+                <label htmlFor="ministry-name-english">
+                  Ministry Name (English) <span>*</span>
                 </label>
 
                 <input
-                  id="ministry-name"
+                  id="ministry-name-english"
                   type="text"
-                  name="name"
-                  value={form.name}
+                  name="name_english"
+                  value={form.name_english}
                   onChange={handleChange}
                   placeholder="Example: Hosanna Ministries"
+                  maxLength={255}
+                  required
+                  disabled={saving}
+                />
+
+              </div>
+
+              {/* TELUGU MINISTRY NAME */}
+
+              <div className="admin-ministry-field">
+
+                <label htmlFor="ministry-name-telugu">
+                  మినిస్ట్రీ పేరు (తెలుగు) <span>*</span>
+                </label>
+
+                <input
+                  id="ministry-name-telugu"
+                  type="text"
+                  name="name_telugu"
+                  value={form.name_telugu}
+                  onChange={handleChange}
+                  placeholder="ఉదాహరణ: హోసన్నా మినిస్ట్రీ"
                   maxLength={255}
                   required
                   disabled={saving}

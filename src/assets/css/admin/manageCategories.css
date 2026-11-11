@@ -1384,3 +1384,89 @@
     font-size: 12px;
   }
 }
+
+/* =========================================
+   BILINGUAL CATEGORY FORM
+========================================= */
+
+.admin-category-modal .admin-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 15px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: #101b30;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.admin-category-modal .admin-field input:focus {
+  border-color: #d6b66b;
+  box-shadow: 0 0 0 3px rgba(214, 182, 107, 0.12);
+}
+
+.admin-category-modal .admin-field label {
+  display: block;
+  margin-bottom: 9px;
+  color: #e4c77f;
+  font-weight: 600;
+}
+
+.admin-category-name-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid rgba(214, 182, 107, 0.25);
+  border-radius: 12px;
+  background: rgba(214, 182, 107, 0.06);
+}
+
+.admin-category-name-preview span {
+  color: #d6b66b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.admin-category-name-preview strong {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.admin-category-image-preview {
+  margin-top: 15px;
+}
+
+.admin-category-image-preview img {
+  display: block;
+  width: 130px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(214, 182, 107, 0.3);
+}
+
+@media (max-width: 768px) {
+  .admin-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .admin-song-table {
+    min-width: 750px;
+  }
+
+  .admin-category-modal {
+    width: calc(100% - 24px);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .admin-category-name-preview {
+    padding: 12px;
+  }
+}

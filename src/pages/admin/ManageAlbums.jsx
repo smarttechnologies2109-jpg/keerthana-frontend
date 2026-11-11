@@ -12,7 +12,6 @@ import {
 } from "react-icons/fa";
 
 import API from "../../services/api";
-
 import { getMediaUrl } from "../../utils/media";
 
 import "../../assets/css/admin/manageAlbums.css";
@@ -37,6 +36,22 @@ const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/webp",
 ];
+
+// =====================================================
+// HELPER FUNCTIONS
+// =====================================================
+
+const getEnglishTitle = (album) =>
+  album?.title_english || album?.title || "";
+
+const getTeluguTitle = (album) =>
+  album?.title_telugu || album?.title || "";
+
+const getEnglishArtist = (artist) =>
+  artist?.name_english || artist?.name || "";
+
+const getTeluguArtist = (artist) =>
+  artist?.name_telugu || artist?.name || "";
 
 // =====================================================
 // COMPONENT
@@ -74,13 +89,16 @@ function ManageAlbums() {
   // FORM
   // ===================================================
 
-  const [form, setForm] = useState({
-    title: "",
+  const initialForm = {
+    title_english: "",
+    title_telugu: "",
     language: "Telugu",
     artist_id: "",
     release_year: "",
     cover_url: "",
-  });
+  };
+
+  const [form, setForm] = useState(initialForm);
 
   // ===================================================
   // COVER IMAGE
@@ -145,7 +163,6 @@ function ManageAlbums() {
       setArtists(
         artistsResponse.data?.artists || []
       );
-
     } catch (error) {
       console.error("Load albums error:", error);
 
@@ -153,7 +170,6 @@ function ManageAlbums() {
         error.response?.data?.message ||
           "Unable to load albums."
       );
-
     } finally {
       setLoading(false);
     }
@@ -177,13 +193,7 @@ function ManageAlbums() {
     setCoverFile(null);
     clearCoverPreview();
 
-    setForm({
-      title: "",
-      language: "Telugu",
-      artist_id: "",
-      release_year: "",
-      cover_url: "",
-    });
+    setForm({ ...initialForm });
 
     setError("");
     setSuccess("");
@@ -205,7 +215,8 @@ function ManageAlbums() {
     );
 
     setForm({
-      title: album.title || "",
+      title_english: getEnglishTitle(album),
+      title_telugu: getTeluguTitle(album),
       language: album.language || "Telugu",
       artist_id: album.artist_id
         ? String(album.artist_id)
@@ -234,13 +245,7 @@ function ManageAlbums() {
     setCoverFile(null);
     clearCoverPreview();
 
-    setForm({
-      title: "",
-      language: "Telugu",
-      artist_id: "",
-      release_year: "",
-      cover_url: "",
-    });
+    setForm({ ...initialForm });
 
     setError("");
   };
@@ -313,8 +318,16 @@ function ManageAlbums() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!form.title.trim()) {
-      setError("Album title is required.");
+    const englishTitle = form.title_english.trim();
+    const teluguTitle = form.title_telugu.trim();
+
+    if (!englishTitle) {
+      setError("English album title is required.");
+      return;
+    }
+
+    if (!teluguTitle) {
+      setError("Telugu album title is required.");
       return;
     }
 
@@ -348,7 +361,14 @@ function ManageAlbums() {
 
       const formData = new FormData();
 
-      formData.append("title", form.title.trim());
+      // Bilingual album names
+      formData.append("title_english", englishTitle);
+      formData.append("title_telugu", teluguTitle);
+
+      // Backward compatibility:
+      // Keep the existing title column populated with Telugu.
+      formData.append("title", teluguTitle);
+
       formData.append("language", form.language);
       formData.append("artist_id", form.artist_id || "");
       formData.append("release_year", form.release_year || "");
@@ -385,6 +405,7 @@ function ManageAlbums() {
       setCoverFile(null);
       clearCoverPreview();
 
+      setForm({ ...initialForm });
     } catch (error) {
       console.error("Save album error:", error);
 
@@ -392,7 +413,6 @@ function ManageAlbums() {
         error.response?.data?.message ||
           "Unable to save album."
       );
-
     } finally {
       setSaving(false);
     }
@@ -404,7 +424,7 @@ function ManageAlbums() {
 
   const handleDelete = async (album) => {
     const confirmed = window.confirm(
-      `Delete album "${album.title}"?`
+      `Delete album "${getEnglishTitle(album)} / ${getTeluguTitle(album)}"?`
     );
 
     if (!confirmed) return;
@@ -425,7 +445,6 @@ function ManageAlbums() {
       );
 
       setSuccess("Album deleted successfully!");
-
     } catch (error) {
       console.error("Delete album error:", error);
 
@@ -433,7 +452,6 @@ function ManageAlbums() {
         error.response?.data?.message ||
           "Unable to delete album."
       );
-
     } finally {
       setDeletingId(null);
     }
@@ -450,7 +468,11 @@ function ManageAlbums() {
 
     return [
       album.title,
+      album.title_english,
+      album.title_telugu,
       album.artist_name,
+      album.artist_name_english,
+      album.artist_name_telugu,
       album.language,
       album.release_year,
     ]
@@ -479,6 +501,35 @@ function ManageAlbums() {
         (language) => language.value === value
       )?.label || value || "—"
     );
+  };
+
+  // ===================================================
+  // ARTIST DISPLAY
+  // ===================================================
+
+  const getArtistDisplay = (artist) => {
+    const english = getEnglishArtist(artist);
+    const telugu = getTeluguArtist(artist);
+
+    if (english && telugu && english !== telugu) {
+      return `${english} / ${telugu}`;
+    }
+
+    return english || telugu || "—";
+  };
+
+  // ===================================================
+  // ALBUM DISPLAY
+  // ===================================================
+
+  const getAlbumDisplay = (album) => {
+    const english = getEnglishTitle(album);
+    const telugu = getTeluguTitle(album);
+
+    return {
+      english,
+      telugu,
+    };
   };
 
   // ===================================================
@@ -551,7 +602,7 @@ function ManageAlbums() {
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="Search albums, artists or language..."
+            placeholder="Search English or Telugu albums, artists..."
           />
         </div>
 
@@ -608,85 +659,109 @@ function ManageAlbums() {
             </thead>
 
             <tbody>
-              {filteredAlbums.map((album) => (
-                <tr key={album.id}>
+              {filteredAlbums.map((album) => {
+                const albumNames = getAlbumDisplay(album);
 
-                  {/* ALBUM */}
+                return (
+                  <tr key={album.id}>
 
-                  <td>
-                    <div className="admin-album-cell">
+                    {/* ALBUM */}
 
-                      <div className="admin-album-cover">
-  {getCover(album.cover_url) && (
-    <img
-      src={getCover(album.cover_url)}
-      alt={album.title}
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  )}
-</div>
+                    <td>
+                      <div className="admin-album-cell">
 
-                      <strong>
-                        {album.title}
-                      </strong>
-                    </div>
-                  </td>
+                        <div className="admin-album-cover">
+                          {getCover(album.cover_url) && (
+                            <img
+                              src={getCover(album.cover_url)}
+                              alt={albumNames.english}
+                              onError={(event) => {
+                                event.currentTarget.style.display =
+                                  "none";
+                              }}
+                            />
+                          )}
+                        </div>
 
-                  {/* LANGUAGE */}
+                        <div className="admin-album-names">
+                          <strong>
+                            {albumNames.english || "—"}
+                          </strong>
 
-                  <td>
-                    {getLanguageLabel(album.language)}
-                  </td>
+                          <span>
+                            {albumNames.telugu || "—"}
+                          </span>
+                        </div>
 
-                  {/* ARTIST */}
+                      </div>
+                    </td>
 
-                  <td>
-                    {album.artist_name || "—"}
-                  </td>
+                    {/* LANGUAGE */}
 
-                  {/* YEAR */}
+                    <td>
+                      {getLanguageLabel(album.language)}
+                    </td>
 
-                  <td>
-                    {album.release_year || "—"}
-                  </td>
+                    {/* ARTIST */}
 
-                  {/* SONG COUNT */}
+                    <td>
+                      <div className="admin-album-names">
+                        <strong>
+                          {album.artist_name_english ||
+                            album.artist_name ||
+                            "—"}
+                        </strong>
 
-                  <td>
-                    {album.song_count ?? 0}
-                  </td>
+                        {album.artist_name_telugu && (
+                          <span>
+                            {album.artist_name_telugu}
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
-                  {/* ACTIONS */}
+                    {/* YEAR */}
 
-                  <td>
-                    <div className="admin-table-actions">
+                    <td>
+                      {album.release_year || "—"}
+                    </td>
 
-                      <button
-                        type="button"
-                        className="admin-action-button edit"
-                        title="Edit Album"
-                        onClick={() => openEdit(album)}
-                      >
-                        <FaEdit />
-                      </button>
+                    {/* SONG COUNT */}
 
-                      <button
-                        type="button"
-                        className="admin-action-button delete"
-                        title="Delete Album"
-                        disabled={deletingId === album.id}
-                        onClick={() => handleDelete(album)}
-                      >
-                        <FaTrash />
-                      </button>
+                    <td>
+                      {album.song_count ?? 0}
+                    </td>
 
-                    </div>
-                  </td>
+                    {/* ACTIONS */}
 
-                </tr>
-              ))}
+                    <td>
+                      <div className="admin-table-actions">
+
+                        <button
+                          type="button"
+                          className="admin-action-button edit"
+                          title="Edit Album"
+                          onClick={() => openEdit(album)}
+                        >
+                          <FaEdit />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="admin-action-button delete"
+                          title="Delete Album"
+                          disabled={deletingId === album.id}
+                          onClick={() => handleDelete(album)}
+                        >
+                          <FaTrash />
+                        </button>
+
+                      </div>
+                    </td>
+
+                  </tr>
+                );
+              })}
             </tbody>
 
           </table>
@@ -749,17 +824,34 @@ function ManageAlbums() {
                 </select>
               </div>
 
-              {/* TITLE */}
+              {/* ENGLISH TITLE */}
 
               <div className="admin-field">
-                <label>Album Title *</label>
+                <label>Album Title (English) *</label>
 
                 <input
                   type="text"
-                  name="title"
-                  value={form.title}
+                  name="title_english"
+                  value={form.title_english}
                   onChange={handleChange}
-                  placeholder={`${form.language} album title`}
+                  placeholder="Enter album title in English"
+                  maxLength={255}
+                  required
+                />
+              </div>
+
+              {/* TELUGU TITLE */}
+
+              <div className="admin-field">
+                <label>Album Title (Telugu) *</label>
+
+                <input
+                  type="text"
+                  name="title_telugu"
+                  value={form.title_telugu}
+                  onChange={handleChange}
+                  placeholder="ఆల్బమ్ పేరు తెలుగులో నమోదు చేయండి"
+                  maxLength={255}
                   required
                 />
               </div>
@@ -788,7 +880,7 @@ function ManageAlbums() {
                         key={artist.id}
                         value={artist.id}
                       >
-                        {artist.name}
+                        {getArtistDisplay(artist)}
                       </option>
                     ))
                   )}
@@ -826,17 +918,18 @@ function ManageAlbums() {
 
                   {/* PREVIEW */}
 
-               <div className="album-cover-upload-preview">
-  {coverPreview && (
-    <img
-      src={coverPreview}
-      alt="Album cover preview"
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  )}
-</div>
+                  <div className="album-cover-upload-preview">
+                    {coverPreview && (
+                      <img
+                        src={coverPreview}
+                        alt="Album cover preview"
+                        onError={(event) => {
+                          event.currentTarget.style.display =
+                            "none";
+                        }}
+                      />
+                    )}
+                  </div>
 
                   {/* UPLOAD DETAILS */}
 
