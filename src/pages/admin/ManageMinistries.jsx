@@ -81,12 +81,12 @@ function ManageMinistries() {
   const previewUrlRef = useRef("");
   const errorRef = useRef(null);
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    image_url: "",
-    language: "Telugu",
-  });
+const [form, setForm] = useState({
+  name: "",
+  description: "",
+  image_url: "",
+  language: "",
+});
 
   // =======================================================
   // FETCH MINISTRIES
@@ -158,12 +158,12 @@ function ManageMinistries() {
   const resetForm = useCallback(() => {
     clearImagePreview();
 
-    setForm({
-      name: "",
-      description: "",
-      image_url: "",
-      language: "Telugu",
-    });
+ setForm({
+  name: "",
+  description: "",
+  image_url: "",
+  language: "",
+});
 
     setEditingId(null);
     setImageFile(null);
@@ -304,7 +304,7 @@ function ManageMinistries() {
       name: ministry.name || "",
       description: ministry.description || "",
       image_url: existingImage,
-      language: ministry.language || "Telugu",
+      language: ministry.language || "",
     });
 
     setImageFile(null);
@@ -911,26 +911,37 @@ const renderMinistryImage = (imageUrl, altText) => {
             >
 
               {/* MINISTRY NAME */}
+<div className="admin-ministry-field">
+  <label htmlFor="ministry-language">
+    Select Ministry Language <span>*</span>
+  </label>
 
-              <div className="admin-ministry-field">
+  <select
+    id="ministry-language"
+    name="language"
+    value={form.language}
+    onChange={handleChange}
+    required
+    disabled={saving}
+  >
+    <option value="" disabled>
+      -- Select Language --
+    </option>
 
-                <label htmlFor="ministry-name">
-                  Ministry Name <span>*</span>
-                </label>
+    {LANGUAGES.map((language) => (
+      <option
+        key={language.value}
+        value={language.value}
+      >
+        {language.label}
+      </option>
+    ))}
+  </select>
 
-                <input
-                  id="ministry-name"
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Example: Hosanna Ministries"
-                  maxLength={255}
-                  required
-                  disabled={saving}
-                />
-
-              </div>
+  <small>
+    Please select the language for this ministry.
+  </small>
+</div>
 
               {/* LANGUAGE */}
 
