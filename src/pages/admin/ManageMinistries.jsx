@@ -47,15 +47,12 @@ const ALLOWED_IMAGE_TYPES = [
 // HELPERS
 // =========================================================
 
-const getMinistryImage = (ministry) => {
-  return (
-    ministry?.image_url ||
-    ministry?.imageUrl ||
-    ministry?.cover_url ||
-    ministry?.image ||
-    ""
-  );
-};
+const getMinistryImage = (ministry) =>
+  ministry?.image_url ||
+  ministry?.imageUrl ||
+  ministry?.cover_url ||
+  ministry?.image ||
+  "";
 
 // =========================================================
 // COMPONENT
@@ -81,12 +78,12 @@ function ManageMinistries() {
   const previewUrlRef = useRef("");
   const errorRef = useRef(null);
 
-const [form, setForm] = useState({
-  name: "",
-  description: "",
-  image_url: "",
-  language: "",
-});
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    image_url: "",
+    language: "",
+  });
 
   // =======================================================
   // FETCH MINISTRIES
@@ -146,7 +143,6 @@ const [form, setForm] = useState({
     return () => {
       if (previewUrlRef.current) {
         URL.revokeObjectURL(previewUrlRef.current);
-        previewUrlRef.current = "";
       }
     };
   }, []);
@@ -158,12 +154,12 @@ const [form, setForm] = useState({
   const resetForm = useCallback(() => {
     clearImagePreview();
 
- setForm({
-  name: "",
-  description: "",
-  image_url: "",
-  language: "",
-});
+    setForm({
+      name: "",
+      description: "",
+      image_url: "",
+      language: "",
+    });
 
     setEditingId(null);
     setImageFile(null);
@@ -197,7 +193,7 @@ const [form, setForm] = useState({
   }, [showForm, saving, resetForm]);
 
   // =======================================================
-  // AUTO SCROLL TO ERROR INSIDE POPUP
+  // AUTO SCROLL TO ERROR
   // =======================================================
 
   useEffect(() => {
@@ -251,9 +247,7 @@ const [form, setForm] = useState({
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-      setError(
-        "Image size must be less than 5 MB."
-      );
+      setError("Image size must be less than 5 MB.");
 
       event.target.value = "";
       return;
@@ -288,9 +282,7 @@ const [form, setForm] = useState({
     const id = ministry.id || ministry.ministry_id;
 
     if (!id) {
-      setListError(
-        "This ministry does not have a valid ID."
-      );
+      setListError("This ministry does not have a valid ID.");
       return;
     }
 
@@ -335,17 +327,19 @@ const [form, setForm] = useState({
 
     const cleanName = form.name.trim();
 
+    // MINISTRY NAME VALIDATION
     if (!cleanName) {
       setError("Ministry name is required.");
       return;
     }
 
+    // LANGUAGE VALIDATION
     const validLanguage = LANGUAGES.some(
       (language) => language.value === form.language
     );
 
     if (!validLanguage) {
-      setError("Please select a valid ministry language.");
+      setError("Please select a ministry language.");
       return;
     }
 
@@ -448,9 +442,7 @@ const [form, setForm] = useState({
     const id = ministry.id || ministry.ministry_id;
 
     if (!id) {
-      setListError(
-        "This ministry does not have a valid ID."
-      );
+      setListError("This ministry does not have a valid ID.");
       return;
     }
 
@@ -474,8 +466,7 @@ const [form, setForm] = useState({
       setMinistries((previous) =>
         previous.filter(
           (item) =>
-            String(item.id || item.ministry_id) !==
-            String(id)
+            String(item.id || item.ministry_id) !== String(id)
         )
       );
 
@@ -501,45 +492,22 @@ const [form, setForm] = useState({
   };
 
   // =======================================================
-  // IMAGE ERROR HANDLER
+  // MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
   // =======================================================
 
-  const handleImageError = (event) => {
-    event.currentTarget.style.display = "none";
+  const renderMinistryImage = (imageUrl, altText) => {
+    if (!imageUrl) return null;
 
-    const fallback =
-      event.currentTarget.parentElement?.querySelector(
-        ".ministry-image-fallback"
-      );
-
-    if (fallback) {
-      fallback.style.display = "flex";
-    }
+    return (
+      <img
+        src={imageUrl}
+        alt={altText}
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
+      />
+    );
   };
-
-  // =======================================================
-  // IMAGE DISPLAY - NO DEFAULT IMAGE
-  // =======================================================
-
-
-// =======================================================
-// MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
-// =======================================================
-
-const renderMinistryImage = (imageUrl, altText) => {
-  if (!imageUrl) return null;
-
-  return (
-    <img
-      src={imageUrl}
-      alt={altText}
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  );
-};
-
 
   // =======================================================
   // RENDER
@@ -592,9 +560,7 @@ const renderMinistryImage = (imageUrl, altText) => {
           </div>
         )}
 
-        {/* =================================================
-            MINISTRY LIST
-        ================================================= */}
+        {/* MINISTRY LIST */}
 
         <div className="admin-ministry-list-section">
 
@@ -620,9 +586,7 @@ const renderMinistryImage = (imageUrl, altText) => {
               >
                 <FaSyncAlt
                   className={
-                    loadingMinistries
-                      ? "ministry-spinning"
-                      : ""
+                    loadingMinistries ? "ministry-spinning" : ""
                   }
                 />
                 Refresh
@@ -688,14 +652,12 @@ const renderMinistryImage = (imageUrl, altText) => {
             <div className="admin-ministry-grid">
 
               {ministries.map((ministry, index) => {
-
                 const ministryId =
                   ministry.id ||
                   ministry.ministry_id ||
                   index;
 
-                const imageUrl =
-                  getMinistryImage(ministry);
+                const imageUrl = getMinistryImage(ministry);
 
                 return (
                   <div
@@ -703,12 +665,15 @@ const renderMinistryImage = (imageUrl, altText) => {
                     key={ministryId}
                   >
 
+                    {/* IMAGE - NO DEFAULT IMAGE */}
+
                     <div className="admin-ministry-card-image">
-  {imageUrl && renderMinistryImage(
-    imageUrl,
-    ministry.name || "Ministry"
-  )}
-</div>
+                      {imageUrl &&
+                        renderMinistryImage(
+                          imageUrl,
+                          ministry.name || "Ministry"
+                        )}
+                    </div>
 
                     <div className="admin-ministry-card-content">
 
@@ -743,9 +708,7 @@ const renderMinistryImage = (imageUrl, altText) => {
                         type="button"
                         className="admin-ministry-edit-button"
                         onClick={() => handleEdit(ministry)}
-                        disabled={
-                          saving || deletingId !== null
-                        }
+                        disabled={saving || deletingId !== null}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
@@ -767,9 +730,7 @@ const renderMinistryImage = (imageUrl, altText) => {
                         type="button"
                         className="admin-ministry-delete-button"
                         onClick={() => handleDelete(ministry)}
-                        disabled={
-                          saving || deletingId !== null
-                        }
+                        disabled={saving || deletingId !== null}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
@@ -785,8 +746,7 @@ const renderMinistryImage = (imageUrl, altText) => {
                       >
                         <FaTrash />
                         <span>
-                          {String(deletingId) ===
-                          String(ministryId)
+                          {String(deletingId) === String(ministryId)
                             ? "Deleting..."
                             : "Delete"}
                         </span>
@@ -799,16 +759,13 @@ const renderMinistryImage = (imageUrl, altText) => {
               })}
 
             </div>
-
           )}
 
         </div>
 
       </div>
 
-      {/* =================================================
-          ADD / EDIT POPUP MODAL
-      ================================================= */}
+      {/* ADD / EDIT POPUP MODAL */}
 
       {showForm && (
 
@@ -865,9 +822,7 @@ const renderMinistryImage = (imageUrl, altText) => {
 
               <div>
                 <h2 id="ministry-modal-title">
-                  {editingId
-                    ? "Edit Ministry"
-                    : "Add New Ministry"}
+                  {editingId ? "Edit Ministry" : "Add New Ministry"}
                 </h2>
 
                 <p>
@@ -910,45 +865,34 @@ const renderMinistryImage = (imageUrl, altText) => {
               encType="multipart/form-data"
             >
 
-              {/* MINISTRY NAME */}
-<div className="admin-ministry-field">
-  <label htmlFor="ministry-language">
-    Select Ministry Language <span>*</span>
-  </label>
+              {/* MINISTRY NAME - KEPT */}
 
-  <select
-    id="ministry-language"
-    name="language"
-    value={form.language}
-    onChange={handleChange}
-    required
-    disabled={saving}
-  >
-    <option value="" disabled>
-      -- Select Language --
-    </option>
+              <div className="admin-ministry-field">
 
-    {LANGUAGES.map((language) => (
-      <option
-        key={language.value}
-        value={language.value}
-      >
-        {language.label}
-      </option>
-    ))}
-  </select>
+                <label htmlFor="ministry-name">
+                  Ministry Name <span>*</span>
+                </label>
 
-  <small>
-    Please select the language for this ministry.
-  </small>
-</div>
+                <input
+                  id="ministry-name"
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Example: Hosanna Ministries"
+                  maxLength={255}
+                  required
+                  disabled={saving}
+                />
 
-              {/* LANGUAGE */}
+              </div>
+
+              {/* LANGUAGE SELECT */}
 
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-language">
-                  Ministry Language <span>*</span>
+                  Select Ministry Language <span>*</span>
                 </label>
 
                 <select
@@ -959,18 +903,24 @@ const renderMinistryImage = (imageUrl, altText) => {
                   required
                   disabled={saving}
                 >
+
+                  <option value="" disabled>
+                    -- Select Language --
+                  </option>
+
                   {LANGUAGES.map((language) => (
                     <option
                       key={language.value}
                       value={language.value}
                     >
-                      {language.label}
+                      {language.label} ({language.value})
                     </option>
                   ))}
+
                 </select>
 
                 <small>
-                  Select the language of this ministry.
+                  Select the language for this ministry.
                 </small>
 
               </div>
@@ -1035,14 +985,15 @@ const renderMinistryImage = (imageUrl, altText) => {
 
                 </div>
 
-                {/* IMAGE PREVIEW */}
+                {/* IMAGE PREVIEW - NO DEFAULT IMAGE */}
 
-          <div className="admin-ministry-image-preview">
-  {imagePreview && renderMinistryImage(
-    imagePreview,
-    "Ministry preview"
-  )}
-</div>
+                <div className="admin-ministry-image-preview">
+                  {imagePreview &&
+                    renderMinistryImage(
+                      imagePreview,
+                      "Ministry preview"
+                    )}
+                </div>
 
               </div>
 
@@ -1066,15 +1017,11 @@ const renderMinistryImage = (imageUrl, altText) => {
                   disabled={saving}
                 >
                   {saving ? (
-                    editingId
-                      ? "Updating..."
-                      : "Saving..."
+                    editingId ? "Updating..." : "Saving..."
                   ) : (
                     <>
                       <FaSave />
-                      {editingId
-                        ? "Update Ministry"
-                        : "Save Ministry"}
+                      {editingId ? "Update Ministry" : "Save Ministry"}
                     </>
                   )}
                 </button>
@@ -1086,7 +1033,6 @@ const renderMinistryImage = (imageUrl, altText) => {
           </div>
 
         </div>
-
       )}
 
     </div>
