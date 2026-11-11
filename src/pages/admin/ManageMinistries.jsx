@@ -14,6 +14,8 @@ import {
   FaUpload,
   FaExclamationCircle,
   FaSyncAlt,
+  FaEdit,
+  FaTrash,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -79,6 +81,8 @@ function ManageMinistries() {
   const [success, setSuccess] = useState("");
 
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -273,6 +277,7 @@ function ManageMinistries() {
       language: "Telugu",
     });
 
+    setEditingId(null);
     setImageFile(null);
     setImagePreview("");
 
@@ -353,16 +358,17 @@ function ManageMinistries() {
 
       // SAVE TO BACKEND
 
-      const response = await API.post(
-        "/admin/ministries",
-        formData
-      );
+      const response = editingId
+        ? await API.put(`/admin/ministries/${editingId}`, formData)
+        : await API.post("/admin/ministries", formData);
 
       // SHOW SUCCESS MESSAGE
 
       setSuccess(
         response.data?.message ||
-        "Ministry added successfully."
+        (editingId
+          ? "Ministry updated successfully."
+          : "Ministry added successfully.")
       );
 
       // CLOSE AND CLEAR FORM
@@ -424,6 +430,91 @@ function ManageMinistries() {
       setError(message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // =======================================================
+  // EDIT MINISTRY
+  // =======================================================
+
+  const handleEdit = (ministry) => {
+    const id = ministry.id || ministry.ministry_id;
+
+    if (!id) {
+      setListError("This ministry does not have a valid ID, so it cannot be edited.");
+      return;
+    }
+
+    clearImagePreview();
+    setEditingId(id);
+    setForm({
+      name: ministry.name || "",
+      description: ministry.description || "",
+      image_url: getMinistryImage(ministry),
+      language: ministry.language || "Telugu",
+    });
+    setImageFile(null);
+    setImagePreview(getMinistryImage(ministry));
+    setError("");
+    setSuccess("");
+    setListError("");
+    setShowForm(true);
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // =======================================================
+  // DELETE MINISTRY
+  // =======================================================
+
+  const handleDelete = async (ministry) => {
+    const id = ministry.id || ministry.ministry_id;
+
+    if (!id) {
+      setListError("This ministry does not have a valid ID, so it cannot be deleted.");
+      return;
+    }
+
+    const ministryName = ministry.name || "this ministry";
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${ministryName}"? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(id);
+      setListError("");
+      setSuccess("");
+
+      const response = await API.delete(`/admin/ministries/${id}`);
+
+      setMinistries((previous) =>
+        previous.filter(
+          (item) => String(item.id || item.ministry_id) !== String(id)
+        )
+      );
+
+      setSuccess(
+        response.data?.message || "Ministry deleted successfully."
+      );
+
+      if (String(editingId) === String(id)) {
+        resetForm();
+      }
+    } catch (err) {
+      console.error("Delete ministry error:", err);
+      setListError(
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to delete ministry. Please try again."
+      );
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -541,7 +632,7 @@ function ManageMinistries() {
             <div className="admin-ministry-form-header">
 
               <div>
-                <h2>Add New Ministry</h2>
+                <h2>{editingId ? "Edit Ministry" : "Add New Ministry"}</h2>
 
                 <p>
                   Enter the ministry information below.
@@ -898,6 +989,65 @@ function ManageMinistries() {
                           "No description available."}
                       </p>
 
+                    </div>
+
+                    {/* EDIT / DELETE ACTIONS */}
+                    <div
+                      className="admin-ministry-card-actions"
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        padding: "0 16px 16px",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="admin-ministry-edit-button"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "7px",
+                          padding: "9px 14px",
+                          border: "1px solid #c9a85c",
+                          borderRadius: "8px",
+                          background: "transparent",
+                          color: "inherit",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleEdit(ministry)}
+                        disabled={saving || deletingId !== null}
+                        aria-label={`Edit ${ministry.name || "ministry"}`}
+                        title="Edit ministry"
+                      >
+                        <FaEdit />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="admin-ministry-delete-button"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "7px",
+                          padding: "9px 14px",
+                          border: "1px solid #dc6b6b",
+                          borderRadius: "8px",
+                          background: "transparent",
+                          color: "#dc6b6b",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleDelete(ministry)}
+                        disabled={saving || deletingId !== null}
+                        aria-label={`Delete ${ministry.name || "ministry"}`}
+                        title="Delete ministry"
+                      >
+                        <FaTrash />
+                        <span>{String(deletingId) === String(ministryId) ? "Deleting..." : "Delete"}</span>
+                      </button>
                     </div>
 
                   </div>
