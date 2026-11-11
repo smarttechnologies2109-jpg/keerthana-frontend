@@ -1,6 +1,6 @@
-
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -12,20 +12,68 @@ import {
   FaTimes,
 } from "react-icons/fa";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import API from "../services/api";
-
-import {
-  getAlbumCover,
-  
-} from "../utils/media";
-
+import { getAlbumCover } from "../utils/media";
 import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/albums.css";
+
+/* =========================================================
+   KEERTHANA — ALBUMS
+   Bilingual display + alphabetical sorting
+========================================================= */
+
+const DEFAULT_ALBUM_IMAGE = "/default-album.png";
+
+const getAlbumEnglishTitle = (album) => {
+  const english = String(album?.title_english || "").trim();
+  const primary = String(album?.title || "").trim();
+  const telugu = String(album?.title_telugu || "").trim();
+
+  if (english) return english;
+  if (primary && primary !== telugu) return primary;
+  return primary || telugu || "Untitled Album";
+};
+
+const getAlbumTeluguTitle = (album) => {
+  const telugu = String(album?.title_telugu || "").trim();
+  const primary = String(album?.title || "").trim();
+  const english = String(album?.title_english || "").trim();
+
+  if (telugu && telugu !== english) return telugu;
+  if (primary && primary !== english) return primary;
+  return "";
+};
+
+const getArtistEnglishName = (album) => {
+  const english = String(
+    album?.artist_name_english || album?.artist_english || ""
+  ).trim();
+
+  const primary = String(album?.artist_name || "").trim();
+  const telugu = String(album?.artist_name_telugu || "").trim();
+
+  if (english) return english;
+  if (primary && primary !== telugu) return primary;
+  return primary || telugu || "KEERTHANA";
+};
+
+const getArtistTeluguName = (album) => {
+  const telugu = String(
+    album?.artist_name_telugu || album?.artist_telugu || ""
+  ).trim();
+
+  const primary = String(album?.artist_name || "").trim();
+  const english = String(
+    album?.artist_name_english || album?.artist_english || ""
+  ).trim();
+
+  if (telugu && telugu !== english) return telugu;
+  if (primary && primary !== english) return primary;
+  return "";
+};
 
 function Albums() {
   const navigate = useNavigate();
@@ -54,12 +102,15 @@ function Albums() {
       setError("");
 
       const response = await API.get("/albums");
+      const data = response?.data;
 
-      setAlbums(
-        Array.isArray(response.data?.albums)
-          ? response.data.albums
-          : []
-      );
+      const albumList = Array.isArray(data?.albums)
+        ? data.albums
+        : Array.isArray(data)
+          ? data
+          : [];
+
+      setAlbums(albumList);
     } catch (err) {
       console.error("Unable to load albums:", err);
       setError("Unable to load albums. Please try again.");
@@ -78,17 +129,34 @@ function Albums() {
 
   const query = searchQuery.trim().toLowerCase();
 
-  const filteredAlbums = albums.filter((album) => {
-    if (!query) return true;
+  const filteredAlbums = useMemo(() => {
+    const matchingAlbums = albums.filter((album) => {
+      if (!query) return true;
 
-    const title = (album.title || "").toLowerCase();
-    const artist = (album.artist_name || "").toLowerCase();
+      const searchableFields = [
+        album?.title,
+        album?.title_english,
+        album?.title_telugu,
+        album?.artist_name,
+        album?.artist_name_english,
+        album?.artist_name_telugu,
+        album?.artist_english,
+        album?.artist_telugu,
+      ];
 
-    return (
-      title.includes(query) ||
-      artist.includes(query)
+      return searchableFields.some((field) =>
+        String(field || "").toLowerCase().includes(query)
+      );
+    });
+
+    return [...matchingAlbums].sort((a, b) =>
+      getAlbumEnglishTitle(a).localeCompare(
+        getAlbumEnglishTitle(b),
+        "en",
+        { sensitivity: "base", numeric: true }
+      )
     );
-  });
+  }, [albums, query]);
 
   /* =====================================================
      LOADING STATE
@@ -111,16 +179,10 @@ function Albums() {
 
   return (
     <div className="albums-page">
-      {/* COMPACT HEADER */}
-
       <header className="albums-header">
         <p>KEERTHANA</p>
-
         <h1>Albums</h1>
-
-        <span>
-          Christian Music Collections
-        </span>
+        <span>Christian Music Collections</span>
       </header>
 
       {/* ERROR STATE */}
@@ -128,7 +190,6 @@ function Albums() {
       {error && (
         <div className="albums-error" role="alert">
           <FaExclamationCircle />
-
           <span>{error}</span>
 
           <button
@@ -141,8 +202,6 @@ function Albums() {
           </button>
         </div>
       )}
-
-      {/* ALBUM COLLECTION */}
 
       {!error && (
         <section className="albums-section">
@@ -160,25 +219,15 @@ function Albums() {
             <span className="albums-total">
               {query
                 ? `${filteredAlbums.length} ${
-                    filteredAlbums.length === 1
-                      ? "Match"
-                      : "Matches"
+                    filteredAlbums.length === 1 ? "Match" : "Matches"
                   }`
                 : `${albums.length} ${
-                    albums.length === 1
-                      ? "Album"
-                      : "Albums"
+                    albums.length === 1 ? "Album" : "Albums"
                   }`}
             </span>
           </div>
 
-          {/* VOICE SEARCH
-              VoiceSearch already includes its own:
-              - Search input
-              - Clear button
-              - Microphone
-              - Voice-language selector
-          */}
+          {/* VOICE SEARCH */}
 
           <section
             className="albums-voice-search-section"
@@ -195,33 +244,37 @@ function Albums() {
             />
           </section>
 
-          {/* SEARCH SUMMARY */}
-
           {query && (
             <p
               className="albums-search-summary"
               aria-live="polite"
             >
               {filteredAlbums.length}{" "}
-              {filteredAlbums.length === 1
-                ? "album"
-                : "albums"}{" "}
-              found
+              {filteredAlbums.length === 1 ? "album" : "albums"} found
             </p>
           )}
 
-          {/* FILTERED ALBUM GRID */}
+          {/* ALPHABETICALLY SORTED ALBUM GRID */}
 
           {filteredAlbums.length > 0 ? (
-            <div
-              className="albums-grid"
-              id="albums-grid"
-            >
+            <div className="albums-grid" id="albums-grid">
               {filteredAlbums.map((album) => {
-                const coverUrl = getAlbumCover(album);
+                let coverUrl = DEFAULT_ALBUM_IMAGE;
 
-                const songCount =
-                  Number(album.song_count) || 0;
+                try {
+                  coverUrl = getAlbumCover(album) || DEFAULT_ALBUM_IMAGE;
+                } catch (coverError) {
+                  console.warn(
+                    "Unable to resolve album cover:",
+                    coverError
+                  );
+                }
+
+                const songCount = Number(album.song_count) || 0;
+                const englishTitle = getAlbumEnglishTitle(album);
+                const teluguTitle = getAlbumTeluguTitle(album);
+                const englishArtist = getArtistEnglishName(album);
+                const teluguArtist = getArtistTeluguName(album);
 
                 return (
                   <article
@@ -229,12 +282,8 @@ function Albums() {
                     key={album.id}
                     role="button"
                     tabIndex={0}
-                    aria-label={`Open album ${
-                      album.title || "Album"
-                    }`}
-                    onClick={() =>
-                      navigate(`/albums/${album.id}`)
-                    }
+                    aria-label={`Open album ${englishTitle}`}
+                    onClick={() => navigate(`/albums/${album.id}`)}
                     onKeyDown={(event) => {
                       if (
                         event.key === "Enter" ||
@@ -245,26 +294,14 @@ function Albums() {
                       }
                     }}
                   >
-                    {/* ALBUM COVER */}
-
                     <div className="album-card-cover">
                       <img
                         src={coverUrl}
-                        alt={album.title || "Album cover"}
+                        alt={`${englishTitle} album cover`}
                         loading="lazy"
                         onError={(event) => {
-                          if (
-                            event.currentTarget.dataset
-                              .fallbackApplied
-                          ) {
-                            return;
-                          }
-
-                          event.currentTarget.dataset
-                            .fallbackApplied = "true";
-
-                          event.currentTarget.src =
-                            DEFAULT_ALBUM;
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.src = DEFAULT_ALBUM_IMAGE;
                         }}
                       />
 
@@ -275,28 +312,33 @@ function Albums() {
                       </div>
                     </div>
 
-                    {/* ALBUM DETAILS */}
-
                     <div className="album-card-info">
-                      <h3
-                        title={
-                          album.title || "Untitled album"
-                        }
-                      >
-                        {album.title || "Untitled Album"}
-                      </h3>
+                      <div className="album-card-names">
+                        <h3 title={englishTitle}>
+                          {englishTitle}
+                        </h3>
 
-                      <p
-                        title={
-                          album.artist_name || "KEERTHANA"
-                        }
-                      >
-                        {album.artist_name || "KEERTHANA"}
-                      </p>
+                        {teluguTitle && (
+                          <span className="album-telugu-title">
+                            {teluguTitle}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="album-card-artist-names">
+                        <p title={englishArtist}>
+                          {englishArtist}
+                        </p>
+
+                        {teluguArtist && (
+                          <span className="album-telugu-artist">
+                            {teluguArtist}
+                          </span>
+                        )}
+                      </div>
 
                       <span className="album-song-count">
                         <FaMusic />
-
                         {songCount}{" "}
                         {songCount === 1 ? "Song" : "Songs"}
                       </span>
@@ -306,8 +348,6 @@ function Albums() {
               })}
             </div>
           ) : (
-            /* NO MATCHES / EMPTY STATE */
-
             <div className="albums-empty">
               <div className="albums-empty-icon">
                 <FaCompactDisc />

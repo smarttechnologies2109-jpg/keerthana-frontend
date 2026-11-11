@@ -25,6 +25,34 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/albumDetails.css";
 
+function getAlbumEnglishTitle(album) {
+  return album?.title_english || album?.title || album?.title_telugu || "Untitled Album";
+}
+function getAlbumTeluguTitle(album) {
+  const telugu = album?.title_telugu || "";
+  return telugu && telugu.trim() !== getAlbumEnglishTitle(album).trim() ? telugu : "";
+}
+function getArtistEnglishName(album) {
+  return album?.artist_name_english || album?.artist_name || album?.artist_name_telugu || "KEERTHANA";
+}
+function getArtistTeluguName(album) {
+  const telugu = album?.artist_name_telugu || "";
+  return telugu && telugu.trim() !== getArtistEnglishName(album).trim() ? telugu : "";
+}
+function getSongEnglishTitle(song) {
+  return song?.title_english || song?.title || song?.title_telugu || "Untitled song";
+}
+function getSongTeluguTitle(song) {
+  const telugu = song?.title_telugu || song?.title || "";
+  return telugu && telugu.trim() !== getSongEnglishTitle(song).trim() ? telugu : "";
+}
+function compareSongsAlphabetically(a, b) {
+  return getSongEnglishTitle(a).localeCompare(getSongEnglishTitle(b), "en", {
+    sensitivity: "base",
+    numeric: true,
+  });
+}
+
 function AlbumDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -137,42 +165,43 @@ function AlbumDetails() {
   ===================================================== */
 
   const songs = Array.isArray(album.songs)
-    ? album.songs
+    ? [...album.songs].sort(compareSongsAlphabetically)
     : [];
+
+  const albumEnglishTitle = getAlbumEnglishTitle(album);
+  const albumTeluguTitle = getAlbumTeluguTitle(album);
+  const artistEnglishName = getArtistEnglishName(album);
+  const artistTeluguName = getArtistTeluguName(album);
 
   const cover = getAlbumCover(album);
 
   const query = searchQuery.trim().toLowerCase();
 
-  const filteredSongs = songs.filter((song) => {
-    if (!query) return true;
+  const filteredSongs = songs
+    .filter((song) => {
+      if (!query) return true;
 
-    const title = (song.title || "").toLowerCase();
+      const searchableFields = [
+        song?.title,
+        song?.title_english,
+        song?.title_telugu,
+        song?.artist_name,
+        song?.artist_name_english,
+        song?.artist_name_telugu,
+        album?.artist_name,
+        album?.artist_name_english,
+        album?.artist_name_telugu,
+        song?.language,
+        song?.category_name,
+        song?.category_name_english,
+        song?.category_name_telugu,
+      ];
 
-    const englishTitle = (
-      song.title_english || ""
-    ).toLowerCase();
-
-    const artist = (
-      song.artist_name || album.artist_name || ""
-    ).toLowerCase();
-
-    const language = (
-      song.language || "Telugu"
-    ).toLowerCase();
-
-    const category = (
-      song.category_name || "Christian Music"
-    ).toLowerCase();
-
-    return (
-      title.includes(query) ||
-      englishTitle.includes(query) ||
-      artist.includes(query) ||
-      language.includes(query) ||
-      category.includes(query)
-    );
-  });
+      return searchableFields.some((field) =>
+        String(field || "").toLowerCase().includes(query)
+      );
+    })
+    .sort(compareSongsAlphabetically);
 
   const isAlbumSong = (song) =>
     songs.some(
@@ -307,7 +336,7 @@ function AlbumDetails() {
           {cover ? (
             <img
               src={cover}
-              alt={album.title || "Album cover"}
+              alt={`${albumEnglishTitle} album cover`}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
               }}
@@ -322,7 +351,12 @@ function AlbumDetails() {
             ALBUM
           </span>
 
-          <h1>{album.title}</h1>
+          <div className="album-details-title-names">
+            <h1>{albumEnglishTitle}</h1>
+            {albumTeluguTitle && (
+              <p className="album-details-telugu-title">{albumTeluguTitle}</p>
+            )}
+          </div>
 
           <button
             type="button"
@@ -333,7 +367,12 @@ function AlbumDetails() {
               }
             }}
           >
-            {album.artist_name || "KEERTHANA"}
+            <span className="album-details-artist-names">
+              <span>{artistEnglishName}</span>
+              {artistTeluguName && (
+                <span className="album-details-telugu-artist">{artistTeluguName}</span>
+              )}
+            </span>
           </button>
         </div>
       </section>
@@ -492,17 +531,27 @@ function AlbumDetails() {
                     className="album-details-track-main"
                     onClick={() => handleSongPlayPause(song)}
                   >
-                    <strong title={song.title}>
-                      {song.title ||
-                        song.title_english ||
-                        "Untitled song"}
+                    <strong title={getSongEnglishTitle(song)}>
+                      {getSongEnglishTitle(song)}
                     </strong>
 
+                    {getSongTeluguTitle(song) && (
+                      <span className="album-details-track-telugu-title">
+                        {getSongTeluguTitle(song)}
+                      </span>
+                    )}
+
                     <span>
-                      {song.artist_name ||
-                        album.artist_name ||
-                        "KEERTHANA"}
+                      {song.artist_name_english ||
+                        song.artist_name ||
+                        artistEnglishName}
                     </span>
+
+                    {(song.artist_name_telugu || artistTeluguName) && (
+                      <span className="album-details-track-telugu-artist">
+                        {song.artist_name_telugu || artistTeluguName}
+                      </span>
+                    )}
                   </button>
 
                   {/* LANGUAGE */}

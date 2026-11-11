@@ -511,6 +511,7 @@ function ManageArtists() {
 
           <thead>
             <tr>
+              <th className="admin-artist-number-heading">No.</th>
               <th>Artist</th>
               <th>Language</th>
               <th>Bio</th>
@@ -523,7 +524,7 @@ function ManageArtists() {
             {filteredArtists.length === 0 ? (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="6"
                   style={{
                     textAlign: "center",
                     padding: "30px",
@@ -533,8 +534,12 @@ function ManageArtists() {
                 </td>
               </tr>
             ) : (
-              filteredArtists.map((artist) => (
+              filteredArtists.map((artist, index) => (
                 <tr key={artist.id}>
+
+                  <td className="admin-artist-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </td>
 
                   <td>
                     <div className="admin-artist-cell">

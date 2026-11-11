@@ -1146,3 +1146,37 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* =========================================
+   MANAGE SONGS — NUMBER COLUMN
+   KEERTHANA ADMIN
+========================================= */
+
+.admin-song-number-heading,
+.admin-song-number {
+  width: 64px;
+  min-width: 64px;
+  text-align: center !important;
+  white-space: nowrap;
+}
+
+.admin-song-number-heading {
+  color: #d9b96e;
+}
+
+.admin-song-number {
+  color: #d9b96e;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-song-table tbody tr:hover .admin-song-number {
+  color: #f0d58f;
+}
+
+@media (max-width: 768px) {
+  .admin-song-number-heading,
+  .admin-song-number {
+    width: 52px;
+    min-width: 52px;
+  }
+}

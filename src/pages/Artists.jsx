@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { FaMicrophone } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -11,9 +10,30 @@ import "../assets/css/artists.css";
 
 /* =========================================================
    KEERTHANA — ARTISTS
+   Bilingual names + alphabetical card order
 ========================================================= */
 
 const DEFAULT_VOICE_LANGUAGE = "te-IN";
+
+const getArtistEnglishName = (artist) => {
+  const englishName = String(artist?.name_english || "").trim();
+  const teluguName = String(artist?.name_telugu || "").trim();
+  const legacyName = String(artist?.name || "").trim();
+
+  if (englishName) return englishName;
+  if (legacyName && legacyName !== teluguName) return legacyName;
+  return teluguName || "Unknown Artist";
+};
+
+const getArtistTeluguName = (artist) => {
+  const teluguName = String(artist?.name_telugu || "").trim();
+  const englishName = String(artist?.name_english || "").trim();
+  const legacyName = String(artist?.name || "").trim();
+
+  if (teluguName && teluguName !== englishName) return teluguName;
+  if (legacyName && legacyName !== englishName) return legacyName;
+  return "";
+};
 
 function Artists() {
   const navigate = useNavigate();
@@ -54,9 +74,7 @@ function Artists() {
         console.error("Artists error:", err);
 
         if (!cancelled) {
-          setError(
-            "Unable to load artists. Please try again."
-          );
+          setError("Unable to load artists. Please try again.");
         }
       } finally {
         if (!cancelled) {
@@ -78,13 +96,27 @@ function Artists() {
 
   const query = searchQuery.trim().toLowerCase();
 
-  const filteredArtists = artists.filter((artist) => {
-    if (!query) return true;
+  const filteredArtists = artists
+    .filter((artist) => {
+      if (!query) return true;
 
-    return String(artist?.name || "")
-      .toLowerCase()
-      .includes(query);
-  });
+      const searchableFields = [
+        artist?.name,
+        artist?.name_english,
+        artist?.name_telugu,
+      ];
+
+      return searchableFields.some((field) =>
+        String(field || "").toLowerCase().includes(query)
+      );
+    })
+    .sort((artistA, artistB) =>
+      getArtistEnglishName(artistA).localeCompare(
+        getArtistEnglishName(artistB),
+        "en",
+        { sensitivity: "base", numeric: true }
+      )
+    );
 
   const handleVoiceSearch = (recognizedText) => {
     setSearchQuery(recognizedText);
@@ -112,16 +144,11 @@ function Artists() {
     <main className="artists-page">
       <header className="artists-header">
         <p>KEERTHANA</p>
-
         <h1>Artists</h1>
-
-        <span>
-          Christian singers and worship artists
-        </span>
+        <span>Christian singers and worship artists</span>
       </header>
 
       {/* SINGLE SEARCH BAR WITH VOICE SEARCH */}
-
       <section
         className="artists-search-section"
         aria-label="Search artists"
@@ -133,31 +160,22 @@ function Artists() {
           language={voiceLanguage}
           onLanguageChange={setVoiceLanguage}
           placeholder="Search artists..."
-          ariaLabel="Search artists by name"
+          ariaLabel="Search artists by English or Telugu name"
         />
       </section>
 
       {/* SEARCH RESULTS COUNT */}
-
       {query && !error && (
-        <p
-          className="artists-search-summary"
-          aria-live="polite"
-        >
+        <p className="artists-search-summary" aria-live="polite">
           {filteredArtists.length}{" "}
-          {filteredArtists.length === 1
-            ? "artist"
-            : "artists"}{" "}
-          found
+          {filteredArtists.length === 1 ? "artist" : "artists"} found
         </p>
       )}
 
       {/* ERROR STATE */}
-
       {error && (
         <div className="artists-error" role="alert">
           <span>{error}</span>
-
           <button
             type="button"
             onClick={() => window.location.reload()}
@@ -167,8 +185,7 @@ function Artists() {
         </div>
       )}
 
-      {/* ARTIST COLLECTION */}
-
+      {/* ARTIST COLLECTION — A TO Z */}
       {!error && filteredArtists.length > 0 && (
         <section
           className="artists-grid"
@@ -186,21 +203,22 @@ function Artists() {
               }
             }
 
+            const englishName = getArtistEnglishName(artist);
+            const teluguName = getArtistTeluguName(artist);
+
             return (
               <button
                 type="button"
                 className="artist-card"
                 key={artist.id}
-                onClick={() =>
-                  navigate(`/artists/${artist.id}`)
-                }
-                aria-label={`View ${artist.name || "artist"}`}
+                onClick={() => navigate(`/artists/${artist.id}`)}
+                aria-label={`View ${englishName}${teluguName ? `, ${teluguName}` : ""}`}
               >
                 <div className="artist-image">
                   {image ? (
                     <img
                       src={image}
-                      alt={artist.name || "Artist"}
+                      alt={englishName}
                       loading="lazy"
                       onError={(event) => {
                         event.currentTarget.onerror = null;
@@ -212,13 +230,16 @@ function Artists() {
                   )}
                 </div>
 
-                <h3>{artist.name || "Unknown Artist"}</h3>
+                <div className="artist-card-names">
+                  <h3>{englishName}</h3>
+                  {teluguName && (
+                    <p className="artist-telugu-name">{teluguName}</p>
+                  )}
+                </div>
 
                 <p>Artist</p>
 
-                <span>
-                  {artist.song_count ?? 0} songs
-                </span>
+                <span>{artist.song_count ?? 0} songs</span>
               </button>
             );
           })}
@@ -226,7 +247,6 @@ function Artists() {
       )}
 
       {/* EMPTY STATE */}
-
       {!error && filteredArtists.length === 0 && (
         <div className="artists-empty">
           <FaMicrophone
@@ -235,9 +255,7 @@ function Artists() {
           />
 
           <h2>
-            {query
-              ? "No matching artists"
-              : "No artists available"}
+            {query ? "No matching artists" : "No artists available"}
           </h2>
 
           <p>

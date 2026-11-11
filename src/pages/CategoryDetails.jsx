@@ -44,6 +44,49 @@ import "../assets/css/categoryDetails.css";
    - Shows loading, error and empty states
 ========================================================= */
 
+/* =========================================================
+   BILINGUAL CATEGORY AND SONG TITLE HELPERS
+========================================================= */
+
+const getCategoryEnglishName = (item) => {
+  const english = String(item?.name_english || "").trim();
+  const legacy = String(item?.name || "").trim();
+  const telugu = String(item?.name_telugu || "").trim();
+
+  if (english) return english;
+  if (legacy && legacy !== telugu) return legacy;
+  return telugu || legacy || "Music Category";
+};
+
+const getCategoryTeluguName = (item) => {
+  const telugu = String(item?.name_telugu || "").trim();
+  const englishName = getCategoryEnglishName(item);
+  const legacy = String(item?.name || "").trim();
+
+  if (telugu && telugu !== englishName) return telugu;
+  if (legacy && legacy !== englishName) return legacy;
+  return "";
+};
+
+const getSongPrimaryTitle = (song) =>
+  String(song?.title || song?.title_english || "Untitled song").trim();
+
+const getSongEnglishTitle = (song) => {
+  const english = String(song?.title_english || "").trim();
+  const primary = getSongPrimaryTitle(song);
+  return english && english !== primary ? english : "";
+};
+
+const compareSongsAlphabetically = (a, b) => {
+  const titleA = a?.title_english || a?.title || "";
+  const titleB = b?.title_english || b?.title || "";
+
+  return String(titleA).localeCompare(String(titleB), "en", {
+    sensitivity: "base",
+    numeric: true,
+  });
+};
+
 function CategoryDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -167,12 +210,11 @@ function CategoryDetails() {
               ? data
               : [];
 
-      const categorySongs = allSongs.filter((song) => {
-        return (
-          String(song?.category_id) === String(id)
-        );
-      });
+      const categorySongs = allSongs
+        .filter((song) => String(song?.category_id) === String(id))
+        .sort(compareSongsAlphabetically);
 
+      // Keep song rows, Play All, and the player queue in the same A-Z order.
       setSongs(categorySongs);
 
       console.log(
@@ -250,34 +292,29 @@ function CategoryDetails() {
   }, []);
 
   /* =========================================================
-     SEARCH
+     SEARCH + ALPHABETICAL SONG ORDER (A-Z)
+     Searches native/Telugu title, English title, artist,
+     and language. Results remain sorted by English title.
   ========================================================= */
 
-  const query = searchQuery.trim().toLowerCase();
+  const query = searchQuery.trim().toLocaleLowerCase();
 
-  const filteredSongs = songs.filter((song) => {
-    if (!query) return true;
+  const filteredSongs = songs
+    .filter((song) => {
+      if (!query) return true;
 
-    const title = String(song.title || "").toLowerCase();
-    const englishTitle = String(
-      song.title_english || ""
-    ).toLowerCase();
+      const searchableValues = [
+        song?.title,
+        song?.title_english,
+        song?.artist_name,
+        song?.language,
+      ];
 
-    const language = String(
-      song.language || "Telugu"
-    ).toLowerCase();
-
-    const artistName = String(
-      song.artist_name || ""
-    ).toLowerCase();
-
-    return (
-      title.includes(query) ||
-      englishTitle.includes(query) ||
-      language.includes(query) ||
-      artistName.includes(query)
-    );
-  });
+      return searchableValues.some((value) =>
+        String(value || "").toLocaleLowerCase().includes(query)
+      );
+    })
+    .sort(compareSongsAlphabetically);
 
   /* =========================================================
      CURRENT SONG HELPERS
@@ -531,9 +568,15 @@ function CategoryDetails() {
             DISCOVER YOUR WORSHIP
           </span>
 
-          <h1>
-            {category.name || "Music Category"}
-          </h1>
+          <div className="category-detail-names">
+            <h1>{getCategoryEnglishName(category)}</h1>
+
+            {getCategoryTeluguName(category) && (
+              <p className="category-detail-telugu-name">
+                {getCategoryTeluguName(category)}
+              </p>
+            )}
+          </div>
 
           {category.description && (
             <p className="category-detail-description">
@@ -802,7 +845,13 @@ function CategoryDetails() {
                           {songTitle}
                         </strong>
 
-                        <span>
+                        {getSongEnglishTitle(song) && (
+                          <span className="category-song-english-title">
+                            {getSongEnglishTitle(song)}
+                          </span>
+                        )}
+
+                        <span className="category-song-artist">
                           {song.artist_name || "Unknown artist"}
                         </span>
                       </button>
@@ -909,8 +958,10 @@ function CategoryDetails() {
                 <p>
                   {query
                     ? "Try another song title or clear your search."
-                    : `Songs in ${
-                        category.name || "this category"
+                    : `Songs in ${getCategoryEnglishName(category)}${
+                        getCategoryTeluguName(category)
+                          ? ` (${getCategoryTeluguName(category)})`
+                          : ""
                       } will appear here when they are available.`}
                 </p>
 

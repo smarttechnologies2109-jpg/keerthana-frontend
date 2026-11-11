@@ -1651,3 +1651,45 @@
     animation: none;
   }
 }
+/* Bilingual album title */
+.album-details-title-names {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.album-details-title-names h1 {
+  margin: 0;
+}
+
+.album-details-telugu-title {
+  color: #d9b96e;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+
+/* Bilingual artist name */
+.album-details-artist-names {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.album-details-telugu-artist,
+.album-details-track-telugu-artist {
+  color: #d9b96e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Bilingual song title */
+.album-details-track-telugu-title {
+  display: block;
+  color: #d9b96e;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-top: 3px;
+}

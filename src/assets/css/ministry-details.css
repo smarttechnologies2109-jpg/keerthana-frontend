@@ -1556,3 +1556,31 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* Bilingual ministry heading */
+.ministry-header-names {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ministry-header-names h1 {
+  margin-bottom: 0;
+}
+
+.ministry-header-telugu-name {
+  color: #d9b96e;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+/* English song title */
+.song-english-title {
+  display: block;
+  color: #d9b96e !important;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 3px;
+  line-height: 1.5;
+}

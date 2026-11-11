@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -13,6 +13,30 @@ import Sidebar from "../components/Sidebar";
 import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/ministries.css";
+
+/* =========================================================
+   BILINGUAL MINISTRY NAME HELPERS
+========================================================= */
+
+const getMinistryEnglishName = (ministry) => {
+  const english = String(ministry?.name_english || "").trim();
+  const legacy = String(ministry?.name || "").trim();
+  const telugu = String(ministry?.name_telugu || "").trim();
+
+  if (english) return english;
+  if (legacy && legacy !== telugu) return legacy;
+  return telugu || legacy || "Unnamed Ministry";
+};
+
+const getMinistryTeluguName = (ministry) => {
+  const telugu = String(ministry?.name_telugu || "").trim();
+  const english = getMinistryEnglishName(ministry);
+  const legacy = String(ministry?.name || "").trim();
+
+  if (telugu && telugu !== english) return telugu;
+  if (legacy && legacy !== english) return legacy;
+  return "";
+};
 
 function Ministries() {
   const navigate = useNavigate();
@@ -69,27 +93,34 @@ function Ministries() {
   };
 
   /* =========================================================
-     SEARCH MINISTRIES
+     SEARCH + ALPHABETICAL ORDER (A-Z)
+     Search English/Telugu names and descriptions.
   ========================================================= */
 
-  const searchText = search.trim().toLowerCase();
+  const filteredMinistries = useMemo(() => {
+    const searchText = search.trim().toLocaleLowerCase();
 
-  const filteredMinistries = ministries.filter((ministry) => {
-    if (!searchText) {
-      return true;
-    }
+    return [...ministries]
+      .filter((ministry) => {
+        if (!searchText) return true;
 
-    const name = String(ministry?.name || "").toLowerCase();
-
-    const description = String(
-      ministry?.description || ""
-    ).toLowerCase();
-
-    return (
-      name.includes(searchText) ||
-      description.includes(searchText)
-    );
-  });
+        return [
+          ministry?.name,
+          ministry?.name_english,
+          ministry?.name_telugu,
+          ministry?.description,
+        ].some((value) =>
+          String(value || "").toLocaleLowerCase().includes(searchText)
+        );
+      })
+      .sort((a, b) =>
+        getMinistryEnglishName(a).localeCompare(
+          getMinistryEnglishName(b),
+          "en",
+          { sensitivity: "base", numeric: true }
+        )
+      );
+  }, [ministries, search]);
 
   /* =========================================================
      OPEN MINISTRY
@@ -268,7 +299,7 @@ function Ministries() {
                             {image && (
                               <img
                                 src={image}
-                                alt={ministry?.name || "Ministry"}
+                                alt={`${getMinistryEnglishName(ministry)} ministry`}
                                 loading="lazy"
                                 onError={(e) => {
                                   e.currentTarget.style.display =
@@ -299,10 +330,15 @@ function Ministries() {
                           {/* CARD INFORMATION */}
 
                           <div className="ministry-card-info">
-                            <h3>
-                              {ministry?.name ||
-                                "Unnamed Ministry"}
-                            </h3>
+                            <div className="ministry-card-names">
+                              <h3>{getMinistryEnglishName(ministry)}</h3>
+
+                              {getMinistryTeluguName(ministry) && (
+                                <p className="ministry-card-telugu-name">
+                                  {getMinistryTeluguName(ministry)}
+                                </p>
+                              )}
+                            </div>
 
                             {ministry?.description && (
                               <p>{ministry.description}</p>

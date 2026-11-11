@@ -531,6 +531,10 @@ function ManageSongs() {
 
               <tr>
 
+                <th className="admin-song-number-heading">
+                  No.
+                </th>
+
                 <th>
                   Song
                 </th>
@@ -560,7 +564,7 @@ function ManageSongs() {
 
 
               {filteredSongs.map(
-                (song) => {
+                (song, index) => {
 
                   const cover =
                     getCover(
@@ -575,6 +579,13 @@ function ManageSongs() {
                         song.id
                       }
                     >
+
+
+                      {/* NUMBER */}
+
+                      <td className="admin-song-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </td>
 
 
                       {/* =================================

@@ -1777,3 +1777,31 @@
     transition: none;
   }
 }
+/* Bilingual artist profile */
+.artist-profile-names {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.artist-profile-names h1 {
+  margin-bottom: 0;
+}
+
+.artist-profile-telugu-name {
+  color: #d9b96e;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+
+/* English song title */
+.artist-track-english-title {
+  display: block;
+  color: #d9b96e;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-top: 3px;
+}

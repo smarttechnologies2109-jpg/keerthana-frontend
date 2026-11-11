@@ -871,3 +871,112 @@
   cursor: pointer;
   padding: 8px;
 }
+/* =========================================
+   MINISTRY TABLE — KEERTHANA ADMIN
+========================================= */
+
+.admin-ministry-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(201, 168, 92, 0.25);
+  border-radius: 12px;
+  background: #101a2d;
+}
+
+.admin-ministry-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+  color: #ffffff;
+}
+
+.admin-ministry-table th {
+  padding: 15px 13px;
+  background: #17243b;
+  color: #d9b96e;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(201, 168, 92, 0.3);
+}
+
+.admin-ministry-table td {
+  padding: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.admin-ministry-table tbody tr:hover {
+  background: rgba(201, 168, 92, 0.07);
+}
+
+.admin-ministry-number,
+.admin-ministry-number-heading {
+  width: 60px;
+  text-align: center !important;
+  color: #d9b96e;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-ministry-table-image {
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #1c2b43;
+}
+
+.admin-ministry-table-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-ministry-table-english {
+  color: #ffffff;
+}
+
+.admin-ministry-table-telugu {
+  color: #d9b96e;
+}
+
+.admin-ministry-table-language {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(201, 168, 92, 0.12);
+  color: #e4c982;
+  white-space: nowrap;
+}
+
+.admin-ministry-table-description {
+  max-width: 220px;
+  line-height: 1.5;
+  color: #aab7ca;
+}
+
+.admin-ministry-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.admin-ministry-table-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border-radius: 7px;
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  .admin-ministry-table-wrapper {
+    border-radius: 9px;
+  }
+}

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -21,6 +21,46 @@ import "../assets/css/ministry-details.css";
 
 const DEFAULT_MINISTRY_IMAGE = "/default-ministry.png";
 const DEFAULT_SONG_IMAGE = "/default-song.png";
+
+
+/* =====================================================
+   BILINGUAL MINISTRY / SONG NAME HELPERS
+===================================================== */
+
+const getMinistryEnglishName = (item) => {
+  if (!item) return "";
+  const english = String(item.name_english || "").trim();
+  const legacy = String(item.name || "").trim();
+  const telugu = String(item.name_telugu || "").trim();
+  if (english) return english;
+  if (legacy && legacy !== telugu) return legacy;
+  return legacy || telugu;
+};
+
+const getMinistryTeluguName = (item) => {
+  if (!item) return "";
+  const telugu = String(item.name_telugu || "").trim();
+  const legacy = String(item.name || "").trim();
+  const english = String(item.name_english || "").trim();
+  if (telugu) return telugu;
+  if (legacy && legacy !== english) return legacy;
+  return "";
+};
+
+const getSongTeluguTitle = (song) =>
+  String(song?.title_telugu || song?.title || "").trim();
+
+const getSongEnglishTitle = (song) =>
+  String(song?.title_english || "").trim();
+
+const compareMinistrySongs = (a, b) => {
+  const titleA = getSongEnglishTitle(a) || getSongTeluguTitle(a);
+  const titleB = getSongEnglishTitle(b) || getSongTeluguTitle(b);
+  return titleA.localeCompare(titleB, "en", {
+    sensitivity: "base",
+    numeric: true,
+  });
+};
 
 const MinistryDetails = () => {
   const { id } = useParams();
@@ -115,30 +155,36 @@ const MinistryDetails = () => {
   };
 
   /* =====================================================
-     FILTER SONGS
+     SORT SONGS A-Z + FILTER SONGS
+     Sorting is shared by the visible list and Play All.
   ===================================================== */
+
+  const sortedSongs = useMemo(() => {
+    return [...songs].sort(compareMinistrySongs);
+  }, [songs]);
 
   const searchText = search.trim().toLowerCase();
 
-  const filteredSongs = songs.filter((song) => {
-    if (!searchText) return true;
+  const filteredSongs = useMemo(() => {
+    return sortedSongs.filter((song) => {
+      if (!searchText) return true;
 
-    const searchableFields = [
-      song?.title,
-      song?.title_english,
-      song?.artist_name,
-      song?.artist,
-      song?.language,
-      song?.category_name,
-      song?.album_name,
-    ];
+      const searchableFields = [
+        song?.title,
+        song?.title_telugu,
+        song?.title_english,
+        song?.artist_name,
+        song?.artist,
+        song?.language,
+        song?.category_name,
+        song?.album_name,
+      ];
 
-    return searchableFields.some((field) =>
-      String(field || "")
-        .toLowerCase()
-        .includes(searchText)
-    );
-  });
+      return searchableFields.some((field) =>
+        String(field || "").toLowerCase().includes(searchText)
+      );
+    });
+  }, [sortedSongs, searchText]);
 
   /* =====================================================
      CLOSE MENU ON OUTSIDE CLICK / ESCAPE
@@ -210,7 +256,7 @@ const MinistryDetails = () => {
       return;
     }
 
-    const playableSongs = songs.filter(
+    const playableSongs = sortedSongs.filter(
       (song) => song?.audio_url
     );
 
@@ -233,7 +279,7 @@ const MinistryDetails = () => {
       return;
     }
 
-    await playSong(song, songs);
+    await playSong(song, sortedSongs);
   };
 
   /* =====================================================
@@ -375,7 +421,7 @@ const MinistryDetails = () => {
     ministry.logo ||
     DEFAULT_MINISTRY_IMAGE;
 
-  const playableSongs = songs.filter(
+  const playableSongs = sortedSongs.filter(
     (song) => song?.audio_url
   );
 
@@ -402,7 +448,7 @@ const MinistryDetails = () => {
         <div className="ministry-header-image">
           <img
             src={ministryImage}
-            alt={ministry.name || "Ministry"}
+            alt={getMinistryEnglishName(ministry) || "Ministry"}
             onError={(event) => {
               event.currentTarget.onerror = null;
               event.currentTarget.src = DEFAULT_MINISTRY_IMAGE;
@@ -415,7 +461,15 @@ const MinistryDetails = () => {
             MINISTRY
           </span>
 
-          <h1>{ministry.name}</h1>
+          <div className="ministry-header-names">
+            <h1>{getMinistryEnglishName(ministry)}</h1>
+            {getMinistryTeluguName(ministry) &&
+              getMinistryTeluguName(ministry) !== getMinistryEnglishName(ministry) && (
+                <p className="ministry-header-telugu-name">
+                  {getMinistryTeluguName(ministry)}
+                </p>
+              )}
+          </div>
 
           {ministry.description && (
             <p className="ministry-header-description">
@@ -478,7 +532,13 @@ const MinistryDetails = () => {
         <div className="ministry-songs-heading">
           <div>
             <h2>Songs</h2>
-            <p>Songs from {ministry.name}</p>
+            <p>
+              Songs from {getMinistryEnglishName(ministry)}
+              {getMinistryTeluguName(ministry) &&
+                getMinistryTeluguName(ministry) !== getMinistryEnglishName(ministry)
+                ? ` • ${getMinistryTeluguName(ministry)}`
+                : ""}
+            </p>
           </div>
 
           <span className="ministry-track-count">
@@ -609,13 +669,18 @@ const MinistryDetails = () => {
                         : `Play ${song.title}`
                     }
                   >
-                    <strong>{song.title}</strong>
+                    <strong>
+                      {getSongTeluguTitle(song) ||
+                        getSongEnglishTitle(song) ||
+                        "Untitled Song"}
+                    </strong>
 
-                    {song.title_english && (
-                      <span className="song-english-title">
-                        {song.title_english}
-                      </span>
-                    )}
+                    {getSongEnglishTitle(song) &&
+                      getSongEnglishTitle(song) !== getSongTeluguTitle(song) && (
+                        <span className="song-english-title">
+                          {getSongEnglishTitle(song)}
+                        </span>
+                      )}
 
                     <span className="song-artist">
                       {song.artist_name ||

@@ -445,6 +445,7 @@ function ManageCategories() {
           <table className="admin-song-table">
             <thead>
               <tr>
+                <th className="admin-category-number-column">No.</th>
                 <th>Category Image</th>
                 <th>English Name</th>
                 <th>Telugu Name</th>
@@ -454,8 +455,11 @@ function ManageCategories() {
             </thead>
 
             <tbody>
-              {filteredCategories.map((category) => (
+              {filteredCategories.map((category, index) => (
                 <tr key={category.id}>
+                  <td className="admin-category-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </td>
 
                   <td>
                     <div className="admin-category-cell">

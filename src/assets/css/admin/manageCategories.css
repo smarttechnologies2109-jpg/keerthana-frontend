@@ -1485,3 +1485,15 @@
 .admin-category-search-clear:hover {
   color: #ffffff;
 }
+.admin-category-number {
+  color: #d9b96e;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  width: 65px;
+}
+
+.admin-category-number-column {
+  text-align: center;
+  width: 65px;
+}

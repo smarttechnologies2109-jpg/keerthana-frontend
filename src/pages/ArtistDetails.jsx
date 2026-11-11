@@ -131,30 +131,53 @@ function ArtistDetails() {
     ? artist.songs
     : [];
 
+  const getSongEnglishTitle = (song) =>
+    String(song?.title_english || "").trim();
+
+  const getSongPrimaryTitle = (song) =>
+    String(song?.title || song?.title_english || "Untitled song").trim();
+
+  const sortedSongs = [...songs].sort((a, b) => {
+    const titleA = getSongEnglishTitle(a) || getSongPrimaryTitle(a);
+    const titleB = getSongEnglishTitle(b) || getSongPrimaryTitle(b);
+
+    return titleA.localeCompare(titleB, "en", {
+      sensitivity: "base",
+      numeric: true,
+    });
+  });
+
+  const artistEnglishName =
+    artist?.name_english ||
+    artist?.name ||
+    "Unknown Artist";
+
+  const artistTeluguName =
+    artist?.name_telugu &&
+    artist.name_telugu.trim() !== artistEnglishName.trim()
+      ? artist.name_telugu
+      : "";
+
   const query = searchQuery.trim().toLowerCase();
 
-  const filteredSongs = songs.filter((song) => {
+  const filteredSongs = sortedSongs.filter((song) => {
     if (!query) return true;
 
-    const title = (song.title || "").toLowerCase();
+    const searchableFields = [
+      song?.title,
+      song?.title_english,
+      song?.artist_name,
+      song?.artist,
+      song?.language,
+      song?.category_name,
+      song?.album_name,
+      artist?.name,
+      artist?.name_english,
+      artist?.name_telugu,
+    ];
 
-    const englishTitle = (
-      song.title_english || ""
-    ).toLowerCase();
-
-    const language = (
-      song.language || "Telugu"
-    ).toLowerCase();
-
-    const artistName = (
-      song.artist_name || artist?.name || ""
-    ).toLowerCase();
-
-    return (
-      title.includes(query) ||
-      englishTitle.includes(query) ||
-      language.includes(query) ||
-      artistName.includes(query)
+    return searchableFields.some((field) =>
+      String(field || "").toLowerCase().includes(query)
     );
   });
 
@@ -193,7 +216,7 @@ function ArtistDetails() {
       if (isCurrentSong(song)) {
         await togglePlay();
       } else {
-        await playSong(song, songs);
+        await playSong(song, sortedSongs);
       }
     } catch (err) {
       console.error("Song playback error:", err);
@@ -219,7 +242,7 @@ function ArtistDetails() {
       if (artistHasCurrentSong) {
         await togglePlay();
       } else {
-        await playSong(playableSongs[0], playableSongs);
+        await playSong(playableSongs[0], sortedSongs.filter((song) => song?.audio_url));
       }
     } catch (err) {
       console.error("Artist playback error:", err);
@@ -336,7 +359,7 @@ function ArtistDetails() {
             {artistImage ? (
               <img
                 src={artistImage}
-                alt={artist.name || "Artist"}
+                alt={artistEnglishName}
                 onError={(event) => {
                   event.currentTarget.onerror = null;
                   event.currentTarget.src =
@@ -354,7 +377,14 @@ function ArtistDetails() {
               ARTIST
             </span>
 
-            <h1>{artist.name || "Unknown Artist"}</h1>
+            <div className="artist-profile-names">
+              <h1>{artistEnglishName}</h1>
+              {artistTeluguName && (
+                <p className="artist-profile-telugu-name">
+                  {artistTeluguName}
+                </p>
+              )}
+            </div>
 
             <p className="artist-profile-description">
               <span>Christian Worship Music</span>
@@ -546,6 +576,14 @@ function ArtistDetails() {
                         {songTitle}
                       </strong>
 
+                      {getSongEnglishTitle(song) &&
+                        getSongEnglishTitle(song).toLowerCase() !==
+                          songTitle.toLowerCase() && (
+                          <span className="artist-track-english-title">
+                            {getSongEnglishTitle(song)}
+                          </span>
+                        )}
+
                       <span>
                         {song.artist_name || artist.name}
                       </span>
@@ -649,7 +687,7 @@ function ArtistDetails() {
               <p>
                 {query
                   ? "Try another song title or language."
-                  : `Songs by ${artist.name} will appear here when they are available.`}
+                  : `Songs by ${artistEnglishName} will appear here when they are available.`}
               </p>
 
               {query && (

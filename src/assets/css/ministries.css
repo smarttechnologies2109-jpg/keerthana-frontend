@@ -1078,3 +1078,26 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* Bilingual ministry card names */
+
+.ministry-card-names {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ministry-card-names h3 {
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.ministry-card-telugu-name {
+  color: #d9b96e;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0 0 10px;
+}

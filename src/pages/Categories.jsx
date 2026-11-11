@@ -17,6 +17,32 @@ import VoiceSearch from "../components/VoiceSearch";
 import "../assets/css/categories.css";
 
 /* =========================================================
+   CATEGORY NAME HELPERS
+========================================================= */
+
+const getCategoryEnglishName = (category) => {
+  const english = String(category?.name_english || "").trim();
+  const legacy = String(category?.name || "").trim();
+  const telugu = String(category?.name_telugu || "").trim();
+
+  if (english) return english;
+  if (legacy && legacy !== telugu) return legacy;
+  return telugu || legacy || "Unnamed Category";
+};
+
+const getCategoryTeluguName = (category) => {
+  const telugu = String(category?.name_telugu || "").trim();
+  const legacy = String(category?.name || "").trim();
+  const english = String(category?.name_english || "").trim();
+
+  if (telugu && telugu !== getCategoryEnglishName(category)) return telugu;
+  if (legacy && legacy !== english && legacy !== getCategoryEnglishName(category)) {
+    return legacy;
+  }
+  return "";
+};
+
+/* =========================================================
    KEERTHANA MUSIC — CATEGORIES PAGE
 
    Backend:
@@ -94,28 +120,35 @@ function Categories() {
   }, [loadCategories]);
 
   /* =========================================================
-     SEARCH CATEGORIES
+     SEARCH CATEGORIES — ENGLISH + TELUGU
+     Results are displayed alphabetically by English name.
   ========================================================= */
 
   const filteredCategories = useMemo(() => {
-    const searchText = search.trim().toLowerCase();
+    const searchText = search.trim().toLocaleLowerCase();
 
-    if (!searchText) {
-      return categories;
-    }
+    return [...categories]
+      .filter((category) => {
+        if (!searchText) return true;
 
-    return categories.filter((category) => {
-      const name = String(category?.name || "").toLowerCase();
+        const searchableValues = [
+          category?.name,
+          category?.name_english,
+          category?.name_telugu,
+          category?.description,
+        ];
 
-      const description = String(
-        category?.description || ""
-      ).toLowerCase();
-
-      return (
-        name.includes(searchText) ||
-        description.includes(searchText)
+        return searchableValues.some((value) =>
+          String(value || "").toLocaleLowerCase().includes(searchText)
+        );
+      })
+      .sort((a, b) =>
+        getCategoryEnglishName(a).localeCompare(
+          getCategoryEnglishName(b),
+          "en",
+          { sensitivity: "base", numeric: true }
+        )
       );
-    });
   }, [categories, search]);
 
   /* =========================================================
@@ -338,8 +371,12 @@ function Categories() {
                             className="category-card"
                             role="button"
                             tabIndex={0}
-                            aria-label={`Open ${
-                              category?.name || "category"
+                            aria-label={`Open ${getCategoryEnglishName(
+                              category
+                            )}${
+                              getCategoryTeluguName(category)
+                                ? `, ${getCategoryTeluguName(category)}`
+                                : ""
                             }, ${songCount} ${
                               songCount === 1 ? "song" : "songs"
                             }`}
@@ -372,10 +409,15 @@ function Categories() {
                             {/* CARD INFORMATION */}
 
                             <div className="category-card-content">
-                              <h3>
-                                {category?.name ||
-                                  "Unnamed Category"}
-                              </h3>
+                              <div className="category-card-names">
+                                <h3>{getCategoryEnglishName(category)}</h3>
+
+                                {getCategoryTeluguName(category) && (
+                                  <p className="category-telugu-name">
+                                    {getCategoryTeluguName(category)}
+                                  </p>
+                                )}
+                              </div>
 
                               {category?.description && (
                                 <p className="category-card-description">

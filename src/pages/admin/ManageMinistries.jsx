@@ -741,125 +741,109 @@ function ManageMinistries() {
 
           ) : (
 
-            <div className="admin-ministry-grid">
+            <div className="admin-ministry-table-wrapper">
+              <table className="admin-ministry-table">
+                <thead>
+                  <tr>
+                    <th className="admin-ministry-number-heading">No.</th>
+                    <th>Image</th>
+                    <th>Ministry Name (English)</th>
+                    <th>మినిస్ట్రీ పేరు (తెలుగు)</th>
+                    <th>Language</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
 
-              {filteredMinistries.map((ministry, index) => {
-                const ministryId =
-                  ministry.id ||
-                  ministry.ministry_id ||
-                  index;
+                <tbody>
+                  {filteredMinistries.map((ministry, index) => {
+                    const ministryId =
+                      ministry.id || ministry.ministry_id || `ministry-${index}`;
 
-                const imageUrl = getMinistryImage(ministry);
+                    const imageUrl = getMinistryImage(ministry);
+                    const englishName =
+                      ministry.name_english ||
+                      ministry.nameEnglish ||
+                      ministry.name ||
+                      "Untitled Ministry";
+                    const teluguName =
+                      ministry.name_telugu ||
+                      ministry.nameTelugu ||
+                      ministry.name ||
+                      "-";
 
-                return (
-                  <div
-                    className="admin-ministry-card"
-                    key={ministryId}
-                  >
+                    return (
+                      <tr key={ministryId}>
+                        <td className="admin-ministry-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </td>
 
-                    {/* IMAGE - NO DEFAULT IMAGE */}
+                        <td>
+                          <div className="admin-ministry-table-image">
+                            {imageUrl &&
+                              renderMinistryImage(imageUrl, englishName)}
+                          </div>
+                        </td>
 
-                    <div className="admin-ministry-card-image">
-                      {imageUrl &&
-                        renderMinistryImage(
-                          imageUrl,
-                          ministry.name_english || ministry.name || "Ministry"
-                        )}
-                    </div>
+                        <td>
+                          <strong className="admin-ministry-table-english">
+                            {englishName}
+                          </strong>
+                        </td>
 
-                    <div className="admin-ministry-card-content">
+                        <td>
+                          <strong className="admin-ministry-table-telugu">
+                            {teluguName}
+                          </strong>
+                        </td>
 
-                      <h3>
-                        {ministry.name_english ||
-                          ministry.nameEnglish ||
-                          ministry.name ||
-                          "Untitled Ministry"}
-                      </h3>
+                        <td>
+                          <span className="admin-ministry-table-language">
+                            {ministry.language || "Not specified"}
+                          </span>
+                        </td>
 
-                      <p className="admin-ministry-telugu-name">
-                        {ministry.name_telugu ||
-                          ministry.nameTelugu ||
-                          ministry.name ||
-                          ""}
-                      </p>
+                        <td className="admin-ministry-table-description">
+                          {ministry.description?.trim() ||
+                            "No description available."}
+                        </td>
 
-                      <span className="admin-ministry-language">
-                        {ministry.language || "Language not specified"}
-                      </span>
+                        <td>
+                          <div className="admin-ministry-table-actions">
+                            <button
+                              type="button"
+                              className="admin-ministry-edit-button"
+                              onClick={() => handleEdit(ministry)}
+                              disabled={saving || deletingId !== null}
+                              title="Edit ministry"
+                              aria-label={`Edit ${englishName}`}
+                            >
+                              <FaEdit />
+                              <span>Edit</span>
+                            </button>
 
-                      <p>
-                        {ministry.description?.trim() ||
-                          "No description available."}
-                      </p>
-
-                    </div>
-
-                    {/* EDIT / DELETE BUTTONS */}
-
-                    <div
-                      className="admin-ministry-card-actions"
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        padding: "0 16px 16px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-
-                      <button
-                        type="button"
-                        className="admin-ministry-edit-button"
-                        onClick={() => handleEdit(ministry)}
-                        disabled={saving || deletingId !== null}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "7px",
-                          padding: "9px 14px",
-                          border: "1px solid #c9a85c",
-                          borderRadius: "8px",
-                          background: "transparent",
-                          color: "inherit",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <FaEdit />
-                        <span>Edit</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="admin-ministry-delete-button"
-                        onClick={() => handleDelete(ministry)}
-                        disabled={saving || deletingId !== null}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "7px",
-                          padding: "9px 14px",
-                          border: "1px solid #dc6b6b",
-                          borderRadius: "8px",
-                          background: "transparent",
-                          color: "#dc6b6b",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <FaTrash />
-                        <span>
-                          {String(deletingId) === String(ministryId)
-                            ? "Deleting..."
-                            : "Delete"}
-                        </span>
-                      </button>
-
-                    </div>
-
-                  </div>
-                );
-              })}
-
+                            <button
+                              type="button"
+                              className="admin-ministry-delete-button"
+                              onClick={() => handleDelete(ministry)}
+                              disabled={saving || deletingId !== null}
+                              title="Delete ministry"
+                              aria-label={`Delete ${englishName}`}
+                            >
+                              <FaTrash />
+                              <span>
+                                {String(deletingId) === String(ministryId)
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 

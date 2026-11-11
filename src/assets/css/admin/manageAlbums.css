@@ -1265,3 +1265,37 @@
 .admin-album-search-clear:hover {
   color: #ffffff;
 }
+/* =========================================
+   MANAGE ALBUMS — NUMBERING COLUMN
+   Append to manageAlbums.css
+========================================= */
+
+.admin-album-number-column,
+.admin-album-number {
+  width: 64px;
+  min-width: 64px;
+  text-align: center !important;
+  white-space: nowrap;
+}
+
+.admin-album-number {
+  color: #d9b96e;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-song-table th.admin-album-number-column {
+  color: #d9b96e;
+}
+
+.admin-song-table td.admin-album-number {
+  color: #d9b96e;
+}
+
+@media (max-width: 768px) {
+  .admin-album-number-column,
+  .admin-album-number {
+    width: 52px;
+    min-width: 52px;
+  }
+}

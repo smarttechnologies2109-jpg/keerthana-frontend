@@ -676,6 +676,7 @@ function ManageAlbums() {
 
             <thead>
               <tr>
+                <th className="admin-album-number-column">No.</th>
                 <th>Album</th>
                 <th>Language</th>
                 <th>Artist</th>
@@ -686,11 +687,14 @@ function ManageAlbums() {
             </thead>
 
             <tbody>
-              {filteredAlbums.map((album) => {
+              {filteredAlbums.map((album, index) => {
                 const albumNames = getAlbumDisplay(album);
 
                 return (
                   <tr key={album.id}>
+                    <td className="admin-album-number">
+                      {String(index + 1).padStart(2, "0")}
+                    </td>
 
                     {/* ALBUM */}
 

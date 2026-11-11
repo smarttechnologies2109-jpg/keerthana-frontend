@@ -1096,3 +1096,29 @@
     transition: none;
   }
 }
+/* Bilingual artist card names */
+
+.artist-card-names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.artist-card-names h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.artist-telugu-name {
+  margin: 0 0 8px;
+  color: #d9b96e;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: center;
+}

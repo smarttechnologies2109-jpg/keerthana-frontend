@@ -1422,3 +1422,41 @@
     max-width: none;
   }
 }
+/* Bilingual album titles */
+.album-card-names {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.album-card-names h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.album-telugu-title {
+  color: #d9b96e;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Bilingual artist names */
+.album-card-artist-names {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.album-card-artist-names p {
+  margin: 0;
+}
+
+.album-telugu-artist {
+  color: #d9b96e;
+  font-size: 13px;
+  line-height: 1.5;
+}
