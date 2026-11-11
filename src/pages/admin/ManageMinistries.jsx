@@ -35,10 +35,6 @@ const LANGUAGES = [
   { value: "Tamil", label: "தமிழ்" },
 ];
 
-// =========================================================
-// IMAGE VALIDATION
-// =========================================================
-
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 const ALLOWED_IMAGE_TYPES = [
@@ -48,7 +44,7 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 // =========================================================
-// IMAGE URL HELPER
+// HELPERS
 // =========================================================
 
 const getMinistryImage = (ministry) => {
@@ -66,14 +62,8 @@ const getMinistryImage = (ministry) => {
 // =========================================================
 
 function ManageMinistries() {
-  // =======================================================
-  // STATE
-  // =======================================================
-
   const [saving, setSaving] = useState(false);
-
   const [loadingMinistries, setLoadingMinistries] = useState(true);
-
   const [ministries, setMinistries] = useState([]);
 
   const [error, setError] = useState("");
@@ -87,17 +77,9 @@ function ManageMinistries() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  // =======================================================
-  // REFS
-  // =======================================================
-
   const imageInputRef = useRef(null);
   const previewUrlRef = useRef("");
   const errorRef = useRef(null);
-
-  // =======================================================
-  // FORM STATE
-  // =======================================================
 
   const [form, setForm] = useState({
     name: "",
@@ -115,31 +97,21 @@ function ManageMinistries() {
       setLoadingMinistries(true);
       setListError("");
 
-      // Existing public ministries endpoint
       const response = await API.get("/ministries");
-
-      const responseData = response.data;
-
-      // Support common API response formats:
-      // []
-      // { ministries: [] }
-      // { data: [] }
-      // { success: true, ministries: [] }
+      const data = response.data;
 
       let ministryList = [];
 
-      if (Array.isArray(responseData)) {
-        ministryList = responseData;
-      } else if (Array.isArray(responseData?.ministries)) {
-        ministryList = responseData.ministries;
-      } else if (Array.isArray(responseData?.data)) {
-        ministryList = responseData.data;
-      } else if (
-        Array.isArray(responseData?.data?.ministries)
-      ) {
-        ministryList = responseData.data.ministries;
-      } else if (Array.isArray(responseData?.results)) {
-        ministryList = responseData.results;
+      if (Array.isArray(data)) {
+        ministryList = data;
+      } else if (Array.isArray(data?.ministries)) {
+        ministryList = data.ministries;
+      } else if (Array.isArray(data?.data)) {
+        ministryList = data.data;
+      } else if (Array.isArray(data?.data?.ministries)) {
+        ministryList = data.data.ministries;
+      } else if (Array.isArray(data?.results)) {
+        ministryList = data.results;
       }
 
       setMinistries(ministryList);
@@ -155,32 +127,9 @@ function ManageMinistries() {
     }
   }, []);
 
-  // =======================================================
-  // LOAD LIST WHEN PAGE OPENS
-  // =======================================================
-
   useEffect(() => {
     fetchMinistries();
   }, [fetchMinistries]);
-
-  // =======================================================
-  // AUTOMATIC SCROLL TO ERROR
-  // =======================================================
-
-  useEffect(() => {
-    if (error && showForm && errorRef.current) {
-      requestAnimationFrame(() => {
-        errorRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-
-        errorRef.current?.focus({
-          preventScroll: true,
-        });
-      });
-    }
-  }, [error, showForm]);
 
   // =======================================================
   // IMAGE PREVIEW CLEANUP
@@ -203,6 +152,68 @@ function ManageMinistries() {
   }, []);
 
   // =======================================================
+  // RESET FORM
+  // =======================================================
+
+  const resetForm = useCallback(() => {
+    clearImagePreview();
+
+    setForm({
+      name: "",
+      description: "",
+      image_url: "",
+      language: "Telugu",
+    });
+
+    setEditingId(null);
+    setImageFile(null);
+    setImagePreview("");
+    setError("");
+    setShowForm(false);
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  }, []);
+
+  // =======================================================
+  // CLOSE POPUP WITH ESCAPE KEY
+  // =======================================================
+
+  useEffect(() => {
+    if (!showForm) return undefined;
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape" && !saving) {
+        resetForm();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [showForm, saving, resetForm]);
+
+  // =======================================================
+  // AUTO SCROLL TO ERROR INSIDE POPUP
+  // =======================================================
+
+  useEffect(() => {
+    if (error && showForm && errorRef.current) {
+      errorRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      errorRef.current.focus({
+        preventScroll: true,
+      });
+    }
+  }, [error, showForm]);
+
+  // =======================================================
   // INPUT CHANGE
   // =======================================================
 
@@ -214,13 +225,8 @@ function ManageMinistries() {
       [name]: value,
     }));
 
-    if (error) {
-      setError("");
-    }
-
-    if (success) {
-      setSuccess("");
-    }
+    setError("");
+    setSuccess("");
   };
 
   // =======================================================
@@ -246,7 +252,7 @@ function ManageMinistries() {
 
     if (file.size > MAX_IMAGE_SIZE) {
       setError(
-        "Image size must be less than 5 MB. Please select a smaller image."
+        "Image size must be less than 5 MB."
       );
 
       event.target.value = "";
@@ -264,51 +270,59 @@ function ManageMinistries() {
   };
 
   // =======================================================
-  // RESET FORM
-  // =======================================================
-
-  const resetForm = () => {
-    clearImagePreview();
-
-    setForm({
-      name: "",
-      description: "",
-      image_url: "",
-      language: "Telugu",
-    });
-
-    setEditingId(null);
-    setImageFile(null);
-    setImagePreview("");
-
-    setError("");
-    setShowForm(false);
-
-    if (imageInputRef.current) {
-      imageInputRef.current.value = "";
-    }
-  };
-
-  // =======================================================
-  // OPEN ADD MINISTRY FORM
+  // OPEN ADD MINISTRY POPUP
   // =======================================================
 
   const handleAdd = () => {
     resetForm();
-
     setError("");
     setSuccess("");
-
     setShowForm(true);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
   // =======================================================
-  // SAVE MINISTRY
+  // OPEN EDIT MINISTRY POPUP
+  // =======================================================
+
+  const handleEdit = (ministry) => {
+    const id = ministry.id || ministry.ministry_id;
+
+    if (!id) {
+      setListError(
+        "This ministry does not have a valid ID."
+      );
+      return;
+    }
+
+    clearImagePreview();
+
+    const existingImage = getMinistryImage(ministry);
+
+    setEditingId(id);
+
+    setForm({
+      name: ministry.name || "",
+      description: ministry.description || "",
+      image_url: existingImage,
+      language: ministry.language || "Telugu",
+    });
+
+    setImageFile(null);
+    setImagePreview(existingImage);
+
+    setError("");
+    setSuccess("");
+    setListError("");
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+
+    setShowForm(true);
+  };
+
+  // =======================================================
+  // SAVE / UPDATE MINISTRY
   // =======================================================
 
   const handleSubmit = async (event) => {
@@ -335,52 +349,48 @@ function ManageMinistries() {
       return;
     }
 
+    const isEditing = Boolean(editingId);
+
     try {
       setSaving(true);
 
       const formData = new FormData();
 
       formData.append("name", cleanName);
-
       formData.append(
         "description",
         form.description.trim()
       );
-
-      formData.append(
-        "language",
-        form.language
-      );
+      formData.append("language", form.language);
 
       if (imageFile) {
         formData.append("image", imageFile);
       }
 
-      // SAVE TO BACKEND
+      let response;
 
-      const response = editingId
-        ? await API.put(`/admin/ministries/${editingId}`, formData)
-        : await API.post("/admin/ministries", formData);
-
-      // SHOW SUCCESS MESSAGE
+      if (isEditing) {
+        response = await API.put(
+          `/admin/ministries/${editingId}`,
+          formData
+        );
+      } else {
+        response = await API.post(
+          "/admin/ministries",
+          formData
+        );
+      }
 
       setSuccess(
         response.data?.message ||
-        (editingId
+        (isEditing
           ? "Ministry updated successfully."
           : "Ministry added successfully.")
       );
 
-      // CLOSE AND CLEAR FORM
-
       resetForm();
 
-      // IMPORTANT:
-      // REFRESH THE MINISTRY LIST AFTER SAVING
-
       await fetchMinistries();
-
-      // SCROLL TO LIST
 
       window.scrollTo({
         top: 0,
@@ -391,18 +401,14 @@ function ManageMinistries() {
 
       const status = err.response?.status;
 
-      let message =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to save ministry. Please try again.";
-
       const backendError =
         err.response?.data?.error ||
         err.response?.data?.message;
 
-      const failedStep =
-        err.response?.data?.failedStep;
+      let message =
+        backendError ||
+        err.message ||
+        "Failed to save ministry. Please try again.";
 
       if (status === 400) {
         message =
@@ -413,58 +419,25 @@ function ManageMinistries() {
           "Your session has expired. Please log in again.";
       } else if (status === 403) {
         message =
-          "You do not have permission to add a ministry.";
+          "You do not have permission to manage ministries.";
       } else if (status === 413) {
         message =
-          "The uploaded image is too large. Please select an image smaller than 5 MB.";
+          "The uploaded image is too large. Maximum size is 5 MB.";
       } else if (status >= 500) {
         message =
           backendError ||
           "Server error while saving ministry. Please try again.";
       }
 
-      if (failedStep) {
-        message = `${failedStep}: ${message}`;
+      if (err.response?.data?.failedStep) {
+        message =
+          `${err.response.data.failedStep}: ${message}`;
       }
 
       setError(message);
     } finally {
       setSaving(false);
     }
-  };
-
-  // =======================================================
-  // EDIT MINISTRY
-  // =======================================================
-
-  const handleEdit = (ministry) => {
-    const id = ministry.id || ministry.ministry_id;
-
-    if (!id) {
-      setListError("This ministry does not have a valid ID, so it cannot be edited.");
-      return;
-    }
-
-    clearImagePreview();
-    setEditingId(id);
-    setForm({
-      name: ministry.name || "",
-      description: ministry.description || "",
-      image_url: getMinistryImage(ministry),
-      language: ministry.language || "Telugu",
-    });
-    setImageFile(null);
-    setImagePreview(getMinistryImage(ministry));
-    setError("");
-    setSuccess("");
-    setListError("");
-    setShowForm(true);
-
-    if (imageInputRef.current) {
-      imageInputRef.current.value = "";
-    }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // =======================================================
@@ -475,11 +448,14 @@ function ManageMinistries() {
     const id = ministry.id || ministry.ministry_id;
 
     if (!id) {
-      setListError("This ministry does not have a valid ID, so it cannot be deleted.");
+      setListError(
+        "This ministry does not have a valid ID."
+      );
       return;
     }
 
     const ministryName = ministry.name || "this ministry";
+
     const confirmed = window.confirm(
       `Are you sure you want to delete "${ministryName}"? This action cannot be undone.`
     );
@@ -491,16 +467,21 @@ function ManageMinistries() {
       setListError("");
       setSuccess("");
 
-      const response = await API.delete(`/admin/ministries/${id}`);
+      const response = await API.delete(
+        `/admin/ministries/${id}`
+      );
 
       setMinistries((previous) =>
         previous.filter(
-          (item) => String(item.id || item.ministry_id) !== String(id)
+          (item) =>
+            String(item.id || item.ministry_id) !==
+            String(id)
         )
       );
 
       setSuccess(
-        response.data?.message || "Ministry deleted successfully."
+        response.data?.message ||
+        "Ministry deleted successfully."
       );
 
       if (String(editingId) === String(id)) {
@@ -508,6 +489,7 @@ function ManageMinistries() {
       }
     } catch (err) {
       console.error("Delete ministry error:", err);
+
       setListError(
         err.response?.data?.message ||
         err.response?.data?.error ||
@@ -536,8 +518,7 @@ function ManageMinistries() {
   };
 
   // =======================================================
-  // IMAGE DISPLAY
-  // NO DEFAULT IMAGE
+  // IMAGE DISPLAY - NO DEFAULT IMAGE
   // =======================================================
 
   const renderMinistryImage = (imageUrl, altText) => {
@@ -590,25 +571,20 @@ function ManageMinistries() {
 
             <div>
               <h1>Ministries</h1>
-
-              <p>
-                Create and manage song ministries.
-              </p>
+              <p>Create and manage song ministries.</p>
             </div>
 
           </div>
 
-          {!showForm && (
-            <button
-              type="button"
-              className="admin-ministry-add-button"
-              onClick={handleAdd}
-              disabled={saving}
-            >
-              <FaPlus />
-              <span>Add Ministry</span>
-            </button>
-          )}
+          <button
+            type="button"
+            className="admin-ministry-add-button"
+            onClick={handleAdd}
+            disabled={saving}
+          >
+            <FaPlus />
+            <span>Add Ministry</span>
+          </button>
 
         </div>
 
@@ -623,16 +599,283 @@ function ManageMinistries() {
           </div>
         )}
 
-        {/* ADD MINISTRY FORM */}
+        {/* =================================================
+            MINISTRY LIST
+        ================================================= */}
 
-        {showForm && (
+        <div className="admin-ministry-list-section">
 
-          <div className="admin-ministry-form-card">
+          <div className="admin-ministry-list-header">
+
+            <div>
+              <h2>All Ministries</h2>
+              <p>Manage your available song ministries.</p>
+            </div>
+
+            <div className="admin-ministry-list-actions">
+
+              <span className="admin-ministry-count">
+                {ministries.length} Ministries
+              </span>
+
+              <button
+                type="button"
+                className="admin-ministry-refresh-button"
+                onClick={fetchMinistries}
+                disabled={loadingMinistries}
+                title="Refresh ministries"
+              >
+                <FaSyncAlt
+                  className={
+                    loadingMinistries
+                      ? "ministry-spinning"
+                      : ""
+                  }
+                />
+                Refresh
+              </button>
+
+            </div>
+
+          </div>
+
+          {/* LIST ERROR */}
+
+          {listError && (
+            <div className="admin-ministry-alert error">
+              <FaExclamationCircle />
+              <span>{listError}</span>
+
+              <button
+                type="button"
+                onClick={fetchMinistries}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* LOADING */}
+
+          {loadingMinistries ? (
+
+            <div className="admin-ministry-loading">
+              <FaSyncAlt className="ministry-spinning" />
+              <p>Loading ministries...</p>
+            </div>
+
+          ) : ministries.length === 0 ? (
+
+            <div className="admin-ministry-empty">
+
+              <div className="admin-ministry-empty-icon">
+                <FaChurch />
+              </div>
+
+              <h3>No Ministries Found</h3>
+
+              <p>
+                No ministries have been added yet.
+                Click Add Ministry to create your first ministry.
+              </p>
+
+              <button
+                type="button"
+                className="admin-ministry-add-button"
+                onClick={handleAdd}
+              >
+                <FaPlus />
+                Add Your First Ministry
+              </button>
+
+            </div>
+
+          ) : (
+
+            <div className="admin-ministry-grid">
+
+              {ministries.map((ministry, index) => {
+
+                const ministryId =
+                  ministry.id ||
+                  ministry.ministry_id ||
+                  index;
+
+                const imageUrl =
+                  getMinistryImage(ministry);
+
+                return (
+                  <div
+                    className="admin-ministry-card"
+                    key={ministryId}
+                  >
+
+                    <div className="admin-ministry-card-image">
+                      {renderMinistryImage(
+                        imageUrl,
+                        ministry.name || "Ministry"
+                      )}
+                    </div>
+
+                    <div className="admin-ministry-card-content">
+
+                      <h3>
+                        {ministry.name || "Untitled Ministry"}
+                      </h3>
+
+                      <span className="admin-ministry-language">
+                        {ministry.language || "Language not specified"}
+                      </span>
+
+                      <p>
+                        {ministry.description?.trim() ||
+                          "No description available."}
+                      </p>
+
+                    </div>
+
+                    {/* EDIT / DELETE BUTTONS */}
+
+                    <div
+                      className="admin-ministry-card-actions"
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        padding: "0 16px 16px",
+                        flexWrap: "wrap",
+                      }}
+                    >
+
+                      <button
+                        type="button"
+                        className="admin-ministry-edit-button"
+                        onClick={() => handleEdit(ministry)}
+                        disabled={
+                          saving || deletingId !== null
+                        }
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "7px",
+                          padding: "9px 14px",
+                          border: "1px solid #c9a85c",
+                          borderRadius: "8px",
+                          background: "transparent",
+                          color: "inherit",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <FaEdit />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="admin-ministry-delete-button"
+                        onClick={() => handleDelete(ministry)}
+                        disabled={
+                          saving || deletingId !== null
+                        }
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "7px",
+                          padding: "9px 14px",
+                          border: "1px solid #dc6b6b",
+                          borderRadius: "8px",
+                          background: "transparent",
+                          color: "#dc6b6b",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <FaTrash />
+                        <span>
+                          {String(deletingId) ===
+                          String(ministryId)
+                            ? "Deleting..."
+                            : "Delete"}
+                        </span>
+                      </button>
+
+                    </div>
+
+                  </div>
+                );
+              })}
+
+            </div>
+
+          )}
+
+        </div>
+
+      </div>
+
+      {/* =================================================
+          ADD / EDIT POPUP MODAL
+      ================================================= */}
+
+      {showForm && (
+
+        <div
+          className="admin-ministry-modal-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              !saving
+            ) {
+              resetForm();
+            }
+          }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            background: "rgba(3, 8, 20, 0.78)",
+            backdropFilter: "blur(8px)",
+            overflowY: "auto",
+          }}
+        >
+
+          <div
+            className="admin-ministry-form-card admin-ministry-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ministry-modal-title"
+            onMouseDown={(event) => event.stopPropagation()}
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: "680px",
+              maxHeight: "calc(100vh - 40px)",
+              overflowY: "auto",
+              margin: "auto",
+              background: "#101a2d",
+              border: "1px solid rgba(201, 168, 92, 0.35)",
+              borderRadius: "18px",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+              padding: "24px",
+              color: "#ffffff",
+            }}
+          >
+
+            {/* POPUP HEADER */}
 
             <div className="admin-ministry-form-header">
 
               <div>
-                <h2>{editingId ? "Edit Ministry" : "Add New Ministry"}</h2>
+                <h2 id="ministry-modal-title">
+                  {editingId
+                    ? "Edit Ministry"
+                    : "Add New Ministry"}
+                </h2>
 
                 <p>
                   Enter the ministry information below.
@@ -644,7 +887,7 @@ function ManageMinistries() {
                 className="admin-ministry-close-button"
                 onClick={resetForm}
                 disabled={saving}
-                aria-label="Close form"
+                aria-label="Close popup"
               >
                 <FaTimes />
               </button>
@@ -696,7 +939,7 @@ function ManageMinistries() {
 
               </div>
 
-              {/* MINISTRY LANGUAGE */}
+              {/* LANGUAGE */}
 
               <div className="admin-ministry-field">
 
@@ -748,7 +991,7 @@ function ManageMinistries() {
 
               </div>
 
-              {/* MINISTRY IMAGE */}
+              {/* IMAGE UPLOAD */}
 
               <div className="admin-ministry-field">
 
@@ -807,7 +1050,7 @@ function ManageMinistries() {
 
               </div>
 
-              {/* FORM BUTTONS */}
+              {/* POPUP BUTTONS */}
 
               <div className="admin-ministry-form-actions">
 
@@ -827,11 +1070,15 @@ function ManageMinistries() {
                   disabled={saving}
                 >
                   {saving ? (
-                    "Saving..."
+                    editingId
+                      ? "Updating..."
+                      : "Saving..."
                   ) : (
                     <>
                       <FaSave />
-                      Save Ministry
+                      {editingId
+                        ? "Update Ministry"
+                        : "Save Ministry"}
                     </>
                   )}
                 </button>
@@ -841,227 +1088,10 @@ function ManageMinistries() {
             </form>
 
           </div>
-        )}
-
-        {/* =================================================
-            MINISTRY LIST SECTION
-        ================================================= */}
-
-        <div className="admin-ministry-list-section">
-
-          <div className="admin-ministry-list-header">
-
-            <div>
-              <h2>All Ministries</h2>
-
-              <p>
-                Manage your available song ministries.
-              </p>
-            </div>
-
-            <div className="admin-ministry-list-actions">
-
-              <span className="admin-ministry-count">
-                {ministries.length} Ministries
-              </span>
-
-              <button
-                type="button"
-                className="admin-ministry-refresh-button"
-                onClick={fetchMinistries}
-                disabled={loadingMinistries}
-                title="Refresh ministries"
-              >
-                <FaSyncAlt
-                  className={
-                    loadingMinistries ? "ministry-spinning" : ""
-                  }
-                />
-                Refresh
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* LIST ERROR */}
-
-          {listError && (
-            <div className="admin-ministry-alert error">
-              <FaExclamationCircle />
-              <span>{listError}</span>
-
-              <button
-                type="button"
-                onClick={fetchMinistries}
-              >
-                Retry
-              </button>
-            </div>
-          )}
-
-          {/* LOADING */}
-
-          {loadingMinistries ? (
-
-            <div className="admin-ministry-loading">
-              <FaSyncAlt className="ministry-spinning" />
-              <p>Loading ministries...</p>
-            </div>
-
-          ) : ministries.length === 0 ? (
-
-            /* EMPTY STATE */
-
-            <div className="admin-ministry-empty">
-
-              <div className="admin-ministry-empty-icon">
-                <FaChurch />
-              </div>
-
-              <h3>No Ministries Found</h3>
-
-              <p>
-                No ministries have been added yet.
-                Click Add Ministry to create your first ministry.
-              </p>
-
-              {!showForm && (
-                <button
-                  type="button"
-                  className="admin-ministry-add-button"
-                  onClick={handleAdd}
-                >
-                  <FaPlus />
-                  Add Your First Ministry
-                </button>
-              )}
-
-            </div>
-
-          ) : (
-
-            /* MINISTRY CARDS */
-
-            <div className="admin-ministry-grid">
-
-              {ministries.map((ministry, index) => {
-
-                const ministryId =
-                  ministry.id ||
-                  ministry.ministry_id ||
-                  index;
-
-                const imageUrl = getMinistryImage(ministry);
-
-                return (
-
-                  <div
-                    className="admin-ministry-card"
-                    key={ministryId}
-                  >
-
-                    {/* MINISTRY IMAGE */}
-
-                    <div className="admin-ministry-card-image">
-
-                      {renderMinistryImage(
-                        imageUrl,
-                        ministry.name || "Ministry"
-                      )}
-
-                    </div>
-
-                    {/* MINISTRY DETAILS */}
-
-                    <div className="admin-ministry-card-content">
-
-                      <h3>
-                        {ministry.name || "Untitled Ministry"}
-                      </h3>
-
-                      <span className="admin-ministry-language">
-                        {ministry.language || "Language not specified"}
-                      </span>
-
-                      <p>
-                        {ministry.description?.trim() ||
-                          "No description available."}
-                      </p>
-
-                    </div>
-
-                    {/* EDIT / DELETE ACTIONS */}
-                    <div
-                      className="admin-ministry-card-actions"
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        padding: "0 16px 16px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <button
-                        type="button"
-                        className="admin-ministry-edit-button"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "7px",
-                          padding: "9px 14px",
-                          border: "1px solid #c9a85c",
-                          borderRadius: "8px",
-                          background: "transparent",
-                          color: "inherit",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleEdit(ministry)}
-                        disabled={saving || deletingId !== null}
-                        aria-label={`Edit ${ministry.name || "ministry"}`}
-                        title="Edit ministry"
-                      >
-                        <FaEdit />
-                        <span>Edit</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="admin-ministry-delete-button"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "7px",
-                          padding: "9px 14px",
-                          border: "1px solid #dc6b6b",
-                          borderRadius: "8px",
-                          background: "transparent",
-                          color: "#dc6b6b",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleDelete(ministry)}
-                        disabled={saving || deletingId !== null}
-                        aria-label={`Delete ${ministry.name || "ministry"}`}
-                        title="Delete ministry"
-                      >
-                        <FaTrash />
-                        <span>{String(deletingId) === String(ministryId) ? "Deleting..." : "Delete"}</span>
-                      </button>
-                    </div>
-
-                  </div>
-
-                );
-              })}
-
-            </div>
-
-          )}
 
         </div>
 
-      </div>
+      )}
 
     </div>
   );
