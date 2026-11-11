@@ -7,6 +7,7 @@ import {
   FaTimes,
   FaSave,
   FaUpload,
+  FaExclamationCircle,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -45,7 +46,6 @@ const ALLOWED_IMAGE_TYPES = [
 // =========================================================
 
 function ManageMinistries() {
-
   // =======================================================
   // STATE
   // =======================================================
@@ -60,8 +60,18 @@ function ManageMinistries() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
+  // =======================================================
+  // REFS
+  // =======================================================
+
   const imageInputRef = useRef(null);
   const previewUrlRef = useRef("");
+  const errorRef = useRef(null);
+  const formCardRef = useRef(null);
+
+  // =======================================================
+  // FORM
+  // =======================================================
 
   const [form, setForm] = useState({
     name: "",
@@ -71,35 +81,38 @@ function ManageMinistries() {
   });
 
   // =======================================================
+  // AUTOMATIC SCROLL TO ERROR
+  // =======================================================
+
+  useEffect(() => {
+    if (error && showForm && errorRef.current) {
+      requestAnimationFrame(() => {
+        errorRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      });
+    }
+  }, [error, showForm]);
+
+  // =======================================================
   // IMAGE PREVIEW CLEANUP
   // =======================================================
 
   const clearImagePreview = () => {
-
     if (previewUrlRef.current) {
-
       URL.revokeObjectURL(previewUrlRef.current);
-
       previewUrlRef.current = "";
-
     }
-
   };
 
   useEffect(() => {
-
     return () => {
-
       if (previewUrlRef.current) {
-
         URL.revokeObjectURL(previewUrlRef.current);
-
         previewUrlRef.current = "";
-
       }
-
     };
-
   }, []);
 
   // =======================================================
@@ -107,7 +120,6 @@ function ManageMinistries() {
   // =======================================================
 
   const handleChange = (event) => {
-
     const { name, value } = event.target;
 
     setForm((previous) => ({
@@ -115,6 +127,9 @@ function ManageMinistries() {
       [name]: value,
     }));
 
+    if (error) {
+      setError("");
+    }
   };
 
   // =======================================================
@@ -122,7 +137,6 @@ function ManageMinistries() {
   // =======================================================
 
   const handleImageChange = (event) => {
-
     const file = event.target.files?.[0];
 
     if (!file) return;
@@ -130,35 +144,29 @@ function ManageMinistries() {
     setError("");
     setSuccess("");
 
-    // Validate image type
+    // IMAGE TYPE VALIDATION
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-
       setError(
-        "Please select a JPG, PNG or WEBP image."
+        "Invalid image format. Please select a JPG, PNG or WEBP image."
       );
 
       event.target.value = "";
-
       return;
-
     }
 
-    // Validate image size
+    // IMAGE SIZE VALIDATION
 
     if (file.size > MAX_IMAGE_SIZE) {
-
       setError(
-        "Image size must be less than 5 MB."
+        "Image size must be less than 5 MB. Please select a smaller image."
       );
 
       event.target.value = "";
-
       return;
-
     }
 
-    // Remove previous preview
+    // REMOVE PREVIOUS PREVIEW
 
     clearImagePreview();
 
@@ -167,9 +175,7 @@ function ManageMinistries() {
     previewUrlRef.current = previewUrl;
 
     setImageFile(file);
-
     setImagePreview(previewUrl);
-
   };
 
   // =======================================================
@@ -177,7 +183,6 @@ function ManageMinistries() {
   // =======================================================
 
   const resetForm = () => {
-
     clearImagePreview();
 
     setForm({
@@ -188,17 +193,14 @@ function ManageMinistries() {
     });
 
     setImageFile(null);
-
     setImagePreview("");
 
+    setError("");
     setShowForm(false);
 
     if (imageInputRef.current) {
-
       imageInputRef.current.value = "";
-
     }
-
   };
 
   // =======================================================
@@ -206,7 +208,6 @@ function ManageMinistries() {
   // =======================================================
 
   const handleAdd = () => {
-
     resetForm();
 
     setError("");
@@ -214,6 +215,10 @@ function ManageMinistries() {
 
     setShowForm(true);
 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   // =======================================================
@@ -222,45 +227,37 @@ function ManageMinistries() {
   // =======================================================
 
   const handleSubmit = async (event) => {
-
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
-    // Validate ministry name
+    // VALIDATE MINISTRY NAME
 
     const cleanName = form.name.trim();
 
     if (!cleanName) {
-
       setError("Ministry name is required.");
-
       return;
-
     }
 
-    // Validate language
+    // VALIDATE LANGUAGE
 
     const validLanguage = LANGUAGES.some(
       (language) => language.value === form.language
     );
 
     if (!validLanguage) {
-
       setError(
         "Please select a valid ministry language."
       );
-
       return;
-
     }
 
     try {
-
       setSaving(true);
 
-      // Create multipart form data
+      // CREATE MULTIPART FORM DATA
 
       const formData = new FormData();
 
@@ -276,15 +273,10 @@ function ManageMinistries() {
         form.language
       );
 
-      // Add image only when selected
+      // ADD IMAGE ONLY WHEN SELECTED
 
       if (imageFile) {
-
-        formData.append(
-          "image",
-          imageFile
-        );
-
+        formData.append("image", imageFile);
       }
 
       // CREATE MINISTRY
@@ -294,35 +286,61 @@ function ManageMinistries() {
         formData
       );
 
-      // Show success
+      // SUCCESS MESSAGE
 
-      setSuccess(
-        "Ministry added successfully."
-      );
+      setSuccess("Ministry added successfully.");
 
-      // Close and clear form
+      // CLOSE AND CLEAR FORM
 
       resetForm();
 
-    } catch (error) {
+      // SCROLL TO SUCCESS MESSAGE
 
-      console.error(
-        "Save ministry error:",
-        error
-      );
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
 
-      setError(
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to save ministry. Please try again."
-      );
+    } catch (err) {
+      console.error("Save ministry error:", err);
+
+      const status = err.response?.status;
+
+      let message =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        "Failed to save ministry. Please try again.";
+
+      if (status === 400) {
+        message =
+          err.response?.data?.message ||
+          "Invalid ministry details. Please check your information.";
+      } else if (status === 401) {
+        message =
+          "Your session has expired. Please log in again.";
+      } else if (status === 403) {
+        message =
+          "You do not have permission to add a ministry.";
+      } else if (status === 413) {
+        message =
+          "The uploaded image is too large. Please select an image smaller than 5 MB.";
+      } else if (status >= 500) {
+        message =
+          err.response?.data?.message ||
+          "Server error while saving ministry. Please try again or contact support.";
+      }
+
+      // KEEP FORM OPEN AND SHOW ERROR
+
+      setError(message);
+
+      // DO NOT CALL resetForm() HERE.
+      // AUTOMATIC SCROLL EFFECT WILL SHOW THE ERROR.
 
     } finally {
-
       setSaving(false);
-
     }
-
   };
 
   // =======================================================
@@ -330,7 +348,6 @@ function ManageMinistries() {
   // =======================================================
 
   const handleImageError = (event) => {
-
     event.currentTarget.style.display = "none";
 
     const fallback =
@@ -339,11 +356,8 @@ function ManageMinistries() {
       );
 
     if (fallback) {
-
       fallback.style.display = "flex";
-
     }
-
   };
 
   // =======================================================
@@ -352,15 +366,12 @@ function ManageMinistries() {
   // =======================================================
 
   const renderMinistryImage = (imageUrl, altText) => {
-
     if (!imageUrl) {
-
       return (
         <div className="ministry-image-fallback">
           <FaChurch />
         </div>
       );
-
     }
 
     return (
@@ -379,7 +390,6 @@ function ManageMinistries() {
         </div>
       </>
     );
-
   };
 
   // =======================================================
@@ -387,35 +397,28 @@ function ManageMinistries() {
   // =======================================================
 
   return (
-
     <div className="admin-ministries-page">
 
       <AdminSidebar />
 
       <div className="admin-ministries-main">
 
-        {/* ================================================
-            PAGE HEADER
-        ================================================ */}
+        {/* PAGE HEADER */}
 
         <div className="admin-ministries-header">
 
           <div className="admin-ministries-title">
 
             <div className="admin-ministries-title-icon">
-
               <FaChurch />
-
             </div>
 
             <div>
-
               <h1>Ministries</h1>
 
               <p>
                 Create and manage song ministries.
               </p>
-
             </div>
 
           </div>
@@ -423,74 +426,49 @@ function ManageMinistries() {
           {/* ADD MINISTRY BUTTON */}
 
           {!showForm && (
-
             <button
               type="button"
               className="admin-ministry-add-button"
               onClick={handleAdd}
               disabled={saving}
             >
-
               <FaPlus />
-
               <span>Add Ministry</span>
-
             </button>
-
           )}
 
         </div>
 
-        {/* ================================================
-            ALERTS
-        ================================================ */}
-
-        {error && (
-
-          <div
-            className="admin-ministry-alert error"
-            role="alert"
-          >
-
-            {error}
-
-          </div>
-
-        )}
+        {/* SUCCESS MESSAGE */}
 
         {success && (
-
           <div
             className="admin-ministry-alert success"
             role="status"
           >
-
             {success}
-
           </div>
-
         )}
 
-        {/* ================================================
-            ADD MINISTRY FORM
-        ================================================ */}
+        {/* ADD MINISTRY FORM */}
 
         {showForm && (
 
-          <div className="admin-ministry-form-card">
+          <div
+            ref={formCardRef}
+            className="admin-ministry-form-card"
+          >
 
             {/* FORM HEADER */}
 
             <div className="admin-ministry-form-header">
 
               <div>
-
                 <h2>Add New Ministry</h2>
 
                 <p>
                   Enter the ministry information below.
                 </p>
-
               </div>
 
               <button
@@ -500,12 +478,26 @@ function ManageMinistries() {
                 disabled={saving}
                 aria-label="Close form"
               >
-
                 <FaTimes />
-
               </button>
 
             </div>
+
+            {/* ERROR MESSAGE INSIDE FORM */}
+
+            {error && (
+              <div
+                ref={errorRef}
+                className="admin-ministry-alert error admin-ministry-form-error"
+                role="alert"
+                aria-live="assertive"
+                tabIndex={-1}
+              >
+                <FaExclamationCircle />
+
+                <span>{error}</span>
+              </div>
+            )}
 
             {/* FORM */}
 
@@ -520,9 +512,7 @@ function ManageMinistries() {
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-name">
-
                   Ministry Name <span>*</span>
-
                 </label>
 
                 <input
@@ -544,9 +534,7 @@ function ManageMinistries() {
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-language">
-
                   Ministry Language <span>*</span>
-
                 </label>
 
                 <select
@@ -559,16 +547,12 @@ function ManageMinistries() {
                 >
 
                   {LANGUAGES.map((language) => (
-
                     <option
                       key={language.value}
                       value={language.value}
                     >
-
                       {language.label}
-
                     </option>
-
                   ))}
 
                 </select>
@@ -584,9 +568,7 @@ function ManageMinistries() {
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-description">
-
                   Description
-
                 </label>
 
                 <textarea
@@ -606,9 +588,7 @@ function ManageMinistries() {
               <div className="admin-ministry-field">
 
                 <label htmlFor="ministry-image">
-
                   Ministry Image
-
                 </label>
 
                 <div className="admin-ministry-upload-box">
@@ -626,28 +606,19 @@ function ManageMinistries() {
                     htmlFor="ministry-image"
                     className="admin-ministry-upload-button"
                   >
-
                     <FaUpload />
-
                     <span>Browse Image</span>
-
                   </label>
 
                   <small>
-
                     PNG, JPG, JPEG or WEBP.
                     Maximum 5 MB.
-
                   </small>
 
                   {imageFile && (
-
                     <small>
-
                       Selected: {imageFile.name}
-
                     </small>
-
                   )}
 
                 </div>
@@ -662,13 +633,9 @@ function ManageMinistries() {
                   )}
 
                   {!imagePreview && (
-
                     <span className="ministry-no-image-text">
-
                       No image selected
-
                     </span>
-
                   )}
 
                 </div>
@@ -685,11 +652,8 @@ function ManageMinistries() {
                   onClick={resetForm}
                   disabled={saving}
                 >
-
                   <FaTimes />
-
                   Cancel
-
                 </button>
 
                 <button
@@ -697,23 +661,14 @@ function ManageMinistries() {
                   className="admin-ministry-save-button"
                   disabled={saving}
                 >
-
                   {saving ? (
-
                     "Saving..."
-
                   ) : (
-
                     <>
-
                       <FaSave />
-
                       Save Ministry
-
                     </>
-
                   )}
-
                 </button>
 
               </div>
@@ -721,23 +676,17 @@ function ManageMinistries() {
             </form>
 
           </div>
-
         )}
 
-        {/* ================================================
-            IMPORTANT:
-            NO ALL MINISTRIES SECTION
-            NO MINISTRY CARDS
-            NO MINISTRY LIST
-            NO MINISTRY COUNT
-        ================================================ */}
+        {/* NO ALL MINISTRIES SECTION */}
+        {/* NO MINISTRY CARDS */}
+        {/* NO MINISTRY LIST */}
+        {/* NO MINISTRY COUNT */}
 
       </div>
 
     </div>
-
   );
-
 }
 
 export default ManageMinistries;
