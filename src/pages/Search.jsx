@@ -355,46 +355,27 @@ const handleVoiceSearch = (spokenText) => {
      PLAY SONG
   =================================================== */
 
-  const handlePlaySong = useCallback(
-    async (song) => {
-      if (!song) return;
-
-      setPlayError("");
-      setMenuError("");
-
-      const isCurrent =
-        String(currentSong?.id) === String(song?.id);
-
-      try {
-        if (isCurrent) {
-          await togglePlay();
-          return;
-        }
-
-        if (!song.audio_url) {
-          setPlayError(
-            `Audio is unavailable for "${
-              getSongTitles(song)[0] || "this song"
-            }".`
-          );
-          return;
-        }
-
-        const index = sortedSongs.findIndex(
-          (item) => String(item?.id) === String(song?.id)
-        );
-
-        await playSong(song, sortedSongs, index);
-      } catch (err) {
-        console.error("Unable to play song:", err);
-
-        setPlayError(
-          "Unable to play this song. Please try again."
-        );
-      }
-    },
-    [currentSong, togglePlay, playSong, sortedSongs]
-  );
+  <button
+  type="button"
+  className="search-song-cover-button"
+  onClick={() => handlePlaySong(song)}
+  aria-label={`Play ${primaryTitle}`}
+  title={`Play ${primaryTitle}`}
+>
+  {cover ? (
+    <img
+      className="search-song-cover"
+      src={cover}
+      alt=""
+      loading="lazy"
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  ) : (
+    <div className="search-song-cover-empty" />
+  )}
+</button>
 
   /* ===================================================
      LIKED SONG STATUS
@@ -705,7 +686,7 @@ const handleVoiceSearch = (spokenText) => {
 
                 const liked = songIsLiked(song);
                 const cover =
-                  getSongCover(song) || DEFAULT_SONG_COVER;
+                  getSongCover(song) ;
 
                 return (
                   <article
@@ -746,8 +727,7 @@ const handleVoiceSearch = (spokenText) => {
                         loading="lazy"
                         onError={(event) => {
                           event.currentTarget.onerror = null;
-                          event.currentTarget.src =
-                            DEFAULT_SONG_COVER;
+                          
                         }}
                       />
                     </button>

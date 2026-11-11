@@ -802,14 +802,14 @@ export default function AllSongs() {
 
               const albumName = getAlbumName(song);
 
-              let cover = DEFAULT_SONG_COVER;
+              // Use only the song's actual uploaded cover.
+              // No default/fallback cover is displayed.
+              let cover = "";
 
               try {
-                cover =
-                  getSongCover(song) ||
-                  DEFAULT_SONG_COVER;
+                cover = getSongCover(song) || "";
               } catch {
-                cover = DEFAULT_SONG_COVER;
+                cover = "";
               }
 
               return (
@@ -832,17 +832,17 @@ export default function AllSongs() {
                     } ${getSongTitle(song)}`}
                   >
 
-                    <img
-                      src={cover}
-                      alt={`${getSongTitle(song)} cover`}
-                      loading="lazy"
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-
-                        event.currentTarget.src =
-                          DEFAULT_SONG_COVER;
-                      }}
-                    />
+                    {cover && (
+                      <img
+                        src={cover}
+                        alt={`${getSongTitle(song)} cover`}
+                        loading="lazy"
+                        onError={(event) => {
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
+                    )}
 
                     <span className="all-song-cover-play">
 

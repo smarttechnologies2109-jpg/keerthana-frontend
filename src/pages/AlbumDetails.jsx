@@ -309,8 +309,7 @@ function AlbumDetails() {
               src={cover}
               alt={album.title || "Album cover"}
               onError={(event) => {
-                event.currentTarget.onerror = null;
-                event.currentTarget.src = DEFAULT_SONG_COVER;
+                event.currentTarget.style.display = "none";
               }}
             />
           ) : (
@@ -473,18 +472,17 @@ function AlbumDetails() {
                       song.title || "song"
                     }`}
                   >
-                    <img
-                      src={
-                        song.cover_url
-                          ? song.cover_url
-                          : cover || DEFAULT_SONG_COVER
-                      }
-                      alt=""
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-                        event.currentTarget.src = DEFAULT_SONG_COVER;
-                      }}
-                    />
+                    {song.cover_url || cover ? (
+                      <img
+                        src={song.cover_url || cover}
+                        alt=""
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <FaCompactDisc aria-hidden="true" />
+                    )}
                   </button>
 
                   {/* TRACK DETAILS */}

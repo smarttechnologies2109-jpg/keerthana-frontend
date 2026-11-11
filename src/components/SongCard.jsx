@@ -14,7 +14,6 @@ import {
 
 import {
   getSongCover,
-  DEFAULT_SONG_COVER,
 } from "../utils/media";
 
 import "../assets/css/songCard.css";
@@ -148,19 +147,21 @@ function SongCard({
   /* =====================================================
      OPEN DETAILS
   ===================================================== */
-const openSongDetails = (event) => {
-  // Ignore clicks originating from buttons
-  if (event?.target?.closest("button")) {
-    return;
-  }
 
-  if (song?.id == null) {
-    console.error("Song ID is missing:", song);
-    return;
-  }
+  const openSongDetails = (event) => {
+    // Ignore clicks originating from buttons
+    if (event?.target?.closest("button")) {
+      return;
+    }
 
-  navigate(`/songs/${encodeURIComponent(song.id)}`);
-};
+    if (song?.id == null) {
+      console.error("Song ID is missing:", song);
+      return;
+    }
+
+    navigate(`/songs/${encodeURIComponent(song.id)}`);
+  };
+
 
   /* =====================================================
      KEYBOARD
@@ -176,7 +177,7 @@ const openSongDetails = (event) => {
 
         event.preventDefault();
 
-        openSongDetails();
+        openSongDetails(event);
 
       }
 
@@ -221,19 +222,18 @@ const openSongDetails = (event) => {
 
   return (
 
-  <div
-  className={
-    isCurrentSong
-      ? "song-card-component playing"
-      : "song-card-component"
-  }
-  onClick={openSongDetails}
-  onKeyDown={handleKeyDown}
-  role="button"
-  tabIndex={0}
-  style={{ cursor: "pointer" }}
->
-
+    <div
+      className={
+        isCurrentSong
+          ? "song-card-component playing"
+          : "song-card-component"
+      }
+      onClick={openSongDetails}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      style={{ cursor: "pointer" }}
+    >
 
       {/* =================================================
           COVER
@@ -241,31 +241,17 @@ const openSongDetails = (event) => {
 
       <div className="song-card-cover">
 
-        <img
-          src={cover}
-
-          alt={
-            song.title ||
-            "Song cover"
-          }
-
-          loading="lazy"
-
-          onError={(event) => {
-
-            if (
-              !event.currentTarget.src.includes(
-                "default-cover.png"
-              )
-            ) {
-
-              event.currentTarget.src =
-                DEFAULT_SONG_COVER;
-
-            }
-
-          }}
-        />
+        {cover && (
+          <img
+            src={cover}
+            alt={song.title || "Song cover"}
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.style.display = "none";
+            }}
+          />
+        )}
 
 
         {/* =================================================
@@ -276,11 +262,8 @@ const openSongDetails = (event) => {
 
           <button
             type="button"
-
             className="song-card-play"
-
             onClick={handlePlay}
-
             aria-label={
               isCurrentSong &&
               isPlaying
@@ -309,23 +292,18 @@ const openSongDetails = (event) => {
 
           <button
             type="button"
-
             className={
               isInQueue
                 ? "song-card-queue added"
                 : "song-card-queue"
             }
-
             onClick={handleAddToQueue}
-
             disabled={isInQueue}
-
             aria-label={
               isInQueue
                 ? `${song.title} is already in queue`
                 : `Add ${song.title} to queue`
             }
-
             title={
               isInQueue
                 ? "Already in queue"
@@ -379,10 +357,7 @@ const openSongDetails = (event) => {
 
           <p
             className="song-card-english"
-
-            title={
-              song.title_english
-            }
+            title={song.title_english}
           >
 
             {song.title_english}
@@ -394,7 +369,6 @@ const openSongDetails = (event) => {
 
         <p
           className="song-card-artist"
-
           title={
             song.artist_name ||
             "KEERTHANA"
@@ -431,7 +405,6 @@ const openSongDetails = (event) => {
 
                 <div
                   className="song-card-progress-fill"
-
                   style={{
                     width:
                       `${progressPercentage}%`,

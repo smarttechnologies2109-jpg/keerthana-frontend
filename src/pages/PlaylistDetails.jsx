@@ -596,18 +596,15 @@ function PlaylistDetails() {
 
       <section className="playlist-hero">
         <div className="playlist-large-cover">
-          <img
-            src={
-              playlist.cover_url
-                ? getMediaUrl(playlist.cover_url)
-                : DEFAULT_SONG_COVER
-            }
-            alt={`${playlist.name} cover`}
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.src = DEFAULT_SONG_COVER;
-            }}
-          />
+          {playlist.cover_url && (
+            <img
+              src={getMediaUrl(playlist.cover_url)}
+              alt={`${playlist.name} cover`}
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+          )}
         </div>
 
         <div className="playlist-hero-info">
@@ -871,19 +868,16 @@ function PlaylistDetails() {
                   {/* SONG DETAILS */}
 
                   <div className="playlist-song-title">
-                    <img
-                      src={
-                        song.cover_url
-                          ? getMediaUrl(song.cover_url)
-                          : DEFAULT_SONG_COVER
-                      }
-                      alt={`${title} cover`}
-                      loading="lazy"
-                      onError={(event) => {
-                        event.currentTarget.onerror = null;
-                        event.currentTarget.src = DEFAULT_SONG_COVER;
-                      }}
-                    />
+                    {song.cover_url && (
+                      <img
+                        src={getMediaUrl(song.cover_url)}
+                        alt={`${title} cover`}
+                        loading="lazy"
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
+                    )}
 
                     <div>
                       <strong>{title}</strong>
@@ -1069,19 +1063,16 @@ function PlaylistDetails() {
                       className="add-song-row"
                       key={song.id}
                     >
-                      <img
-                        src={
-                          song.cover_url
-                            ? getMediaUrl(song.cover_url)
-                            : DEFAULT_SONG_COVER
-                        }
-                        alt={`${title} cover`}
-                        loading="lazy"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = DEFAULT_SONG_COVER;
-                        }}
-                      />
+                      {song.cover_url && (
+                        <img
+                          src={getMediaUrl(song.cover_url)}
+                          alt={`${title} cover`}
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.style.display = "none";
+                          }}
+                        />
+                      )}
 
                       <div className="add-song-info">
                         <strong>{title}</strong>

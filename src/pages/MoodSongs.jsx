@@ -1015,12 +1015,14 @@ const MoodSongs = () => {
 
                 const albumName = getAlbumName(song);
 
-                let cover = DEFAULT_SONG_COVER;
+                // Use only the song's actual uploaded cover.
+                // No default/fallback cover is displayed.
+                let cover = "";
 
                 try {
-                  cover = getSongCover(song) || DEFAULT_SONG_COVER;
+                  cover = getSongCover(song) || "";
                 } catch {
-                  cover = DEFAULT_SONG_COVER;
+                  cover = "";
                 }
 
                 return (
@@ -1098,15 +1100,16 @@ const MoodSongs = () => {
                       }}
                       aria-label={`Play ${getSongTitle(song)}`}
                     >
-                      <img
-                        src={cover}
-                        alt=""
-                        loading="lazy"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = DEFAULT_SONG_COVER;
-                        }}
-                      />
+                      {cover && (
+                        <img
+                          src={cover}
+                          alt=""
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.style.display = "none";
+                          }}
+                        />
+                      )}
                     </button>
 
                     {/* SONG INFORMATION */}
@@ -1370,13 +1373,14 @@ const MoodSongs = () => {
                   const isAdding = addingId === songId;
                   const isRemoving = removingId === songId;
 
-                  let browserCover = DEFAULT_SONG_COVER;
+                  // Use only the song's actual uploaded cover.
+                  // No default/fallback cover is displayed.
+                  let browserCover = "";
 
                   try {
-                    browserCover =
-                      getSongCover(song) || DEFAULT_SONG_COVER;
+                    browserCover = getSongCover(song) || "";
                   } catch {
-                    browserCover = DEFAULT_SONG_COVER;
+                    browserCover = "";
                   }
 
                   return (
@@ -1389,15 +1393,16 @@ const MoodSongs = () => {
                       {/* BROWSER COVER */}
 
                       <div className="mood-browser-cover">
-                        <img
-                          src={browserCover}
-                          alt=""
-                          loading="lazy"
-                          onError={(event) => {
-                            event.currentTarget.onerror = null;
-                            event.currentTarget.src = DEFAULT_SONG_COVER;
-                          }}
-                        />
+                        {browserCover && (
+                          <img
+                            src={browserCover}
+                            alt=""
+                            loading="lazy"
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
                       </div>
 
                       {/* BROWSER SONG INFORMATION */}

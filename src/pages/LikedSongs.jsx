@@ -630,12 +630,14 @@ function LikedSongs() {
                   const songIsCurrent = isCurrentSong(song);
                   const songIsPlaying = songIsCurrent && isPlaying;
 
-                  let cover = DEFAULT_SONG_COVER;
+                  // Use only the song's actual uploaded cover.
+                  // Do not display a default/fallback cover image.
+                  let cover = "";
 
                   try {
-                    cover = getSongCover(song) || DEFAULT_SONG_COVER;
+                    cover = getSongCover(song) || "";
                   } catch {
-                    cover = DEFAULT_SONG_COVER;
+                    cover = "";
                   }
 
                   const albumName = getAlbumName(song);
@@ -695,15 +697,17 @@ function LikedSongs() {
                         onClick={() => handleSongDetails(song)}
                         aria-label={`View ${getSongTitle(song)} details`}
                       >
-                        <img
-                          src={cover}
-                          alt=""
-                          loading="lazy"
-                          onError={(event) => {
-                            event.currentTarget.onerror = null;
-                            event.currentTarget.src = DEFAULT_SONG_COVER;
-                          }}
-                        />
+                        {cover && (
+                          <img
+                            src={cover}
+                            alt=""
+                            loading="lazy"
+                            onError={(event) => {
+                              event.currentTarget.onerror = null;
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
                       </button>
 
                       {/* SONG INFORMATION */}

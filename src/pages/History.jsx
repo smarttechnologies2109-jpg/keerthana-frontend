@@ -353,12 +353,12 @@ export default function History() {
       song?.album_cover ||
       song?.image_url;
 
-    if (!cover) return DEFAULT_SONG_COVER;
+    if (!cover) return "";
 
     try {
-      return getMediaUrl(cover) || DEFAULT_SONG_COVER;
+      return getMediaUrl(cover) || "";
     } catch {
-      return DEFAULT_SONG_COVER;
+      return "";
     }
   };
 
@@ -623,16 +623,18 @@ export default function History() {
                         playing ? "Pause" : "Play"
                       } ${getSongTitle(song)}`}
                     >
-                      <img
-                        className="history-cover"
-                        src={getCover(song)}
-                        alt=""
-                        loading="lazy"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = DEFAULT_SONG_COVER;
-                        }}
-                      />
+                      {getCover(song) && (
+                        <img
+                          className="history-cover"
+                          src={getCover(song)}
+                          alt=""
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.style.display = "none";
+                          }}
+                        />
+                      )}
 
                       <div className="history-song-text">
                         <h3 title={getSongTitle(song)}>
