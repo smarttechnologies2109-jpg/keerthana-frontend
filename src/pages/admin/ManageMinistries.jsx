@@ -521,32 +521,25 @@ function ManageMinistries() {
   // IMAGE DISPLAY - NO DEFAULT IMAGE
   // =======================================================
 
-  const renderMinistryImage = (imageUrl, altText) => {
-    if (!imageUrl) {
-      return (
-        <div className="ministry-image-fallback">
-          <FaChurch />
-        </div>
-      );
-    }
 
-    return (
-      <>
-        <img
-          src={imageUrl}
-          alt={altText}
-          onError={handleImageError}
-        />
+// =======================================================
+// MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
+// =======================================================
 
-        <div
-          className="ministry-image-fallback"
-          style={{ display: "none" }}
-        >
-          <FaChurch />
-        </div>
-      </>
-    );
-  };
+const renderMinistryImage = (imageUrl, altText) => {
+  if (!imageUrl) return null;
+
+  return (
+    <img
+      src={imageUrl}
+      alt={altText}
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  );
+};
+
 
   // =======================================================
   // RENDER
@@ -711,11 +704,11 @@ function ManageMinistries() {
                   >
 
                     <div className="admin-ministry-card-image">
-                      {renderMinistryImage(
-                        imageUrl,
-                        ministry.name || "Ministry"
-                      )}
-                    </div>
+  {imageUrl && renderMinistryImage(
+    imageUrl,
+    ministry.name || "Ministry"
+  )}
+</div>
 
                     <div className="admin-ministry-card-content">
 
@@ -1033,20 +1026,12 @@ function ManageMinistries() {
 
                 {/* IMAGE PREVIEW */}
 
-                <div className="admin-ministry-image-preview">
-
-                  {renderMinistryImage(
-                    imagePreview,
-                    "Ministry preview"
-                  )}
-
-                  {!imagePreview && (
-                    <span className="ministry-no-image-text">
-                      No image selected
-                    </span>
-                  )}
-
-                </div>
+          <div className="admin-ministry-image-preview">
+  {imagePreview && renderMinistryImage(
+    imagePreview,
+    "Ministry preview"
+  )}
+</div>
 
               </div>
 

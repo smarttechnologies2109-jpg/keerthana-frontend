@@ -468,20 +468,17 @@ function ManageArtists() {
                   <td>
                     <div className="admin-artist-cell">
 
-                      <div className="admin-artist-avatar">
-                        {artist.image_url ? (
-                          <img
-                            src={artist.image_url}
-                            alt={artist.name}
-                            onError={(event) => {
-                              event.currentTarget.style.display =
-                                "none";
-                            }}
-                          />
-                        ) : (
-                          <FaMicrophone />
-                        )}
-                      </div>
+                   <div className="admin-artist-avatar">
+  {artist.image_url && (
+    <img
+      src={artist.image_url}
+      alt={artist.name}
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
                       <strong>{artist.name}</strong>
                     </div>
@@ -634,23 +631,17 @@ function ManageArtists() {
 
                   {/* IMAGE PREVIEW */}
 
-                  <div className="artist-image-preview">
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        alt="Artist preview"
-                        onError={(event) => {
-                          event.currentTarget.style.display =
-                            "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="artist-empty-preview">
-                        <FaImage />
-                        <span>No image selected</span>
-                      </div>
-                    )}
-                  </div>
+                 <div className="artist-image-preview">
+  {imagePreview && (
+    <img
+      src={imagePreview}
+      alt="Artist preview"
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
                   {/* CHOOSE IMAGE */}
 

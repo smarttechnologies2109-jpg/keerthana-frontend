@@ -617,19 +617,16 @@ function ManageAlbums() {
                     <div className="admin-album-cell">
 
                       <div className="admin-album-cover">
-                        {getCover(album.cover_url) ? (
-                          <img
-                            src={getCover(album.cover_url)}
-                            alt={album.title}
-                            onError={(event) => {
-                              event.currentTarget.style.display =
-                                "none";
-                            }}
-                          />
-                        ) : (
-                          <FaCompactDisc />
-                        )}
-                      </div>
+  {getCover(album.cover_url) && (
+    <img
+      src={getCover(album.cover_url)}
+      alt={album.title}
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
                       <strong>
                         {album.title}
@@ -829,23 +826,17 @@ function ManageAlbums() {
 
                   {/* PREVIEW */}
 
-                  <div className="album-cover-upload-preview">
-                    {coverPreview ? (
-                      <img
-                        src={coverPreview}
-                        alt="Album cover preview"
-                        onError={(event) => {
-                          event.currentTarget.style.display =
-                            "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="album-empty-preview">
-                        <FaImage />
-                        <span>No image selected</span>
-                      </div>
-                    )}
-                  </div>
+               <div className="album-cover-upload-preview">
+  {coverPreview && (
+    <img
+      src={coverPreview}
+      alt="Album cover preview"
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
                   {/* UPLOAD DETAILS */}
 

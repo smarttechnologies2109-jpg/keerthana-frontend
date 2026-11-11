@@ -577,40 +577,19 @@ function ManageCategories() {
                   <td>
                     <div className="admin-category-cell">
 
-                      <div className="admin-category-icon">
+                    
+<div className="admin-category-icon">
+  {category.image_url && (
+    <img
+      src={category.image_url}
+      alt={category.name}
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
-                        {category.image_url ? (
-                          <>
-                            <img
-                              src={category.image_url}
-                              alt={category.name}
-                              onError={(event) => {
-                                event.currentTarget.style.display =
-                                  "none";
-
-                                const fallback =
-                                  event.currentTarget.parentElement.querySelector(
-                                    ".category-image-fallback"
-                                  );
-
-                                if (fallback) {
-                                  fallback.style.display = "flex";
-                                }
-                              }}
-                            />
-
-                            <div
-                              className="category-image-fallback"
-                              style={{ display: "none" }}
-                            >
-                              <FaTags />
-                            </div>
-                          </>
-                        ) : (
-                          <FaTags />
-                        )}
-
-                      </div>
 
                       <strong>
                         {category.name}
@@ -828,25 +807,19 @@ function ManageCategories() {
 
                 {/* IMAGE PREVIEW */}
 
-                <div className="admin-category-image-preview">
+              
+<div className="admin-category-image-preview">
+  {imagePreview && (
+    <img
+      src={imagePreview}
+      alt="Category preview"
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
-                  {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Category preview"
-                      onError={(event) => {
-                        event.currentTarget.style.display =
-                          "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="category-empty-preview">
-                      <FaTags />
-                      <span>No image selected</span>
-                    </div>
-                  )}
-
-                </div>
 
               </div>
 
