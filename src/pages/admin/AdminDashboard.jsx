@@ -12,6 +12,7 @@ import {
   FaPlus,
   FaArrowRight,
   FaChartLine,
+  FaPrayingHands,
 } from "react-icons/fa";
 
 import {
@@ -30,15 +31,15 @@ function AdminDashboard() {
     useNavigate();
 
 
-  const [stats, setStats] =
-    useState({
-      songs: 0,
-      artists: 0,
-      albums: 0,
-      categories: 0,
-      users: 0,
-    });
 
+    const [stats, setStats] = useState({
+  songs: 0,
+  artists: 0,
+  albums: 0,
+  categories: 0,
+  ministries: 0,
+  users: 0,
+});
 
   const [loading, setLoading] =
     useState(true);
@@ -416,7 +417,19 @@ function AdminDashboard() {
             }
           />
 
+{/* MANAGE MINISTRIES */}
 
+<ManagementCard
+  icon={<FaPrayingHands />}
+  title="Ministries"
+  description="Create, edit and manage Telugu Christian ministries and their information."
+  count={`${stats.ministries || 0} Ministries`}
+  buttonText="Manage Ministries"
+  type="ministries"
+  onClick={() =>
+    navigate("/admin/ministries")
+  }
+/>
           {/* <ManagementCard
             icon={<FaUsers />}
             title="Users"
