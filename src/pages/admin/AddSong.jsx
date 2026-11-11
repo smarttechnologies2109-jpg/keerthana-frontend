@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -125,6 +125,161 @@ const extractList = (data, key) => {
   return [];
 };
 
+
+/* =====================================================
+   SEARCHABLE DROPDOWN
+   Search is built into the opened dropdown menu.
+===================================================== */
+
+function SearchableDropdown({
+  options = [],
+  value = "",
+  onChange,
+  placeholder = "Select an option",
+  searchPlaceholder = "Type to search...",
+  emptyText = "No matching options found.",
+  getLabel,
+  getSearchText,
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const rootRef = useRef(null);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => searchRef.current?.focus());
+    }
+  }, [open]);
+
+  const selectedOption = options.find(
+    (option) => String(option.id) === String(value)
+  );
+
+  const selectedLabel = selectedOption ? getLabel(selectedOption) : "";
+
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+
+  const visibleOptions = options.filter((option) => {
+    if (!normalizedQuery) return true;
+
+    const searchable = getSearchText
+      ? getSearchText(option)
+      : getLabel(option);
+
+    return String(searchable || "")
+      .toLocaleLowerCase()
+      .includes(normalizedQuery);
+  });
+
+  const chooseOption = (option) => {
+    onChange(String(option.id));
+    setOpen(false);
+    setQuery("");
+  };
+
+  return (
+    <div className="admin-searchable-dropdown" ref={rootRef}>
+      <button
+        type="button"
+        className={`admin-searchable-trigger${open ? " is-open" : ""}`}
+        onClick={() => setOpen((previous) => !previous)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span className={selectedLabel ? "has-value" : "is-placeholder"}>
+          {selectedLabel || placeholder}
+        </span>
+        <span className="admin-searchable-chevron" aria-hidden="true">
+          ▾
+        </span>
+      </button>
+
+      {open && (
+        <div className="admin-searchable-menu">
+          <div className="admin-searchable-input-wrap">
+            <FaSearch aria-hidden="true" />
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={searchPlaceholder}
+              aria-label={searchPlaceholder}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && visibleOptions.length > 0) {
+                  event.preventDefault();
+                  chooseOption(visibleOptions[0]);
+                }
+              }}
+            />
+            {query && (
+              <button
+                type="button"
+                className="admin-searchable-clear"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="admin-searchable-options" role="listbox">
+            {visibleOptions.length > 0 ? (
+              visibleOptions.map((option) => (
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={String(option.id) === String(value)}
+                  className={`admin-searchable-option${
+                    String(option.id) === String(value) ? " is-selected" : ""
+                  }`}
+                  key={option.id}
+                  onClick={() => chooseOption(option)}
+                >
+                  <span>{getLabel(option)}</span>
+                  {String(option.id) === String(value) && (
+                    <span className="admin-searchable-check">✓</span>
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="admin-searchable-empty">{emptyText}</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AddSong() {
   const navigate = useNavigate();
 
@@ -140,10 +295,6 @@ function AddSong() {
   const [ministries, setMinistries] = useState([]);
 
   // Search text for each independent dropdown
-  const [artistSearch, setArtistSearch] = useState("");
-  const [albumSearch, setAlbumSearch] = useState("");
-  const [categorySearch, setCategorySearch] = useState("");
-  const [ministrySearch, setMinistrySearch] = useState("");
 
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [albumsLoading, setAlbumsLoading] = useState(true);
@@ -291,26 +442,26 @@ function AddSong() {
 
   const filteredArtists = sortAndSearch(
     artists,
-    artistSearch,
+    "",
     (artist) => artist.name_english || artist.name || artist.name_telugu || ""
   );
 
   const filteredAlbums = sortAndSearch(
     albums,
-    albumSearch,
+    "",
     (album) => album.title_english || album.title || album.title_telugu || ""
   );
 
   const filteredCategories = sortAndSearch(
     categories,
-    categorySearch,
+    "",
     (category) =>
       category.name_english || category.name || category.name_telugu || ""
   );
 
   const filteredMinistries = sortAndSearch(
     ministries,
-    ministrySearch,
+    "",
     (ministry) =>
       ministry.name_english || ministry.name || ministry.name_telugu || ""
   );
@@ -355,9 +506,7 @@ function AddSong() {
      NORMAL FIELD CHANGE
   ===================================================== */
 
-const handleMinistryChange = (event) => {
-  const ministryId = event.target.value;
-
+const handleMinistryChangeValue = (ministryId) => {
   console.log("[AddSong] Ministry selected:", ministryId);
 
   setForm((previous) => ({
@@ -930,31 +1079,32 @@ if (form.ministry_id) {
                 </button>
               </div>
 
-              <div className="admin-dropdown-search">
-                <FaSearch aria-hidden="true" />
-                <input
-                  type="search"
-                  value={artistSearch}
-                  onChange={(event) => setArtistSearch(event.target.value)}
-                  placeholder="Search artists..."
-                  aria-label="Search artists"
-                />
-              </div>
-
-              <select
-                name="artist_id"
+              <SearchableDropdown
+                options={filteredArtists}
                 value={form.artist_id}
-                onChange={handleArtistChange}
-                required
-              >
-                <option value="">Select Artist</option>
-
-                {filteredArtists.map((artist) => (
-                  <option key={artist.id} value={artist.id}>
-                    {artist.name_english || artist.name || artist.name_telugu || "Unnamed Artist"}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) =>
+                  setForm((previous) => ({ ...previous, artist_id: value }))
+                }
+                placeholder="Select Artist"
+                searchPlaceholder="Search artists..."
+                emptyText="No artists found. Please create an artist."
+                getLabel={(artist) =>
+                  artist.name_english ||
+                  artist.name ||
+                  artist.name_telugu ||
+                  "Unnamed Artist"
+                }
+                getSearchText={(artist) =>
+                  [
+                    artist.name_english,
+                    artist.name,
+                    artist.name_telugu,
+                    artist.bio,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                }
+              />
 
               {artistsLoading && <small>Loading artists...</small>}
 
@@ -1034,30 +1184,34 @@ if (form.ministry_id) {
                 </button>
               </div>
 
-              <div className="admin-dropdown-search">
-                <FaSearch aria-hidden="true" />
-                <input
-                  type="search"
-                  value={albumSearch}
-                  onChange={(event) => setAlbumSearch(event.target.value)}
-                  placeholder="Search albums..."
-                  aria-label="Search albums"
-                />
-              </div>
-
-              <select
-                name="album_id"
+              <SearchableDropdown
+                options={filteredAlbums}
                 value={form.album_id}
-                onChange={handleChange}
-              >
-                <option value="">No Album / Single</option>
-
-                {filteredAlbums.map((album) => (
-                  <option key={album.id} value={album.id}>
-                    {album.title_english || album.title || album.title_telugu || "Untitled Album"}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) =>
+                  setForm((previous) => ({ ...previous, album_id: value }))
+                }
+                placeholder="No Album / Single"
+                searchPlaceholder="Search albums..."
+                emptyText="No matching albums found."
+                getLabel={(album) =>
+                  album.title_english ||
+                  album.title ||
+                  album.title_telugu ||
+                  "Untitled Album"
+                }
+                getSearchText={(album) =>
+                  [
+                    album.title_english,
+                    album.title,
+                    album.title_telugu,
+                    album.artist_name_english,
+                    album.artist_name,
+                    album.artist_name_telugu,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                }
+              />
 
               {albumsLoading && <small>Loading albums...</small>}
 
@@ -1145,31 +1299,31 @@ if (form.ministry_id) {
                 </button>
               </div>
 
-              <div className="admin-dropdown-search">
-                <FaSearch aria-hidden="true" />
-                <input
-                  type="search"
-                  value={categorySearch}
-                  onChange={(event) => setCategorySearch(event.target.value)}
-                  placeholder="Search categories..."
-                  aria-label="Search categories"
-                />
-              </div>
-
-              <select
-                name="category_id"
+              <SearchableDropdown
+                options={filteredCategories}
                 value={form.category_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Category</option>
-
-                {filteredCategories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name_english || category.name || category.name_telugu || "Unnamed Category"}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) =>
+                  setForm((previous) => ({ ...previous, category_id: value }))
+                }
+                placeholder="Select Category"
+                searchPlaceholder="Search categories..."
+                emptyText="No categories found. Please create a category."
+                getLabel={(category) =>
+                  category.name_english ||
+                  category.name ||
+                  category.name_telugu ||
+                  "Unnamed Category"
+                }
+                getSearchText={(category) =>
+                  [
+                    category.name_english,
+                    category.name,
+                    category.name_telugu,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                }
+              />
 
               {categoriesLoading && <small>Loading categories...</small>}
 
@@ -1225,31 +1379,31 @@ if (form.ministry_id) {
     <label htmlFor="ministry_id">Ministry</label>
   </div>
 
-  <div className="admin-dropdown-search">
-    <FaSearch aria-hidden="true" />
-    <input
-      type="search"
-      value={ministrySearch}
-      onChange={(event) => setMinistrySearch(event.target.value)}
-      placeholder="Search ministries..."
-      aria-label="Search ministries"
-    />
-  </div>
-
-  <select
-    id="ministry_id"
-    name="ministry_id"
+  <SearchableDropdown
+    options={filteredMinistries}
     value={form.ministry_id}
-    onChange={handleMinistryChange}
-  >
-    <option value="">Select Ministry (Optional)</option>
-
-    {filteredMinistries.map((ministry) => (
-      <option key={ministry.id} value={String(ministry.id)}>
-        {ministry.name_english || ministry.name || ministry.name_telugu || "Unnamed Ministry"}
-      </option>
-    ))}
-  </select>
+    onChange={handleMinistryChangeValue}
+    placeholder="Select Ministry (Optional)"
+    searchPlaceholder="Search ministries..."
+    emptyText="No matching ministries found."
+    getLabel={(ministry) =>
+      ministry.name_english ||
+      ministry.name ||
+      ministry.name_telugu ||
+      "Unnamed Ministry"
+    }
+    getSearchText={(ministry) =>
+      [
+        ministry.name_english,
+        ministry.name,
+        ministry.name_telugu,
+        ministry.description,
+        ministry.language,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    }
+  />
 
 
 </div>     
