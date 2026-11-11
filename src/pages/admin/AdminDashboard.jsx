@@ -13,6 +13,7 @@ import {
   FaArrowRight,
   FaChartLine,
   FaPrayingHands,
+  FaFlag,
 } from "react-icons/fa";
 
 import {
@@ -31,13 +32,13 @@ function AdminDashboard() {
     useNavigate();
 
 
-
-    const [stats, setStats] = useState({
+const [stats, setStats] = useState({
   songs: 0,
   artists: 0,
   albums: 0,
   categories: 0,
   ministries: 0,
+  songReports: 0,
   users: 0,
 });
 
@@ -428,6 +429,19 @@ function AdminDashboard() {
   type="ministries"
   onClick={() =>
     navigate("/admin/ministries")
+  }
+/>
+{/* MANAGE SONG REPORTS */}
+
+<ManagementCard
+  icon={<FaFlag />}
+  title="Song Reports"
+  description="Review reported songs, investigate issues and manage report status."
+  count={`${stats.songReports || 0} Reports`}
+  buttonText="Manage Song Reports"
+  type="reports"
+  onClick={() =>
+    navigate("/admin/songs/reports")
   }
 />
           {/* <ManagementCard
