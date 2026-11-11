@@ -14,14 +14,6 @@ import {
   FaSignInAlt,
   FaSignOutAlt,
   FaUserCircle,
-  FaInfoCircle,
-  FaEnvelope,
-  FaTags,
-  FaCrown,
-  FaFileAlt,
-  FaShieldAlt,
-  FaUndo,
-  FaCopyright,
 } from "react-icons/fa";
 
 import {
@@ -35,7 +27,10 @@ import { useNotifications } from "../context/NotificationsContext";
 
 import "../assets/css/header.css";
 
+// =====================================================
 // PAGE TITLES
+// =====================================================
+
 const PAGE_TITLES = [
   { paths: ["/", "/home"], title: "Home", exact: true },
   { paths: ["/search"], title: "Explore" },
@@ -48,7 +43,10 @@ const PAGE_TITLES = [
   { paths: ["/pricing"], title: "Pricing" },
   { paths: ["/about-us"], title: "About Us" },
   { paths: ["/contact-us"], title: "Contact Us" },
- { paths: ["/terms-and-conditions"], title: "Terms & Conditions" },
+  {
+    paths: ["/terms-and-conditions"],
+    title: "Terms & Conditions",
+  },
   { paths: ["/privacy-policy"], title: "Privacy Policy" },
   {
     paths: ["/refund-cancellation"],
@@ -60,7 +58,10 @@ const PAGE_TITLES = [
   },
   { paths: ["/donations"], title: "Support Our Ministry" },
   { paths: ["/profile"], title: "Profile" },
-  { paths: ["/offline-songs", "/downloads"], title: "Offline Songs" },
+  {
+    paths: ["/offline-songs", "/downloads"],
+    title: "Offline Songs",
+  },
   { paths: ["/notifications"], title: "Notifications" },
   { paths: ["/song", "/songs"], title: "Songs" },
   { paths: ["/artist", "/artists"], title: "Artists" },
@@ -71,47 +72,10 @@ const PAGE_TITLES = [
   { paths: ["/keerthana-ai"], title: "Keerthana AI" },
 ];
 
-// PROFILE MENU INFORMATION LINKS
-const INFORMATION_LINKS = [
-  {
-    label: "About Us",
-    path: "/about-us",
-    icon: FaInfoCircle,
-  },
-  {
-    label: "Contact Us",
-    path: "/contact-us",
-    icon: FaEnvelope,
-  },
-  {
-    label: "Pricing",
-    path: "/pricing",
-    icon: FaTags,
-  },
-
-  {
-  label: "Terms & Conditions",
-  path: "/terms-and-conditions",
-  icon: FaFileAlt,
-},
-  {
-    label: "Privacy Policy",
-    path: "/privacy-policy",
-    icon: FaShieldAlt,
-  },
-  {
-    label: "Refund & Cancellation",
-    path: "/refund-cancellation",
-    icon: FaUndo,
-  },
-  {
-    label: "Copyright & Music Licensing",
-    path: "/copyright-policy",
-    icon: FaCopyright,
-  },
-];
-
+// =====================================================
 // GET CURRENT PAGE TITLE
+// =====================================================
+
 function getPageTitle(pathname) {
   const page = PAGE_TITLES.find(({ paths, exact }) =>
     paths.some((path) =>
@@ -123,6 +87,10 @@ function getPageTitle(pathname) {
 
   return page?.title || "KEERTHANA";
 }
+
+// =====================================================
+// HEADER COMPONENT
+// =====================================================
 
 function Header({ onToggleSidebar }) {
   const navigate = useNavigate();
@@ -149,7 +117,10 @@ function Header({ onToggleSidebar }) {
 
   const avatarLetter = displayName.charAt(0).toUpperCase();
 
+  // ===================================================
   // SEARCH SUBMIT
+  // ===================================================
+
   const handleSearchSubmit = useCallback(
     (event) => {
       event.preventDefault();
@@ -165,7 +136,10 @@ function Header({ onToggleSidebar }) {
     [navigate, searchValue]
   );
 
+  // ===================================================
   // STOP VOICE SEARCH
+  // ===================================================
+
   const stopVoiceSearch = useCallback(() => {
     try {
       recognitionRef.current?.stop();
@@ -176,7 +150,10 @@ function Header({ onToggleSidebar }) {
     setIsListening(false);
   }, []);
 
+  // ===================================================
   // START VOICE SEARCH
+  // ===================================================
+
   const handleVoiceSearch = useCallback(() => {
     const recognition = recognitionRef.current;
 
@@ -202,7 +179,10 @@ function Header({ onToggleSidebar }) {
     }
   }, [isListening, stopVoiceSearch, voiceSupported]);
 
+  // ===================================================
   // VOICE RECOGNITION
+  // ===================================================
+
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition ||
@@ -286,7 +266,10 @@ function Header({ onToggleSidebar }) {
     };
   }, [navigate]);
 
+  // ===================================================
   // KEYBOARD SHORTCUT: /
+  // ===================================================
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       const target = event.target;
@@ -319,7 +302,10 @@ function Header({ onToggleSidebar }) {
     };
   }, []);
 
+  // ===================================================
   // CLOSE PROFILE MENU ON OUTSIDE CLICK OR ESCAPE
+  // ===================================================
+
   useEffect(() => {
     if (!profileMenuOpen) return undefined;
 
@@ -347,22 +333,33 @@ function Header({ onToggleSidebar }) {
     };
   }, [profileMenuOpen]);
 
+  // ===================================================
   // CLOSE DROPDOWN WHEN NAVIGATING
+  // ===================================================
+
   useEffect(() => {
     setProfileMenuOpen(false);
   }, [location.pathname]);
 
+  // ===================================================
   // LOGOUT
+  // ===================================================
+
   const handleLogout = () => {
     setProfileMenuOpen(false);
     logout();
     navigate("/login", { replace: true });
   };
 
+  // ===================================================
+  // RENDER
+  // ===================================================
+
   return (
     <header className="keerthana-header">
 
       {/* LEFT SECTION */}
+
       <div className="keerthana-header-left">
 
         <button
@@ -376,6 +373,7 @@ function Header({ onToggleSidebar }) {
         </button>
 
         {/* BACK AND FORWARD */}
+
         <div className="header-history-buttons">
 
           <button
@@ -401,6 +399,7 @@ function Header({ onToggleSidebar }) {
         </div>
 
         {/* BRAND */}
+
         <Link
           to="/home"
           className="header-brand"
@@ -417,6 +416,7 @@ function Header({ onToggleSidebar }) {
         </Link>
 
         {/* PAGE TITLE */}
+
         <div className="header-page-info" aria-live="polite">
           <span>NOW EXPLORING</span>
           <h2>{pageTitle}</h2>
@@ -425,9 +425,11 @@ function Header({ onToggleSidebar }) {
       </div>
 
       {/* RIGHT SECTION */}
+
       <div className="keerthana-header-right">
 
         {/* SEARCH */}
+
         <form
           className={`header-search-box ${
             isListening ? "header-search-listening" : ""
@@ -486,6 +488,7 @@ function Header({ onToggleSidebar }) {
         </form>
 
         {/* NOTIFICATIONS */}
+
         <Link
           to="/notifications"
           className="header-notification-button"
@@ -506,6 +509,7 @@ function Header({ onToggleSidebar }) {
         </Link>
 
         {/* PROFILE */}
+
         {user ? (
           <div
             className="header-profile"
@@ -537,7 +541,8 @@ function Header({ onToggleSidebar }) {
               <FaChevronDown className="header-profile-chevron" />
             </button>
 
-            {/* PROFILE DROPDOWN */}
+            {/* CLEAN PROFILE DROPDOWN */}
+
             {profileMenuOpen && (
               <div
                 className="header-profile-dropdown"
@@ -546,6 +551,7 @@ function Header({ onToggleSidebar }) {
               >
 
                 {/* ACCOUNT DETAILS */}
+
                 <div className="header-profile-dropdown-heading">
 
                   <span className="header-profile-avatar header-profile-avatar-large">
@@ -561,7 +567,8 @@ function Header({ onToggleSidebar }) {
 
                 <div className="header-profile-divider" />
 
-                {/* PROFILE */}
+                {/* VIEW PROFILE */}
+
                 <Link
                   to="/profile"
                   className="header-profile-menu-item"
@@ -575,37 +582,8 @@ function Header({ onToggleSidebar }) {
 
                 <div className="header-profile-divider" />
 
-                {/* INFORMATION AND POLICIES HEADING */}
-                <div className="header-profile-section-title">
-                  INFORMATION & POLICIES
-                </div>
-
-                {/* INFORMATION AND LEGAL LINKS */}
-                <div className="header-profile-information-list">
-
-                  {INFORMATION_LINKS.map((item) => {
-                    const Icon = item.icon;
-
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        className="header-profile-menu-item"
-                        role="menuitem"
-                        onClick={() => setProfileMenuOpen(false)}
-                      >
-                        <Icon />
-                        <span>{item.label}</span>
-                        <FaChevronRight className="header-profile-item-arrow" />
-                      </Link>
-                    );
-                  })}
-
-                </div>
-
-                <div className="header-profile-divider" />
-
                 {/* LOGOUT */}
+
                 <button
                   type="button"
                   className="header-profile-menu-item header-profile-logout"
