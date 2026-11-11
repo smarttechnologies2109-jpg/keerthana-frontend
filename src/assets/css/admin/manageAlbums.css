@@ -1250,3 +1250,18 @@
   color: #a5a9b8;
   word-break: break-word;
 }
+.admin-album-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #c9a85c;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 15px;
+}
+
+.admin-album-search-clear:hover {
+  color: #ffffff;
+}

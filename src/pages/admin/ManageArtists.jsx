@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   FaEdit,
@@ -371,22 +371,42 @@ function ManageArtists() {
   };
 
   // ===================================================
-  // SEARCH ARTISTS
+  // SEARCH ARTISTS + ALPHABETICAL ORDER (A-Z)
   // ===================================================
 
-  const filteredArtists = artists.filter((artist) => {
-    const query = search.trim().toLowerCase();
+  const filteredArtists = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
 
-    if (!query) return true;
+    return [...artists]
+      .filter((artist) => {
+        if (!query) return true;
 
-    return (
-      artist.name?.toLowerCase().includes(query) ||
-      artist.name_english?.toLowerCase().includes(query) ||
-      artist.name_telugu?.toLowerCase().includes(query) ||
-      artist.bio?.toLowerCase().includes(query) ||
-      artist.language?.toLowerCase().includes(query)
-    );
-  });
+        const englishName =
+          artist.name_english || artist.nameEnglish || artist.name || "";
+        const teluguName =
+          artist.name_telugu || artist.nameTelugu || artist.name || "";
+        const bio = artist.bio || "";
+        const language = artist.language || "";
+
+        return (
+          String(englishName).toLocaleLowerCase().includes(query) ||
+          String(teluguName).toLocaleLowerCase().includes(query) ||
+          String(bio).toLocaleLowerCase().includes(query) ||
+          String(language).toLocaleLowerCase().includes(query)
+        );
+      })
+      .sort((a, b) => {
+        const nameA =
+          a.name_english || a.nameEnglish || a.name || a.name_telugu || "";
+        const nameB =
+          b.name_english || b.nameEnglish || b.name || b.name_telugu || "";
+
+        return String(nameA).localeCompare(String(nameB), "en", {
+          sensitivity: "base",
+          numeric: true,
+        });
+      });
+  }, [artists, search]);
 
   // ===================================================
   // LOADING
@@ -459,7 +479,20 @@ function ManageArtists() {
               setSearch(event.target.value)
             }
             placeholder="Search English or Telugu artist names..."
+            aria-label="Search artists"
           />
+
+          {search && (
+            <button
+              type="button"
+              className="admin-artist-search-clear"
+              onClick={() => setSearch("")}
+              aria-label="Clear artist search"
+              title="Clear search"
+            >
+              <FaTimes />
+            </button>
+          )}
         </div>
 
         <div className="admin-song-count">

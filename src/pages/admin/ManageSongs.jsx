@@ -133,64 +133,48 @@ function ManageSongs() {
      SEARCH
   ===================================================== */
 
-  const filteredSongs =
-    useMemo(() => {
+  const filteredSongs = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-      const query =
-        search
-          .trim()
-          .toLowerCase();
+    // Filter by song, artist, album or category.
+    const matchingSongs = songs.filter((song) => {
+      if (!query) return true;
 
+      const values = [
+        song.title,
+        song.title_english,
+        song.artist_name,
+        song.artist,
+        song.album_title,
+        song.album,
+        song.category_name,
+        song.category,
+      ];
 
-      if (!query) {
+      return values
+        .filter(Boolean)
+        .some((value) =>
+          String(value).toLowerCase().includes(query)
+        );
+    });
 
-        return songs;
+    // Sort the visible song list alphabetically (A-Z).
+    // Prefer the English title when available; otherwise use the song title.
+    return matchingSongs.sort((a, b) => {
+      const titleA = String(
+        a.title_english || a.title || ""
+      ).trim();
 
-      }
+      const titleB = String(
+        b.title_english || b.title || ""
+      ).trim();
 
-
-      return songs.filter(
-        (song) => {
-
-          const values = [
-
-            song.title,
-
-            song.title_english,
-
-            song.artist_name,
-
-            song.artist,
-
-            song.album_title,
-
-            song.album,
-
-            song.category_name,
-
-            song.category,
-
-          ];
-
-
-          return values
-            .filter(Boolean)
-            .some(
-              (value) =>
-                String(value)
-                  .toLowerCase()
-                  .includes(
-                    query
-                  )
-            );
-
-        }
-      );
-
-    }, [
-      songs,
-      search,
-    ]);
+      return titleA.localeCompare(titleB, "en", {
+        sensitivity: "base",
+        numeric: true,
+      });
+    });
+  }, [songs, search]);
 
 
   /* =====================================================

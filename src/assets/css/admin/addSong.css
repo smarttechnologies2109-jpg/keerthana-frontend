@@ -1389,3 +1389,52 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================
+   SEARCHABLE DROPDOWNS
+========================================= */
+
+.admin-dropdown-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 10px 0;
+  padding: 0 13px;
+  min-height: 44px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-dropdown-search:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.admin-dropdown-search svg {
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+.admin-dropdown-search input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 14px;
+  padding: 11px 0;
+}
+
+.admin-dropdown-search input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-dropdown-search input:focus {
+  outline: none;
+  box-shadow: none;
+}

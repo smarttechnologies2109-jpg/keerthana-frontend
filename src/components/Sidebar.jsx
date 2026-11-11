@@ -73,11 +73,7 @@ const EXPLORE_LINKS = [
     label: "Categories",
     Icon: FaThLarge,
   },
-  {
-    to: "/mood-playlists",
-    label: "Mood Playlists",
-    Icon: FaMusic,
-  },
+
 ];
 
 /* =========================================================

@@ -1112,3 +1112,18 @@
   color: #c9a75c;
 }
 
+.admin-artist-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #c9a85c;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 15px;
+}
+
+.admin-artist-search-clear:hover {
+  color: #ffffff;
+}

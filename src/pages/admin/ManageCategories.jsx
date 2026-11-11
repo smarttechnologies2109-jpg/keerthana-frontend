@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   FaEdit,
@@ -294,21 +294,36 @@ function ManageCategories() {
     }
   };
 
-  // SEARCH BOTH LANGUAGES
-  const query = search.trim().toLowerCase();
+  // SEARCH BOTH LANGUAGES + ALPHABETICAL ORDER (A-Z)
+  const filteredCategories = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
 
-  const filteredCategories = categories.filter((category) => {
-    if (!query) return true;
+    return [...categories]
+      .filter((category) => {
+        if (!query) return true;
 
-    return (
-      (category.name_english || category.name || "")
-        .toLowerCase()
-        .includes(query) ||
-      (category.name_telugu || category.name || "")
-        .toLowerCase()
-        .includes(query)
-    );
-  });
+        const englishName =
+          category.name_english || category.nameEnglish || category.name || "";
+        const teluguName =
+          category.name_telugu || category.nameTelugu || category.name || "";
+
+        return (
+          String(englishName).toLocaleLowerCase().includes(query) ||
+          String(teluguName).toLocaleLowerCase().includes(query)
+        );
+      })
+      .sort((a, b) => {
+        const nameA =
+          a.name_english || a.nameEnglish || a.name || a.name_telugu || "";
+        const nameB =
+          b.name_english || b.nameEnglish || b.name || b.name_telugu || "";
+
+        return String(nameA).localeCompare(String(nameB), "en", {
+          sensitivity: "base",
+          numeric: true,
+        });
+      });
+  }, [categories, search]);
 
   // LOADING
   if (loading) {
@@ -375,7 +390,20 @@ function ManageCategories() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search English or Telugu categories..."
+            aria-label="Search categories"
           />
+
+          {search && (
+            <button
+              type="button"
+              className="admin-category-search-clear"
+              onClick={() => setSearch("")}
+              aria-label="Clear category search"
+              title="Clear search"
+            >
+              <FaTimes />
+            </button>
+          )}
         </div>
 
         <div className="admin-song-count">
@@ -393,7 +421,7 @@ function ManageCategories() {
         <div className="admin-empty-state">
           <FaTags />
 
-          <h2>No Categories Found</h2>
+          <h2>{search ? "No Matching Categories" : "No Categories Found"}</h2>
 
           <p>
             {search

@@ -1470,3 +1470,18 @@
     padding: 12px;
   }
 }
+.admin-category-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #c9a85c;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 15px;
+}
+
+.admin-category-search-clear:hover {
+  color: #ffffff;
+}

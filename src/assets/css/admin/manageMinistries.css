@@ -823,3 +823,51 @@
   margin: 6px 0 10px;
   line-height: 1.6;
 }
+
+/* Ministry alphabetical list search */
+
+.admin-ministry-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 16px 0 22px;
+  padding: 0 15px;
+  min-height: 48px;
+  background: #101a2d;
+  border: 1px solid rgba(201, 168, 92, 0.35);
+  border-radius: 10px;
+  color: #c9a85c;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-ministry-search:focus-within {
+  border-color: #c9a85c;
+  box-shadow: 0 0 0 3px rgba(201, 168, 92, 0.12);
+}
+
+.admin-ministry-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+}
+
+.admin-ministry-search input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-ministry-search button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #c9a85c;
+  cursor: pointer;
+  padding: 8px;
+}

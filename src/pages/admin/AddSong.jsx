@@ -7,6 +7,7 @@ import {
   FaImage,
   FaMusic,
   FaPlus,
+  FaSearch,
   FaSave,
   FaTimes,
 } from "react-icons/fa";
@@ -104,14 +105,7 @@ Enter the second verse...`,
   },
 };
 
-const MOODS = [
-  { value: "worship", label: "Worship" },
-  { value: "praise", label: "Praise" },
-  { value: "prayer", label: "Prayer" },
-  { value: "hope", label: "Hope & Faith" },
-  { value: "peace", label: "Peace & Comfort" },
-  { value: "thanksgiving", label: "Thanksgiving" },
-];
+
 
 const initialForm = {
   title: "",
@@ -121,8 +115,7 @@ const initialForm = {
   artist_id: "",
   album_id: "",
   category_id: "",
-  ministry_id: "",
-  moods: [],
+  ministry_id: "", 
   featured: false,
 };
 
@@ -145,6 +138,12 @@ function AddSong() {
   const [albums, setAlbums] = useState([]);
   const [categories, setCategories] = useState([]);
   const [ministries, setMinistries] = useState([]);
+
+  // Search text for each independent dropdown
+  const [artistSearch, setArtistSearch] = useState("");
+  const [albumSearch, setAlbumSearch] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [ministrySearch, setMinistrySearch] = useState("");
 
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [albumsLoading, setAlbumsLoading] = useState(true);
@@ -272,10 +271,49 @@ function AddSong() {
      No category-to-ministry dependency.
   ===================================================== */
 
-  const filteredArtists = artists;
-  const filteredAlbums = albums;
-  const filteredCategories = categories;
-  const filteredMinistries = ministries;
+  const sortAndSearch = (items, searchText, getLabel) => {
+    const query = searchText.trim().toLocaleLowerCase();
+
+    return [...items]
+      .filter((item) =>
+        String(getLabel(item) || "")
+          .toLocaleLowerCase()
+          .includes(query)
+      )
+      .sort((a, b) =>
+        String(getLabel(a) || "").localeCompare(
+          String(getLabel(b) || ""),
+          undefined,
+          { sensitivity: "base", numeric: true }
+        )
+      );
+  };
+
+  const filteredArtists = sortAndSearch(
+    artists,
+    artistSearch,
+    (artist) => artist.name_english || artist.name || artist.name_telugu || ""
+  );
+
+  const filteredAlbums = sortAndSearch(
+    albums,
+    albumSearch,
+    (album) => album.title_english || album.title || album.title_telugu || ""
+  );
+
+  const filteredCategories = sortAndSearch(
+    categories,
+    categorySearch,
+    (category) =>
+      category.name_english || category.name || category.name_telugu || ""
+  );
+
+  const filteredMinistries = sortAndSearch(
+    ministries,
+    ministrySearch,
+    (ministry) =>
+      ministry.name_english || ministry.name || ministry.name_telugu || ""
+  );
 
   /* =====================================================
      LANGUAGE CHANGE
@@ -327,39 +365,6 @@ const handleMinistryChange = (event) => {
     ministry_id: ministryId,
   }));
 };
-
-  /* =====================================================
-     MOOD CHANGE
-  ===================================================== */
-
-
-
-const handleMoodChange = (event) => {
-  const { value, checked } = event.target;
-
-  console.log("[AddSong] Mood changed:", { value, checked });
-
-  setForm((previous) => {
-    const currentMoods = previous.moods || [];
-
-    const updatedMoods = checked
-      ? currentMoods.includes(value)
-        ? currentMoods
-        : [...currentMoods, value]
-      : currentMoods.filter((mood) => mood !== value);
-
-    const updatedForm = {
-      ...previous,
-      moods: updatedMoods,
-    };
-
-    console.log("[AddSong] Current ministry:", updatedForm.ministry_id);
-    console.log("[AddSong] Current moods:", updatedForm.moods);
-
-    return updatedForm;
-  });
-};
-
 
 
   /* =====================================================
@@ -633,7 +638,7 @@ const handleMoodChange = (event) => {
     };
 
     console.log("Form after change:", updatedForm);
-    console.log("Moods after change:", updatedForm.moods);
+   
     console.log("Ministry after change:", updatedForm.ministry_id);
 
     return updatedForm;
@@ -759,7 +764,7 @@ if (form.ministry_id) {
   formData.append("ministry_id", form.ministry_id);
 }
 
-formData.append("moods", JSON.stringify(form.moods || []));
+
 
 
 
@@ -830,7 +835,7 @@ formData.append("moods", JSON.stringify(form.moods || []));
           <h1>Add New Song</h1>
           <p>
             Add the song, artist, album, category, ministry,
-            mood, audio and lyrics from one page.
+             audio and lyrics from one page.
           </p>
         </div>
       </div>
@@ -871,7 +876,7 @@ formData.append("moods", JSON.stringify(form.moods || []));
               </small>
             </div>
 
-            {/* SONG TITLE */}
+           
 
        {/* SONG TITLE */}
 
@@ -925,6 +930,17 @@ formData.append("moods", JSON.stringify(form.moods || []));
                 </button>
               </div>
 
+              <div className="admin-dropdown-search">
+                <FaSearch aria-hidden="true" />
+                <input
+                  type="search"
+                  value={artistSearch}
+                  onChange={(event) => setArtistSearch(event.target.value)}
+                  placeholder="Search artists..."
+                  aria-label="Search artists"
+                />
+              </div>
+
               <select
                 name="artist_id"
                 value={form.artist_id}
@@ -935,7 +951,7 @@ formData.append("moods", JSON.stringify(form.moods || []));
 
                 {filteredArtists.map((artist) => (
                   <option key={artist.id} value={artist.id}>
-                    {artist.name}
+                    {artist.name_english || artist.name || artist.name_telugu || "Unnamed Artist"}
                   </option>
                 ))}
               </select>
@@ -1018,6 +1034,17 @@ formData.append("moods", JSON.stringify(form.moods || []));
                 </button>
               </div>
 
+              <div className="admin-dropdown-search">
+                <FaSearch aria-hidden="true" />
+                <input
+                  type="search"
+                  value={albumSearch}
+                  onChange={(event) => setAlbumSearch(event.target.value)}
+                  placeholder="Search albums..."
+                  aria-label="Search albums"
+                />
+              </div>
+
               <select
                 name="album_id"
                 value={form.album_id}
@@ -1027,7 +1054,7 @@ formData.append("moods", JSON.stringify(form.moods || []));
 
                 {filteredAlbums.map((album) => (
                   <option key={album.id} value={album.id}>
-                    {album.title}
+                    {album.title_english || album.title || album.title_telugu || "Untitled Album"}
                   </option>
                 ))}
               </select>
@@ -1118,6 +1145,17 @@ formData.append("moods", JSON.stringify(form.moods || []));
                 </button>
               </div>
 
+              <div className="admin-dropdown-search">
+                <FaSearch aria-hidden="true" />
+                <input
+                  type="search"
+                  value={categorySearch}
+                  onChange={(event) => setCategorySearch(event.target.value)}
+                  placeholder="Search categories..."
+                  aria-label="Search categories"
+                />
+              </div>
+
               <select
                 name="category_id"
                 value={form.category_id}
@@ -1128,7 +1166,7 @@ formData.append("moods", JSON.stringify(form.moods || []));
 
                 {filteredCategories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {category.name_english || category.name || category.name_telugu || "Unnamed Category"}
                   </option>
                 ))}
               </select>
@@ -1187,6 +1225,17 @@ formData.append("moods", JSON.stringify(form.moods || []));
     <label htmlFor="ministry_id">Ministry</label>
   </div>
 
+  <div className="admin-dropdown-search">
+    <FaSearch aria-hidden="true" />
+    <input
+      type="search"
+      value={ministrySearch}
+      onChange={(event) => setMinistrySearch(event.target.value)}
+      placeholder="Search ministries..."
+      aria-label="Search ministries"
+    />
+  </div>
+
   <select
     id="ministry_id"
     name="ministry_id"
@@ -1195,50 +1244,18 @@ formData.append("moods", JSON.stringify(form.moods || []));
   >
     <option value="">Select Ministry (Optional)</option>
 
-    {ministries.map((ministry) => (
+    {filteredMinistries.map((ministry) => (
       <option key={ministry.id} value={String(ministry.id)}>
-        {ministry.name}
+        {ministry.name_english || ministry.name || ministry.name_telugu || "Unnamed Ministry"}
       </option>
     ))}
   </select>
 
-  <small>
-    The selected ministry will remain unchanged when you select moods.
-  </small>
-</div>
 
+</div>     
 
-            {/* MOODS */}
-
-            <div className="admin-field admin-mood-field">
-              <div className="admin-field-label-row">
-                <label>Music Mood</label>
-              </div>
-
-              <small>
-                Select one or more moods for this Christian song.
-              </small>
-
-              
-<div className="admin-mood-grid">
-  {MOODS.map((mood) => (
-    <label className="admin-mood-option" key={mood.value}>
-      <input
-        type="checkbox"
-        name="moods"
-        value={mood.value}
-        checked={(form.moods || []).includes(mood.value)}
-        onChange={handleMoodChange}
-      />
-
-      <span>{mood.label}</span>
-    </label>
-  ))}
-</div>
-
-            </div>
-          </div>
-        </div>
+          </div> {/* CLOSE admin-form-grid */}
+        </div>   {/* CLOSE admin-form-section */}
 
         {/* MEDIA */}
 

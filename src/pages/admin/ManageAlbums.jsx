@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   FaCompactDisc,
@@ -458,29 +458,43 @@ function ManageAlbums() {
   };
 
   // ===================================================
-  // SEARCH
+  // SEARCH + ALPHABETICAL ORDER (A-Z)
   // ===================================================
 
-  const query = search.trim().toLowerCase();
+  const filteredAlbums = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
 
-  const filteredAlbums = albums.filter((album) => {
-    if (!query) return true;
+    return [...albums]
+      .filter((album) => {
+        if (!query) return true;
 
-    return [
-      album.title,
-      album.title_english,
-      album.title_telugu,
-      album.artist_name,
-      album.artist_name_english,
-      album.artist_name_telugu,
-      album.language,
-      album.release_year,
-    ]
-      .filter(Boolean)
-      .some((value) =>
-        String(value).toLowerCase().includes(query)
-      );
-  });
+        return [
+          album.title,
+          album.title_english,
+          album.title_telugu,
+          album.artist_name,
+          album.artist_name_english,
+          album.artist_name_telugu,
+          album.language,
+          album.release_year,
+        ]
+          .filter(Boolean)
+          .some((value) =>
+            String(value).toLocaleLowerCase().includes(query)
+          );
+      })
+      .sort((a, b) => {
+        const titleA =
+          a.title_english || a.titleEnglish || a.title || a.title_telugu || "";
+        const titleB =
+          b.title_english || b.titleEnglish || b.title || b.title_telugu || "";
+
+        return String(titleA).localeCompare(String(titleB), "en", {
+          sensitivity: "base",
+          numeric: true,
+        });
+      });
+  }, [albums, search]);
 
   // ===================================================
   // LANGUAGE MATCHING ARTISTS
@@ -603,7 +617,20 @@ function ManageAlbums() {
               setSearch(event.target.value)
             }
             placeholder="Search English or Telugu albums, artists..."
+            aria-label="Search albums"
           />
+
+          {search && (
+            <button
+              type="button"
+              className="admin-album-search-clear"
+              onClick={() => setSearch("")}
+              aria-label="Clear album search"
+              title="Clear search"
+            >
+              <FaTimes />
+            </button>
+          )}
         </div>
 
         <div className="admin-song-count">
@@ -624,7 +651,7 @@ function ManageAlbums() {
         <div className="admin-empty-state">
           <FaCompactDisc />
 
-          <h2>No Albums Found</h2>
+          <h2>{search ? "No Matching Albums" : "No Albums Found"}</h2>
 
           <p>
             {search

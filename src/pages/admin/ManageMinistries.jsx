@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useMemo,
 } from "react";
 
 import {
@@ -16,6 +17,7 @@ import {
   FaSyncAlt,
   FaEdit,
   FaTrash,
+  FaSearch,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -62,6 +64,7 @@ function ManageMinistries() {
   const [saving, setSaving] = useState(false);
   const [loadingMinistries, setLoadingMinistries] = useState(true);
   const [ministries, setMinistries] = useState([]);
+  const [search, setSearch] = useState("");
 
   const [error, setError] = useState("");
   const [listError, setListError] = useState("");
@@ -512,6 +515,47 @@ function ManageMinistries() {
   };
 
   // =======================================================
+  // SEARCH + ALPHABETICAL SORT (A-Z)
+  // =======================================================
+
+  const filteredMinistries = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+
+    const matchingMinistries = ministries.filter((ministry) => {
+      if (!query) return true;
+
+      const searchableValues = [
+        ministry.name_english,
+        ministry.nameEnglish,
+        ministry.name_telugu,
+        ministry.nameTelugu,
+        ministry.name,
+        ministry.description,
+        ministry.language,
+      ];
+
+      return searchableValues
+        .filter(Boolean)
+        .some((value) =>
+          String(value).toLocaleLowerCase().includes(query)
+        );
+    });
+
+    return [...matchingMinistries].sort((a, b) => {
+      const nameA = String(
+        a.name_english || a.nameEnglish || a.name || a.name_telugu || ""
+      ).trim();
+      const nameB = String(
+        b.name_english || b.nameEnglish || b.name || b.name_telugu || ""
+      ).trim();
+
+      return nameA.localeCompare(nameB, "en", {
+        sensitivity: "base",
+        numeric: true,
+      });
+    });
+  }, [ministries, search]);
+
   // MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
   // =======================================================
 
@@ -594,7 +638,8 @@ function ManageMinistries() {
             <div className="admin-ministry-list-actions">
 
               <span className="admin-ministry-count">
-                {ministries.length} Ministries
+                {filteredMinistries.length}{" "}
+                {filteredMinistries.length === 1 ? "Ministry" : "Ministries"}
               </span>
 
               <button
@@ -614,6 +659,28 @@ function ManageMinistries() {
 
             </div>
 
+          </div>
+
+          {/* MINISTRY SEARCH */}
+          <div className="admin-ministry-search">
+            <FaSearch aria-hidden="true" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search ministries by English name, Telugu name, or language..."
+              aria-label="Search ministries"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Clear ministry search"
+                title="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
           </div>
 
           {/* LIST ERROR */}
@@ -641,7 +708,7 @@ function ManageMinistries() {
               <p>Loading ministries...</p>
             </div>
 
-          ) : ministries.length === 0 ? (
+          ) : filteredMinistries.length === 0 ? (
 
             <div className="admin-ministry-empty">
 
@@ -649,21 +716,26 @@ function ManageMinistries() {
                 <FaChurch />
               </div>
 
-              <h3>No Ministries Found</h3>
+              <h3>
+                {search ? "No Matching Ministries" : "No Ministries Found"}
+              </h3>
 
               <p>
-                No ministries have been added yet.
-                Click Add Ministry to create your first ministry.
+                {search
+                  ? "Try another ministry name, Telugu name, or language."
+                  : "No ministries have been added yet. Click Add Ministry to create your first ministry."}
               </p>
 
-              <button
-                type="button"
-                className="admin-ministry-add-button"
-                onClick={handleAdd}
-              >
-                <FaPlus />
-                Add Your First Ministry
-              </button>
+              {!search && (
+                <button
+                  type="button"
+                  className="admin-ministry-add-button"
+                  onClick={handleAdd}
+                >
+                  <FaPlus />
+                  Add Your First Ministry
+                </button>
+              )}
 
             </div>
 
@@ -671,7 +743,7 @@ function ManageMinistries() {
 
             <div className="admin-ministry-grid">
 
-              {ministries.map((ministry, index) => {
+              {filteredMinistries.map((ministry, index) => {
                 const ministryId =
                   ministry.id ||
                   ministry.ministry_id ||
