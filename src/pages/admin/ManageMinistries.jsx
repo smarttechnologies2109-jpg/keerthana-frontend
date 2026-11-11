@@ -91,6 +91,8 @@ function ManageMinistries() {
           behavior: "smooth",
           block: "center",
         });
+
+        errorRef.current?.focus({ preventScroll: true });
       });
     }
   }, [error, showForm]);
@@ -129,6 +131,10 @@ function ManageMinistries() {
 
     if (error) {
       setError("");
+    }
+
+    if (success) {
+      setSuccess("");
     }
   };
 
@@ -229,6 +235,8 @@ function ManageMinistries() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (saving) return;
+
     setError("");
     setSuccess("");
 
@@ -248,9 +256,7 @@ function ManageMinistries() {
     );
 
     if (!validLanguage) {
-      setError(
-        "Please select a valid ministry language."
-      );
+      setError("Please select a valid ministry language.");
       return;
     }
 
@@ -281,14 +287,17 @@ function ManageMinistries() {
 
       // CREATE MINISTRY
 
-      await API.post(
+      const response = await API.post(
         "/admin/ministries",
         formData
       );
 
       // SUCCESS MESSAGE
 
-      setSuccess("Ministry added successfully.");
+      setSuccess(
+        response.data?.message ||
+        "Ministry added successfully."
+      );
 
       // CLOSE AND CLEAR FORM
 
@@ -306,29 +315,51 @@ function ManageMinistries() {
 
       const status = err.response?.status;
 
+      // IMPORTANT:
+      // Use let because the message is updated below.
+
       let message =
-        err.response?.data?.message ||
         err.response?.data?.error ||
+        err.response?.data?.message ||
         err.message ||
         "Failed to save ministry. Please try again.";
 
+      // BACKEND ERROR DETAILS
+
+      const backendError =
+        err.response?.data?.error ||
+        err.response?.data?.message;
+
+      const failedStep =
+        err.response?.data?.failedStep;
+
       if (status === 400) {
         message =
-          err.response?.data?.message ||
+          backendError ||
           "Invalid ministry details. Please check your information.";
+
       } else if (status === 401) {
         message =
           "Your session has expired. Please log in again.";
+
       } else if (status === 403) {
         message =
           "You do not have permission to add a ministry.";
+
       } else if (status === 413) {
         message =
           "The uploaded image is too large. Please select an image smaller than 5 MB.";
+
       } else if (status >= 500) {
         message =
-          err.response?.data?.message ||
-          "Server error while saving ministry. Please try again or contact support.";
+          backendError ||
+          "Server error while saving ministry. Please try again.";
+      }
+
+      // SHOW FAILED BACKEND STEP WHEN AVAILABLE
+
+      if (failedStep) {
+        message = `${failedStep}: ${message}`;
       }
 
       // KEEP FORM OPEN AND SHOW ERROR
@@ -678,9 +709,8 @@ function ManageMinistries() {
           </div>
         )}
 
-        {/* NO ALL MINISTRIES SECTION */}
-        {/* NO MINISTRY CARDS */}
         {/* NO MINISTRY LIST */}
+        {/* NO MINISTRY CARDS */}
         {/* NO MINISTRY COUNT */}
 
       </div>
