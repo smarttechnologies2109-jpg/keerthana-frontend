@@ -74,6 +74,7 @@ function ManageMinistries() {
   const [loadingMinistries, setLoadingMinistries] = useState(true);
   const [ministries, setMinistries] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
 
   const [error, setError] = useState("");
   const [listError, setListError] = useState("");
@@ -572,7 +573,40 @@ function ManageMinistries() {
   };
 
   // =======================================================
-  // SEARCH + ANDROID-SAFE ALPHABETICAL SORT (A-Z)
+  // LANGUAGE HELPERS + MINISTRY COUNTS
+  // =======================================================
+
+  const normalizeLanguage = (value) => {
+    const language = String(value || "").trim().toLowerCase();
+
+    const match = LANGUAGES.find(
+      (item) => item.value.toLowerCase() === language
+    );
+
+    return match ? match.value : "";
+  };
+
+  const getLanguageLabel = (value) => {
+    const normalized = normalizeLanguage(value);
+    const match = LANGUAGES.find((item) => item.value === normalized);
+    return match ? match.label : value || "Not specified";
+  };
+
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      LANGUAGES.map((item) => [item.value, 0])
+    );
+
+    ministries.forEach((ministry) => {
+      const language = normalizeLanguage(ministry.language);
+      if (language) counts[language] += 1;
+    });
+
+    return counts;
+  }, [ministries]);
+
+  // =======================================================
+  // SEARCH + LANGUAGE FILTER + ALPHABETICAL SORT
   // =======================================================
 
   const ministryCollator = new Intl.Collator("en", {
@@ -587,6 +621,15 @@ function ManageMinistries() {
 
     return ministries
       .filter((ministry) => {
+        const ministryLanguage = normalizeLanguage(ministry.language);
+
+        if (
+          selectedLanguage !== "All" &&
+          ministryLanguage !== selectedLanguage
+        ) {
+          return false;
+        }
+
         if (!query) return true;
 
         const searchableValues = [
@@ -605,24 +648,16 @@ function ManageMinistries() {
       })
       .sort((a, b) => {
         const nameA = String(
-          a.name_english ||
-            a.nameEnglish ||
-            a.name ||
-            a.name_telugu ||
-            ""
+          a.name_english || a.nameEnglish || a.name || a.name_telugu || ""
         ).trim();
 
         const nameB = String(
-          b.name_english ||
-            b.nameEnglish ||
-            b.name ||
-            b.name_telugu ||
-            ""
+          b.name_english || b.nameEnglish || b.name || b.name_telugu || ""
         ).trim();
 
         return ministryCollator.compare(nameA, nameB);
       });
-  }, [ministries, search]);
+  }, [ministries, search, selectedLanguage]);
 
   // MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
   // =======================================================
@@ -692,6 +727,59 @@ function ManageMinistries() {
           </div>
         )}
 
+        {/* TOTAL MINISTRIES + LANGUAGE-WISE SUMMARY CARDS */}
+
+        <section
+          className="admin-ministry-language-section"
+          aria-label="Ministry language summary"
+        >
+          <button
+            type="button"
+            className={`admin-ministry-language-card admin-ministry-total-card ${
+              selectedLanguage === "All" ? "active" : ""
+            }`}
+            onClick={() => setSelectedLanguage("All")}
+            aria-pressed={selectedLanguage === "All"}
+          >
+            <span className="admin-ministry-language-card-top">
+              <span className="admin-ministry-language-card-label">
+                TOTAL MINISTRIES
+              </span>
+              <FaChurch />
+            </span>
+            <strong>{ministries.length}</strong>
+            <span className="admin-ministry-language-card-caption">
+              All Languages
+            </span>
+          </button>
+
+          {LANGUAGES.map((language) => (
+            <button
+              type="button"
+              key={language.value}
+              className={`admin-ministry-language-card ${
+                selectedLanguage === language.value ? "active" : ""
+              }`}
+              onClick={() =>
+                setSelectedLanguage((current) =>
+                  current === language.value ? "All" : language.value
+                )
+              }
+              aria-pressed={selectedLanguage === language.value}
+            >
+              <span className="admin-ministry-language-card-top">
+                <span className="admin-ministry-language-card-label">
+                  {language.label}
+                </span>
+              </span>
+              <strong>{languageCounts[language.value] || 0}</strong>
+              <span className="admin-ministry-language-card-caption">
+                Ministries
+              </span>
+            </button>
+          ))}
+        </section>
+
         {/* MINISTRY LIST */}
 
         <div className="admin-ministry-list-section">
@@ -704,6 +792,25 @@ function ManageMinistries() {
             </div>
 
             <div className="admin-ministry-list-actions">
+
+              <div className="admin-ministry-language-filter">
+                <label htmlFor="ministry-language-filter">
+                  Filter by language
+                </label>
+                <select
+                  id="ministry-language-filter"
+                  value={selectedLanguage}
+                  onChange={(event) => setSelectedLanguage(event.target.value)}
+                  aria-label="Filter ministries by language"
+                >
+                  <option value="All">All Languages</option>
+                  {LANGUAGES.map((language) => (
+                    <option key={language.value} value={language.value}>
+                      {language.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <span className="admin-ministry-count">
                 {filteredMinistries.length}{" "}
@@ -867,7 +974,7 @@ function ManageMinistries() {
 
                         <td>
                           <span className="admin-ministry-table-language">
-                            {ministry.language || "Not specified"}
+                            {getLanguageLabel(ministry.language)}
                           </span>
                         </td>
 

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +9,12 @@ import {
   FaChartBar,
   FaSignOutAlt,
   FaArrowRight,
+  FaChurch,
+  FaTags,
+  FaGlobe,
+  FaHeadphones,
+  FaLayerGroup,
+  FaCrown,
 } from "react-icons/fa";
 
 import "../../assets/css/businessowner/BusinessOwnerDashboard.css";
@@ -15,23 +22,87 @@ import "../../assets/css/businessowner/BusinessOwnerDashboard.css";
 const BusinessOwnerDashboard = () => {
   const navigate = useNavigate();
 
-  const user = JSON.parse(
-    localStorage.getItem("user") || "null"
-  );
+  let user = null;
+
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    user = null;
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("keerthana_token");
     localStorage.removeItem("user");
 
-    navigate("/owner/login");
+    navigate("/owner/login", { replace: true });
   };
+
+  // Supported KEERTHANA languages
+  const languages = [
+    { name: "Telugu", code: "TE", native: "తెలుగు" },
+    { name: "Hindi", code: "HI", native: "हिन्दी" },
+    { name: "English", code: "EN", native: "English" },
+    { name: "Malayalam", code: "ML", native: "മലയാളം" },
+    { name: "Kannada", code: "KN", native: "ಕನ್ನಡ" },
+    { name: "Tamil", code: "TA", native: "தமிழ்" },
+  ];
+
+  // Dashboard navigation cards
+  const dashboardCards = [
+    {
+      title: "User Management",
+      description: "View and manage registered KEERTHANA users.",
+      button: "Manage Users",
+      icon: <FaUsers />,
+      className: "users-card",
+      path: "/owner/users",
+    },
+    {
+      title: "Ministry Management",
+      description: "Manage ministries and their Christian music content.",
+      button: "Manage Ministries",
+      icon: <FaChurch />,
+      className: "ministries-card",
+      path: "/owner/ministries",
+    },
+    {
+      title: "Category Management",
+      description: "Create, update and organize music categories.",
+      button: "Manage Categories",
+      icon: <FaTags />,
+      className: "categories-card",
+      path: "/owner/categories",
+    },
+    {
+      title: "Language Management",
+      description: "Manage the languages available across the platform.",
+      button: "Manage Languages",
+      icon: <FaGlobe />,
+      className: "languages-card",
+      path: "/owner/languages",
+    },
+    {
+      title: "Platform Statistics",
+      description: "View users, music and platform performance.",
+      button: "View Statistics",
+      icon: <FaChartBar />,
+      className: "statistics-card",
+      path: "/owner/statistics",
+    },
+    {
+      title: "Music Management",
+      description: "Manage songs, albums and music content.",
+      button: "Manage Music",
+      icon: <FaMusic />,
+      className: "music-card",
+      path: "/owner/music",
+    },
+  ];
 
   return (
     <div className="owner-dashboard-page">
 
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <header className="owner-dashboard-header">
 
@@ -44,11 +115,8 @@ const BusinessOwnerDashboard = () => {
             </div>
 
             <div>
-              <h1>Business Owner Dashboard</h1>
-
-              <p>
-                Welcome, {user?.name || "Business Owner"}
-              </p>
+              <h1>KEERTHANA</h1>
+              <p>Business Owner Dashboard</p>
             </div>
 
           </div>
@@ -66,16 +134,38 @@ const BusinessOwnerDashboard = () => {
 
       </header>
 
-
-      {/* =====================================================
-          MAIN
-      ===================================================== */}
+      {/* MAIN */}
 
       <main className="owner-dashboard-main">
 
-        {/* ===================================================
-            BUSINESS INFO
-        =================================================== */}
+        {/* WELCOME BANNER */}
+
+        <section className="owner-welcome-banner">
+
+          <div className="owner-welcome-content">
+
+            <span className="owner-welcome-label">
+              <FaCrown /> BUSINESS OWNER PORTAL
+            </span>
+
+            <h2>
+              Welcome Back, {user?.name || "Business Owner"}!
+            </h2>
+
+            <p>
+              Manage your KEERTHANA Music platform from one
+              powerful dashboard.
+            </p>
+
+          </div>
+
+          <div className="owner-welcome-icon">
+            <FaHeadphones />
+          </div>
+
+        </section>
+
+        {/* BUSINESS INFORMATION */}
 
         <section className="owner-business-info">
 
@@ -84,7 +174,6 @@ const BusinessOwnerDashboard = () => {
           </div>
 
           <div className="business-info-content">
-
             <h2>
               {user?.name || "Smart Technologies"}
             </h2>
@@ -92,140 +181,134 @@ const BusinessOwnerDashboard = () => {
             <p>
               {user?.email || "Business Owner"}
             </p>
+          </div>
+
+          <div className="owner-account-status">
+            <span className="owner-status-dot"></span>
+            Active Account
+          </div>
+
+        </section>
+
+        {/* MANAGEMENT SECTION */}
+
+        <section className="owner-dashboard-section">
+
+          <div className="owner-section-heading">
+            <div>
+              <h2>Platform Management</h2>
+              <p>
+                Manage all your KEERTHANA platform services.
+              </p>
+            </div>
+
+            <span className="owner-section-count">
+              {dashboardCards.length} Modules
+            </span>
+          </div>
+
+          <div className="owner-dashboard-grid">
+
+            {dashboardCards.map((card) => (
+
+              <div
+                key={card.title}
+                className={`owner-dashboard-card ${card.className}`}
+              >
+
+                <div className="dashboard-card-top">
+
+                  <div className="dashboard-card-icon">
+                    {card.icon}
+                  </div>
+
+                  <span className="dashboard-card-arrow">
+                    <FaArrowRight />
+                  </span>
+
+                </div>
+
+                <div className="dashboard-card-content">
+
+                  <h3>{card.title}</h3>
+
+                  <p>{card.description}</p>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="dashboard-card-btn"
+                  onClick={() => navigate(card.path)}
+                >
+                  {card.button}
+                  <FaArrowRight />
+                </button>
+
+              </div>
+
+            ))}
 
           </div>
 
         </section>
 
+        {/* LANGUAGE SECTION */}
 
-        {/* ===================================================
-            DASHBOARD CARDS
-        =================================================== */}
+        <section className="owner-languages-section">
 
-        <section className="owner-dashboard-grid">
+          <div className="owner-section-heading">
 
-        {/* =================================================
-              MUSIC
-          ================================================= */}
-
-             {/*<div
-            className="owner-dashboard-card music-card"
-            onClick={() => navigate("/owner/music")}
-          >
-
-            <div className="dashboard-card-icon">
-              <FaMusic />
-            </div>
-
-            <div className="dashboard-card-content">
-
-              <h3>
-                Music Management
-              </h3>
+            <div>
+              <h2>
+                <FaGlobe /> Supported Languages
+              </h2>
 
               <p>
-                Add, edit and manage your music content.
+                Languages available in KEERTHANA Music.
               </p>
-
             </div>
 
-            <button
-              type="button"
-              className="dashboard-card-btn"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/owner/music");
-              }}
-            >
-              Manage Music
-              <FaArrowRight />
-            </button>
-
-          </div> */}
-
-
-          {/* =================================================
-              USERS
-          ================================================= */}
-
-          <div
-            className="owner-dashboard-card users-card"
-            onClick={() => navigate("/owner/users")}
-          >
-
-            <div className="dashboard-card-icon">
-              <FaUsers />
-            </div>
-
-            <div className="dashboard-card-content">
-
-              <h3>
-                User Management
-              </h3>
-
-              <p>
-                View and manage registered users.
-              </p>
-
-            </div>
-
-            <button
-              type="button"
-              className="dashboard-card-btn"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/owner/users");
-              }}
-            >
-              Manage Users
-              <FaArrowRight />
-            </button>
+            <span className="owner-section-count">
+              {languages.length} Languages
+            </span>
 
           </div>
 
+          <div className="owner-languages-grid">
 
-          {/* =================================================
-              STATISTICS
-          ================================================= */}
+            {languages.map((language) => (
 
-          <div
-            className="owner-dashboard-card statistics-card"
-            onClick={() =>
-              navigate("/owner/statistics")
-            }
-          >
+              <div
+                key={language.code}
+                className="owner-language-card"
+              >
 
-            <div className="dashboard-card-icon">
-              <FaChartBar />
-            </div>
+                <div className="owner-language-code">
+                  {language.code}
+                </div>
 
-            <div className="dashboard-card-content">
+                <div className="owner-language-info">
+                  <h3>{language.name}</h3>
+                  <p>{language.native}</p>
+                </div>
 
-              <h3>
-                Statistics
-              </h3>
+              </div>
 
-              <p>
-                View users, music and platform statistics.
-              </p>
-
-            </div>
-
-            <button
-              type="button"
-              className="dashboard-card-btn"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/owner/statistics");
-              }}
-            >
-              View Statistics
-              <FaArrowRight />
-            </button>
+            ))}
 
           </div>
 
         </section>
+
+        {/* FOOTER */}
+
+        <footer className="owner-dashboard-footer">
+          <FaMusic />
+          <span>
+            KEERTHANA MUSIC — Praise • Worship • Christian Music
+          </span>
+        </footer>
 
       </main>
 

@@ -35,6 +35,22 @@ const LANGUAGES = [
   "Tamil",
 ];
 
+const normalizeLanguage = (value) => {
+  const raw = String(value ?? "").trim().toLowerCase();
+  const aliases = {
+    te: "telugu", "te-in": "telugu", telugu: "telugu",
+    hi: "hindi", "hi-in": "hindi", hindi: "hindi",
+    en: "english", "en-in": "english", english: "english",
+    ml: "malayalam", "ml-in": "malayalam", malayalam: "malayalam",
+    kn: "kannada", "kn-in": "kannada", kannada: "kannada",
+    ta: "tamil", "ta-in": "tamil", tamil: "tamil",
+  };
+  return aliases[raw] || raw.replace(/\s+/g, " ");
+};
+
+const getAlbumLanguage = (album) =>
+  album?.language ?? album?.language_name ?? album?.lang ?? "";
+
 
 /* =========================================================
    BUSINESS OWNER ALBUMS
@@ -77,20 +93,10 @@ const BusinessOwnerAlbums = () => {
       params.get("language");
 
 
-    if (
-      urlLanguage &&
-      LANGUAGES.includes(urlLanguage)
-    ) {
-
-      setLanguage(urlLanguage);
-
-    }
-
-    else {
-
-      setLanguage("");
-
-    }
+    const matchedLanguage = LANGUAGES.find(
+      (item) => normalizeLanguage(item) === normalizeLanguage(urlLanguage)
+    );
+    setLanguage(matchedLanguage || "");
 
   }, [location.search]);
 
@@ -108,26 +114,8 @@ const BusinessOwnerAlbums = () => {
         setLoading(true);
 
         setError("");
-
-
-       const params = new URLSearchParams(
-  location.search
-);
-
-const urlLanguage =
-  params.get("language");
-
-const response =
-  await API.get(
-    "/owner/music/albums",
-    {
-      params: urlLanguage
-        ? {
-            language: urlLanguage,
-          }
-        : {},
-    }
-  );
+        // Load the complete album collection; filter locally for accurate totals.
+        const response = await API.get("/owner/music/albums");
 
 
         const data =
@@ -225,11 +213,7 @@ const response =
           ).toLowerCase();
 
 
-        const albumLanguage =
-          String(
-            album?.language ||
-            ""
-          );
+        const albumLanguage = normalizeLanguage(getAlbumLanguage(album));
 
 
         const matchesSearch =
@@ -241,7 +225,7 @@ const response =
 
         const matchesLanguage =
           !language ||
-          albumLanguage === language;
+          albumLanguage === normalizeLanguage(language);
 
 
         return (
@@ -398,6 +382,39 @@ const response =
         ================================================= */}
 
         <div className="owner-albums-summary">
+
+          <button
+            type="button"
+            className="owner-albums-summary-card owner-albums-language-card"
+            style={{ cursor: "pointer", textAlign: "left", border: !language ? "1px solid #d8b86a" : undefined, background: !language ? "rgba(216,184,106,0.12)" : undefined }}
+            onClick={() => navigate("/owner/music/albums", { replace: true })}
+            aria-pressed={!language}
+          >
+            <span>All Languages</span>
+            <strong>{albums.length}</strong>
+          </button>
+
+          {LANGUAGES.map((item) => {
+            const count = albums.filter(
+              (album) => normalizeLanguage(getAlbumLanguage(album)) === normalizeLanguage(item)
+            ).length;
+            const active = normalizeLanguage(language) === normalizeLanguage(item);
+
+            return (
+              <button
+                type="button"
+                key={item}
+                className="owner-albums-summary-card owner-albums-language-card"
+                style={{ cursor: "pointer", textAlign: "left", border: active ? "1px solid #d8b86a" : undefined, background: active ? "rgba(216,184,106,0.12)" : undefined }}
+                onClick={() => navigate(`/owner/music/albums?language=${encodeURIComponent(item)}`, { replace: true })}
+                aria-pressed={active}
+              >
+                <span>{item}</span>
+                <strong>{count}</strong>
+              </button>
+            );
+          })}
+
 
 
           <div className="owner-albums-summary-card">

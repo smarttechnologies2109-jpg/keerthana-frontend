@@ -16,6 +16,8 @@ import {
   FaFilter,
   FaTimes,
   FaMusic,
+  FaGlobe,
+  FaLanguage,
 } from "react-icons/fa";
 
 import API from "../../services/api";
@@ -35,6 +37,23 @@ const LANGUAGES = [
   "Kannada",
   "Tamil",
 ];
+
+/* Normalize stored language values so Telugu, telugu, te-IN, etc. match. */
+const normalizeLanguage = (value) => {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "";
+
+  const aliases = {
+    te: "telugu", "te-in": "telugu", telugu: "telugu",
+    hi: "hindi", "hi-in": "hindi", hindi: "hindi",
+    en: "english", "en-in": "english", english: "english",
+    ml: "malayalam", "ml-in": "malayalam", malayalam: "malayalam",
+    kn: "kannada", "kn-in": "kannada", kannada: "kannada",
+    ta: "tamil", "ta-in": "tamil", tamil: "tamil",
+  };
+
+  return aliases[raw] || raw.replace(/\s+/g, " ");
+};
 
 
 /* =========================================================
@@ -78,18 +97,11 @@ const BusinessOwnerCategories = () => {
       params.get("language");
 
 
-    if (
-      urlLanguage &&
-      LANGUAGES.includes(urlLanguage)
-    ) {
+    const matchedLanguage = LANGUAGES.find(
+      (item) => normalizeLanguage(item) === normalizeLanguage(urlLanguage)
+    );
 
-      setLanguage(urlLanguage);
-
-    } else {
-
-      setLanguage("");
-
-    }
+    setLanguage(matchedLanguage || "");
 
   }, [location.search]);
 
@@ -108,24 +120,9 @@ const BusinessOwnerCategories = () => {
 
         setError("");
 
-const params = new URLSearchParams(
-  location.search
-);
-
-const urlLanguage =
-  params.get("language");
-
-const response =
-  await API.get(
-    "/owner/music/categories",
-    {
-      params: urlLanguage
-        ? {
-            language: urlLanguage,
-          }
-        : {},
-    }
-  );
+// Load the full collection once. Language cards and the dropdown
+// filter this complete list locally, so counts remain accurate.
+const response = await API.get("/owner/music/categories");
 
 
         const data =
@@ -215,11 +212,9 @@ const response =
           ).toLowerCase();
 
 
-        const categoryLanguage =
-          String(
-            category?.language ||
-            ""
-          );
+        const categoryLanguage = normalizeLanguage(
+          category?.language || category?.language_name || category?.lang
+        );
 
 
         const matchesSearch =
@@ -230,7 +225,7 @@ const response =
 
         const matchesLanguage =
           !language ||
-          categoryLanguage === language;
+          categoryLanguage === normalizeLanguage(language);
 
 
         return (
@@ -246,6 +241,29 @@ const response =
     search,
     language,
   ]);
+
+
+  /* =======================================================
+     LANGUAGE COUNTS
+  ======================================================= */
+
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      LANGUAGES.map((item) => [item, 0])
+    );
+
+    categories.forEach((category) => {
+      const normalized = normalizeLanguage(
+        category?.language || category?.language_name || category?.lang
+      );
+      const matched = LANGUAGES.find(
+        (item) => normalizeLanguage(item) === normalized
+      );
+      if (matched) counts[matched] += 1;
+    });
+
+    return counts;
+  }, [categories]);
 
 
   /* =======================================================
@@ -335,6 +353,22 @@ const response =
   return (
 
     <div className="owner-categories-page">
+      <style>{`
+        .owner-categories-language-section { margin: 0 0 24px; }
+        .owner-categories-language-heading { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+        .owner-categories-language-heading h2 { margin:0 0 5px; color:#f7f3e9; font-size:1.12rem; }
+        .owner-categories-language-heading p { margin:0; color:#aebbd0; font-size:.88rem; }
+        .owner-categories-language-total { display:inline-flex; align-items:center; gap:8px; color:#e8d39a; font-weight:700; }
+        .owner-categories-language-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:12px; }
+        .owner-categories-language-card { display:flex; flex-direction:column; align-items:flex-start; gap:7px; min-height:132px; padding:16px; border:1px solid rgba(207,177,112,.22); border-radius:16px; background:linear-gradient(145deg,rgba(20,39,72,.96),rgba(9,20,40,.98)); color:#f5f1e8; text-align:left; cursor:pointer; transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+        .owner-categories-language-card:hover { transform:translateY(-3px); border-color:#d7b96e; box-shadow:0 10px 26px rgba(0,0,0,.22); }
+        .owner-categories-language-card.active { border-color:#e0c27b; background:linear-gradient(145deg,rgba(35,69,119,.98),rgba(13,31,59,.98)); box-shadow:0 0 0 1px rgba(224,194,123,.25); }
+        .owner-categories-language-card-icon { display:grid; place-items:center; width:30px; height:30px; border-radius:9px; background:rgba(220,190,119,.13); color:#e3c77f; }
+        .owner-categories-language-card-label { color:#d4deed; font-size:.82rem; font-weight:600; }
+        .owner-categories-language-card strong { color:#fff; font-size:1.55rem; line-height:1; }
+        .owner-categories-language-card small { color:#aebbd0; font-size:.74rem; }
+        @media(max-width:600px) { .owner-categories-language-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .owner-categories-language-card { min-height:120px; padding:13px; } }
+      `}</style>
 
 
       {/* ===================================================
@@ -445,6 +479,49 @@ const response =
           </div>
 
         </div>
+
+        {/* =================================================
+            LANGUAGE CARDS
+        ================================================= */}
+
+        <section className="owner-categories-language-section">
+          <div className="owner-categories-language-heading">
+            <div>
+              <h2>Categories by Language</h2>
+              <p>Select a language to view its categories.</p>
+            </div>
+            <span className="owner-categories-language-total">
+              <FaGlobe /> {categories.length} Total
+            </span>
+          </div>
+
+          <div className="owner-categories-language-grid">
+            <button
+              type="button"
+              className={`owner-categories-language-card ${!language ? "active" : ""}`}
+              onClick={() => handleLanguageChange({ target: { value: "" } })}
+            >
+              <span className="owner-categories-language-card-icon"><FaGlobe /></span>
+              <span className="owner-categories-language-card-label">All Languages</span>
+              <strong>{categories.length}</strong>
+              <small>All categories</small>
+            </button>
+
+            {LANGUAGES.map((item) => (
+              <button
+                type="button"
+                key={item}
+                className={`owner-categories-language-card ${language === item ? "active" : ""}`}
+                onClick={() => handleLanguageChange({ target: { value: item } })}
+              >
+                <span className="owner-categories-language-card-icon"><FaLanguage /></span>
+                <span className="owner-categories-language-card-label">{item}</span>
+                <strong>{languageCounts[item]}</strong>
+                <small>{languageCounts[item] === 1 ? "Category" : "Categories"}</small>
+              </button>
+            ))}
+          </div>
+        </section>
 
 
         {/* =================================================

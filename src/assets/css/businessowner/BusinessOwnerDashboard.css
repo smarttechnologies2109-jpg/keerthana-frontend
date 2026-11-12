@@ -1,7 +1,7 @@
 
 /* =========================================================
    KEERTHANA MUSIC — BUSINESS OWNER DASHBOARD
-   Premium Navy, Royal Blue & Soft Gold Theme
+   Premium Navy • Royal Blue • Champagne Gold
 ========================================================= */
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
@@ -15,7 +15,6 @@
   --owner-text: #f4f5fb;
   --owner-muted: #94a2bd;
   --owner-blue: #789aff;
-  --owner-blue-strong: #5278ed;
   --owner-gold: #e3c47b;
 
   min-height: 100vh;
@@ -26,8 +25,9 @@
       transparent 36%
     ),
     var(--owner-bg);
+
   color: var(--owner-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", sans-serif;
   box-sizing: border-box;
 }
 
@@ -49,7 +49,6 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
 }
 
 .owner-dashboard-header-content {
@@ -62,10 +61,6 @@
   justify-content: space-between;
   gap: 20px;
 }
-
-/* =========================================================
-   HEADER TITLE
-========================================================= */
 
 .owner-dashboard-title {
   display: flex;
@@ -96,20 +91,18 @@
   margin: 0;
   color: var(--owner-text);
   font-size: 23px;
-  line-height: 1.35;
   font-weight: 750;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.5px;
 }
 
 .owner-dashboard-title p {
   margin: 4px 0 0;
   color: var(--owner-muted);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
 }
 
 /* =========================================================
-   LOGOUT BUTTON
+   LOGOUT
 ========================================================= */
 
 .owner-logout-btn {
@@ -124,32 +117,15 @@
   justify-content: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .owner-logout-btn:hover {
   background: rgba(239, 68, 68, 0.17);
-  border-color: rgba(248, 113, 113, 0.45);
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(220, 53, 69, 0.12);
-}
-
-.owner-logout-btn:active {
-  transform: translateY(0);
-}
-
-.owner-logout-btn:focus-visible {
-  outline: 2px solid #fca5a5;
-  outline-offset: 3px;
+  color: white;
+  transform: translateY(-2px);
 }
 
 /* =========================================================
@@ -164,15 +140,95 @@
 }
 
 /* =========================================================
-   BUSINESS INFO
+   WELCOME BANNER
+========================================================= */
+
+.owner-welcome-banner {
+  position: relative;
+  overflow: hidden;
+  min-height: 190px;
+  padding: 32px 35px;
+  margin-bottom: 25px;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 154, 255, 0.22);
+
+  background:
+    radial-gradient(
+      circle at 85% 50%,
+      rgba(120, 154, 255, 0.2),
+      transparent 30%
+    ),
+    linear-gradient(
+      115deg,
+      #172b50,
+      #101d38 65%,
+      #152440
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+.owner-welcome-content {
+  position: relative;
+  z-index: 2;
+}
+
+.owner-welcome-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--owner-gold);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 17px;
+}
+
+.owner-welcome-content h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 750;
+  letter-spacing: -0.8px;
+}
+
+.owner-welcome-content p {
+  margin: 10px 0 0;
+  max-width: 520px;
+  color: #b7c6e0;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.owner-welcome-icon {
+  width: 115px;
+  height: 115px;
+  flex-shrink: 0;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 58px;
+  color: var(--owner-gold);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(227, 196, 123, 0.18);
+  transform: rotate(-8deg);
+}
+
+/* =========================================================
+   BUSINESS INFORMATION
 ========================================================= */
 
 .owner-business-info {
   position: relative;
   overflow: hidden;
   width: 100%;
-  margin-bottom: 28px;
-  padding: 25px;
+  margin-bottom: 35px;
+  padding: 23px 25px;
   background: linear-gradient(
     120deg,
     rgba(20, 33, 57, 0.98),
@@ -183,7 +239,6 @@
   display: flex;
   align-items: center;
   gap: 17px;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.16);
 }
 
 .owner-business-info::after {
@@ -206,11 +261,7 @@
   height: 58px;
   flex-shrink: 0;
   border-radius: 15px;
-  background: linear-gradient(
-    145deg,
-    rgba(120, 154, 255, 0.2),
-    rgba(227, 196, 123, 0.1)
-  );
+  background: rgba(120, 154, 255, 0.13);
   border: 1px solid rgba(120, 154, 255, 0.2);
   color: var(--owner-gold);
   display: flex;
@@ -223,22 +274,86 @@
   min-width: 0;
   position: relative;
   z-index: 1;
+  flex: 1;
 }
 
 .business-info-content h2 {
   margin: 0;
-  color: var(--owner-text);
-  font-size: 20px;
-  line-height: 1.4;
-  font-weight: 750;
+  color: #fffaf0;
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .business-info-content p {
   margin: 6px 0 0;
   color: var(--owner-muted);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
   overflow-wrap: anywhere;
+}
+
+.owner-account-status {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #86dcae;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.owner-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #55d68b;
+  box-shadow: 0 0 10px rgba(85, 214, 139, 0.6);
+}
+
+/* =========================================================
+   SECTION HEADINGS
+========================================================= */
+
+.owner-dashboard-section {
+  margin-bottom: 42px;
+}
+
+.owner-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 21px;
+}
+
+.owner-section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #f6f7fc;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+.owner-section-heading p {
+  margin: 7px 0 0;
+  color: var(--owner-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.owner-section-count {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(227, 196, 123, 0.18);
+  border-radius: 9px;
+  background: rgba(227, 196, 123, 0.07);
+  color: var(--owner-gold);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 /* =========================================================
@@ -254,15 +369,15 @@
 }
 
 /* =========================================================
-   DASHBOARD CARD
+   DASHBOARD CARDS
 ========================================================= */
 
 .owner-dashboard-card {
   position: relative;
   min-width: 0;
-  min-height: 270px;
+  min-height: 265px;
   overflow: hidden;
-  padding: 25px;
+  padding: 24px;
   background: linear-gradient(
     155deg,
     rgba(17, 28, 49, 0.98),
@@ -272,7 +387,6 @@
   border-radius: 17px;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13);
   transition:
     transform 0.25s ease,
@@ -295,7 +409,6 @@
     transparent 70%
   );
   pointer-events: none;
-  transition: opacity 0.25s ease;
 }
 
 .owner-dashboard-card:hover {
@@ -308,116 +421,51 @@
   box-shadow: 0 15px 32px rgba(0, 0, 0, 0.25);
 }
 
-.owner-dashboard-card:focus-visible {
-  outline: 2px solid var(--owner-blue);
-  outline-offset: 4px;
-}
-
 /* =========================================================
-   CARD ICON
+   CARD TOP
 ========================================================= */
 
-.dashboard-card-icon {
+.dashboard-card-top {
   position: relative;
   z-index: 1;
-  width: 58px;
-  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 19px;
+}
+
+.dashboard-card-icon {
+  width: 57px;
+  height: 57px;
   flex-shrink: 0;
-  margin-bottom: 20px;
   border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 25px;
-  transition:
-    transform 0.25s ease,
-    border-radius 0.25s ease;
+  font-size: 24px;
+  transition: transform 0.25s ease;
 }
 
 .owner-dashboard-card:hover .dashboard-card-icon {
-  transform: translateY(-2px);
-  border-radius: 17px;
+  transform: scale(1.07);
 }
 
-/* =========================================================
-   MUSIC CARD
-========================================================= */
-
-.music-card .dashboard-card-icon {
-  background: linear-gradient(
-    145deg,
-    rgba(120, 154, 255, 0.2),
-    rgba(120, 154, 255, 0.08)
-  );
-  border: 1px solid rgba(120, 154, 255, 0.18);
-  color: #91adff;
+.dashboard-card-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--owner-muted);
+  background: rgba(255, 255, 255, 0.045);
+  font-size: 12px;
+  transition: 0.2s ease;
 }
 
-.music-card:hover {
-  border-color: rgba(120, 154, 255, 0.4);
-}
-
-.music-card .dashboard-card-btn {
-  background: linear-gradient(135deg, #6387f5, #4569d5);
-  box-shadow: 0 4px 12px rgba(69, 105, 213, 0.16);
-}
-
-.music-card .dashboard-card-btn:hover {
-  background: linear-gradient(135deg, #789aff, #5278ed);
-}
-
-/* =========================================================
-   USERS CARD
-========================================================= */
-
-.users-card .dashboard-card-icon {
-  background: linear-gradient(
-    145deg,
-    rgba(227, 196, 123, 0.17),
-    rgba(227, 196, 123, 0.06)
-  );
-  border: 1px solid rgba(227, 196, 123, 0.2);
+.owner-dashboard-card:hover .dashboard-card-arrow {
   color: var(--owner-gold);
-}
-
-.users-card:hover {
-  border-color: rgba(227, 196, 123, 0.38);
-}
-
-.users-card .dashboard-card-btn {
-  background: linear-gradient(135deg, #b89a56, #92763c);
-  box-shadow: 0 4px 12px rgba(146, 118, 60, 0.15);
-}
-
-.users-card .dashboard-card-btn:hover {
-  background: linear-gradient(135deg, #c9aa65, #a4874b);
-}
-
-/* =========================================================
-   STATISTICS CARD
-========================================================= */
-
-.statistics-card .dashboard-card-icon {
-  background: linear-gradient(
-    145deg,
-    rgba(104, 174, 222, 0.18),
-    rgba(120, 154, 255, 0.07)
-  );
-  border: 1px solid rgba(104, 174, 222, 0.2);
-  color: #83c4ed;
-}
-
-.statistics-card:hover {
-  border-color: rgba(104, 174, 222, 0.4);
-}
-
-.statistics-card .dashboard-card-btn {
-  background: linear-gradient(135deg, #438dbd, #326caa);
-  box-shadow: 0 4px 12px rgba(50, 108, 170, 0.17);
-}
-
-.statistics-card .dashboard-card-btn:hover {
-  background: linear-gradient(135deg, #55a1d3, #3b7fbd);
+  transform: translateX(3px);
 }
 
 /* =========================================================
@@ -433,18 +481,18 @@
 .dashboard-card-content h3 {
   margin: 0 0 10px;
   color: var(--owner-text);
-  font-size: 19px;
-  line-height: 1.4;
-  font-weight: 750;
-  letter-spacing: -0.2px;
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 700;
+  letter-spacing: -0.4px;
 }
 
 .dashboard-card-content p {
   margin: 0;
   max-width: 330px;
   color: var(--owner-muted);
-  font-size: 13px;
-  line-height: 1.75;
+  font-size: 12.5px;
+  line-height: 1.8;
 }
 
 /* =========================================================
@@ -461,41 +509,259 @@
   padding: 0 15px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 9px;
-  color: #ffffff;
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    filter 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .dashboard-card-btn:hover {
   transform: translateX(3px);
-  filter: brightness(1.1);
-}
-
-.dashboard-card-btn:active {
-  transform: translateX(1px);
-}
-
-.dashboard-card-btn:focus-visible {
-  outline: 2px solid var(--owner-gold);
-  outline-offset: 3px;
+  filter: brightness(1.12);
 }
 
 .dashboard-card-btn svg {
   font-size: 11px;
+}
+
+/* =========================================================
+   MUSIC CARD
+========================================================= */
+
+.music-card .dashboard-card-icon {
+  background: rgba(120, 154, 255, 0.15);
+  border: 1px solid rgba(120, 154, 255, 0.2);
+  color: #91adff;
+}
+
+.music-card:hover {
+  border-color: rgba(120, 154, 255, 0.4);
+}
+
+.music-card .dashboard-card-btn {
+  background: linear-gradient(135deg, #6387f5, #4569d5);
+}
+
+/* =========================================================
+   USERS CARD
+========================================================= */
+
+.users-card .dashboard-card-icon {
+  background: rgba(227, 196, 123, 0.13);
+  border: 1px solid rgba(227, 196, 123, 0.2);
+  color: var(--owner-gold);
+}
+
+.users-card:hover {
+  border-color: rgba(227, 196, 123, 0.38);
+}
+
+.users-card .dashboard-card-btn {
+  background: linear-gradient(135deg, #b89a56, #92763c);
+}
+
+/* =========================================================
+   STATISTICS CARD
+========================================================= */
+
+.statistics-card .dashboard-card-icon {
+  background: rgba(104, 174, 222, 0.15);
+  border: 1px solid rgba(104, 174, 222, 0.2);
+  color: #83c4ed;
+}
+
+.statistics-card:hover {
+  border-color: rgba(104, 174, 222, 0.4);
+}
+
+.statistics-card .dashboard-card-btn {
+  background: linear-gradient(135deg, #438dbd, #326caa);
+}
+
+/* =========================================================
+   MINISTRIES CARD
+========================================================= */
+
+.ministries-card .dashboard-card-icon {
+  background: rgba(169, 129, 255, 0.13);
+  border: 1px solid rgba(169, 129, 255, 0.2);
+  color: #bd9aff;
+}
+
+.ministries-card:hover {
+  border-color: rgba(169, 129, 255, 0.4);
+}
+
+.ministries-card .dashboard-card-btn {
+  background: linear-gradient(135deg, #8763d5, #6244a9);
+}
+
+/* =========================================================
+   CATEGORIES CARD
+========================================================= */
+
+.categories-card .dashboard-card-icon {
+  background: rgba(76, 201, 167, 0.13);
+  border: 1px solid rgba(76, 201, 167, 0.2);
+  color: #65d9b8;
+}
+
+.categories-card:hover {
+  border-color: rgba(76, 201, 167, 0.4);
+}
+
+.categories-card .dashboard-card-btn {
+  background: linear-gradient(135deg, #299c83, #20745f);
+}
+
+/* =========================================================
+   LANGUAGES CARD
+========================================================= */
+
+.languages-card .dashboard-card-icon {
+  background: rgba(255, 159, 104, 0.13);
+  border: 1px solid rgba(255, 159, 104, 0.2);
+  color: #ffad80;
+}
+
+.languages-card:hover {
+  border-color: rgba(255, 159, 104, 0.4);
+}
+
+.languages-card .dashboard-card-btn {
+  background: linear-gradient(135deg, #ce8053, #a45e3b);
+}
+
+/* =========================================================
+   LANGUAGE SECTION
+========================================================= */
+
+.owner-languages-section {
+  margin-bottom: 35px;
+}
+
+.owner-languages-section .owner-section-heading h2 svg {
+  color: var(--owner-gold);
+  font-size: 19px;
+}
+
+.owner-languages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.owner-language-card {
+  min-width: 0;
+  min-height: 88px;
+  padding: 16px;
+  border-radius: 13px;
+  border: 1px solid var(--owner-border);
+  background: linear-gradient(
+    135deg,
+    rgba(17, 28, 49, 0.96),
+    rgba(12, 20, 36, 0.96)
+  );
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: 0.2s ease;
+}
+
+.owner-language-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(227, 196, 123, 0.35);
+  background: var(--owner-card-hover);
+}
+
+.owner-language-code {
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(227, 196, 123, 0.1);
+  border: 1px solid rgba(227, 196, 123, 0.2);
+  color: var(--owner-gold);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.owner-language-info {
+  min-width: 0;
+}
+
+.owner-language-info h3 {
+  margin: 0;
+  color: #f4f5fb;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.owner-language-info p {
+  margin: 5px 0 0;
+  color: var(--owner-muted);
+  font-size: 12px;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.owner-dashboard-footer {
+  min-height: 65px;
+  margin-top: 35px;
+  padding: 17px 10px;
+  border-top: 1px solid var(--owner-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--owner-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.owner-dashboard-footer svg {
+  color: var(--owner-gold);
   flex-shrink: 0;
 }
 
 /* =========================================================
-   TABLET / SMALL LAPTOP
+   FOCUS / ACCESSIBILITY
+========================================================= */
+
+.owner-dashboard-card:focus-visible,
+.owner-logout-btn:focus-visible,
+.dashboard-card-btn:focus-visible {
+  outline: 2px solid var(--owner-gold);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-dashboard-page *,
+  .owner-dashboard-page *::before,
+  .owner-dashboard-page *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .owner-dashboard-card:hover,
+  .owner-language-card:hover {
+    transform: none;
+  }
+}
+
+/* =========================================================
+   TABLET
 ========================================================= */
 
 @media (max-width: 1050px) {
@@ -508,13 +774,14 @@
     padding: 26px 24px 40px;
   }
 
-  .owner-dashboard-grid {
+  .owner-dashboard-grid,
+  .owner-languages-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 17px;
   }
 
   .owner-dashboard-card {
-    min-height: 260px;
+    min-height: 255px;
     padding: 22px;
   }
 }
@@ -525,93 +792,113 @@
 
 @media (max-width: 700px) {
   .owner-dashboard-header-content {
-    min-height: auto;
     padding: 15px 16px;
     align-items: stretch;
     flex-direction: column;
     gap: 15px;
   }
 
-  .owner-dashboard-title {
-    width: 100%;
-  }
-
   .owner-dashboard-title-icon {
     width: 45px;
     height: 45px;
-    border-radius: 12px;
-    font-size: 20px;
   }
 
   .owner-dashboard-title h1 {
-    font-size: 21px;
-  }
-
-  .owner-dashboard-title p {
-    font-size: 12px;
+    font-size: 20px;
   }
 
   .owner-logout-btn {
     width: 100%;
-    min-height: 43px;
   }
 
   .owner-dashboard-main {
     padding: 20px 15px 35px;
   }
 
+  .owner-welcome-banner {
+    min-height: 155px;
+    padding: 23px 20px;
+    border-radius: 15px;
+  }
+
+  .owner-welcome-content h2 {
+    font-size: 21px;
+  }
+
+  .owner-welcome-content p {
+    font-size: 12px;
+  }
+
+  .owner-welcome-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 34px;
+    border-radius: 18px;
+  }
+
   .owner-business-info {
-    padding: 19px;
-    margin-bottom: 20px;
-    gap: 13px;
-    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 28px;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .business-info-icon {
-    width: 49px;
-    height: 49px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
     font-size: 21px;
   }
 
   .business-info-content h2 {
-    font-size: 17px;
+    font-size: 16px;
   }
 
-  .business-info-content p {
-    font-size: 12px;
+  .owner-account-status {
+    width: 100%;
+    margin-left: 60px;
+    font-size: 11px;
   }
 
-  .owner-dashboard-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
+  .owner-section-heading {
+    align-items: flex-start;
   }
 
-  .owner-dashboard-card {
-    min-height: 235px;
-    padding: 21px;
-    border-radius: 15px;
-  }
-
-  .dashboard-card-icon {
-    width: 52px;
-    height: 52px;
-    margin-bottom: 17px;
-    border-radius: 13px;
-    font-size: 23px;
-  }
-
-  .dashboard-card-content h3 {
+  .owner-section-heading h2 {
     font-size: 18px;
   }
 
-  .dashboard-card-content p {
-    max-width: none;
-    font-size: 13px;
+  .owner-dashboard-grid,
+  .owner-languages-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
-  .dashboard-card-btn {
-    margin-top: 19px;
+  .owner-dashboard-card {
+    min-height: 230px;
+    padding: 20px;
+  }
+
+  .dashboard-card-icon {
+    width: 51px;
+    height: 51px;
+    font-size: 22px;
+  }
+
+  .dashboard-card-content h3 {
+    font-size: 17px;
+  }
+
+  .dashboard-card-content p {
+    font-size: 12px;
+  }
+
+  .owner-language-card {
+    min-height: 76px;
+  }
+
+  .owner-dashboard-footer {
+    font-size: 10px;
+    line-height: 1.7;
   }
 }
 
@@ -624,284 +911,48 @@
     padding: 13px;
   }
 
-  .owner-dashboard-title {
-    gap: 10px;
-  }
-
-  .owner-dashboard-title-icon {
-    width: 42px;
-    height: 42px;
-    font-size: 18px;
-  }
-
-  .owner-dashboard-title h1 {
-    font-size: 19px;
-  }
-
-  .owner-dashboard-title p {
-    font-size: 11px;
-  }
-
   .owner-dashboard-main {
     padding: 17px 12px 30px;
   }
 
-  .owner-business-info {
-    align-items: flex-start;
-    padding: 16px;
+  .owner-welcome-banner {
+    padding: 19px 15px;
   }
 
-  .business-info-icon {
-    width: 44px;
-    height: 44px;
-    font-size: 19px;
+  .owner-welcome-content h2 {
+    font-size: 18px;
   }
 
-  .business-info-content h2 {
+  .owner-welcome-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .owner-welcome-icon {
+    width: 55px;
+    height: 55px;
+    font-size: 27px;
+  }
+
+  .owner-section-heading h2 {
     font-size: 16px;
   }
 
+  .owner-section-count {
+    padding: 7px 9px;
+    font-size: 10px;
+  }
+
   .owner-dashboard-card {
-    min-height: 225px;
+    min-height: 220px;
     padding: 18px;
-  }
-
-  .dashboard-card-content h3 {
-    font-size: 17px;
-  }
-
-  .dashboard-card-content p {
-    font-size: 12px;
   }
 
   .dashboard-card-btn {
     width: 100%;
   }
-}
 
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .owner-dashboard-page *,
-  .owner-dashboard-page *::before,
-  .owner-dashboard-page *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .owner-dashboard-card:hover,
-  .owner-business-info:hover {
-    transform: none;
-  }
-}
-
-/* =========================================================
-   KEERTHANA — BUSINESS OWNER DASHBOARD
-   Premium Professional Typography
-   Inter • Midnight Navy • Royal Blue • Champagne Gold
-========================================================= */
-
-/* Global dashboard typography */
-.owner-dashboard-page {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  font-optical-sizing: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-/* Header title */
-.owner-dashboard-title h1 {
-  font-family: inherit;
-  font-size: clamp(21px, 2vw, 24px);
-  font-weight: 750;
-  line-height: 1.3;
-  letter-spacing: -0.75px;
-}
-
-.owner-dashboard-title p {
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 400;
-  line-height: 1.7;
-  letter-spacing: 0.05px;
-}
-
-/* Logout button */
-.owner-logout-btn {
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.1px;
-}
-
-/* Business information */
-.business-info-content h2 {
-  font-family: inherit;
-  font-size: clamp(17px, 1.6vw, 20px);
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: -0.45px;
-  color: #fffaf0;
-}
-
-.business-info-content p {
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 400;
-  line-height: 1.8;
-  letter-spacing: 0.05px;
-}
-
-/* Dashboard card headings */
-.dashboard-card-content h3 {
-  font-family: inherit;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.45;
-  letter-spacing: -0.4px;
-  color: #f6f7fc;
-}
-
-/* Dashboard card descriptions */
-.dashboard-card-content p {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.8;
-  letter-spacing: 0.05px;
-  color: #a2afc7;
-}
-
-/* Card action buttons */
-.dashboard-card-btn {
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: 0.2px;
-}
-
-/* Improve button icon alignment */
-.dashboard-card-btn svg {
-  flex-shrink: 0;
-  font-size: 11px;
-}
-
-/* Consistent icon rendering */
-.owner-dashboard-title-icon,
-.business-info-icon,
-.dashboard-card-icon {
-  line-height: 1;
-}
-
-/* Professional keyboard focus */
-.owner-dashboard-card:focus-visible,
-.owner-logout-btn:focus-visible,
-.dashboard-card-btn:focus-visible {
-  outline: 2px solid #e3c47b;
-  outline-offset: 4px;
-}
-
-/* Tablet typography */
-@media (max-width: 1050px) {
-  .owner-dashboard-title h1 {
-    font-size: 22px;
-    letter-spacing: -0.6px;
-  }
-
-  .dashboard-card-content h3 {
-    font-size: 18px;
-  }
-
-  .dashboard-card-content p {
-    font-size: 12.5px;
-  }
-}
-
-/* Mobile typography */
-@media (max-width: 700px) {
-  .owner-dashboard-title h1 {
-    font-size: 20px;
-    letter-spacing: -0.45px;
-  }
-
-  .owner-dashboard-title p {
-    font-size: 12px;
-  }
-
-  .owner-logout-btn {
-    font-size: 12.5px;
-  }
-
-  .business-info-content h2 {
-    font-size: 16.5px;
-    letter-spacing: -0.25px;
-  }
-
-  .business-info-content p {
-    font-size: 12px;
-    line-height: 1.75;
-  }
-
-  .dashboard-card-content h3 {
-    font-size: 17px;
-    letter-spacing: -0.3px;
-  }
-
-  .dashboard-card-content p {
-    font-size: 12.5px;
-    line-height: 1.8;
-  }
-
-  .dashboard-card-btn {
-    font-size: 12px;
-  }
-}
-
-/* Small mobile */
-@media (max-width: 420px) {
-  .owner-dashboard-title h1 {
-    font-size: 19px;
-  }
-
-  .owner-dashboard-title p {
-    font-size: 11.5px;
-  }
-
-  .business-info-content h2 {
-    font-size: 15.5px;
-  }
-
-  .business-info-content p {
-    font-size: 11.5px;
-  }
-
-  .dashboard-card-content h3 {
-    font-size: 16.5px;
-  }
-
-  .dashboard-card-content p {
-    font-size: 12px;
-  }
-
-  .dashboard-card-btn {
-    font-size: 12px;
-    letter-spacing: 0.15px;
-  }
-}
-
-/* Respect reduced-motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .owner-dashboard-page *,
-  .owner-dashboard-page *::before,
-  .owner-dashboard-page *::after {
-    animation: none !important;
-    transition: none !important;
-    scroll-behavior: auto !important;
+  .owner-language-card {
+    padding: 13px;
   }
 }

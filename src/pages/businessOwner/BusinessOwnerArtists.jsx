@@ -36,6 +36,20 @@ const LANGUAGES = [
   "Tamil",
 ];
 
+const normalizeLanguage = (value) => {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if (!raw) return "";
+  const aliases = {
+    te: "Telugu", "te-in": "Telugu", telugu: "Telugu",
+    hi: "Hindi", "hi-in": "Hindi", hindi: "Hindi",
+    en: "English", "en-in": "English", english: "English",
+    ml: "Malayalam", "ml-in": "Malayalam", malayalam: "Malayalam",
+    kn: "Kannada", "kn-in": "Kannada", kannada: "Kannada",
+    ta: "Tamil", "ta-in": "Tamil", tamil: "Tamil",
+  };
+  return aliases[raw] || raw.charAt(0).toUpperCase() + raw.slice(1);
+};
+
 
 /* =========================================================
    BUSINESS OWNER ARTISTS
@@ -78,20 +92,12 @@ const BusinessOwnerArtists = () => {
       params.get("language");
 
 
-    if (
-      urlLanguage &&
-      LANGUAGES.includes(urlLanguage)
-    ) {
-
-      setLanguage(urlLanguage);
-
-    }
-
-    else {
-
-      setLanguage("");
-
-    }
+    const normalizedLanguage = normalizeLanguage(urlLanguage);
+    setLanguage(
+      LANGUAGES.includes(normalizedLanguage)
+        ? normalizedLanguage
+        : ""
+    );
 
   }, [location.search]);
 
@@ -111,24 +117,8 @@ const BusinessOwnerArtists = () => {
         setError("");
 
 
-     const params = new URLSearchParams(
-  location.search
-);
-
-const urlLanguage =
-  params.get("language");
-
-const response =
-  await API.get(
-    "/owner/music/artists",
-    {
-      params: urlLanguage
-        ? {
-            language: urlLanguage,
-          }
-        : {},
-    }
-  );
+     // Load the complete collection once. Counts and filters are calculated locally.
+        const response = await API.get("/owner/music/artists");
 
 
         const data =
@@ -217,11 +207,7 @@ const response =
           ).toLowerCase();
 
 
-        const artistLanguage =
-          String(
-            artist?.language ||
-            ""
-          );
+        const artistLanguage = normalizeLanguage(artist?.language);
 
 
         const matchesSearch =
@@ -232,7 +218,7 @@ const response =
 
         const matchesLanguage =
           !language ||
-          artistLanguage === language;
+          artistLanguage === normalizeLanguage(language);
 
 
         return (
@@ -248,6 +234,32 @@ const response =
     search,
     language,
   ]);
+
+
+  /* =======================================================
+     LANGUAGE-WISE ARTIST COUNTS
+  ======================================================= */
+
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(LANGUAGES.map((item) => [item, 0]));
+    artists.forEach((artist) => {
+      const normalized = normalizeLanguage(artist?.language);
+      if (Object.prototype.hasOwnProperty.call(counts, normalized)) {
+        counts[normalized] += 1;
+      }
+    });
+    return counts;
+  }, [artists]);
+
+  const selectLanguage = (selectedLanguage) => {
+    setLanguage(selectedLanguage);
+    navigate(
+      selectedLanguage
+        ? `/owner/music/artists?language=${encodeURIComponent(selectedLanguage)}`
+        : "/owner/music/artists",
+      { replace: true }
+    );
+  };
 
 
   /* =======================================================
@@ -275,47 +287,12 @@ const response =
      LANGUAGE CHANGE
   ======================================================= */
 
-  const handleLanguageChange = (
-    event
-  ) => {
-
-    const selectedLanguage =
-      event.target.value;
-
-
-    setLanguage(
-      selectedLanguage
-    );
-
-
-    if (selectedLanguage) {
-
-      navigate(
-        `/owner/music/artists?language=${encodeURIComponent(
-          selectedLanguage
-        )}`,
-        {
-          replace: true,
-        }
-      );
-
-    }
-
-    else {
-
-      navigate(
-        "/owner/music/artists",
-        {
-          replace: true,
-        }
-      );
-
-    }
-
+  const handleLanguageChange = (event) => {
+    selectLanguage(event.target.value);
   };
 
 
-  /* =======================================================
+    /* =======================================================
      GET ARTIST IMAGE
   ======================================================= */
 
@@ -340,6 +317,57 @@ const response =
   return (
 
     <div className="owner-artists-page">
+
+      <style>{`
+        .owner-artists-language-section {
+          margin: 0 0 26px; padding: 22px;
+          border: 1px solid rgba(212,175,112,.20); border-radius: 20px;
+          background: linear-gradient(135deg, rgba(13,27,55,.96), rgba(20,43,82,.92));
+          box-shadow: 0 14px 35px rgba(0,0,0,.16);
+        }
+        .owner-artists-language-heading {
+          display:flex; align-items:center; justify-content:space-between;
+          gap:14px; margin-bottom:18px;
+        }
+        .owner-artists-language-heading h2 { margin:0 0 5px; color:#f5e7c8; font-size:1.15rem; }
+        .owner-artists-language-heading p { margin:0; color:#b8c4d8; font-size:.88rem; }
+        .owner-artists-total-pill {
+          padding:8px 13px; border:1px solid rgba(224,190,130,.35);
+          border-radius:999px; color:#f2d49c; background:rgba(224,190,130,.09);
+          font-size:.82rem; white-space:nowrap;
+        }
+        .owner-artists-language-cards {
+          display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:12px;
+        }
+        .owner-artists-language-card {
+          display:flex; min-height:145px; flex-direction:column; align-items:flex-start;
+          gap:7px; padding:16px; border:1px solid rgba(155,177,211,.18);
+          border-radius:16px; color:#edf3ff; background:rgba(255,255,255,.045);
+          text-align:left; cursor:pointer;
+          transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease;
+        }
+        .owner-artists-language-card:hover {
+          transform:translateY(-3px); border-color:rgba(230,195,133,.65);
+          background:rgba(40,75,125,.48);
+        }
+        .owner-artists-language-card.active {
+          border-color:#d9b777;
+          background:linear-gradient(145deg,rgba(38,77,133,.72),rgba(28,49,83,.95));
+          box-shadow:0 0 0 1px rgba(217,183,119,.20),0 10px 24px rgba(0,0,0,.16);
+        }
+        .owner-artists-language-card-icon {
+          display:grid; width:34px; height:34px; place-items:center;
+          border-radius:10px; color:#e4c58f; background:rgba(228,197,143,.12);
+        }
+        .owner-artists-language-card-label { color:#dce7f8; font-size:.83rem; font-weight:600; }
+        .owner-artists-language-card strong { color:#f5d69e; font-size:1.65rem; line-height:1.1; }
+        .owner-artists-language-card small { color:#aebdd3; font-size:.75rem; }
+        @media(max-width:600px) {
+          .owner-artists-language-section { padding:16px; }
+          .owner-artists-language-heading { align-items:flex-start; flex-direction:column; }
+          .owner-artists-language-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
+      `}</style>
 
 
       {/* ===================================================
@@ -450,6 +478,52 @@ const response =
           </div>
 
         </div>
+
+
+        {/* =================================================
+            LANGUAGE-WISE ARTIST CARDS
+        ================================================= */}
+
+        <section className="owner-artists-language-section">
+          <div className="owner-artists-language-heading">
+            <div>
+              <h2>Artists by Language</h2>
+              <p>Select a language to view its artists.</p>
+            </div>
+            <span className="owner-artists-total-pill">
+              {artists.length} Total Artists
+            </span>
+          </div>
+
+          <div className="owner-artists-language-cards">
+            <button
+              type="button"
+              className={`owner-artists-language-card ${!language ? "active" : ""}`}
+              onClick={() => selectLanguage("")}
+              aria-pressed={!language}
+            >
+              <span className="owner-artists-language-card-icon"><FaUsers /></span>
+              <span className="owner-artists-language-card-label">All Languages</span>
+              <strong>{artists.length}</strong>
+              <small>All artists</small>
+            </button>
+
+            {LANGUAGES.map((item) => (
+              <button
+                type="button"
+                key={item}
+                className={`owner-artists-language-card ${language === item ? "active" : ""}`}
+                onClick={() => selectLanguage(item)}
+                aria-pressed={language === item}
+              >
+                <span className="owner-artists-language-card-icon"><FaMusic /></span>
+                <span className="owner-artists-language-card-label">{item}</span>
+                <strong>{languageCounts[item] || 0}</strong>
+                <small>{languageCounts[item] === 1 ? "Artist" : "Artists"}</small>
+              </button>
+            ))}
+          </div>
+        </section>
 
 
         {/* =================================================

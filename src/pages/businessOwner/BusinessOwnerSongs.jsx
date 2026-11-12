@@ -35,6 +35,18 @@ const LANGUAGES = [
   "Tamil",
 ];
 
+const normalizeLanguage = (value) => {
+  const normalized = String(value ?? "").trim().toLowerCase().replace(/\s+/g, "");
+  const aliases = {
+    telugu: "Telugu", te: "Telugu", "te-in": "Telugu",
+    hindi: "Hindi", hi: "Hindi", "hi-in": "Hindi",
+    english: "English", en: "English", "en-in": "English",
+    malayalam: "Malayalam", ml: "Malayalam", "ml-in": "Malayalam",
+    kannada: "Kannada", kn: "Kannada", "kn-in": "Kannada",
+    tamil: "Tamil", ta: "Tamil", "ta-in": "Tamil",
+  };
+  return aliases[normalized] || String(value ?? "").trim();
+};
 
 /* =========================================================
    BUSINESS OWNER SONGS
@@ -73,24 +85,14 @@ const BusinessOwnerSongs = () => {
         location.search
       );
 
-    const urlLanguage =
-      params.get("language");
+    const urlLanguage = params.get("language");
+    const normalizedLanguage = normalizeLanguage(urlLanguage);
 
-
-    if (
-      urlLanguage &&
-      LANGUAGES.includes(urlLanguage)
-    ) {
-
-      setLanguage(urlLanguage);
-
-    }
-
-    else {
-
-      setLanguage("");
-
-    }
+    setLanguage(
+      LANGUAGES.includes(normalizedLanguage)
+        ? normalizedLanguage
+        : ""
+    );
 
   }, [
     location.search,
@@ -98,128 +100,65 @@ const BusinessOwnerSongs = () => {
 
 
   /* =======================================================
-     LOAD SONGS
-     
-     IMPORTANT:
-     Reload whenever URL language changes.
+     LOAD COMPLETE SONG COLLECTION
+     Fetch all songs once for accurate totals and language cards.
   ======================================================= */
 
   useEffect(() => {
+    let isMounted = true;
 
     const loadSongs = async () => {
-
       try {
-
         setLoading(true);
-
         setError("");
 
+        // Fetch the complete collection. Filtering is done locally.
+        const response = await API.get("/owner/music/songs");
+        const data = response?.data;
 
-        /* -----------------------------------------------
-           READ CURRENT LANGUAGE FROM URL
-        ------------------------------------------------ */
+        let songList = [];
+        if (Array.isArray(data)) songList = data;
+        else if (Array.isArray(data?.songs)) songList = data.songs;
+        else if (Array.isArray(data?.data)) songList = data.data;
+        else if (Array.isArray(data?.rows)) songList = data.rows;
 
-        const params =
-          new URLSearchParams(
-            location.search
+        if (isMounted) setSongs(songList);
+      } catch (err) {
+        console.error("Failed to load owner songs:", err);
+        if (isMounted) {
+          setError(
+            err?.response?.data?.message ||
+            "Unable to load songs. Please try again."
           );
-
-        const urlLanguage =
-          params.get("language");
-
-
-        /* -----------------------------------------------
-           API REQUEST
-        ------------------------------------------------ */
-
-        const response =
-          await API.get(
-            "/owner/music/songs",
-            {
-              params:
-                urlLanguage &&
-                LANGUAGES.includes(
-                  urlLanguage
-                )
-                  ? {
-                      language:
-                        urlLanguage,
-                    }
-                  : {},
-            }
-          );
-
-
-        const data =
-          response?.data;
-
-
-        /* -----------------------------------------------
-           SUPPORT DIFFERENT RESPONSE FORMATS
-        ------------------------------------------------ */
-
-        if (
-          Array.isArray(data)
-        ) {
-
-          setSongs(data);
-
-        }
-
-        else if (
-          Array.isArray(
-            data?.songs
-          )
-        ) {
-
-          setSongs(
-            data.songs
-          );
-
-        }
-
-        else {
-
           setSongs([]);
-
         }
-
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      catch (err) {
-
-        console.error(
-          "Failed to load owner songs:",
-          err
-        );
-
-
-        setError(
-          err?.response?.data?.message ||
-          "Unable to load songs."
-        );
-
-
-        setSongs([]);
-
-      }
-
-      finally {
-
-        setLoading(false);
-
-      }
-
     };
 
-
     loadSongs();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
+  /* =======================================================
+     LANGUAGE COUNTS
+  ======================================================= */
 
-  }, [
-    location.search,
-  ]);
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(LANGUAGES.map((item) => [item, 0]));
 
+    songs.forEach((song) => {
+      const normalized = normalizeLanguage(song?.language);
+      if (Object.prototype.hasOwnProperty.call(counts, normalized)) {
+        counts[normalized] += 1;
+      }
+    });
+
+    return counts;
+  }, [songs]);
 
   /* =======================================================
      FILTER SONGS
@@ -264,10 +203,7 @@ const BusinessOwnerSongs = () => {
           ).toLowerCase();
 
 
-        const songLanguage =
-          String(
-            song?.language || ""
-          );
+        const songLanguage = normalizeLanguage(song?.language);
 
 
         /* -----------------------------------------------
@@ -299,7 +235,7 @@ const BusinessOwnerSongs = () => {
 
         const matchesLanguage =
           !language ||
-          songLanguage === language;
+          songLanguage === normalizeLanguage(language);
 
 
         return (
@@ -400,6 +336,80 @@ const BusinessOwnerSongs = () => {
   return (
 
     <div className="owner-songs-page">
+      <style>{`
+        .owner-songs-language-section {
+          margin: 22px 0 26px;
+          padding: 22px;
+          border: 1px solid rgba(213, 177, 105, 0.18);
+          border-radius: 20px;
+          background: linear-gradient(135deg, rgba(13, 28, 57, 0.96), rgba(18, 42, 82, 0.88));
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+        }
+        .owner-songs-language-heading {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          margin-bottom: 18px;
+        }
+        .owner-songs-language-heading h2 {
+          margin: 0 0 5px;
+          color: #f8f5ed;
+          font-size: 20px;
+          font-weight: 800;
+        }
+        .owner-songs-language-heading p,
+        .owner-songs-language-heading > span {
+          margin: 0;
+          color: #b9c6dc;
+          font-size: 13px;
+        }
+        .owner-songs-language-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+          gap: 12px;
+        }
+        .owner-songs-language-card {
+          min-width: 0;
+          display: grid;
+          justify-items: start;
+          gap: 7px;
+          padding: 16px;
+          border: 1px solid rgba(190, 205, 229, 0.15);
+          border-radius: 15px;
+          color: #f5f7fb;
+          text-align: left;
+          background: rgba(5, 15, 35, 0.48);
+          cursor: pointer;
+          transition: transform .2s ease, border-color .2s ease, background .2s ease;
+        }
+        .owner-songs-language-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(225, 190, 120, 0.7);
+        }
+        .owner-songs-language-card.active {
+          border-color: #dfbd7b;
+          background: linear-gradient(135deg, rgba(37, 83, 153, 0.8), rgba(102, 78, 43, 0.42));
+          box-shadow: 0 0 0 1px rgba(223, 189, 123, 0.16);
+        }
+        .owner-songs-language-card-icon {
+          width: 34px;
+          height: 34px;
+          display: grid;
+          place-items: center;
+          border-radius: 10px;
+          color: #e5c889;
+          background: rgba(229, 200, 137, 0.12);
+        }
+        .owner-songs-language-card-name { font-size: 13px; color: #dce6f5; font-weight: 700; }
+        .owner-songs-language-card strong { font-size: 25px; line-height: 1.1; color: #fff; }
+        .owner-songs-language-card small { color: #aebbd0; font-size: 11px; }
+        @media (max-width: 600px) {
+          .owner-songs-language-section { padding: 16px; }
+          .owner-songs-language-heading { align-items: flex-start; flex-direction: column; }
+          .owner-songs-language-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+      `}</style>
 
 
       {/* =================================================
@@ -532,6 +542,45 @@ const BusinessOwnerSongs = () => {
 
         </div>
 
+        {/* LANGUAGE COLLECTION CARDS */}
+        <section className="owner-songs-language-section">
+          <div className="owner-songs-language-heading">
+            <div>
+              <h2>Languages</h2>
+              <p>Select a language to view its songs.</p>
+            </div>
+            <span>{songs.length} songs in total</span>
+          </div>
+
+          <div className="owner-songs-language-cards">
+            <button
+              type="button"
+              className={`owner-songs-language-card owner-songs-all-card ${!language ? "active" : ""}`}
+              onClick={() => handleLanguageChange({ target: { value: "" } })}
+              aria-pressed={!language}
+            >
+              <span className="owner-songs-language-card-icon"><FaMusic /></span>
+              <span className="owner-songs-language-card-name">All Languages</span>
+              <strong>{songs.length}</strong>
+              <small>Total songs</small>
+            </button>
+
+            {LANGUAGES.map((item) => (
+              <button
+                type="button"
+                key={item}
+                className={`owner-songs-language-card ${language === item ? "active" : ""}`}
+                onClick={() => handleLanguageChange({ target: { value: item } })}
+                aria-pressed={language === item}
+              >
+                <span className="owner-songs-language-card-icon"><FaMusic /></span>
+                <span className="owner-songs-language-card-name">{item}</span>
+                <strong>{languageCounts[item] || 0}</strong>
+                <small>{languageCounts[item] === 1 ? "Song" : "Songs"}</small>
+              </button>
+            ))}
+          </div>
+        </section>
 
         {/* =================================================
             FILTER BAR
@@ -1007,7 +1056,7 @@ const BusinessOwnerSongs = () => {
                                 )}`}
                             >
 
-                              {song?.language ||
+                              {normalizeLanguage(song?.language) ||
                                 "Unknown"}
 
                             </span>

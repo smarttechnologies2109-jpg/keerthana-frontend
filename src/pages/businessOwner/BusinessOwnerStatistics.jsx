@@ -686,37 +686,70 @@ const handleCalendarDate = (
   const getLanguageData = (
     language
   ) => {
+    const normalizedLanguage = String(language || "")
+      .trim()
+      .toLowerCase();
+
     const item =
       languageStats.find(
         (entry) =>
-          String(
-            entry.language || ""
-          ).toLowerCase() ===
-          language.toLowerCase()
+          String(entry.language || "")
+            .trim()
+            .toLowerCase() === normalizedLanguage
+      ) || {};
+
+    /*
+     * Prefer the language collection breakdown when available.
+     * Fall back to the language analytics response for compatibility
+     * with existing API response shapes.
+     */
+    const collectionItem =
+      musicByLanguage.find(
+        (entry) =>
+          String(entry.language || "")
+            .trim()
+            .toLowerCase() === normalizedLanguage
       ) || {};
 
     return {
       songs: Number(
-        item.count ||
-        item.songs ||
-        item.totalSongs ||
+        item.count ??
+        item.songs ??
+        item.totalSongs ??
+        collectionItem.songs ??
         0
       ),
 
       albums: Number(
-        item.albums ||
-        item.totalAlbums ||
+        item.albums ??
+        item.totalAlbums ??
+        collectionItem.albums ??
         0
       ),
 
       artists: Number(
-        item.artists ||
-        item.totalArtists ||
+        item.artists ??
+        item.totalArtists ??
+        collectionItem.artists ??
+        0
+      ),
+
+      categories: Number(
+        item.categories ??
+        item.totalCategories ??
+        collectionItem.categories ??
+        0
+      ),
+
+      ministries: Number(
+        item.ministries ??
+        item.totalMinistries ??
+        collectionItem.ministries ??
         0
       ),
 
       percentage: Number(
-        item.percentage || 0
+        item.percentage ?? 0
       ),
     };
   };
@@ -1232,7 +1265,7 @@ const handleCalendarDate = (
               <SectionHeader
                 icon={<FaGlobe />}
                 title="Music by Language"
-                description="Songs, albums and artists available in each language"
+                description="Songs, albums, artists, categories and ministries available in each language"
               />
 
 
@@ -1383,6 +1416,58 @@ const handleCalendarDate = (
                             <strong>
                               {formatNumber(
                                 languageData.artists
+                              )}
+                            </strong>
+
+                          </button>
+
+
+                          {/* CATEGORIES */}
+
+                          <button
+                            type="button"
+                            className="language-detail-item"
+                            onClick={() =>
+                              navigateTo(
+                                "/owner/music/categories",
+                                language
+                              )
+                            }
+                          >
+
+                            <span>
+                              Categories
+                            </span>
+
+                            <strong>
+                              {formatNumber(
+                                languageData.categories
+                              )}
+                            </strong>
+
+                          </button>
+
+
+                          {/* MINISTRIES */}
+
+                          <button
+                            type="button"
+                            className="language-detail-item"
+                            onClick={() =>
+                              navigateTo(
+                                "/owner/music/ministries",
+                                language
+                              )
+                            }
+                          >
+
+                            <span>
+                              Ministries
+                            </span>
+
+                            <strong>
+                              {formatNumber(
+                                languageData.ministries
                               )}
                             </strong>
 

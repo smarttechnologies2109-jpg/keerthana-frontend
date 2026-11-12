@@ -36,6 +36,42 @@ const LANGUAGES = [
   "Tamil",
 ];
 
+/* =========================================================
+   NORMALIZE LANGUAGE VALUES
+   Handles case, spaces and common language codes.
+========================================================= */
+
+const normalizeLanguage = (value) => {
+  const raw = String(value ?? "").trim().toLowerCase();
+
+  if (!raw) return "";
+
+  const aliases = {
+    te: "Telugu",
+    "te-in": "Telugu",
+    telugu: "Telugu",
+    hi: "Hindi",
+    "hi-in": "Hindi",
+    hindi: "Hindi",
+    en: "English",
+    "en-in": "English",
+    english: "English",
+    ml: "Malayalam",
+    "ml-in": "Malayalam",
+    malayalam: "Malayalam",
+    kn: "Kannada",
+    "kn-in": "Kannada",
+    kannada: "Kannada",
+    ta: "Tamil",
+    "ta-in": "Tamil",
+    tamil: "Tamil",
+  };
+
+  return aliases[raw] || LANGUAGES.find(
+    (item) => item.toLowerCase() === raw
+  ) || "";
+};
+
 
 /* =========================================================
    COMPONENT
@@ -81,18 +117,9 @@ const BusinessOwnerMinistries = () => {
       params.get("language");
 
 
-    if (
-      urlLanguage &&
-      LANGUAGES.includes(urlLanguage)
-    ) {
-
-      setLanguage(urlLanguage);
-
-    } else {
-
-      setLanguage("");
-
-    }
+    setLanguage(
+      normalizeLanguage(urlLanguage)
+    );
 
   }, [location.search]);
 
@@ -110,24 +137,13 @@ const BusinessOwnerMinistries = () => {
         setLoading(true);
         setError("");
 
-const params = new URLSearchParams(
-  location.search
-);
-
-const urlLanguage =
-  params.get("language");
-
-const response =
-  await API.get(
-    "/owner/music/ministries",
-    {
-      params: urlLanguage
-        ? {
-            language: urlLanguage,
-          }
-        : {},
-    }
-  );
+// Load the complete ministry collection once.
+        // Language filtering and counts are handled consistently
+        // on the frontend, so selecting a language cannot hide
+        // matching records because of backend case differences.
+        const response = await API.get(
+          "/owner/music/ministries"
+        );
 
 
         const data =
@@ -227,9 +243,7 @@ const response =
 
 
           const ministryLanguage =
-            String(
-              ministry?.language || ""
-            );
+            normalizeLanguage(ministry?.language);
 
 
           const matchesSearch =
@@ -244,7 +258,7 @@ const response =
 
           const matchesLanguage =
             !language ||
-            ministryLanguage === language;
+            ministryLanguage === normalizeLanguage(language);
 
 
           return (
@@ -260,6 +274,46 @@ const response =
       search,
       language,
     ]);
+
+  /* =======================================================
+     LANGUAGE-WISE MINISTRY COUNTS
+  ======================================================= */
+
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      LANGUAGES.map((item) => [item, 0])
+    );
+
+    ministries.forEach((ministry) => {
+      const normalized = normalizeLanguage(ministry?.language);
+
+      if (normalized && Object.prototype.hasOwnProperty.call(counts, normalized)) {
+        counts[normalized] += 1;
+      }
+    });
+
+    return counts;
+  }, [ministries]);
+
+
+  /* =======================================================
+     SELECT LANGUAGE
+  ======================================================= */
+
+  const selectLanguage = (selectedLanguage) => {
+    const normalized = normalizeLanguage(selectedLanguage);
+
+    setLanguage(normalized);
+
+    if (normalized) {
+      navigate(
+        `/owner/music/ministries?language=${encodeURIComponent(normalized)}`,
+        { replace: true }
+      );
+    } else {
+      navigate("/owner/music/ministries", { replace: true });
+    }
+  };
 
 
   /* =======================================================
@@ -286,41 +340,8 @@ const response =
      LANGUAGE CHANGE
   ======================================================= */
 
-  const handleLanguageChange = (
-    event
-  ) => {
-
-    const selectedLanguage =
-      event.target.value;
-
-
-    setLanguage(
-      selectedLanguage
-    );
-
-
-    if (selectedLanguage) {
-
-      navigate(
-        `/owner/music/ministries?language=${encodeURIComponent(
-          selectedLanguage
-        )}`,
-        {
-          replace: true,
-        }
-      );
-
-    } else {
-
-      navigate(
-        "/owner/music/ministries",
-        {
-          replace: true,
-        }
-      );
-
-    }
-
+  const handleLanguageChange = (event) => {
+    selectLanguage(event.target.value);
   };
 
 
@@ -367,6 +388,100 @@ const response =
   return (
 
     <div className="owner-ministries-page">
+
+      <style>{`
+        .owner-ministries-language-section {
+          width: min(1440px, calc(100% - 48px));
+          margin: 0 auto 28px;
+          padding: 24px;
+          border: 1px solid rgba(212, 175, 110, 0.18);
+          border-radius: 20px;
+          background: linear-gradient(135deg, rgba(10, 24, 52, 0.96), rgba(17, 39, 78, 0.92));
+          box-shadow: 0 14px 38px rgba(0, 0, 0, 0.18);
+        }
+        .owner-ministries-language-heading {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+        .owner-ministries-language-heading h2 {
+          margin: 0 0 6px;
+          color: #f4e5c4;
+          font-size: 20px;
+          font-weight: 750;
+        }
+        .owner-ministries-language-heading p {
+          margin: 0;
+          color: #b8c5dc;
+          font-size: 13px;
+        }
+        .owner-ministries-language-heading > span {
+          color: #e8c98d;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .owner-ministries-language-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+          gap: 12px;
+        }
+        .owner-ministries-language-card {
+          display: flex;
+          min-height: 116px;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 5px;
+          padding: 16px;
+          border: 1px solid rgba(167, 190, 226, 0.16);
+          border-radius: 15px;
+          background: rgba(255, 255, 255, 0.055);
+          color: #fff;
+          text-align: left;
+          cursor: pointer;
+          transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+        .owner-ministries-language-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(232, 201, 141, 0.65);
+          background: rgba(47, 86, 151, 0.3);
+        }
+        .owner-ministries-language-card.active {
+          border-color: #e8c98d;
+          background: linear-gradient(135deg, rgba(37, 77, 143, 0.72), rgba(21, 46, 91, 0.9));
+          box-shadow: inset 0 0 0 1px rgba(232, 201, 141, 0.18), 0 8px 22px rgba(0, 0, 0, 0.16);
+        }
+        .owner-ministries-language-card-label {
+          color: #dce6f6;
+          font-size: 13px;
+          font-weight: 650;
+        }
+        .owner-ministries-language-card strong {
+          color: #f1d49c;
+          font-size: 27px;
+          line-height: 1.1;
+        }
+        .owner-ministries-language-card small {
+          color: #aebed7;
+          font-size: 11px;
+        }
+        @media (max-width: 640px) {
+          .owner-ministries-language-section {
+            width: calc(100% - 28px);
+            padding: 17px;
+          }
+          .owner-ministries-language-heading {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+          .owner-ministries-language-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+      `}</style>
 
 
       {/* =================================================
@@ -490,6 +605,56 @@ const response =
 
         </div>
 
+      </section>
+
+
+      {/* =================================================
+          LANGUAGE-WISE MINISTRY CARDS
+      ================================================= */}
+
+      <section className="owner-ministries-language-section">
+        <div className="owner-ministries-language-heading">
+          <div>
+            <h2>Ministries by Language</h2>
+            <p>Select a language to view its ministries.</p>
+          </div>
+          <span>{ministries.length} Total Ministries</span>
+        </div>
+
+        <div className="owner-ministries-language-grid">
+          <button
+            type="button"
+            className={`owner-ministries-language-card ${
+              !language ? "active" : ""
+            }`}
+            onClick={() => selectLanguage("")}
+          >
+            <span className="owner-ministries-language-card-label">
+              All Languages
+            </span>
+            <strong>{ministries.length}</strong>
+            <small>All ministries</small>
+          </button>
+
+          {LANGUAGES.map((item) => (
+            <button
+              type="button"
+              key={item}
+              className={`owner-ministries-language-card ${
+                normalizeLanguage(language) === item ? "active" : ""
+              }`}
+              onClick={() => selectLanguage(item)}
+            >
+              <span className="owner-ministries-language-card-label">
+                {item}
+              </span>
+              <strong>{languageCounts[item] || 0}</strong>
+              <small>
+                {languageCounts[item] === 1 ? "Ministry" : "Ministries"}
+              </small>
+            </button>
+          ))}
+        </div>
       </section>
 
 

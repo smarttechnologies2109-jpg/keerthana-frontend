@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -23,28 +22,96 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-// Normalize names before duplicate comparison.
-// This ignores letter case, repeated spaces and Unicode composition differences.
+const LANGUAGES = [
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "English", label: "English" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
+];
+
 const normalizeCategoryName = (value) =>
   String(value || "")
     .normalize("NFC")
     .trim()
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .toLocaleLowerCase();
+
+const normalizeLanguage = (value) => {
+  const language = String(value || "").trim().toLowerCase();
+
+  const aliases = {
+    te: "Telugu",
+    "te-in": "Telugu",
+    telugu: "Telugu",
+
+    hi: "Hindi",
+    "hi-in": "Hindi",
+    hindi: "Hindi",
+
+    en: "English",
+    "en-in": "English",
+    english: "English",
+
+    ml: "Malayalam",
+    "ml-in": "Malayalam",
+    malayalam: "Malayalam",
+
+    kn: "Kannada",
+    "kn-in": "Kannada",
+    kannada: "Kannada",
+
+    ta: "Tamil",
+    "ta-in": "Tamil",
+    tamil: "Tamil",
+  };
+
+  return aliases[language] || "";
+};
+
+const getSongCategoryId = (song) =>
+  song?.category_id ??
+  song?.categoryId ??
+  song?.category?.id ??
+  null;
+
+const getSongLanguage = (song) =>
+  normalizeLanguage(song?.language || song?.language_name);
+
+const getCategoryEnglishName = (category) =>
+  category?.name_english ||
+  category?.nameEnglish ||
+  category?.name ||
+  "";
+
+const getCategoryTeluguName = (category) =>
+  category?.name_telugu ||
+  category?.nameTelugu ||
+  category?.name ||
+  "";
+
+const getSongCategoryName = (song) =>
+  song?.category_name ||
+  song?.categoryName ||
+  (typeof song?.category === "string" ? song.category : "") ||
+  "";
 
 function ManageCategories() {
   const errorRef = useRef(null);
 
   // DATA
   const [categories, setCategories] = useState([]);
+  const [songs, setSongs] = useState([]);
 
   // LOADING
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  // SEARCH
+  // FILTERS
   const [search, setSearch] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
 
   // MESSAGES
   const [error, setError] = useState("");
@@ -54,7 +121,7 @@ function ManageCategories() {
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
-  // BILINGUAL CATEGORY NAMES
+  // CATEGORY NAMES
   const [nameEnglish, setNameEnglish] = useState("");
   const [nameTelugu, setNameTelugu] = useState("");
 
@@ -66,7 +133,7 @@ function ManageCategories() {
   useEffect(() => {
     if (error && showForm && errorRef.current) {
       requestAnimationFrame(() => {
-        errorRef.current.scrollIntoView({
+        errorRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "center",
         });
@@ -74,19 +141,47 @@ function ManageCategories() {
     }
   }, [error, showForm]);
 
-  // LOAD CATEGORIES
+  // LOAD CATEGORIES AND SONGS
   const loadCategories = async (showLoader = true) => {
     try {
       if (showLoader) setLoading(true);
 
       setError("");
 
-      const response = await API.get("/admin/categories");
+      const [categoryResult, songResult] = await Promise.allSettled([
+        API.get("/admin/categories"),
+        API.get("/songs"),
+      ]);
 
-      if (response.data?.success) {
-        setCategories(response.data.categories || []);
+      if (categoryResult.status === "fulfilled") {
+        const categoryData = categoryResult.value.data;
+
+        setCategories(
+          categoryData?.categories ||
+          categoryData?.data?.categories ||
+          []
+        );
       } else {
-        setCategories([]);
+        throw categoryResult.reason;
+      }
+
+      if (songResult.status === "fulfilled") {
+        const songData = songResult.value.data;
+
+        setSongs(
+          Array.isArray(songData)
+            ? songData
+            : songData?.songs ||
+              songData?.data?.songs ||
+              []
+        );
+      } else {
+        console.warn(
+          "Unable to load songs for language counts:",
+          songResult.reason
+        );
+
+        setSongs([]);
       }
     } catch (err) {
       console.error("Load categories error:", err);
@@ -137,11 +232,17 @@ function ManageCategories() {
     setEditingCategory(category);
 
     setNameEnglish(
-      category.name_english || category.nameEnglish || category.name || ""
+      category.name_english ||
+      category.nameEnglish ||
+      category.name ||
+      ""
     );
 
     setNameTelugu(
-      category.name_telugu || category.nameTelugu || category.name || ""
+      category.name_telugu ||
+      category.nameTelugu ||
+      category.name ||
+      ""
     );
 
     setImageFile(null);
@@ -204,15 +305,15 @@ function ManageCategories() {
     }
 
     if (!telugu) {
-      setError("దయచేసి తెలుగు కేటగిరీ పేరును నమోదు చేయండి.");
+      setError(
+        "దయచేసి తెలుగు కేటగిరీ పేరును నమోదు చేయండి."
+      );
       return;
     }
 
-    // DUPLICATE VALIDATION
-    // English names are compared with English names, and Telugu with Telugu.
-    // When editing, exclude the category currently being edited.
     const currentCategoryId = editingCategory?.id;
 
+    // CHECK DUPLICATE ENGLISH NAME
     const duplicateEnglish = categories.some((category) => {
       if (
         editingCategory &&
@@ -221,14 +322,8 @@ function ManageCategories() {
         return false;
       }
 
-      const existingEnglish =
-        category.name_english ||
-        category.nameEnglish ||
-        category.name ||
-        "";
-
       return (
-        normalizeCategoryName(existingEnglish) ===
+        normalizeCategoryName(getCategoryEnglishName(category)) ===
         normalizeCategoryName(english)
       );
     });
@@ -240,6 +335,7 @@ function ManageCategories() {
       return;
     }
 
+    // CHECK DUPLICATE TELUGU NAME
     const duplicateTelugu = categories.some((category) => {
       if (
         editingCategory &&
@@ -248,14 +344,8 @@ function ManageCategories() {
         return false;
       }
 
-      const existingTelugu =
-        category.name_telugu ||
-        category.nameTelugu ||
-        category.name ||
-        "";
-
       return (
-        normalizeCategoryName(existingTelugu) ===
+        normalizeCategoryName(getCategoryTeluguName(category)) ===
         normalizeCategoryName(telugu)
       );
     });
@@ -274,7 +364,6 @@ function ManageCategories() {
 
       const formData = new FormData();
 
-      // BILINGUAL FIELDS
       formData.append("name", telugu);
       formData.append("name_english", english);
       formData.append("name_telugu", telugu);
@@ -300,7 +389,6 @@ function ManageCategories() {
 
       setShowForm(false);
       resetForm();
-
     } catch (err) {
       console.error("Save category error:", err);
 
@@ -333,7 +421,7 @@ function ManageCategories() {
   // DELETE CATEGORY
   const handleDelete = async (category) => {
     const confirmed = window.confirm(
-      `Delete category "${category.name_english || category.name}"?`
+      `Delete category "${getCategoryEnglishName(category)}"?`
     );
 
     if (!confirmed) return;
@@ -346,11 +434,12 @@ function ManageCategories() {
       await API.delete(`/admin/categories/${category.id}`);
 
       setCategories((previous) =>
-        previous.filter((item) => item.id !== category.id)
+        previous.filter(
+          (item) => String(item.id) !== String(category.id)
+        )
       );
 
       setSuccess("Category deleted successfully!");
-
     } catch (err) {
       console.error("Delete category error:", err);
 
@@ -364,36 +453,113 @@ function ManageCategories() {
     }
   };
 
-  // SEARCH BOTH LANGUAGES + ALPHABETICAL ORDER (A-Z)
+  // CHECK WHETHER A SONG BELONGS TO A CATEGORY
+  const songBelongsToCategory = (song, category) => {
+    const songCategoryId = getSongCategoryId(song);
+
+    if (songCategoryId !== null && songCategoryId !== undefined) {
+      return String(songCategoryId) === String(category.id);
+    }
+
+    const songCategoryName = normalizeCategoryName(
+      getSongCategoryName(song)
+    );
+
+    const englishName = normalizeCategoryName(
+      getCategoryEnglishName(category)
+    );
+
+    const teluguName = normalizeCategoryName(
+      getCategoryTeluguName(category)
+    );
+
+    return (
+      songCategoryName &&
+      (
+        songCategoryName === englishName ||
+        songCategoryName === teluguName
+      )
+    );
+  };
+
+  // SONG COUNT FOR EACH CATEGORY
+  const getCategorySongCount = (category, language = "All") => {
+    if (songs.length === 0 && language === "All") {
+      return Number(category.song_count || 0);
+    }
+
+    return songs.filter((song) => {
+      const belongsToCategory = songBelongsToCategory(
+        song,
+        category
+      );
+
+      const matchesLanguage =
+        language === "All" ||
+        getSongLanguage(song) === language;
+
+      return belongsToCategory && matchesLanguage;
+    }).length;
+  };
+
+  // LANGUAGE-WISE CATEGORY COUNTS
+  const languageCounts = useMemo(() => {
+    const counts = {};
+
+    LANGUAGES.forEach(({ value }) => {
+      const usedCategoryIds = new Set();
+
+      songs.forEach((song) => {
+        if (getSongLanguage(song) !== value) return;
+
+        const matchingCategory = categories.find((category) =>
+          songBelongsToCategory(song, category)
+        );
+
+        if (matchingCategory) {
+          usedCategoryIds.add(String(matchingCategory.id));
+        }
+      });
+
+      counts[value] = usedCategoryIds.size;
+    });
+
+    return counts;
+  }, [songs, categories]);
+
+  // FILTER CATEGORIES
   const filteredCategories = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
 
     return [...categories]
       .filter((category) => {
-        if (!query) return true;
+        const englishName = getCategoryEnglishName(category);
+        const teluguName = getCategoryTeluguName(category);
 
-        const englishName =
-          category.name_english || category.nameEnglish || category.name || "";
-        const teluguName =
-          category.name_telugu || category.nameTelugu || category.name || "";
-
-        return (
+        const matchesSearch =
+          !query ||
           String(englishName).toLocaleLowerCase().includes(query) ||
-          String(teluguName).toLocaleLowerCase().includes(query)
-        );
+          String(teluguName).toLocaleLowerCase().includes(query);
+
+        const matchesLanguage =
+          selectedLanguage === "All" ||
+          getCategorySongCount(category, selectedLanguage) > 0;
+
+        return matchesSearch && matchesLanguage;
       })
       .sort((a, b) => {
-        const nameA =
-          a.name_english || a.nameEnglish || a.name || a.name_telugu || "";
-        const nameB =
-          b.name_english || b.nameEnglish || b.name || b.name_telugu || "";
-
-        return String(nameA).localeCompare(String(nameB), "en", {
-          sensitivity: "base",
-          numeric: true,
-        });
+        return getCategoryEnglishName(a).localeCompare(
+          getCategoryEnglishName(b),
+          "en",
+          {
+            sensitivity: "base",
+            numeric: true,
+          }
+        );
       });
-  }, [categories, search]);
+  }, [categories, songs, search, selectedLanguage]);
+
+  const totalSongs = songs.length;
 
   // LOADING
   if (loading) {
@@ -449,9 +615,54 @@ function ManageCategories() {
         </div>
       )}
 
-      {/* SEARCH */}
+      {/* LANGUAGE OVERVIEW CARDS */}
+
+      <div className="admin-category-language-section">
+
+        <button
+          type="button"
+          className={`admin-category-language-card total ${
+            selectedLanguage === "All" ? "active" : ""
+          }`}
+          onClick={() => setSelectedLanguage("All")}
+        >
+          <span className="admin-category-language-label">
+            All Categories
+          </span>
+
+          <strong>{categories.length}</strong>
+
+          <small>
+            {totalSongs.toLocaleString()} total songs
+          </small>
+        </button>
+
+        {LANGUAGES.map((language) => (
+          <button
+            type="button"
+            key={language.value}
+            className={`admin-category-language-card ${
+              selectedLanguage === language.value ? "active" : ""
+            }`}
+            onClick={() => setSelectedLanguage(language.value)}
+          >
+            <span className="admin-category-language-label">
+              {language.label}
+            </span>
+
+            <strong>
+              {languageCounts[language.value] || 0}
+            </strong>
+
+            <small>Categories with songs</small>
+          </button>
+        ))}
+      </div>
+
+      {/* SEARCH AND LANGUAGE FILTER */}
 
       <div className="admin-song-toolbar">
+
         <div className="admin-song-search">
           <FaSearch />
 
@@ -476,6 +687,31 @@ function ManageCategories() {
           )}
         </div>
 
+        <div className="admin-category-language-filter">
+          <label htmlFor="category-language-filter">
+            Language
+          </label>
+
+          <select
+            id="category-language-filter"
+            value={selectedLanguage}
+            onChange={(event) =>
+              setSelectedLanguage(event.target.value)
+            }
+          >
+            <option value="All">All Languages</option>
+
+            {LANGUAGES.map((language) => (
+              <option
+                key={language.value}
+                value={language.value}
+              >
+                {language.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="admin-song-count">
           <FaTags />
 
@@ -491,15 +727,19 @@ function ManageCategories() {
         <div className="admin-empty-state">
           <FaTags />
 
-          <h2>{search ? "No Matching Categories" : "No Categories Found"}</h2>
+          <h2>
+            {search || selectedLanguage !== "All"
+              ? "No Matching Categories"
+              : "No Categories Found"}
+          </h2>
 
           <p>
-            {search
-              ? "Try another search."
+            {search || selectedLanguage !== "All"
+              ? "No categories with songs were found for this language and search. Try another language or search."
               : "Create your first Christian music category."}
           </p>
 
-          {!search && (
+          {!search && selectedLanguage === "All" && (
             <button
               type="button"
               className="admin-primary-button"
@@ -513,9 +753,13 @@ function ManageCategories() {
       ) : (
         <div className="admin-table-wrapper">
           <table className="admin-song-table">
+
             <thead>
               <tr>
-                <th className="admin-category-number-column">No.</th>
+                <th className="admin-category-number-column">
+                  No.
+                </th>
+
                 <th>Category Image</th>
                 <th>English Name</th>
                 <th>Telugu Name</th>
@@ -527,6 +771,7 @@ function ManageCategories() {
             <tbody>
               {filteredCategories.map((category, index) => (
                 <tr key={category.id}>
+
                   <td className="admin-category-number">
                     {String(index + 1).padStart(2, "0")}
                   </td>
@@ -538,8 +783,7 @@ function ManageCategories() {
                           <img
                             src={category.image_url}
                             alt={
-                              category.name_english ||
-                              category.name ||
+                              getCategoryEnglishName(category) ||
                               "Category"
                             }
                             onError={(event) => {
@@ -553,22 +797,26 @@ function ManageCategories() {
 
                   <td>
                     <strong>
-                      {category.name_english || category.name || "-"}
+                      {getCategoryEnglishName(category) || "-"}
                     </strong>
                   </td>
 
                   <td>
                     <strong>
-                      {category.name_telugu || category.name || "-"}
+                      {getCategoryTeluguName(category) || "-"}
                     </strong>
                   </td>
 
                   <td>
-                    {category.song_count ?? 0}
+                    {getCategorySongCount(
+                      category,
+                      selectedLanguage
+                    ).toLocaleString()}
                   </td>
 
                   <td>
                     <div className="admin-table-actions">
+
                       <button
                         type="button"
                         className="admin-action-button edit"
@@ -587,6 +835,7 @@ function ManageCategories() {
                       >
                         <FaTrash />
                       </button>
+
                     </div>
                   </td>
 
@@ -601,6 +850,7 @@ function ManageCategories() {
 
       {showForm && (
         <div className="admin-modal-overlay">
+
           <div className="admin-modal admin-category-modal">
 
             {/* MODAL HEADER */}
@@ -743,6 +993,7 @@ function ManageCategories() {
               {/* ACTIONS */}
 
               <div className="admin-form-actions">
+
                 <button
                   type="button"
                   className="admin-cancel-button"
@@ -763,8 +1014,8 @@ function ManageCategories() {
                       ? "Update Category"
                       : "Add Category"}
                 </button>
-              </div>
 
+              </div>
             </form>
           </div>
         </div>

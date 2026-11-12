@@ -1497,3 +1497,180 @@
   text-align: center;
   width: 65px;
 }
+/* =====================================================
+   KEERTHANA CATEGORY LANGUAGE CARDS
+   Midnight Navy | Royal Blue | Champagne Gold
+===================================================== */
+
+.admin-category-language-section {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.admin-category-language-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 17px 18px;
+  border: 1px solid rgba(201, 169, 106, 0.2);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #101d35, #172b4d);
+  color: #f7f3e9;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-category-language-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(220, 190, 130, 0.65);
+  box-shadow: 0 9px 22px rgba(4, 12, 28, 0.2);
+}
+
+.admin-category-language-card.active {
+  border-color: #d7b979;
+  box-shadow: inset 0 0 0 1px rgba(215, 185, 121, 0.45);
+  background: linear-gradient(145deg, #172b4d, #203d68);
+}
+
+.admin-category-language-label {
+  color: #e8d3a4;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-category-language-card strong {
+  color: #fff;
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+
+.admin-category-language-card small {
+  color: #bdc9dc;
+  font-size: 0.76rem;
+}
+
+/* LANGUAGE DROPDOWN */
+
+.admin-category-language-filter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
+}
+
+.admin-category-language-filter label {
+  color: var(--text-secondary, #aab5c7);
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-category-language-filter select {
+  min-width: 155px;
+  min-height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid rgba(201, 169, 106, 0.35);
+  border-radius: 10px;
+  outline: none;
+  background: #101d35;
+  color: #f7f3e9;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-category-language-filter select:focus {
+  border-color: #d7b979;
+  box-shadow: 0 0 0 3px rgba(215, 185, 121, 0.14);
+}
+
+.admin-category-language-filter select option {
+  background: #101d35;
+  color: #fff;
+}
+
+/* CLEAR SEARCH BUTTON */
+
+.admin-category-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-category-search-clear:hover {
+  background: rgba(215, 185, 121, 0.15);
+  color: #d7b979;
+}
+
+/* TABLE CATEGORY NUMBER */
+
+.admin-category-number-column {
+  width: 65px;
+}
+
+.admin-category-number {
+  color: var(--text-secondary, #aab5c7);
+  font-weight: 700;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .admin-category-language-section {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-category-language-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .admin-category-language-card {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .admin-category-language-card strong {
+    font-size: 1.5rem;
+  }
+
+  .admin-category-language-filter {
+    width: 100%;
+  }
+
+  .admin-category-language-filter select {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-category-language-card {
+    padding: 12px;
+  }
+
+  .admin-category-language-label {
+    font-size: 0.82rem;
+  }
+
+  .admin-category-language-card small {
+    font-size: 0.7rem;
+  }
+}

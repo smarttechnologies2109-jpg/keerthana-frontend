@@ -917,3 +917,131 @@
     min-height: 44px;
   }
 }
+/* =====================================================
+   KEERTHANA — MINISTRY LANGUAGE CARDS
+   Midnight Navy • Royal Blue • Champagne Gold
+===================================================== */
+
+.admin-ministry-language-section {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+
+.admin-ministry-language-card {
+  min-width: 0;
+  padding: 18px;
+  text-align: left;
+  border: 1px solid rgba(201, 168, 92, 0.2);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #172944, #101a2d);
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-ministry-language-card:hover,
+.admin-ministry-language-card.active {
+  border-color: #e8c779;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.admin-ministry-language-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-ministry-language-card-label {
+  color: #e8c779;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-ministry-language-card strong {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 28px;
+  color: #fff;
+}
+
+.admin-ministry-language-card-caption {
+  color: #aab8cf;
+  font-size: 12px;
+}
+
+.admin-ministry-total-card {
+  background: linear-gradient(145deg, #243c60, #14223b);
+}
+
+/* LANGUAGE DROPDOWN */
+
+.admin-ministry-language-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.admin-ministry-language-filter label {
+  color: #9bacc9;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-ministry-language-filter select {
+  height: 42px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid rgba(201, 168, 92, 0.3);
+  border-radius: 9px;
+  background: #101a2d;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  color-scheme: dark;
+}
+
+.admin-ministry-language-filter select:focus {
+  border-color: #e8c779;
+  box-shadow: 0 0 0 3px rgba(232, 199, 121, 0.12);
+}
+
+.admin-ministry-language-filter option {
+  background: #101a2d;
+  color: #fff;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .admin-ministry-language-section {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-ministry-language-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .admin-ministry-language-card {
+    padding: 14px;
+  }
+
+  .admin-ministry-language-card strong {
+    font-size: 24px;
+  }
+
+  .admin-ministry-language-filter {
+    width: 100%;
+  }
+
+  .admin-ministry-list-actions {
+    flex-wrap: wrap;
+  }
+}

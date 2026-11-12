@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -47,6 +46,33 @@ const getEnglishTitle = (album) =>
 const getTeluguTitle = (album) =>
   album?.title_telugu || album?.title || "";
 
+const normalizeLanguage = (value) => {
+  const language = String(value || "").trim().toLowerCase();
+
+  const aliases = {
+    te: "Telugu",
+    "te-in": "Telugu",
+    telugu: "Telugu",
+    hi: "Hindi",
+    "hi-in": "Hindi",
+    hindi: "Hindi",
+    en: "English",
+    "en-in": "English",
+    english: "English",
+    ml: "Malayalam",
+    "ml-in": "Malayalam",
+    malayalam: "Malayalam",
+    kn: "Kannada",
+    "kn-in": "Kannada",
+    kannada: "Kannada",
+    ta: "Tamil",
+    "ta-in": "Tamil",
+    tamil: "Tamil",
+  };
+
+  return aliases[language] || "";
+};
+
 // =====================================================
 // COMPONENT
 // =====================================================
@@ -70,6 +96,7 @@ function ManageAlbums() {
   const [success, setSuccess] = useState("");
 
   const [search, setSearch] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
 
   // ===================================================
   // MODAL
@@ -260,7 +287,7 @@ function ManageAlbums() {
       setForm((previous) => ({
         ...previous,
         language: value,
-          }));
+      }));
 
       return;
     }
@@ -390,7 +417,7 @@ function ManageAlbums() {
 
     const validLanguage = LANGUAGES.some(
       (language) =>
-        language.value === form.language
+        language.value === normalizeLanguage(form.language)
     );
 
     if (!validLanguage) {
@@ -514,7 +541,7 @@ function ManageAlbums() {
   };
 
   // ===================================================
-  // SEARCH + ALPHABETICAL ORDER (A-Z)
+  // SEARCH + LANGUAGE FILTER + ALPHABETICAL ORDER
   // ===================================================
 
   const filteredAlbums = useMemo(() => {
@@ -522,19 +549,25 @@ function ManageAlbums() {
 
     return [...albums]
       .filter((album) => {
-        if (!query) return true;
+        const matchesLanguage =
+          selectedLanguage === "All" ||
+          normalizeLanguage(album.language) === selectedLanguage;
 
-        return [
-          album.title,
-          album.title_english,
-          album.title_telugu,
-          album.language,
-          album.release_year,
-        ]
-          .filter(Boolean)
-          .some((value) =>
-            String(value).toLocaleLowerCase().includes(query)
-          );
+        const matchesSearch =
+          !query ||
+          [
+            album.title,
+            album.title_english,
+            album.title_telugu,
+            album.language,
+            album.release_year,
+          ]
+            .filter(Boolean)
+            .some((value) =>
+              String(value).toLocaleLowerCase().includes(query)
+            );
+
+        return matchesLanguage && matchesSearch;
       })
       .sort((a, b) => {
         const titleA =
@@ -547,7 +580,23 @@ function ManageAlbums() {
           numeric: true,
         });
       });
-  }, [albums, search]);
+  }, [albums, search, selectedLanguage]);
+
+  // ===================================================
+  // LANGUAGE-WISE ALBUM COUNTS
+  // ===================================================
+
+  const languageCounts = useMemo(() => {
+    const counts = {};
+
+    LANGUAGES.forEach(({ value }) => {
+      counts[value] = albums.filter(
+        (album) => normalizeLanguage(album.language) === value
+      ).length;
+    });
+
+    return counts;
+  }, [albums]);
 
   // ===================================================
   // LANGUAGE LABEL
@@ -556,7 +605,7 @@ function ManageAlbums() {
   const getLanguageLabel = (value) => {
     return (
       LANGUAGES.find(
-        (language) => language.value === value
+        (language) => language.value === normalizeLanguage(value)
       )?.label || value || "—"
     );
   };
@@ -633,7 +682,48 @@ function ManageAlbums() {
         </div>
       )}
 
-      {/* SEARCH */}
+      {/* LANGUAGE OVERVIEW CARDS */}
+
+      <div className="admin-album-language-section">
+        <button
+          type="button"
+          className={`admin-album-language-card total ${
+            selectedLanguage === "All" ? "active" : ""
+          }`}
+          onClick={() => setSelectedLanguage("All")}
+        >
+          <span className="admin-album-language-label">
+            All Albums
+          </span>
+
+          <strong>{albums.length}</strong>
+
+          <small>Total albums</small>
+        </button>
+
+        {LANGUAGES.map((language) => (
+          <button
+            type="button"
+            key={language.value}
+            className={`admin-album-language-card ${
+              selectedLanguage === language.value ? "active" : ""
+            }`}
+            onClick={() => setSelectedLanguage(language.value)}
+          >
+            <span className="admin-album-language-label">
+              {language.label}
+            </span>
+
+            <strong>
+              {languageCounts[language.value] || 0}
+            </strong>
+
+            <small>Albums</small>
+          </button>
+        ))}
+      </div>
+
+      {/* SEARCH + LANGUAGE FILTER */}
 
       <div className="admin-song-toolbar">
         <div className="admin-song-search">
@@ -662,6 +752,31 @@ function ManageAlbums() {
           )}
         </div>
 
+        <div className="admin-album-language-filter">
+          <label htmlFor="album-language-filter">
+            Language
+          </label>
+
+          <select
+            id="album-language-filter"
+            value={selectedLanguage}
+            onChange={(event) =>
+              setSelectedLanguage(event.target.value)
+            }
+          >
+            <option value="All">All Languages</option>
+
+            {LANGUAGES.map((language) => (
+              <option
+                key={language.value}
+                value={language.value}
+              >
+                {language.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="admin-song-count">
           <FaCompactDisc />
 
@@ -680,15 +795,19 @@ function ManageAlbums() {
         <div className="admin-empty-state">
           <FaCompactDisc />
 
-          <h2>{search ? "No Matching Albums" : "No Albums Found"}</h2>
+          <h2>
+            {search || selectedLanguage !== "All"
+              ? "No Matching Albums"
+              : "No Albums Found"}
+          </h2>
 
           <p>
-            {search
-              ? "Try another search."
+            {search || selectedLanguage !== "All"
+              ? "Try another search or select a different language."
               : "Create your first KEERTHANA album."}
           </p>
 
-          {!search && (
+          {!search && selectedLanguage === "All" && (
             <button
               type="button"
               className="admin-primary-button"
