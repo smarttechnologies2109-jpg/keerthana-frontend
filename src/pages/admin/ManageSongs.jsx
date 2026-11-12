@@ -61,6 +61,11 @@ function ManageSongs() {
   ] = useState("");
 
   const [
+    selectedLanguage,
+    setSelectedLanguage,
+  ] = useState("All");
+
+  const [
     deletingId,
     setDeletingId,
   ] = useState(null);
@@ -130,14 +135,53 @@ function ManageSongs() {
 
 
   /* =====================================================
-     SEARCH
+     LANGUAGE COUNTS + SEARCH + LANGUAGE FILTER
   ===================================================== */
+
+  const languageOptions = [
+    { value: "Telugu", label: "Telugu", native: "తెలుగు" },
+    { value: "Hindi", label: "Hindi", native: "हिन्दी" },
+    { value: "English", label: "English", native: "English" },
+    { value: "Malayalam", label: "Malayalam", native: "മലയാളം" },
+    { value: "Kannada", label: "Kannada", native: "ಕನ್ನಡ" },
+    { value: "Tamil", label: "Tamil", native: "தமிழ்" },
+  ];
+
+  const normalizeLanguage = (value) => {
+    const language = String(value || "").trim().toLowerCase();
+    const match = languageOptions.find(
+      (item) => item.value.toLowerCase() === language
+    );
+    return match ? match.value : "";
+  };
+
+  // Counts are calculated from the complete songs list, independent of search.
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      languageOptions.map((item) => [item.value, 0])
+    );
+
+    songs.forEach((song) => {
+      const language = normalizeLanguage(song.language);
+      if (language) counts[language] += 1;
+    });
+
+    return counts;
+  }, [songs]);
 
   const filteredSongs = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    // Filter by song, artist, album or category.
     const matchingSongs = songs.filter((song) => {
+      const songLanguage = normalizeLanguage(song.language);
+
+      if (
+        selectedLanguage !== "All" &&
+        songLanguage !== selectedLanguage
+      ) {
+        return false;
+      }
+
       if (!query) return true;
 
       const values = [
@@ -149,6 +193,7 @@ function ManageSongs() {
         song.album,
         song.category_name,
         song.category,
+        song.language,
       ];
 
       return values
@@ -158,8 +203,6 @@ function ManageSongs() {
         );
     });
 
-    // Sort the visible song list alphabetically (A-Z).
-    // Prefer the English title when available; otherwise use the song title.
     return matchingSongs.sort((a, b) => {
       const titleA = String(
         a.title_english || a.title || ""
@@ -174,8 +217,7 @@ function ManageSongs() {
         numeric: true,
       });
     });
-  }, [songs, search]);
-
+  }, [songs, search, selectedLanguage]);
 
   /* =====================================================
      DELETE SONG
@@ -407,6 +449,55 @@ function ManageSongs() {
 
 
       {/* =================================================
+          TOTAL SONGS + LANGUAGE-WISE SUMMARY CARDS
+      ================================================= */}
+
+      <section className="admin-song-language-section" aria-label="Song language summary">
+        <button
+          type="button"
+          className={`admin-song-language-card admin-song-total-card ${
+            selectedLanguage === "All" ? "active" : ""
+          }`}
+          onClick={() => setSelectedLanguage("All")}
+          aria-pressed={selectedLanguage === "All"}
+        >
+          <span className="admin-song-language-card-top">
+            <span className="admin-song-language-card-label">TOTAL SONGS</span>
+            <FaMusic />
+          </span>
+          <strong>{songs.length}</strong>
+          <span className="admin-song-language-card-caption">All languages</span>
+        </button>
+
+        {languageOptions.map((language) => (
+          <button
+            type="button"
+            key={language.value}
+            className={`admin-song-language-card ${
+              selectedLanguage === language.value ? "active" : ""
+            }`}
+            onClick={() =>
+              setSelectedLanguage((current) =>
+                current === language.value ? "All" : language.value
+              )
+            }
+            aria-pressed={selectedLanguage === language.value}
+          >
+            <span className="admin-song-language-card-top">
+              <span className="admin-song-language-card-label">
+                {language.label}
+              </span>
+              <span className="admin-song-language-native">
+                {language.native}
+              </span>
+            </span>
+            <strong>{languageCounts[language.value] || 0}</strong>
+            <span className="admin-song-language-card-caption">Songs</span>
+          </button>
+        ))}
+      </section>
+
+      {/* =================================================
           TOOLBAR
       ================================================= */}
 
@@ -443,13 +534,7 @@ function ManageSongs() {
 
           <span>
 
-            {filteredSongs.length}
-
-            {" "}
-
-            {filteredSongs.length === 1
-              ? "Song"
-              : "Songs"}
+            {filteredSongs.length} of {songs.length} Songs
 
           </span>
 
@@ -474,7 +559,7 @@ function ManageSongs() {
 
           <h2>
 
-            {search
+            {search || selectedLanguage !== "All"
               ? "No Songs Found"
               : "No Songs Yet"}
 
@@ -483,14 +568,14 @@ function ManageSongs() {
 
           <p>
 
-            {search
-              ? "Try another search."
+            {search || selectedLanguage !== "All"
+              ? "Try another search or select a different language."
               : "Add your first song to KEERTHANA."}
 
           </p>
 
 
-          {!search && (
+          {!search && selectedLanguage === "All" && (
 
             <button
               type="button"
@@ -549,6 +634,10 @@ function ManageSongs() {
 
                 <th>
                   Category
+                </th>
+
+                <th>
+                  Language
                 </th>
 
                 <th>
@@ -699,6 +788,13 @@ function ManageSongs() {
                           song.category ||
                           "—"}
 
+                      </td>
+
+                      {/* LANGUAGE */}
+                      <td>
+                        <span className="admin-song-language-badge">
+                          {normalizeLanguage(song.language) || song.language || "—"}
+                        </span>
                       </td>
 
 
