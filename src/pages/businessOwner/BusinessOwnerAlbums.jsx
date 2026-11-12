@@ -35,22 +35,189 @@ const LANGUAGES = [
   "Tamil",
 ];
 
+const firstNonEmpty = (...values) => {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      const nested = firstNonEmpty(
+        value.name,
+        value.title,
+        value.label,
+        value.value,
+        value.code,
+        value.url,
+        value.src
+      );
+      if (nested) return nested;
+      continue;
+    }
+
+    const cleaned = String(value).trim();
+    if (cleaned) return cleaned;
+  }
+  return "";
+};
+
 const normalizeLanguage = (value) => {
-  const raw = String(value ?? "").trim().toLowerCase();
+  const raw = firstNonEmpty(value)
+    .toLowerCase()
+    .replace(/_/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!raw) return "";
+
   const aliases = {
     te: "telugu", "te-in": "telugu", telugu: "telugu",
+    "telugu (te)": "telugu",
     hi: "hindi", "hi-in": "hindi", hindi: "hindi",
+    "hindi (hi)": "hindi",
     en: "english", "en-in": "english", english: "english",
+    "english (en)": "english",
     ml: "malayalam", "ml-in": "malayalam", malayalam: "malayalam",
+    "malayalam (ml)": "malayalam",
     kn: "kannada", "kn-in": "kannada", kannada: "kannada",
+    "kannada (kn)": "kannada",
     ta: "tamil", "ta-in": "tamil", tamil: "tamil",
+    "tamil (ta)": "tamil",
   };
-  return aliases[raw] || raw.replace(/\s+/g, " ");
+
+  if (aliases[raw]) return aliases[raw];
+
+  const prefix = raw.split(/[-\s([]/)[0];
+  return aliases[prefix] || raw;
 };
 
 const getAlbumLanguage = (album) =>
-  album?.language ?? album?.language_name ?? album?.lang ?? "";
+  firstNonEmpty(
+    album?.language,
+    album?.language_name,
+    album?.languageName,
+    album?.language_code,
+    album?.languageCode,
+    album?.primary_language,
+    album?.primaryLanguage,
+    album?.album_language,
+    album?.albumLanguage,
+    album?.lang
+  );
 
+const extractAlbumArray = (payload) => {
+  if (Array.isArray(payload)) return payload;
+
+  const candidates = [
+    payload?.albums,
+    payload?.data,
+    payload?.results,
+    payload?.items,
+    payload?.records,
+    payload?.data?.albums,
+    payload?.data?.results,
+    payload?.data?.items,
+    payload?.data?.records,
+    payload?.result?.albums,
+    payload?.result?.data,
+  ];
+
+  return candidates.find(Array.isArray) || [];
+};
+
+const containsTelugu = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const getAlbumNames = (album) => {
+  const englishExplicit = firstNonEmpty(
+    album?.title_english,
+    album?.english_title,
+    album?.titleEnglish,
+    album?.album_title_english,
+    album?.albumTitleEnglish,
+    album?.album_name_english,
+    album?.albumNameEnglish,
+    album?.name_english,
+    album?.english_name,
+    album?.title_en,
+    album?.name_en,
+    album?.englishTitle,
+    album?.titles?.english,
+    album?.titles?.en,
+    album?.names?.english,
+    album?.names?.en,
+    album?.translations?.en,
+    album?.translations?.english
+  );
+
+  const teluguExplicit = firstNonEmpty(
+    album?.title_telugu,
+    album?.telugu_title,
+    album?.titleTelugu,
+    album?.album_title_telugu,
+    album?.albumTitleTelugu,
+    album?.album_name_telugu,
+    album?.albumNameTelugu,
+    album?.name_telugu,
+    album?.telugu_name,
+    album?.title_te,
+    album?.name_te,
+    album?.teluguTitle,
+    album?.titles?.telugu,
+    album?.titles?.te,
+    album?.names?.telugu,
+    album?.names?.te,
+    album?.translations?.te,
+    album?.translations?.telugu
+  );
+
+  const general = firstNonEmpty(
+    album?.title,
+    album?.album_title,
+    album?.albumTitle,
+    album?.name,
+    album?.album_name
+  );
+
+  const english = englishExplicit || (!containsTelugu(general) ? general : "");
+  const telugu = teluguExplicit || (containsTelugu(general) ? general : "");
+
+  return {
+    english: english || "English name not provided",
+    telugu: telugu || "",
+    searchable: [english, telugu, general].filter(Boolean).join(" "),
+  };
+};
+
+const getAlbumCover = (album) =>
+  firstNonEmpty(
+    album?.cover_url,
+    album?.coverUrl,
+    album?.cover_image_url,
+    album?.coverImageUrl,
+    album?.album_cover_url,
+    album?.albumCoverUrl,
+    album?.image_url,
+    album?.imageUrl,
+    album?.image,
+    album?.cover,
+    album?.thumbnail_url,
+    album?.thumbnail,
+    album?.artwork_url,
+    album?.artwork
+  );
+
+const getAlbumArtist = (album) =>
+  firstNonEmpty(
+    album?.artist_name,
+    album?.artistName,
+    album?.artist,
+    album?.artist?.name,
+    album?.artists?.[0]?.name
+  );
+
+const getAlbumYear = (album) =>
+  firstNonEmpty(album?.release_year, album?.releaseYear, album?.year);
+
+const getAlbumSongCount = (album) =>
+  album?.song_count ?? album?.songs_count ?? album?.total_songs ?? album?.totalSongs ?? null;
 
 /* =========================================================
    BUSINESS OWNER ALBUMS
@@ -118,31 +285,8 @@ const BusinessOwnerAlbums = () => {
         const response = await API.get("/owner/music/albums");
 
 
-        const data =
-          response?.data;
-
-
-        if (Array.isArray(data)) {
-
-          setAlbums(data);
-
-        }
-
-        else if (
-          Array.isArray(data?.albums)
-        ) {
-
-          setAlbums(
-            data.albums
-          );
-
-        }
-
-        else {
-
-          setAlbums([]);
-
-        }
+        const albumList = extractAlbumArray(response?.data);
+        setAlbums(albumList);
 
       }
 
@@ -192,29 +336,11 @@ const BusinessOwnerAlbums = () => {
     return albums.filter(
       (album) => {
 
-        const title =
-          String(
-            album?.title || ""
-          ).toLowerCase();
-
-
-        const artist =
-          String(
-            album?.artist_name ||
-            album?.artist ||
-            ""
-          ).toLowerCase();
-
-
-        const year =
-          String(
-            album?.release_year ||
-            ""
-          ).toLowerCase();
-
-
+        const names = getAlbumNames(album);
+        const title = names.searchable.toLowerCase();
+        const artist = getAlbumArtist(album).toLowerCase();
+        const year = String(getAlbumYear(album) || "").toLowerCase();
         const albumLanguage = normalizeLanguage(getAlbumLanguage(album));
-
 
         const matchesSearch =
           !searchText ||
@@ -241,6 +367,20 @@ const BusinessOwnerAlbums = () => {
     search,
     language,
   ]);
+
+  const languageCounts = useMemo(() => {
+    const counts = Object.fromEntries(LANGUAGES.map((item) => [item, 0]));
+
+    albums.forEach((album) => {
+      const normalized = normalizeLanguage(getAlbumLanguage(album));
+      const matched = LANGUAGES.find(
+        (item) => normalizeLanguage(item) === normalized
+      );
+      if (matched) counts[matched] += 1;
+    });
+
+    return counts;
+  }, [albums]);
 
 
   /* =======================================================
@@ -315,6 +455,53 @@ const BusinessOwnerAlbums = () => {
   return (
 
     <div className="owner-albums-page">
+      <style>{`
+        .owner-albums-language-card {
+          min-width: 118px;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          justify-content: center;
+        }
+        .owner-albums-language-card strong {
+          color: #f7e6b2;
+          font-size: 1.45rem;
+        }
+        .owner-album-cover-wrapper {
+          overflow: hidden;
+          background: rgba(10, 22, 43, .8);
+        }
+        .owner-album-cover {
+          display: block;
+          width: 100%;
+          height: 100%;
+          min-height: 170px;
+          object-fit: cover;
+        }
+        .owner-album-cover-placeholder {
+          min-height: 170px;
+          display: grid;
+          place-items: center;
+          color: #d8b86a;
+          font-size: 3rem;
+          background: linear-gradient(145deg, #142748, #091428);
+        }
+        .owner-album-bilingual-title {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        .owner-album-bilingual-title h3 {
+          margin: 0;
+        }
+        .owner-album-telugu-title {
+          margin: 0;
+          color: #d8c58f;
+          font-size: .95rem;
+          line-height: 1.5;
+          font-weight: 600;
+        }
+      `}</style>
 
 
       {/* ===================================================
@@ -395,9 +582,7 @@ const BusinessOwnerAlbums = () => {
           </button>
 
           {LANGUAGES.map((item) => {
-            const count = albums.filter(
-              (album) => normalizeLanguage(getAlbumLanguage(album)) === normalizeLanguage(item)
-            ).length;
+            const count = languageCounts[item] || 0;
             const active = normalizeLanguage(language) === normalizeLanguage(item);
 
             return (
@@ -688,32 +873,14 @@ const BusinessOwnerAlbums = () => {
               
 
 
-                  const title =
-                    album?.title ||
-                    "Untitled Album";
-
-
-                  const artist =
-                    album?.artist_name ||
-                    album?.artist ||
-                    "Unknown Artist";
-
-
-                  const languageName =
-                    album?.language ||
-                    "Unknown";
-
-
-                  const year =
-                    album?.release_year ||
-                    "—";
-
-
-                  const songCount =
-                    album?.song_count ??
-                    album?.songs_count ??
-                    album?.total_songs ??
-                    null;
+                  const names = getAlbumNames(album);
+                  const title = names.english;
+                  const teluguTitle = names.telugu;
+                  const artist = getAlbumArtist(album) || "Unknown Artist";
+                  const languageName = getAlbumLanguage(album) || "Unknown";
+                  const year = getAlbumYear(album) || "—";
+                  const songCount = getAlbumSongCount(album);
+                  const cover = getAlbumCover(album);
 
 
                   return (
@@ -721,7 +888,8 @@ const BusinessOwnerAlbums = () => {
                     <article
                       key={
                         album?.id ||
-                        `${title}-${index}`
+                        album?.album_id ||
+                        `${title}-${teluguTitle || "album"}-${index}`
                       }
                       className="owner-album-card"
                     >
@@ -730,21 +898,28 @@ const BusinessOwnerAlbums = () => {
                       {/* COVER */}
 
                       <div className="owner-album-cover-wrapper">
-
-                        {/* <img
-                          src={cover}
-                          alt={title}
-                          className="owner-album-cover"
-                          onError={(
-                            event
-                          ) => {
-
-                            event.currentTarget.src =
-                              "/images/default-album.png";
-
-                          }}
-                        /> */}
-
+                        {cover ? (
+                          <img
+                            src={cover}
+                            alt={`${title}${teluguTitle ? ` - ${teluguTitle}` : ""} album cover`}
+                            className="owner-album-cover"
+                            loading="lazy"
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                              const placeholder = event.currentTarget.parentElement?.querySelector(
+                                ".owner-album-cover-placeholder"
+                              );
+                              if (placeholder) placeholder.style.display = "grid";
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="owner-album-cover-placeholder"
+                          style={{ display: cover ? "none" : "grid" }}
+                          aria-label="Album cover unavailable"
+                        >
+                          <FaCompactDisc />
+                        </div>
                       </div>
 
 
@@ -753,9 +928,14 @@ const BusinessOwnerAlbums = () => {
                       <div className="owner-album-details">
 
 
-                        <h3>
-                          {title}
-                        </h3>
+                        <div className="owner-album-bilingual-title">
+                          <h3>{title}</h3>
+                          {teluguTitle && (
+                            <p className="owner-album-telugu-title">
+                              {teluguTitle}
+                            </p>
+                          )}
+                        </div>
 
 
                         <p className="owner-album-artist">

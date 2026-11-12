@@ -8,9 +8,6 @@ import {
   FaChartBar,
   FaSignOutAlt,
   FaArrowRight,
-  FaChurch,
-  FaTags,
-  FaGlobe,
   FaHeadphones,
   FaCrown,
 } from "react-icons/fa";
@@ -34,24 +31,7 @@ const BusinessOwnerDashboard = () => {
     navigate("/owner/login", { replace: true });
   };
 
-  // Supported KEERTHANA languages
-  const languages = [
-    { name: "Telugu", code: "TE", native: "తెలుగు" },
-    { name: "Hindi", code: "HI", native: "हिन्दी" },
-    { name: "English", code: "EN", native: "English" },
-    { name: "Malayalam", code: "ML", native: "മലയാളം" },
-    { name: "Kannada", code: "KN", native: "ಕನ್ನಡ" },
-    { name: "Tamil", code: "TA", native: "தமிழ்" },
-  ];
-
-  /*
-   * IMPORTANT:
-   * These paths must match the routes declared in App.jsx.
-   * Categories and Ministries are nested under /owner/music.
-   * There is no standalone /owner/languages route, so the
-   * language card opens Music Collection where language-wise
-   * browsing is available.
-   */
+  // Dashboard contains only the three requested management modules.
   const dashboardCards = [
     {
       title: "User Management",
@@ -62,40 +42,16 @@ const BusinessOwnerDashboard = () => {
       path: "/owner/users",
     },
     {
-      title: "Ministry Management",
-      description: "View ministries and their Christian music content.",
-      button: "View Ministries",
-      icon: <FaChurch />,
-      className: "ministries-card",
-      path: "/owner/music/ministries",
-    },
-    {
-      title: "Category Management",
-      description: "View and organize KEERTHANA music categories.",
-      button: "View Categories",
-      icon: <FaTags />,
-      className: "categories-card",
-      path: "/owner/music/categories",
-    },
-    {
-      title: "Language Management",
-      description: "Browse songs, albums, artists and collections by language.",
-      button: "Explore Languages",
-      icon: <FaGlobe />,
-      className: "languages-card",
-      path: "/owner/music",
-    },
-    {
       title: "Platform Statistics",
       description: "View users, music and platform performance.",
-      button: "View Statistics",
+      button: "Manage Statistics",
       icon: <FaChartBar />,
       className: "statistics-card",
       path: "/owner/statistics",
     },
     {
       title: "Music Management",
-      description: "Explore songs, albums, artists, categories and ministries.",
+      description: "Manage songs, albums, artists and music collections.",
       button: "Manage Music",
       icon: <FaMusic />,
       className: "music-card",
@@ -176,7 +132,7 @@ const BusinessOwnerDashboard = () => {
           <div className="owner-section-heading">
             <div>
               <h2>Platform Management</h2>
-              <p>Manage all your KEERTHANA platform services.</p>
+              <p>Manage your KEERTHANA platform services.</p>
             </div>
 
             <span className="owner-section-count">
@@ -213,41 +169,6 @@ const BusinessOwnerDashboard = () => {
                   {card.button}
                   <FaArrowRight />
                 </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* LANGUAGE SECTION */}
-        <section className="owner-languages-section">
-          <div className="owner-section-heading">
-            <div>
-              <h2>
-                <FaGlobe /> Supported Languages
-              </h2>
-
-              <p>Languages available in KEERTHANA Music.</p>
-            </div>
-
-            <span className="owner-section-count">
-              {languages.length} Languages
-            </span>
-          </div>
-
-          <div className="owner-languages-grid">
-            {languages.map((language) => (
-              <div
-                key={language.code}
-                className="owner-language-card"
-              >
-                <div className="owner-language-code">
-                  {language.code}
-                </div>
-
-                <div className="owner-language-info">
-                  <h3>{language.name}</h3>
-                  <p>{language.native}</p>
-                </div>
               </div>
             ))}
           </div>

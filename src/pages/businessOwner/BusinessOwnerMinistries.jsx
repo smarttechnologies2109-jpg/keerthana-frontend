@@ -67,9 +67,136 @@ const normalizeLanguage = (value) => {
     tamil: "Tamil",
   };
 
-  return aliases[raw] || LANGUAGES.find(
+  if (aliases[raw]) return aliases[raw];
+
+  // Accept values such as "TELUGU (te)", "te_IN", and "te-IN".
+  const compact = raw.replace(/_/g, "-");
+  if (aliases[compact]) return aliases[compact];
+
+  const code = compact.split(/[-\s(]/)[0];
+  if (aliases[code]) return aliases[code];
+
+  return LANGUAGES.find(
     (item) => item.toLowerCase() === raw
   ) || "";
+};
+
+const firstNonEmpty = (...values) => {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+
+    if (typeof value === "object") {
+      const nested = value.name || value.label || value.code || value.value;
+      if (nested !== null && nested !== undefined && String(nested).trim()) {
+        return nested;
+      }
+      continue;
+    }
+
+    if (String(value).trim()) return value;
+  }
+
+  return "";
+};
+
+const getMinistryLanguage = (ministry) => {
+  const raw = firstNonEmpty(
+    ministry?.language,
+    ministry?.language_name,
+    ministry?.languageName,
+    ministry?.language_code,
+    ministry?.languageCode,
+    ministry?.primary_language,
+    ministry?.primaryLanguage,
+    ministry?.song_language,
+    ministry?.ministry_language,
+    ministry?.ministryLanguage,
+    ministry?.lang
+  );
+
+  return normalizeLanguage(raw);
+};
+
+const getMinistryNames = (ministry) => {
+  const translations = ministry?.translations || {};
+  const names = ministry?.names || {};
+
+  const englishName = String(firstNonEmpty(
+    ministry?.name_english,
+    ministry?.english_name,
+    ministry?.nameEnglish,
+    ministry?.ministry_name_english,
+    ministry?.ministryNameEnglish,
+    ministry?.ministry_name_en,
+    ministry?.name_en,
+    ministry?.nameEn,
+    ministry?.englishName,
+    ministry?.title_english,
+    ministry?.title_en,
+    ministry?.en_name,
+    names?.english,
+    names?.en,
+    translations?.en,
+    translations?.english
+  )).trim();
+
+  const teluguName = String(firstNonEmpty(
+    ministry?.name_telugu,
+    ministry?.telugu_name,
+    ministry?.nameTelugu,
+    ministry?.ministry_name_telugu,
+    ministry?.ministryNameTelugu,
+    ministry?.ministry_name_te,
+    ministry?.name_te,
+    ministry?.nameTe,
+    ministry?.teluguName,
+    names?.telugu,
+    names?.te,
+    translations?.te,
+    translations?.telugu
+  )).trim();
+
+  const generalName = String(firstNonEmpty(
+    ministry?.name,
+    ministry?.ministry_name,
+    ministry?.ministryName,
+    ministry?.title
+  )).trim();
+
+  const generalNameIsTelugu = /[\u0C00-\u0C7F]/.test(generalName);
+
+  // Do not display a Telugu-script value under the English heading.
+  const displayEnglish =
+    englishName || (generalName && !generalNameIsTelugu ? generalName : "");
+
+  const displayTelugu =
+    teluguName || (generalNameIsTelugu ? generalName : "");
+
+  return {
+    english: displayEnglish,
+    telugu: displayTelugu,
+    fallback: displayEnglish || displayTelugu || generalName || "Unnamed Ministry",
+  };
+};
+
+const extractMinistryArray = (payload) => {
+  if (Array.isArray(payload)) return payload;
+
+  const candidates = [
+    payload?.ministries,
+    payload?.data,
+    payload?.results,
+    payload?.items,
+    payload?.records,
+    payload?.data?.ministries,
+    payload?.data?.results,
+    payload?.data?.items,
+    payload?.data?.records,
+    payload?.result?.ministries,
+    payload?.result?.data,
+  ];
+
+  return candidates.find(Array.isArray) || [];
 };
 
 
@@ -146,43 +273,12 @@ const BusinessOwnerMinistries = () => {
         );
 
 
-        const data =
-          response?.data;
+        const data = response?.data;
+        const ministryRows = extractMinistryArray(data);
 
-
-        /*
-          Supports:
-
-          [
-            {...}
-          ]
-
-          OR
-
-          {
-            ministries: [...]
-          }
-        */
-
-        if (Array.isArray(data)) {
-
-          setMinistries(data);
-
-        } else if (
-          Array.isArray(
-            data?.ministries
-          )
-        ) {
-
-          setMinistries(
-            data.ministries
-          );
-
-        } else {
-
-          setMinistries([]);
-
-        }
+        // Keep the original API objects intact. The helper functions
+        // above normalize the language/name field variations for display.
+        setMinistries(ministryRows);
 
       } catch (err) {
 
@@ -230,30 +326,30 @@ const BusinessOwnerMinistries = () => {
       return ministries.filter(
         (ministry) => {
 
-          const name =
-            String(
-              ministry?.name || ""
-            ).toLowerCase();
+          const names = getMinistryNames(ministry);
 
+          const searchableNames = [
+            names.english,
+            names.telugu,
+            names.fallback,
+            ministry?.name,
+            ministry?.name_english,
+            ministry?.name_telugu,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
 
-          const description =
-            String(
-              ministry?.description || ""
-            ).toLowerCase();
+          const description = String(
+            ministry?.description || ""
+          ).toLowerCase();
 
-
-          const ministryLanguage =
-            normalizeLanguage(ministry?.language);
-
+          const ministryLanguage = getMinistryLanguage(ministry);
 
           const matchesSearch =
             !searchText ||
-            name.includes(
-              searchText
-            ) ||
-            description.includes(
-              searchText
-            );
+            searchableNames.includes(searchText) ||
+            description.includes(searchText);
 
 
           const matchesLanguage =
@@ -285,7 +381,7 @@ const BusinessOwnerMinistries = () => {
     );
 
     ministries.forEach((ministry) => {
-      const normalized = normalizeLanguage(ministry?.language);
+      const normalized = getMinistryLanguage(ministry);
 
       if (normalized && Object.prototype.hasOwnProperty.call(counts, normalized)) {
         counts[normalized] += 1;
@@ -467,6 +563,35 @@ const BusinessOwnerMinistries = () => {
         .owner-ministries-language-card small {
           color: #aebed7;
           font-size: 11px;
+        }
+        .owner-ministry-bilingual-name {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-width: 0;
+        }
+        .owner-ministry-name-english {
+          margin: 0;
+          color: #f7f8fc;
+          font-size: 17px;
+          font-weight: 750;
+          line-height: 1.3;
+          overflow-wrap: anywhere;
+        }
+        .owner-ministry-name-telugu {
+          margin: 0;
+          color: #e8c98d;
+          font-size: 15px;
+          font-weight: 650;
+          line-height: 1.4;
+          overflow-wrap: anywhere;
+        }
+        .owner-ministry-name-caption {
+          color: #9fb0ca;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.07em;
+          text-transform: uppercase;
         }
         @media (max-width: 640px) {
           .owner-ministries-language-section {
@@ -824,7 +949,7 @@ const BusinessOwnerMinistries = () => {
 
                   <article
                     className="owner-ministry-card"
-                    key={ministry.id}
+                    key={ministry.id || ministry.ministry_id || ministry.uuid || getMinistryNames(ministry).fallback}
                   >
 
 
@@ -839,8 +964,7 @@ const BusinessOwnerMinistries = () => {
                           )
                         }
                         alt={
-                          ministry?.name ||
-                          "Ministry"
+                          getMinistryNames(ministry).fallback
                         }
                         className="owner-ministry-image"
                         onError={(
@@ -877,27 +1001,36 @@ const BusinessOwnerMinistries = () => {
 
                       <div className="owner-ministry-card-top">
 
-                        <h2>
-                          {ministry?.name ||
-                            "Unnamed Ministry"}
-                        </h2>
+                        {(() => {
+                          const names = getMinistryNames(ministry);
 
+                          return (
+                            <div className="owner-ministry-bilingual-name">
+                              <span className="owner-ministry-name-caption">
+                                Ministry Name
+                              </span>
 
-                        {ministry?.language && (
+                              <h2 className="owner-ministry-name-english">
+                                {names.english || "English name not provided by API"}
+                              </h2>
 
+                              {names.telugu && (
+                                <p className="owner-ministry-name-telugu">
+                                  {names.telugu}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
+
+                        {getMinistryLanguage(ministry) && (
                           <span
-                            className={`owner-ministry-language-badge owner-ministry-language-${String(
-                              ministry.language
-                            )
-                              .toLowerCase()
-                              .replace(
-                                /\s+/g,
-                                "-"
-                              )}`}
+                            className={`owner-ministry-language-badge owner-ministry-language-${getMinistryLanguage(
+                              ministry
+                            ).toLowerCase()}`}
                           >
-                            {ministry.language}
+                            {getMinistryLanguage(ministry)}
                           </span>
-
                         )}
 
                       </div>
@@ -945,7 +1078,7 @@ const BusinessOwnerMinistries = () => {
 
                         <div className="owner-ministry-id">
 
-                          ID: {ministry.id}
+                          ID: {ministry.id || ministry.ministry_id || "—"}
 
                         </div>
 

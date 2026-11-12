@@ -36,20 +36,164 @@ const LANGUAGES = [
   "Tamil",
 ];
 
-const normalizeLanguage = (value) => {
-  const raw = String(value ?? "").trim().toLowerCase();
-  if (!raw) return "";
-  const aliases = {
-    te: "Telugu", "te-in": "Telugu", telugu: "Telugu",
-    hi: "Hindi", "hi-in": "Hindi", hindi: "Hindi",
-    en: "English", "en-in": "English", english: "English",
-    ml: "Malayalam", "ml-in": "Malayalam", malayalam: "Malayalam",
-    kn: "Kannada", "kn-in": "Kannada", kannada: "Kannada",
-    ta: "Tamil", "ta-in": "Tamil", tamil: "Tamil",
-  };
-  return aliases[raw] || raw.charAt(0).toUpperCase() + raw.slice(1);
+const firstNonEmpty = (...values) => {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      const nested = firstNonEmpty(
+        value.name,
+        value.title,
+        value.label,
+        value.value,
+        value.code,
+        value.url,
+        value.src
+      );
+      if (nested) return nested;
+      continue;
+    }
+
+    const cleaned = String(value).trim();
+    if (cleaned) return cleaned;
+  }
+  return "";
 };
 
+const normalizeLanguage = (value) => {
+  const raw = firstNonEmpty(value)
+    .toLowerCase()
+    .replace(/_/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!raw) return "";
+
+  const aliases = {
+    te: "telugu", "te-in": "telugu", telugu: "telugu",
+    "telugu (te)": "telugu",
+    hi: "hindi", "hi-in": "hindi", hindi: "hindi",
+    en: "english", "en-in": "english", english: "english",
+    ml: "malayalam", "ml-in": "malayalam", malayalam: "malayalam",
+    kn: "kannada", "kn-in": "kannada", kannada: "kannada",
+    ta: "tamil", "ta-in": "tamil", tamil: "tamil",
+  };
+
+  if (aliases[raw]) return aliases[raw];
+
+  const prefix = raw.split(/[-\s([]/)[0];
+  return aliases[prefix] || raw;
+};
+
+const getArtistLanguage = (artist) =>
+  firstNonEmpty(
+    artist?.language,
+    artist?.language_name,
+    artist?.languageName,
+    artist?.language_code,
+    artist?.languageCode,
+    artist?.primary_language,
+    artist?.primaryLanguage,
+    artist?.artist_language,
+    artist?.artistLanguage,
+    artist?.lang
+  );
+
+const extractArtistArray = (payload) => {
+  if (Array.isArray(payload)) return payload;
+
+  const candidates = [
+    payload?.artists,
+    payload?.data,
+    payload?.results,
+    payload?.items,
+    payload?.records,
+    payload?.data?.artists,
+    payload?.data?.results,
+    payload?.data?.items,
+    payload?.data?.records,
+    payload?.result?.artists,
+    payload?.result?.data,
+  ];
+
+  return candidates.find(Array.isArray) || [];
+};
+
+const containsTelugu = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const getArtistNames = (artist) => {
+  const englishExplicit = firstNonEmpty(
+    artist?.name_english,
+    artist?.english_name,
+    artist?.artist_name_english,
+    artist?.artistNameEnglish,
+    artist?.artist_name_en,
+    artist?.english_artist_name,
+    artist?.artist_english_name,
+    artist?.display_name_english,
+    artist?.name_en,
+    artist?.nameEnglish,
+    artist?.englishName,
+    artist?.title_english,
+    artist?.title_en,
+    artist?.names?.english,
+    artist?.names?.en,
+    artist?.translations?.en,
+    artist?.translations?.english
+  );
+
+  const teluguExplicit = firstNonEmpty(
+    artist?.name_telugu,
+    artist?.telugu_name,
+    artist?.artist_name_telugu,
+    artist?.artistNameTelugu,
+    artist?.artist_name_te,
+    artist?.telugu_artist_name,
+    artist?.artist_telugu_name,
+    artist?.display_name_telugu,
+    artist?.name_te,
+    artist?.nameTelugu,
+    artist?.teluguName,
+    artist?.names?.telugu,
+    artist?.names?.te,
+    artist?.translations?.te,
+    artist?.translations?.telugu
+  );
+
+  const general = firstNonEmpty(
+    artist?.name,
+    artist?.artist_name,
+    artist?.artistName,
+    artist?.title
+  );
+
+  const english = englishExplicit || (!containsTelugu(general) ? general : "");
+  const telugu = teluguExplicit || (containsTelugu(general) ? general : "");
+
+  return {
+    english: english || "English name not provided",
+    telugu: telugu || "",
+    searchable: [english, telugu, general].filter(Boolean).join(" "),
+  };
+};
+
+const getArtistImage = (artist) =>
+  firstNonEmpty(
+    artist?.image_url,
+    artist?.imageUrl,
+    artist?.profile_image_url,
+    artist?.profileImageUrl,
+    artist?.profile_image,
+    artist?.profileImage,
+    artist?.photo_url,
+    artist?.photo,
+    artist?.image,
+    artist?.avatar_url,
+    artist?.avatar
+  );
+
+const getArtistSongCount = (artist) =>
+  artist?.song_count ?? artist?.songs_count ?? artist?.total_songs ?? artist?.totalSongs ?? null;
 
 /* =========================================================
    BUSINESS OWNER ARTISTS
@@ -93,11 +237,10 @@ const BusinessOwnerArtists = () => {
 
 
     const normalizedLanguage = normalizeLanguage(urlLanguage);
-    setLanguage(
-      LANGUAGES.includes(normalizedLanguage)
-        ? normalizedLanguage
-        : ""
+    const matchedLanguage = LANGUAGES.find(
+      (item) => normalizeLanguage(item) === normalizedLanguage
     );
+    setLanguage(matchedLanguage || "");
 
   }, [location.search]);
 
@@ -121,31 +264,8 @@ const BusinessOwnerArtists = () => {
         const response = await API.get("/owner/music/artists");
 
 
-        const data =
-          response?.data;
-
-
-        if (Array.isArray(data)) {
-
-          setArtists(data);
-
-        }
-
-        else if (
-          Array.isArray(data?.artists)
-        ) {
-
-          setArtists(
-            data.artists
-          );
-
-        }
-
-        else {
-
-          setArtists([]);
-
-        }
+        const artistList = extractArtistArray(response?.data);
+        setArtists(artistList);
 
       }
 
@@ -195,20 +315,10 @@ const BusinessOwnerArtists = () => {
     return artists.filter(
       (artist) => {
 
-        const name =
-          String(
-            artist?.name || ""
-          ).toLowerCase();
-
-
-        const bio =
-          String(
-            artist?.bio || ""
-          ).toLowerCase();
-
-
-        const artistLanguage = normalizeLanguage(artist?.language);
-
+        const names = getArtistNames(artist);
+        const name = names.searchable.toLowerCase();
+        const bio = String(artist?.bio || "").toLowerCase();
+        const artistLanguage = normalizeLanguage(getArtistLanguage(artist));
 
         const matchesSearch =
           !searchText ||
@@ -243,10 +353,11 @@ const BusinessOwnerArtists = () => {
   const languageCounts = useMemo(() => {
     const counts = Object.fromEntries(LANGUAGES.map((item) => [item, 0]));
     artists.forEach((artist) => {
-      const normalized = normalizeLanguage(artist?.language);
-      if (Object.prototype.hasOwnProperty.call(counts, normalized)) {
-        counts[normalized] += 1;
-      }
+      const normalized = normalizeLanguage(getArtistLanguage(artist));
+      const matched = LANGUAGES.find(
+        (item) => normalizeLanguage(item) === normalized
+      );
+      if (matched) counts[matched] += 1;
     });
     return counts;
   }, [artists]);
@@ -292,22 +403,6 @@ const BusinessOwnerArtists = () => {
   };
 
 
-    /* =======================================================
-     GET ARTIST IMAGE
-  ======================================================= */
-
-  const getArtistImage = (
-    artist
-  ) => {
-
-    return (
-      artist?.image_url ||
-      artist?.image ||
-      artist?.profile_image ||
-      "/images/default-artist.png"
-    );
-
-  };
 
 
   /* =======================================================
@@ -319,6 +414,24 @@ const BusinessOwnerArtists = () => {
     <div className="owner-artists-page">
 
       <style>{`
+        .owner-artist-bilingual-name {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        .owner-artist-bilingual-name h3 {
+          margin: 0;
+        }
+        .owner-artist-telugu-name {
+          margin: 0;
+          color: #d8c58f;
+          font-size: .95rem;
+          line-height: 1.5;
+          font-weight: 600;
+        }
+        .owner-artists-language-card strong {
+          font-variant-numeric: tabular-nums;
+        }
         .owner-artists-language-section {
           margin: 0 0 26px; padding: 22px;
           border: 1px solid rgba(212,175,112,.20); border-radius: 20px;
@@ -561,7 +674,7 @@ const BusinessOwnerArtists = () => {
                     event.target.value
                   )
                 }
-                placeholder="Search artists..."
+                placeholder="Search artists in English or Telugu..."
               />
 
 
@@ -753,27 +866,12 @@ const BusinessOwnerArtists = () => {
                 (artist, index) => {
 
 
-                  const image =
-                    getArtistImage(
-                      artist
-                    );
-
-
-                  const name =
-                    artist?.name ||
-                    "Unknown Artist";
-
-
-                  const artistLanguage =
-                    artist?.language ||
-                    "Unknown";
-
-
-                  const songCount =
-                    artist?.song_count ??
-                    artist?.songs_count ??
-                    artist?.total_songs ??
-                    null;
+                  const image = getArtistImage(artist);
+                  const names = getArtistNames(artist);
+                  const name = names.english;
+                  const teluguName = names.telugu;
+                  const artistLanguage = getArtistLanguage(artist) || "Unknown";
+                  const songCount = getArtistSongCount(artist);
 
 
                   return (
@@ -792,16 +890,13 @@ const BusinessOwnerArtists = () => {
                       <div className="owner-artist-image-wrapper">
 
                         <img
-                          src={image}
-                          alt={name}
+                          src={image || "/images/default-artist.png"}
+                          alt={`${name}${teluguName ? ` - ${teluguName}` : ""}`}
                           className="owner-artist-image"
-                          onError={(
-                            event
-                          ) => {
-
-                            event.currentTarget.src =
-                              "/images/default-artist.png";
-
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.src = "/images/default-artist.png";
                           }}
                         />
 
@@ -813,9 +908,14 @@ const BusinessOwnerArtists = () => {
                       <div className="owner-artist-details">
 
 
-                        <h3>
-                          {name}
-                        </h3>
+                        <div className="owner-artist-bilingual-name">
+                          <h3>{name}</h3>
+                          {teluguName && (
+                            <p className="owner-artist-telugu-name">
+                              {teluguName}
+                            </p>
+                          )}
+                        </div>
 
 
                         {artist?.bio && (
