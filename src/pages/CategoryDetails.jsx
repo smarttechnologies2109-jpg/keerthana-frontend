@@ -87,6 +87,26 @@ const compareSongsAlphabetically = (a, b) => {
   });
 };
 
+
+const getCategoryCoverUrl = (item) => {
+  const imagePath =
+    item?.image_url ||
+    item?.imageUrl ||
+    item?.cover_url ||
+    item?.coverUrl ||
+    item?.image ||
+    item?.photo;
+
+  if (!imagePath || typeof imagePath !== "string") return "";
+
+  try {
+    return getMediaUrl(imagePath) || "";
+  } catch (error) {
+    console.error("Category detail cover URL error:", error);
+    return "";
+  }
+};
+
 function CategoryDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -561,7 +581,23 @@ function CategoryDetails() {
 
         <section className="category-detail-card">
           <div className="category-detail-art">
-            <FaMusic aria-hidden="true" />
+            {getCategoryCoverUrl(category) ? (
+              <img
+                className="category-detail-cover"
+                src={getCategoryCoverUrl(category)}
+                alt={`${getCategoryEnglishName(category)} category cover`}
+                loading="eager"
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.style.display = "none";
+                  event.currentTarget.parentElement?.classList.add(
+                    "category-detail-art-fallback"
+                  );
+                }}
+              />
+            ) : (
+              <FaMusic aria-hidden="true" />
+            )}
           </div>
 
           <span className="categories-eyebrow">
