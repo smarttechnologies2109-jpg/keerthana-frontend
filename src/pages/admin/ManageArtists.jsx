@@ -25,6 +25,7 @@ import { getMediaUrl } from "../../utils/media";
 
 import "../../assets/css/admin/manageArtists.css";
 
+
 // =====================================================
 
 // LANGUAGES
@@ -67,6 +68,11 @@ const EMPTY_FORM = {
 
   image_url: "",
 
+};
+
+const getArtistImage = (imageUrl) => {
+  if (!imageUrl) return null;
+  return getMediaUrl(imageUrl);
 };
 
 const getArtistImageUrl = (imageUrl) => {
@@ -936,36 +942,16 @@ function ManageArtists() {
                     <div className="admin-artist-cell">
 
                       <div className="admin-artist-avatar">
-
-                        {artist.image_url && (
-
-                          <img
-
-                            src={getArtistImageUrl(artist.image_url)}
-
-                            alt={
-
-                              artist.name_english ||
-
-                              artist.name ||
-
-                              "Artist"
-
-                            }
-
-                            onError={(event) => {
-
-                              event.currentTarget.style.display =
-
-                                "none";
-
-                            }}
-
-                          />
-
-                        )}
-
-                      </div>
+  {artist.image_url && (
+    <img
+      src={getArtistImage(artist.image_url)}
+      alt={artist.name || "Artist"}
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  )}
+</div>
 
                       <div className="admin-artist-names">
 
