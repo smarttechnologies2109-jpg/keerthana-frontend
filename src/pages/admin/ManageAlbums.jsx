@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   FaCompactDisc,
@@ -98,6 +98,19 @@ function ManageAlbums() {
 
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
+  const errorMessageRef = useRef(null);
+
+  // Automatically bring validation/API errors into view inside the modal.
+  useEffect(() => {
+    if (!error || !showForm || !errorMessageRef.current) return;
+
+    requestAnimationFrame(() => {
+      errorMessageRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }, [error, showForm]);
 
   // ===================================================
   // IMAGE PREVIEW CLEANUP
@@ -608,13 +621,13 @@ function ManageAlbums() {
 
       {/* MESSAGES */}
 
-      {error && (
-        <div className="admin-error">
+      {!showForm && error && (
+        <div className="admin-error" role="alert">
           {error}
         </div>
       )}
 
-      {success && (
+      {!showForm && success && (
         <div className="admin-success">
           {success}
         </div>
@@ -831,6 +844,19 @@ function ManageAlbums() {
             </div>
 
             {/* FORM */}
+
+            {error && (
+              <div
+                ref={errorMessageRef}
+                className="album-form-error"
+                role="alert"
+                aria-live="assertive"
+                tabIndex={-1}
+              >
+                <strong>Unable to save album</strong>
+                <span>{error}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit}>
 

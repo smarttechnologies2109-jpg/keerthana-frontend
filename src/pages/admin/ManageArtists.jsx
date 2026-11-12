@@ -1,6 +1,6 @@
 
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
 
@@ -127,6 +127,7 @@ function ManageArtists() {
   const [imageFile, setImageFile] = useState(null);
 
   const [imagePreview, setImagePreview] = useState(null);
+  const errorRef = useRef(null);
 
   // ===================================================
 
@@ -789,9 +790,9 @@ function ManageArtists() {
 
       {/* MESSAGES */}
 
-      {error && (
+      {!showForm && error && (
 
-        <div className="admin-error">
+        <div className="admin-error" role="alert" aria-live="assertive">
 
           {error}
 
@@ -1113,7 +1114,19 @@ function ManageArtists() {
 
             {/* FORM */}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
+              {error && (
+                <div
+                  ref={errorRef}
+                  className="admin-error artist-form-error"
+                  role="alert"
+                  aria-live="assertive"
+                  tabIndex="-1"
+                >
+                  <strong>Unable to save artist</strong>
+                  <span>{error}</span>
+                </div>
+              )}
 
               {/* ENGLISH ARTIST NAME */}
 

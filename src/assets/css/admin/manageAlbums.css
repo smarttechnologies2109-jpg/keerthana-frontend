@@ -1299,3 +1299,34 @@
     min-width: 52px;
   }
 }
+/* Album form error visibility */
+.album-form-error {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border: 1px solid #dc5555;
+  border-left: 5px solid #dc5555;
+  border-radius: 10px;
+  background: rgba(220, 55, 55, 0.12);
+  color: #ffbaba;
+  font-size: 14px;
+  line-height: 1.5;
+  scroll-margin-top: 20px;
+}
+
+.album-form-error strong {
+  color: #ff7777;
+  font-size: 15px;
+}
+
+/* Keep the entire album popup scrollable */
+.admin-modal {
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.admin-modal-overlay {
+  overflow-y: auto;
+}
