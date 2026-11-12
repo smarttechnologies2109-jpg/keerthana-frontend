@@ -77,8 +77,8 @@ const normalizeLanguage = (value) => {
   return aliases[prefix] || raw.replace(/\s+/g, " ");
 };
 
-const getCategoryLanguage = (category) =>
-  normalizeLanguage(firstNonEmpty(
+const getCategoryLanguage = (category) => {
+  const detected = normalizeLanguage(firstNonEmpty(
     category?.language,
     category?.language_name,
     category?.languageName,
@@ -89,6 +89,12 @@ const getCategoryLanguage = (category) =>
     category?.lang
   ));
 
+  // The Admin Manage Categories form currently does not save a language field.
+  // Admin treats categories without a language as Telugu, so keep both pages
+  // consistent. Explicit language values always take priority.
+  return detected || "telugu";
+};
+
 const hasTeluguScript = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
 
 const getCategoryNames = (category) => {
@@ -98,7 +104,10 @@ const getCategoryNames = (category) => {
     category?.category_name_en, category?.name_en, category?.nameEn,
     category?.englishName, category?.title_english, category?.title_en,
     category?.names?.english, category?.names?.en,
-    category?.translations?.en, category?.translations?.english
+    category?.translations?.en, category?.translations?.english,
+    category?.category?.name_english, category?.category?.english_name,
+    category?.category?.name_en, category?.names?.English,
+    category?.translations?.English
   );
 
   const telugu = firstNonEmpty(
@@ -106,7 +115,10 @@ const getCategoryNames = (category) => {
     category?.category_name_telugu, category?.categoryNameTelugu,
     category?.category_name_te, category?.name_te, category?.nameTe,
     category?.teluguName, category?.names?.telugu, category?.names?.te,
-    category?.translations?.te, category?.translations?.telugu
+    category?.translations?.te, category?.translations?.telugu,
+    category?.category?.name_telugu, category?.category?.telugu_name,
+    category?.category?.name_te, category?.names?.Telugu,
+    category?.translations?.Telugu
   );
 
   const general = firstNonEmpty(
@@ -127,9 +139,18 @@ const extractCategoryArray = (payload) => {
     payload?.items, payload?.records,
     payload?.data?.categories, payload?.data?.results,
     payload?.data?.items, payload?.data?.records,
-    payload?.result?.categories, payload?.result?.data
+    payload?.result?.categories, payload?.result?.data,
+    payload?.response?.categories, payload?.response?.data,
+    payload?.data?.data?.categories
   ];
-  return candidates.find(Array.isArray) || [];
+  const found = candidates.find(Array.isArray) || [];
+  const seen = new Set();
+  return found.filter((category, index) => {
+    const key = category?.id ?? category?.category_id ?? `row-${index}`;
+    if (seen.has(String(key))) return false;
+    seen.add(String(key));
+    return true;
+  });
 };
 
 /* =========================================================
@@ -253,7 +274,15 @@ const response = await API.get("/owner/music/categories");
       (category) => {
 
         const names = getCategoryNames(category);
-        const searchableNames = `${names.english} ${names.telugu} ${category?.name || ""}`.toLowerCase();
+        const searchableNames = [
+          names.english,
+          names.telugu,
+          category?.name,
+          category?.category_name,
+          category?.categoryName,
+          category?.name_english,
+          category?.name_telugu
+        ].filter(Boolean).join(" ").toLowerCase();
 
         const description =
           String(
@@ -384,6 +413,9 @@ const response = await API.get("/owner/music/categories");
 
     return (
       category?.image_url ||
+      category?.imageUrl ||
+      category?.category_image_url ||
+      category?.cover_url ||
       category?.image ||
       "/images/default-category.png"
     );
@@ -804,14 +836,10 @@ const response = await API.get("/owner/music/categories");
 
 
                   const names = getCategoryNames(category);
-                  const name = names.english || names.telugu || "Unnamed Category";
-                  const categoryLanguage = firstNonEmpty(
-                    category?.language_name,
-                    category?.languageName,
-                    category?.language,
-                    category?.language_code,
-                    category?.lang
-                  ) || "Unknown";
+                  const name = names.english || "Category";
+                  const categoryLanguage = LANGUAGES.find(
+                    (item) => normalizeLanguage(item) === getCategoryLanguage(category)
+                  ) || "Telugu";
 
 
                   const songCount =
@@ -844,6 +872,7 @@ const response = await API.get("/owner/music/categories");
                             event
                           ) => {
 
+                            event.currentTarget.onerror = null;
                             event.currentTarget.src =
                               "/images/default-category.png";
 

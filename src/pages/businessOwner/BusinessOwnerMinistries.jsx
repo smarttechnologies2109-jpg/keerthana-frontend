@@ -50,6 +50,7 @@ const normalizeLanguage = (value) => {
     te: "Telugu",
     "te-in": "Telugu",
     telugu: "Telugu",
+    "తెలుగు": "Telugu",
     hi: "Hindi",
     "hi-in": "Hindi",
     hindi: "Hindi",
@@ -111,15 +112,33 @@ const getMinistryLanguage = (ministry) => {
     ministry?.song_language,
     ministry?.ministry_language,
     ministry?.ministryLanguage,
+    ministry?.language_label,
+    ministry?.languageLabel,
     ministry?.lang
   );
 
-  return normalizeLanguage(raw);
+  const normalized = normalizeLanguage(raw);
+  if (normalized) return normalized;
+  if (String(raw || "").includes("తెలుగు")) return "Telugu";
+
+  const relatedLanguages = Array.isArray(ministry?.languages)
+    ? ministry.languages
+    : [];
+
+  for (const item of relatedLanguages) {
+    const match = normalizeLanguage(item);
+    if (match) return match;
+    if (String(item || "").includes("తెలుగు")) return "Telugu";
+  }
+
+  // Current Admin ministry records are Telugu; the owner API may omit language.
+  return "Telugu";
 };
 
 const getMinistryNames = (ministry) => {
   const translations = ministry?.translations || {};
   const names = ministry?.names || {};
+  const nested = ministry?.ministry || {};
 
   const englishName = String(firstNonEmpty(
     ministry?.name_english,
@@ -128,16 +147,26 @@ const getMinistryNames = (ministry) => {
     ministry?.ministry_name_english,
     ministry?.ministryNameEnglish,
     ministry?.ministry_name_en,
+    ministry?.ministryNameEn,
+    ministry?.english_ministry_name,
+    ministry?.ministry_english_name,
     ministry?.name_en,
     ministry?.nameEn,
     ministry?.englishName,
     ministry?.title_english,
     ministry?.title_en,
     ministry?.en_name,
+    ministry?.name_in_english,
+    nested?.name_english,
+    nested?.english_name,
+    nested?.ministry_name_english,
+    nested?.name_en,
     names?.english,
     names?.en,
+    names?.English,
     translations?.en,
-    translations?.english
+    translations?.english,
+    translations?.English
   )).trim();
 
   const teluguName = String(firstNonEmpty(
@@ -147,35 +176,48 @@ const getMinistryNames = (ministry) => {
     ministry?.ministry_name_telugu,
     ministry?.ministryNameTelugu,
     ministry?.ministry_name_te,
+    ministry?.telugu_ministry_name,
+    ministry?.ministry_telugu_name,
     ministry?.name_te,
     ministry?.nameTe,
     ministry?.teluguName,
+    ministry?.name_in_telugu,
+    nested?.name_telugu,
+    nested?.telugu_name,
+    nested?.ministry_name_telugu,
+    nested?.name_te,
     names?.telugu,
     names?.te,
+    names?.Telugu,
     translations?.te,
-    translations?.telugu
+    translations?.telugu,
+    translations?.Telugu
   )).trim();
 
-  const generalName = String(firstNonEmpty(
+  const generalCandidates = [
     ministry?.name,
     ministry?.ministry_name,
     ministry?.ministryName,
-    ministry?.title
-  )).trim();
+    ministry?.title,
+    nested?.name,
+    nested?.ministry_name,
+    nested?.title
+  ].map((value) => String(value ?? "").trim()).filter(Boolean);
 
-  const generalNameIsTelugu = /[\u0C00-\u0C7F]/.test(generalName);
+  const generalEnglish = generalCandidates.find(
+    (value) => !/[\u0C00-\u0C7F]/.test(value)
+  ) || "";
+  const generalTelugu = generalCandidates.find(
+    (value) => /[\u0C00-\u0C7F]/.test(value)
+  ) || "";
 
-  // Do not display a Telugu-script value under the English heading.
-  const displayEnglish =
-    englishName || (generalName && !generalNameIsTelugu ? generalName : "");
-
-  const displayTelugu =
-    teluguName || (generalNameIsTelugu ? generalName : "");
+  const displayEnglish = englishName || generalEnglish;
+  const displayTelugu = teluguName || generalTelugu;
 
   return {
     english: displayEnglish,
     telugu: displayTelugu,
-    fallback: displayEnglish || displayTelugu || generalName || "Unnamed Ministry",
+    fallback: displayEnglish || displayTelugu || "Unnamed Ministry"
   };
 };
 
@@ -194,6 +236,9 @@ const extractMinistryArray = (payload) => {
     payload?.data?.records,
     payload?.result?.ministries,
     payload?.result?.data,
+    payload?.response?.ministries,
+    payload?.response?.data,
+    payload?.data?.data?.ministries,
   ];
 
   return candidates.find(Array.isArray) || [];
@@ -333,8 +378,16 @@ const BusinessOwnerMinistries = () => {
             names.telugu,
             names.fallback,
             ministry?.name,
+            ministry?.ministry_name,
+            ministry?.ministryName,
             ministry?.name_english,
+            ministry?.english_name,
+            ministry?.ministry_name_english,
+            ministry?.ministry_name_en,
             ministry?.name_telugu,
+            ministry?.telugu_name,
+            ministry?.ministry_name_telugu,
+            ministry?.ministry_name_te,
           ]
             .filter(Boolean)
             .join(" ")

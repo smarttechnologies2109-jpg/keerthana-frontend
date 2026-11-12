@@ -85,8 +85,8 @@ const normalizeLanguage = (value) => {
   return aliases[prefix] || raw;
 };
 
-const getArtistLanguage = (artist) =>
-  firstNonEmpty(
+const getArtistLanguage = (artist) => {
+  const direct = firstNonEmpty(
     artist?.language,
     artist?.language_name,
     artist?.languageName,
@@ -96,8 +96,46 @@ const getArtistLanguage = (artist) =>
     artist?.primaryLanguage,
     artist?.artist_language,
     artist?.artistLanguage,
-    artist?.lang
+    artist?.song_language,
+    artist?.songLanguage,
+    artist?.lang,
+    artist?.language?.label,
+    artist?.language?.display_name
   );
+
+  const normalizedDirect = normalizeLanguage(direct);
+  if (LANGUAGES.some((item) => normalizeLanguage(item) === normalizedDirect)) {
+    return normalizedDirect;
+  }
+
+  const songs = Array.isArray(artist?.songs) ? artist.songs : [];
+  for (const song of songs) {
+    const songLanguage = normalizeLanguage(firstNonEmpty(
+      song?.language,
+      song?.language_name,
+      song?.language_code,
+      song?.song_language
+    ));
+    if (LANGUAGES.some((item) => normalizeLanguage(item) === songLanguage)) {
+      return songLanguage;
+    }
+  }
+
+  const languages = Array.isArray(artist?.languages) ? artist.languages : [];
+  for (const item of languages) {
+    const value = normalizeLanguage(item);
+    if (LANGUAGES.some((language) => normalizeLanguage(language) === value)) {
+      return value;
+    }
+  }
+
+  // In this Telugu music catalogue, a Telugu-script artist name is a useful
+  // fallback only when the API has omitted its language field entirely.
+  const names = getArtistNames(artist);
+  if (names.telugu && containsTelugu(names.telugu)) return "telugu";
+
+  return "";
+};
 
 const extractArtistArray = (payload) => {
   if (Array.isArray(payload)) return payload;
@@ -130,10 +168,18 @@ const getArtistNames = (artist) => {
     artist?.artist_name_en,
     artist?.english_artist_name,
     artist?.artist_english_name,
+    artist?.artist_name_en,
+    artist?.englishName,
+    artist?.artist?.name_english,
+    artist?.artist?.english_name,
     artist?.display_name_english,
     artist?.name_en,
     artist?.nameEnglish,
     artist?.englishName,
+    artist?.artist_name,
+    artist?.artistName,
+    artist?.display_name,
+    artist?.displayName,
     artist?.title_english,
     artist?.title_en,
     artist?.names?.english,
@@ -150,6 +196,9 @@ const getArtistNames = (artist) => {
     artist?.artist_name_te,
     artist?.telugu_artist_name,
     artist?.artist_telugu_name,
+    artist?.teluguName,
+    artist?.artist?.name_telugu,
+    artist?.artist?.telugu_name,
     artist?.display_name_telugu,
     artist?.name_te,
     artist?.nameTelugu,
@@ -164,7 +213,11 @@ const getArtistNames = (artist) => {
     artist?.name,
     artist?.artist_name,
     artist?.artistName,
-    artist?.title
+    artist?.display_name,
+    artist?.displayName,
+    artist?.title,
+    artist?.artist?.name,
+    artist?.artist?.artist_name
   );
 
   const english = englishExplicit || (!containsTelugu(general) ? general : "");
@@ -317,7 +370,14 @@ const BusinessOwnerArtists = () => {
 
         const names = getArtistNames(artist);
         const name = names.searchable.toLowerCase();
-        const bio = String(artist?.bio || "").toLowerCase();
+        const bio = firstNonEmpty(
+          artist?.bio,
+          artist?.description,
+          artist?.bio_english,
+          artist?.english_bio,
+          artist?.bio_telugu,
+          artist?.telugu_bio
+        ).toLowerCase();
         const artistLanguage = normalizeLanguage(getArtistLanguage(artist));
 
         const matchesSearch =
@@ -870,7 +930,7 @@ const BusinessOwnerArtists = () => {
                   const names = getArtistNames(artist);
                   const name = names.english;
                   const teluguName = names.telugu;
-                  const artistLanguage = getArtistLanguage(artist) || "Unknown";
+                  const artistLanguage = getArtistLanguage(artist) || "Language not provided";
                   const songCount = getArtistSongCount(artist);
 
 
@@ -879,7 +939,8 @@ const BusinessOwnerArtists = () => {
                     <article
                       key={
                         artist?.id ||
-                        `${name}-${index}`
+                        artist?.artist_id ||
+                        `${name}-${teluguName}-${index}`
                       }
                       className="owner-artist-card"
                     >
@@ -918,11 +979,25 @@ const BusinessOwnerArtists = () => {
                         </div>
 
 
-                        {artist?.bio && (
+                        {firstNonEmpty(
+                          artist?.bio,
+                          artist?.description,
+                          artist?.bio_english,
+                          artist?.english_bio,
+                          artist?.bio_telugu,
+                          artist?.telugu_bio
+                        ) && (
 
                           <p className="owner-artist-bio">
 
-                            {artist.bio}
+                            {firstNonEmpty(
+                              artist?.bio,
+                              artist?.description,
+                              artist?.bio_english,
+                              artist?.english_bio,
+                              artist?.bio_telugu,
+                              artist?.telugu_bio
+                            )}
 
                           </p>
 
