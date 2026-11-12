@@ -15,9 +15,6 @@ import {
   FaMicrophone,
   FaPrayingHands,
   FaHeart,
-  FaSun,
-  FaDove,
-  FaHandsHelping,
   FaGlobe,
   FaListUl,
   FaExclamationCircle,
@@ -42,14 +39,6 @@ import "../assets/css/home.css";
    Midnight Navy • Royal Blue • Champagne Gold
 ========================================================= */
 
-const MOODS = [
-  { name: "Worship", icon: FaPrayingHands, color: "mood-worship" },
-  { name: "Praise", icon: FaHeart, color: "mood-praise" },
-  { name: "Prayer", icon: FaHandsHelping, color: "mood-prayer" },
-  { name: "Hope", icon: FaSun, color: "mood-hope" },
-  { name: "Peace", icon: FaDove, color: "mood-peace" },
-  { name: "Thanksgiving", icon: FaHeart, color: "mood-thanksgiving" },
-];
 
 const LANGUAGES = [
   "Telugu",
@@ -530,12 +519,12 @@ export default function Home() {
   );
 
   const popularArtists = useMemo(
-    () => artists.slice(0, 12),
+    () => artists.slice(0, 8),
     [artists]
   );
 
   const popularAlbums = useMemo(
-    () => albums.slice(0, 12),
+    () => albums.slice(0, 8),
     [albums]
   );
 
@@ -714,12 +703,6 @@ export default function Home() {
     [navigate]
   );
 
-  const openMood = useCallback(
-    (mood) => {
-      navigate(`/moods/${mood.toLowerCase()}`);
-    },
-    [navigate]
-  );
 
   const handleStartListening = useCallback(() => {
     const firstSong =
@@ -1056,54 +1039,8 @@ export default function Home() {
             <EmptySection message="Featured songs will appear here when selected by your admin." />
           )}
         </HomeSection>
-
         {/* =================================================
-            7. BROWSE MOODS
-        ================================================= */}
-
-        <HomeSection
-          title="Browse Moods"
-          subtitle="Find the right song for every moment"
-          icon={<FaHeart />}
-        >
-          <div className="home-card-grid home-mood-grid">
-            {MOODS.map((mood, index) => {
-              const MoodIcon = mood.icon;
-
-              return (
-                <button
-                  type="button"
-                  key={mood.name}
-                  className={`home-entity-card home-mood-card ${mood.color}`}
-                  onClick={() => openMood(mood.name)}
-                  aria-label={`Browse ${mood.name} songs`}
-                  style={{ "--mood-index": index }}
-                >
-                  <div className="home-mood-art">
-                    <span className="home-mood-number">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    <MoodIcon />
-                    <span className="home-mood-glow" />
-                  </div>
-
-                  <div className="home-entity-info">
-                    <h3>{mood.name}</h3>
-                    <p>Explore songs</p>
-                  </div>
-
-                  <span className="home-card-arrow">
-                    <FaChevronRight />
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </HomeSection>
-
-        {/* =================================================
-            8. ARTISTS
+            7. ARTISTS
         ================================================= */}
 
         <HomeSection
@@ -1132,7 +1069,7 @@ export default function Home() {
         </HomeSection>
 
         {/* =================================================
-            9. ALBUMS
+            8. ALBUMS
         ================================================= */}
 
         <HomeSection
@@ -1165,7 +1102,7 @@ export default function Home() {
         </HomeSection>
 
         {/* =================================================
-            10. EXPLORE MINISTRIES
+            9. EXPLORE MINISTRIES
         ================================================= */}
 
         <HomeSection
@@ -1188,7 +1125,7 @@ export default function Home() {
             </div>
           ) : ministries.length > 0 ? (
             <div className="home-card-grid home-category-grid">
-              {ministries.map((ministry, index) => {
+              {ministries.slice(0, 8).map((ministry, index) => {
                 const image =
                   ministry?.image_url ||
                   ministry?.image ||
@@ -1223,7 +1160,7 @@ export default function Home() {
         </HomeSection>
 
         {/* =================================================
-            11. CATEGORIES
+            10. CATEGORIES
         ================================================= */}
 
         <HomeSection
@@ -1234,7 +1171,7 @@ export default function Home() {
         >
           {categories.length > 0 ? (
             <div className="home-card-grid home-category-grid">
-              {categories.map((category, index) => (
+              {categories.slice(0, 8).map((category, index) => (
                 <EntityCard
                   key={category.id ?? `category-${index}`}
                   title={getEntityName(category)}
@@ -1252,7 +1189,7 @@ export default function Home() {
         </HomeSection>
 
         {/* =================================================
-            12. LANGUAGES
+            11. LANGUAGES
         ================================================= */}
 
         <HomeSection
