@@ -19,7 +19,7 @@ import "../assets/css/ministries.css";
 ========================================================= */
 
 const getMinistryEnglishName = (ministry) => {
-  const english = String(ministry?.name_english || "").trim();
+  const english = String(ministry?.name_english || ministry?.nameEnglish || "").trim();
   const legacy = String(ministry?.name || "").trim();
   const telugu = String(ministry?.name_telugu || "").trim();
 
@@ -97,6 +97,13 @@ function Ministries() {
      Search English/Telugu names and descriptions.
   ========================================================= */
 
+  const ministryNameCollator = new Intl.Collator("en", {
+    usage: "sort",
+    sensitivity: "base",
+    numeric: true,
+    ignorePunctuation: true,
+  });
+
   const filteredMinistries = useMemo(() => {
     const searchText = search.trim().toLocaleLowerCase();
 
@@ -107,17 +114,18 @@ function Ministries() {
         return [
           ministry?.name,
           ministry?.name_english,
+          ministry?.nameEnglish,
           ministry?.name_telugu,
+          ministry?.nameTelugu,
           ministry?.description,
         ].some((value) =>
           String(value || "").toLocaleLowerCase().includes(searchText)
         );
       })
       .sort((a, b) =>
-        getMinistryEnglishName(a).localeCompare(
-          getMinistryEnglishName(b),
-          "en",
-          { sensitivity: "base", numeric: true }
+        ministryNameCollator.compare(
+          getMinistryEnglishName(a),
+          getMinistryEnglishName(b)
         )
       );
   }, [ministries, search]);

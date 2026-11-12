@@ -572,45 +572,56 @@ function ManageMinistries() {
   };
 
   // =======================================================
-  // SEARCH + ALPHABETICAL SORT (A-Z)
+  // SEARCH + ANDROID-SAFE ALPHABETICAL SORT (A-Z)
   // =======================================================
 
+  const ministryCollator = new Intl.Collator("en", {
+    usage: "sort",
+    sensitivity: "base",
+    numeric: true,
+    ignorePunctuation: true,
+  });
+
   const filteredMinistries = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase();
+    const query = search.trim().toLowerCase();
 
-    const matchingMinistries = ministries.filter((ministry) => {
-      if (!query) return true;
+    return ministries
+      .filter((ministry) => {
+        if (!query) return true;
 
-      const searchableValues = [
-        ministry.name_english,
-        ministry.nameEnglish,
-        ministry.name_telugu,
-        ministry.nameTelugu,
-        ministry.name,
-        ministry.description,
-        ministry.language,
-      ];
+        const searchableValues = [
+          ministry.name_english,
+          ministry.nameEnglish,
+          ministry.name_telugu,
+          ministry.nameTelugu,
+          ministry.name,
+          ministry.description,
+          ministry.language,
+        ];
 
-      return searchableValues
-        .filter(Boolean)
-        .some((value) =>
-          String(value).toLocaleLowerCase().includes(query)
+        return searchableValues.some((value) =>
+          String(value || "").toLowerCase().includes(query)
         );
-    });
+      })
+      .sort((a, b) => {
+        const nameA = String(
+          a.name_english ||
+            a.nameEnglish ||
+            a.name ||
+            a.name_telugu ||
+            ""
+        ).trim();
 
-    return [...matchingMinistries].sort((a, b) => {
-      const nameA = String(
-        a.name_english || a.nameEnglish || a.name || a.name_telugu || ""
-      ).trim();
-      const nameB = String(
-        b.name_english || b.nameEnglish || b.name || b.name_telugu || ""
-      ).trim();
+        const nameB = String(
+          b.name_english ||
+            b.nameEnglish ||
+            b.name ||
+            b.name_telugu ||
+            ""
+        ).trim();
 
-      return nameA.localeCompare(nameB, "en", {
-        sensitivity: "base",
-        numeric: true,
+        return ministryCollator.compare(nameA, nameB);
       });
-    });
   }, [ministries, search]);
 
   // MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
