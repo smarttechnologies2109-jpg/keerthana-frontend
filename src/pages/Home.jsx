@@ -950,35 +950,7 @@ export default function Home() {
           )}
         </HomeSection>
 
-        {/* =================================================
-            4. DAILY WORSHIP
-        ================================================= */}
-
-        <HomeSection
-          title="Daily Worship"
-          subtitle="Spend a moment in praise and worship"
-          icon={<FaPrayingHands />}
-          onViewAll={() => navigate("/moods/worship")}
-        >
-          {dailyWorshipSongs.length > 0 ? (
-            <div className="home-square-song-grid">
-              {dailyWorshipSongs.map((song, index) => (
-                <SongCard
-                  key={getId(song) ?? `worship-${index}`}
-                  song={song}
-                  songs={dailyWorshipSongs}
-                  onPlay={handlePlaySong}
-                  onOpen={openSong}
-                  currentSong={currentSong}
-                  isPlaying={isPlaying}
-                  clickToPlay
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptySection message="Worship songs will appear here when available." />
-          )}
-        </HomeSection>
+      
 
         {/* =================================================
             5. RECENTLY ADDED
@@ -1010,35 +982,7 @@ export default function Home() {
           )}
         </HomeSection>
 
-        {/* =================================================
-            6. FEATURED WORSHIP
-        ================================================= */}
-
-        <HomeSection
-          title="Featured Worship"
-          subtitle="Songs selected to lift your heart"
-          icon={<FaPrayingHands />}
-          onViewAll={() => navigate("/moods/worship")}
-        >
-          {featuredSongs.length > 0 ? (
-            <div className="home-card-grid home-song-grid home-featured-grid">
-              {featuredSongs.map((song) => (
-                <SongCard
-                  key={getId(song)}
-                  song={song}
-                  songs={featuredSongs}
-                  onPlay={handlePlaySong}
-                  onOpen={openSong}
-                  currentSong={currentSong}
-                  isPlaying={isPlaying}
-                  clickToPlay
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptySection message="Featured songs will appear here when selected by your admin." />
-          )}
-        </HomeSection>
+       
         {/* =================================================
             7. ARTISTS
         ================================================= */}

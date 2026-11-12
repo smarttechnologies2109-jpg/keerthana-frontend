@@ -29,10 +29,7 @@ import VoiceSearch from "../components/VoiceSearch";
 import { usePlayer } from "../context/usePlayer";
 import { useLikedSongs } from "../context/LikedSongsContext";
 
-import {
-  getSongCover,
- 
-} from "../utils/media";
+import { getSongCover } from "../utils/media";
 
 import "../assets/css/search.css";
 
@@ -156,7 +153,9 @@ const getSongList = (data) => {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.songs)) return data.songs;
   if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.data?.songs)) return data.data.songs;
+  if (Array.isArray(data?.data?.songs)) {
+    return data.data.songs;
+  }
 
   return [];
 };
@@ -208,6 +207,7 @@ function Search() {
       setError("");
 
       const response = await API.get("/songs");
+
       setAllSongs(getSongList(response?.data));
     } catch (err) {
       console.error("Search song loading error:", err);
@@ -230,7 +230,10 @@ function Search() {
   =================================================== */
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(
+      window.location.search
+    );
+
     const initialQuery = params.get("q");
 
     if (initialQuery) {
@@ -260,15 +263,26 @@ function Search() {
       }
     };
 
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape
+    );
 
     return () => {
       document.removeEventListener(
         "mousedown",
         handleOutsideClick
       );
-      document.removeEventListener("keydown", handleEscape);
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape
+      );
     };
   }, [openMenuId]);
 
@@ -277,6 +291,11 @@ function Search() {
   =================================================== */
 
   const sortedSongs = useMemo(() => {
+    const collator = new Intl.Collator("en", {
+      sensitivity: "base",
+      numeric: true,
+    });
+
     return [...allSongs].sort((a, b) => {
       const titleA =
         a?.title_english ||
@@ -294,13 +313,9 @@ function Search() {
         b?.title ||
         "";
 
-      return String(titleA).localeCompare(
-        String(titleB),
-        undefined,
-        {
-          sensitivity: "base",
-          numeric: true,
-        }
+      return collator.compare(
+        String(titleA),
+        String(titleB)
       );
     });
   }, [allSongs]);
@@ -317,7 +332,9 @@ function Search() {
     return sortedSongs.filter((song) => {
       const moods = Array.isArray(song?.moods)
         ? song.moods.join(" ")
-        : "";
+        : typeof song?.moods === "string"
+          ? song.moods
+          : "";
 
       const fields = [
         ...getSongTitles(song),
@@ -339,43 +356,83 @@ function Search() {
      VOICE SEARCH
   =================================================== */
 
-const handleVoiceSearch = (spokenText) => {
-  const searchText = String(spokenText || "").trim();
+  const handleVoiceSearch = useCallback(
+    (spokenText) => {
+      const searchText = String(
+        spokenText || ""
+      ).trim();
 
-  if (!searchText) return;
+      if (!searchText) return;
 
-  setQuery(searchText);
-
-  // Use your existing search function here.
-  // For example, if your existing function is searchSongs:
-  searchSongs(searchText);
-};
+      setQuery(searchText);
+      setPlayError("");
+      setMenuError("");
+      setOpenMenuId(null);
+    },
+    []
+  );
 
   /* ===================================================
-     PLAY SONG
+     PLAY / PAUSE SONG
   =================================================== */
 
-  <button
-  type="button"
-  className="search-song-cover-button"
-  onClick={() => handlePlaySong(song)}
-  aria-label={`Play ${primaryTitle}`}
-  title={`Play ${primaryTitle}`}
->
-  {cover ? (
-    <img
-      className="search-song-cover"
-      src={cover}
-      alt=""
-      loading="lazy"
-      onError={(event) => {
-        event.currentTarget.style.display = "none";
-      }}
-    />
-  ) : (
-    <div className="search-song-cover-empty" />
-  )}
-</button>
+  const handlePlaySong = useCallback(
+    async (song) => {
+      if (!song?.audio_url) {
+        setPlayError(
+          "Audio is not available for this song."
+        );
+        return;
+      }
+
+      setPlayError("");
+      setMenuError("");
+      setOpenMenuId(null);
+
+      try {
+        const isCurrent =
+          currentSong?.id != null &&
+          song?.id != null &&
+          String(currentSong.id) ===
+            String(song.id);
+
+        if (isCurrent) {
+          if (typeof togglePlay === "function") {
+            await togglePlay();
+          } else {
+            setPlayError(
+              "Playback control is unavailable."
+            );
+          }
+        } else {
+          if (typeof playSong === "function") {
+            await playSong(song, sortedSongs);
+          } else {
+            setPlayError(
+              "Song playback is unavailable."
+            );
+          }
+        }
+      } catch (err) {
+        console.error(
+          "Search song playback error:",
+          err
+        );
+
+        setPlayError(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Unable to play this song. Please try again."
+        );
+      }
+    },
+    [
+      currentSong,
+      playSong,
+      sortedSongs,
+      togglePlay,
+    ]
+  );
 
   /* ===================================================
      LIKED SONG STATUS
@@ -416,7 +473,9 @@ const handleVoiceSearch = (spokenText) => {
             break;
 
           case "next": {
-            if (typeof player.playNext === "function") {
+            if (
+              typeof player.playNext === "function"
+            ) {
               await player.playNext(song);
               break;
             }
@@ -427,9 +486,12 @@ const handleVoiceSearch = (spokenText) => {
             ) {
               const nextQueue = [...player.queue];
 
-              const existingIndex = nextQueue.findIndex(
-                (item) => String(item?.id) === String(song?.id)
-              );
+              const existingIndex =
+                nextQueue.findIndex(
+                  (item) =>
+                    String(item?.id) ===
+                    String(song?.id)
+                );
 
               if (existingIndex !== -1) {
                 nextQueue.splice(existingIndex, 1);
@@ -444,7 +506,12 @@ const handleVoiceSearch = (spokenText) => {
                     )
                   : 0;
 
-              nextQueue.splice(insertAt, 0, song);
+              nextQueue.splice(
+                insertAt,
+                0,
+                song
+              );
+
               player.setQueue(nextQueue);
               break;
             }
@@ -456,7 +523,9 @@ const handleVoiceSearch = (spokenText) => {
           }
 
           case "queue":
-            if (typeof player.addToQueue === "function") {
+            if (
+              typeof player.addToQueue === "function"
+            ) {
               await player.addToQueue(song);
             } else {
               setMenuError(
@@ -499,7 +568,12 @@ const handleVoiceSearch = (spokenText) => {
         );
       }
     },
-    [player, toggleLike, handlePlaySong, navigate]
+    [
+      player,
+      toggleLike,
+      handlePlaySong,
+      navigate,
+    ]
   );
 
   /* ===================================================
@@ -519,6 +593,7 @@ const handleVoiceSearch = (spokenText) => {
 
   return (
     <main className="search-page">
+
       {/* PAGE HEADER */}
 
       <header className="search-page-header">
@@ -530,13 +605,11 @@ const handleVoiceSearch = (spokenText) => {
           <h1>Search</h1>
 
           <p>
-            Discover worship songs, artists, albums, and lyrics.
+            Discover worship songs, artists, albums,
+            and lyrics.
           </p>
         </div>
-      </header>      
-
-
-
+      </header>
 
       {/* SEARCH BAR + VOICE SEARCH */}
 
@@ -544,18 +617,20 @@ const handleVoiceSearch = (spokenText) => {
         className="search-controls"
         aria-label="Song search"
       >
-     <VoiceSearch
-  value={query}
-  onChange={(nextValue) => {
-    setQuery(nextValue);
-    setPlayError("");
-    setMenuError("");
-    setOpenMenuId(null);
-  }}
-  onSearch={handleVoiceSearch}
-  placeholder="Search songs, artists, albums, lyrics..."
-  ariaLabel="Search songs, artists, albums, and lyrics"
-/>
+        <VoiceSearch
+          value={query}
+          language={voiceLanguage}
+          onLanguageChange={setVoiceLanguage}
+          onChange={(nextValue) => {
+            setQuery(nextValue);
+            setPlayError("");
+            setMenuError("");
+            setOpenMenuId(null);
+          }}
+          onSearch={handleVoiceSearch}
+          placeholder="Search songs, artists, albums, lyrics..."
+          ariaLabel="Search songs, artists, albums, and lyrics"
+        />
       </section>
 
       {/* PLAYBACK FEEDBACK */}
@@ -604,7 +679,9 @@ const handleVoiceSearch = (spokenText) => {
           aria-live="polite"
         >
           <div className="search-loading-spinner" />
+
           <h2>Loading your music</h2>
+
           <p>Preparing your song library...</p>
         </section>
       )}
@@ -621,6 +698,7 @@ const handleVoiceSearch = (spokenText) => {
           </div>
 
           <h2>Unable to Load Songs</h2>
+
           <p>{error}</p>
 
           <button
@@ -638,6 +716,7 @@ const handleVoiceSearch = (spokenText) => {
 
       {!loading && !error && query.trim() && (
         <section className="search-results-section">
+
           <div className="search-results-header">
             <div>
               <h2>Search Results</h2>
@@ -665,8 +744,15 @@ const handleVoiceSearch = (spokenText) => {
 
           {filteredSongs.length > 0 && (
             <div className="search-song-list">
+
               {filteredSongs.map((song) => {
+
+                /* ---------------------------------------
+                   SONG-SPECIFIC VALUES
+                --------------------------------------- */
+
                 const titles = getSongTitles(song);
+
                 const primaryTitle =
                   titles[0] || "Untitled Song";
 
@@ -676,17 +762,23 @@ const handleVoiceSearch = (spokenText) => {
                   ) || "";
 
                 const current =
-                  String(currentSong?.id) ===
-                  String(song?.id);
+                  String(currentSong?.id ?? "") ===
+                  String(song?.id ?? "");
 
-                const playing = current && isPlaying;
+                const playing =
+                  current && isPlaying;
 
                 const menuOpen =
-                  String(openMenuId) === String(song?.id);
+                  String(openMenuId ?? "") ===
+                  String(song?.id ?? "");
 
                 const liked = songIsLiked(song);
-                const cover =
-                  getSongCover(song) ;
+
+                const cover = getSongCover(song);
+
+                /* ---------------------------------------
+                   SONG CARD
+                --------------------------------------- */
 
                 return (
                   <article
@@ -697,6 +789,7 @@ const handleVoiceSearch = (spokenText) => {
                         : ""
                     }`}
                   >
+
                     {/* PLAY BUTTON */}
 
                     <button
@@ -704,11 +797,21 @@ const handleVoiceSearch = (spokenText) => {
                       className={`search-song-play ${
                         playing ? "playing" : ""
                       }`}
-                      onClick={() => handlePlaySong(song)}
-                      aria-label={`${playing ? "Pause" : "Play"} ${primaryTitle}`}
-                      title={playing ? "Pause" : "Play"}
+                      onClick={() =>
+                        handlePlaySong(song)
+                      }
+                      aria-label={`${
+                        playing ? "Pause" : "Play"
+                      } ${primaryTitle}`}
+                      title={
+                        playing ? "Pause" : "Play"
+                      }
                     >
-                      {playing ? <FaPause /> : <FaPlay />}
+                      {playing ? (
+                        <FaPause />
+                      ) : (
+                        <FaPlay />
+                      )}
                     </button>
 
                     {/* SONG COVER */}
@@ -716,7 +819,9 @@ const handleVoiceSearch = (spokenText) => {
                     <button
                       type="button"
                       className="search-song-cover-button"
-                      onClick={() => handlePlaySong(song)}
+                      onClick={() =>
+                        handlePlaySong(song)
+                      }
                       aria-label={`Play ${primaryTitle}`}
                       title={`Play ${primaryTitle}`}
                     >
@@ -727,7 +832,7 @@ const handleVoiceSearch = (spokenText) => {
                         loading="lazy"
                         onError={(event) => {
                           event.currentTarget.onerror = null;
-                          
+                          event.currentTarget.style.opacity = "0";
                         }}
                       />
                     </button>
@@ -735,11 +840,14 @@ const handleVoiceSearch = (spokenText) => {
                     {/* SONG DETAILS */}
 
                     <div className="search-song-info">
+
                       <h3 title={primaryTitle}>
                         <button
                           type="button"
                           className="search-song-title-button"
-                          onClick={() => handlePlaySong(song)}
+                          onClick={() =>
+                            handlePlaySong(song)
+                          }
                         >
                           {primaryTitle}
                         </button>
@@ -759,8 +867,11 @@ const handleVoiceSearch = (spokenText) => {
                       </p>
 
                       <div className="search-song-meta">
+
                         {getAlbumName(song) && (
-                          <span title={getAlbumName(song)}>
+                          <span
+                            title={getAlbumName(song)}
+                          >
                             {getAlbumName(song)}
                           </span>
                         )}
@@ -772,10 +883,13 @@ const handleVoiceSearch = (spokenText) => {
                         )}
 
                         {getCategoryName(song) && (
-                          <span title={getCategoryName(song)}>
+                          <span
+                            title={getCategoryName(song)}
+                          >
                             {getCategoryName(song)}
                           </span>
                         )}
+
                       </div>
 
                       {current && (
@@ -785,6 +899,7 @@ const handleVoiceSearch = (spokenText) => {
                             : "Paused"}
                         </small>
                       )}
+
                     </div>
 
                     {/* THREE-DOT MENU */}
@@ -793,6 +908,7 @@ const handleVoiceSearch = (spokenText) => {
                       className="search-song-menu-container"
                       ref={menuOpen ? menuRef : null}
                     >
+
                       <button
                         type="button"
                         className="search-song-menu-trigger"
@@ -804,7 +920,7 @@ const handleVoiceSearch = (spokenText) => {
                           setMenuError("");
 
                           setOpenMenuId((previous) =>
-                            String(previous) ===
+                            String(previous ?? "") ===
                             String(song.id)
                               ? null
                               : song.id
@@ -819,11 +935,15 @@ const handleVoiceSearch = (spokenText) => {
                           className="search-song-context-menu"
                           role="menu"
                         >
+
                           <button
                             type="button"
                             role="menuitem"
                             onClick={() =>
-                              handleMenuAction("play", song)
+                              handleMenuAction(
+                                "play",
+                                song
+                              )
                             }
                           >
                             <FaPlay />
@@ -839,7 +959,10 @@ const handleVoiceSearch = (spokenText) => {
                               type="button"
                               role="menuitem"
                               onClick={() =>
-                                handleMenuAction("next", song)
+                                handleMenuAction(
+                                  "next",
+                                  song
+                                )
                               }
                             >
                               <FaStepForward />
@@ -851,7 +974,10 @@ const handleVoiceSearch = (spokenText) => {
                             type="button"
                             role="menuitem"
                             onClick={() =>
-                              handleMenuAction("queue", song)
+                              handleMenuAction(
+                                "queue",
+                                song
+                              )
                             }
                           >
                             <FaPlus />
@@ -864,7 +990,10 @@ const handleVoiceSearch = (spokenText) => {
                             type="button"
                             role="menuitem"
                             onClick={() =>
-                              handleMenuAction("like", song)
+                              handleMenuAction(
+                                "like",
+                                song
+                              )
                             }
                           >
                             {liked ? (
@@ -884,20 +1013,28 @@ const handleVoiceSearch = (spokenText) => {
                             type="button"
                             role="menuitem"
                             onClick={() =>
-                              handleMenuAction("playlist", song)
+                              handleMenuAction(
+                                "playlist",
+                                song
+                              )
                             }
                           >
                             <FaListUl />
                             <span>Add to playlist</span>
                           </button>
+
                         </div>
                       )}
+
                     </div>
+
                   </article>
                 );
               })}
+
             </div>
           )}
+
         </section>
       )}
 
@@ -905,6 +1042,7 @@ const handleVoiceSearch = (spokenText) => {
 
       {!loading && !error && !query.trim() && (
         <section className="search-state-card search-empty">
+
           <div
             className="search-empty-icon"
             aria-hidden="true"
@@ -914,9 +1052,6 @@ const handleVoiceSearch = (spokenText) => {
 
           <h2>Find Your Favourite Worship Songs</h2>
 
-         
-
-         
         </section>
       )}
 
@@ -926,7 +1061,9 @@ const handleVoiceSearch = (spokenText) => {
         !error &&
         query.trim() &&
         filteredSongs.length === 0 && (
+
           <section className="search-state-card search-empty">
+
             <div
               className="search-empty-icon"
               aria-hidden="true"
@@ -938,8 +1075,8 @@ const handleVoiceSearch = (spokenText) => {
 
             <p>
               We couldn't find a song matching "
-              {query.trim()}". Try another spelling, artist
-              name, language, or lyric.
+              {query.trim()}". Try another spelling,
+              artist name, language, or lyric.
             </p>
 
             <button
@@ -950,8 +1087,10 @@ const handleVoiceSearch = (spokenText) => {
               <FaTimes />
               <span>Clear Search</span>
             </button>
+
           </section>
         )}
+
     </main>
   );
 }

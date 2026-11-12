@@ -136,7 +136,7 @@ const initialForm = {
   album_id: "",
   category_id: "",
   ministry_id: "", 
-  featured: false,
+
 };
 
 const extractList = (data, key) => {
@@ -824,7 +824,7 @@ if (form.ministry_id) {
 
 
    
-      formData.append("featured", String(form.featured));
+     
       formData.append("audio", audioFile);
 
       if (coverFile) {
@@ -1415,21 +1415,7 @@ if (form.ministry_id) {
           </div>
         </div>
 
-        {/* FEATURED */}
-
-        <label className="admin-checkbox">
-          <input
-            type="checkbox"
-            name="featured"
-            checked={form.featured}
-            onChange={handleChange}
-          />
-
-          <div>
-            <strong>Featured Song</strong>
-            <span>Show this song in Featured Worship.</span>
-          </div>
-        </label>
+     
 
         {/* ACTIONS */}
 
