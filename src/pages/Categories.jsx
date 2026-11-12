@@ -61,6 +61,100 @@ const getCategoryCoverUrl = (category) => {
   }
 };
 
+
+/* =========================================================
+   LANGUAGE FILTER
+========================================================= */
+
+const LANGUAGES = [
+  { value: "All", label: "All Languages" },
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "English", label: "English" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
+];
+
+const LANGUAGE_ALIASES = {
+  te: "Telugu",
+  "te-in": "Telugu",
+  telugu: "Telugu",
+  "తెలుగు": "Telugu",
+  en: "English",
+  "en-in": "English",
+  english: "English",
+  hi: "Hindi",
+  "hi-in": "Hindi",
+  hindi: "Hindi",
+  "हिन्दी": "Hindi",
+  "हिंदी": "Hindi",
+  ml: "Malayalam",
+  "ml-in": "Malayalam",
+  malayalam: "Malayalam",
+  "മലയാളം": "Malayalam",
+  kn: "Kannada",
+  "kn-in": "Kannada",
+  kannada: "Kannada",
+  "ಕನ್ನಡ": "Kannada",
+  ta: "Tamil",
+  "ta-in": "Tamil",
+  tamil: "Tamil",
+  "தமிழ்": "Tamil",
+};
+
+const normalizeLanguage = (value) => {
+  if (value == null) return "";
+
+  const raw = String(value).trim().toLowerCase();
+  return LANGUAGE_ALIASES[raw] || String(value).trim();
+};
+
+const getCategoryLanguages = (category) => {
+  const rawValues = [
+    category?.language,
+    category?.category_language,
+    category?.language_name,
+    category?.language_code,
+    category?.primary_language,
+    ...(Array.isArray(category?.languages) ? category.languages : []),
+    ...(Array.isArray(category?.song_languages) ? category.song_languages : []),
+  ];
+
+  const normalized = rawValues
+    .flatMap((value) => {
+      if (value == null || value === "") return [];
+
+      if (typeof value === "object") {
+        return [
+          value.language,
+          value.name,
+          value.code,
+          value.language_name,
+        ].filter(Boolean);
+      }
+
+      return [value];
+    })
+    .map(normalizeLanguage)
+    .filter(Boolean);
+
+  // The categories API may not yet include language metadata.
+  // These categories have Telugu names and are assigned to Telugu.
+  const hasTeluguName = Boolean(
+    String(category?.name_telugu || "").trim()
+  );
+
+  if (
+    hasTeluguName &&
+    !normalized.includes("Telugu")
+  ) {
+    normalized.push("Telugu");
+  }
+
+  return [...new Set(normalized)];
+};
+
 /* =========================================================
    KEERTHANA MUSIC — CATEGORIES PAGE
 
@@ -88,6 +182,7 @@ function Categories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   /* =========================================================
@@ -148,8 +243,6 @@ function Categories() {
 
     return [...categories]
       .filter((category) => {
-        if (!searchText) return true;
-
         const searchableValues = [
           category?.name,
           category?.name_english,
@@ -157,9 +250,20 @@ function Categories() {
           category?.description,
         ];
 
-        return searchableValues.some((value) =>
-          String(value || "").toLocaleLowerCase().includes(searchText)
-        );
+        const matchesSearch =
+          !searchText ||
+          searchableValues.some((value) =>
+            String(value || "")
+              .toLocaleLowerCase()
+              .includes(searchText)
+          );
+
+        const categoryLanguages = getCategoryLanguages(category);
+        const matchesLanguage =
+          selectedLanguage === "All" ||
+          categoryLanguages.includes(selectedLanguage);
+
+        return matchesSearch && matchesLanguage;
       })
       .sort((a, b) =>
         getCategoryEnglishName(a).localeCompare(
@@ -168,7 +272,7 @@ function Categories() {
           { sensitivity: "base", numeric: true }
         )
       );
-  }, [categories, search]);
+  }, [categories, search, selectedLanguage]);
 
   /* =========================================================
      VOICE SEARCH
@@ -299,6 +403,68 @@ function Categories() {
                   />
                 </div>
 
+                {/* LANGUAGE DROPDOWN — DEFAULT: ALL LANGUAGES */}
+
+                <div
+                  className="categories-filter-bar"
+                  aria-label="Filter categories by language"
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    gap: "10px",
+                    width: "100%",
+                    margin: "14px 0 18px",
+                  }}
+                >
+                  <label
+                    htmlFor="categories-language-filter"
+                    style={{
+                      color: "var(--text-secondary, #aebbd0)",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Language
+                  </label>
+
+                  <select
+                    id="categories-language-filter"
+                    className="categories-language-select"
+                    value={selectedLanguage}
+                    onChange={(event) =>
+                      setSelectedLanguage(event.target.value)
+                    }
+                    style={{
+                      minWidth: "160px",
+                      maxWidth: "100%",
+                      padding: "11px 36px 11px 13px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(212, 175, 55, 0.38)",
+                      background: "#101d35",
+                      color: "#f5f7fb",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      outline: "none",
+                    }}
+                  >
+                    {LANGUAGES.map((language) => (
+                      <option
+                        key={language.value}
+                        value={language.value}
+                        style={{
+                          background: "#101d35",
+                          color: "#f5f7fb",
+                        }}
+                      >
+                        {language.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* HEADING AND COUNT */}
 
                 <div className="categories-heading">
@@ -339,28 +505,31 @@ function Categories() {
                     </div>
 
                     <h2>
-                      {search.trim()
+                      {search.trim() || selectedLanguage !== "All"
                         ? "No matching categories"
                         : "No categories yet"}
                     </h2>
 
                     <p>
-                      {search.trim()
-                        ? "Try another search or clear your search."
+                      {search.trim() || selectedLanguage !== "All"
+                        ? "Try another search or choose All Languages."
                         : "Music categories will appear here when they are added to KEERTHANA."}
                     </p>
 
-                    {search.trim() && (
+                    {(search.trim() || selectedLanguage !== "All") && (
                       <button
                         type="button"
                         className="categories-secondary-button"
-                        onClick={() => setSearch("")}
+                        onClick={() => {
+                          setSearch("");
+                          setSelectedLanguage("All");
+                        }}
                       >
-                        Clear Search
+                        Clear Filters
                       </button>
                     )}
 
-                    {!search.trim() && (
+                    {!search.trim() && selectedLanguage === "All" && (
                       <button
                         type="button"
                         className="categories-secondary-button"

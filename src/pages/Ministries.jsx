@@ -38,6 +38,95 @@ const getMinistryTeluguName = (ministry) => {
   return "";
 };
 
+/* =========================================================
+   LANGUAGE FILTER HELPERS
+========================================================= */
+
+const LANGUAGES = [
+  { value: "All", label: "All Languages" },
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "English", label: "English" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
+];
+
+const LANGUAGE_ALIASES = {
+  te: "Telugu",
+  "te-in": "Telugu",
+  telugu: "Telugu",
+  "తెలుగు": "Telugu",
+  en: "English",
+  "en-in": "English",
+  english: "English",
+  hi: "Hindi",
+  "hi-in": "Hindi",
+  hindi: "Hindi",
+  "हिन्दी": "Hindi",
+  "हिंदी": "Hindi",
+  ml: "Malayalam",
+  "ml-in": "Malayalam",
+  malayalam: "Malayalam",
+  "മലയാളം": "Malayalam",
+  kn: "Kannada",
+  "kn-in": "Kannada",
+  kannada: "Kannada",
+  "ಕನ್ನಡ": "Kannada",
+  ta: "Tamil",
+  "ta-in": "Tamil",
+  tamil: "Tamil",
+  "தமிழ்": "Tamil",
+};
+
+const normalizeLanguage = (value) => {
+  if (value == null) return "";
+
+  const raw = String(value).trim().toLowerCase();
+  return LANGUAGE_ALIASES[raw] || String(value).trim();
+};
+
+const getMinistryLanguages = (ministry) => {
+  const rawValues = [
+    ministry?.language,
+    ministry?.ministry_language,
+    ministry?.language_name,
+    ministry?.language_code,
+    ministry?.primary_language,
+    ...(Array.isArray(ministry?.languages) ? ministry.languages : []),
+    ...(Array.isArray(ministry?.song_languages) ? ministry.song_languages : []),
+  ];
+
+  const normalized = rawValues
+    .flatMap((value) => {
+      if (value == null || value === "") return [];
+
+      if (typeof value === "object") {
+        return [
+          value.language,
+          value.name,
+          value.code,
+          value.language_name,
+        ].filter(Boolean);
+      }
+
+      return [value];
+    })
+    .map(normalizeLanguage)
+    .filter(Boolean);
+
+  // Fallback for existing Telugu ministries whose API response
+  // contains bilingual names but does not yet include language metadata.
+  if (
+    String(ministry?.name_telugu || ministry?.nameTelugu || "").trim() &&
+    !normalized.includes("Telugu")
+  ) {
+    normalized.push("Telugu");
+  }
+
+  return [...new Set(normalized)];
+};
+
 function Ministries() {
   const navigate = useNavigate();
 
@@ -45,6 +134,7 @@ function Ministries() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   /* =========================================================
@@ -109,18 +199,27 @@ function Ministries() {
 
     return [...ministries]
       .filter((ministry) => {
-        if (!searchText) return true;
-
-        return [
+        const searchableValues = [
           ministry?.name,
           ministry?.name_english,
           ministry?.nameEnglish,
           ministry?.name_telugu,
           ministry?.nameTelugu,
           ministry?.description,
-        ].some((value) =>
-          String(value || "").toLocaleLowerCase().includes(searchText)
-        );
+        ];
+
+        const matchesSearch =
+          !searchText ||
+          searchableValues.some((value) =>
+            String(value || "").toLocaleLowerCase().includes(searchText)
+          );
+
+        const ministryLanguages = getMinistryLanguages(ministry);
+        const matchesLanguage =
+          selectedLanguage === "All" ||
+          ministryLanguages.includes(selectedLanguage);
+
+        return matchesSearch && matchesLanguage;
       })
       .sort((a, b) =>
         ministryNameCollator.compare(
@@ -128,7 +227,7 @@ function Ministries() {
           getMinistryEnglishName(b)
         )
       );
-  }, [ministries, search]);
+  }, [ministries, search, selectedLanguage]);
 
   /* =========================================================
      OPEN MINISTRY
@@ -232,6 +331,68 @@ function Ministries() {
                   />
                 </div>
 
+                {/* LANGUAGE DROPDOWN — DEFAULT: ALL LANGUAGES */}
+
+                <div
+                  className="ministries-filter-bar"
+                  aria-label="Filter ministries by language"
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    gap: "10px",
+                    width: "100%",
+                    margin: "14px 0 18px",
+                  }}
+                >
+                  <label
+                    htmlFor="ministries-language-filter"
+                    style={{
+                      color: "var(--text-secondary, #aebbd0)",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Language
+                  </label>
+
+                  <select
+                    id="ministries-language-filter"
+                    className="ministries-language-select"
+                    value={selectedLanguage}
+                    onChange={(event) =>
+                      setSelectedLanguage(event.target.value)
+                    }
+                    style={{
+                      minWidth: "160px",
+                      maxWidth: "100%",
+                      padding: "11px 36px 11px 13px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(212, 175, 55, 0.38)",
+                      background: "#101d35",
+                      color: "#f5f7fb",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      outline: "none",
+                    }}
+                  >
+                    {LANGUAGES.map((language) => (
+                      <option
+                        key={language.value}
+                        value={language.value}
+                        style={{
+                          background: "#101d35",
+                          color: "#f5f7fb",
+                        }}
+                      >
+                        {language.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* HEADING AND RESULT COUNT */}
 
                 <div className="ministries-heading">
@@ -258,17 +419,20 @@ function Ministries() {
                     <h3>No ministries found</h3>
 
                     <p>
-                      {search.trim()
-                        ? "Try a different search."
+                      {search.trim() || selectedLanguage !== "All"
+                        ? "Try another search or choose All Languages."
                         : "No ministries have been added yet."}
                     </p>
 
-                    {search.trim() && (
+                    {(search.trim() || selectedLanguage !== "All") && (
                       <button
                         type="button"
-                        onClick={() => setSearch("")}
+                        onClick={() => {
+                          setSearch("");
+                          setSelectedLanguage("All");
+                        }}
                       >
-                        Clear Search
+                        Clear Filters
                       </button>
                     )}
                   </div>

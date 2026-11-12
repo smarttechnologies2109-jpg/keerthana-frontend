@@ -41,7 +41,7 @@ import { useNavigate } from "react-router-dom";
 ===================================================== */
 
 const LANGUAGES = [
-  { value: "All", label: "All" },
+  { value: "All", label: "All Languages" },
   { value: "Telugu", label: "తెలుగు" },
   { value: "English", label: "English" },
   { value: "Hindi", label: "हिन्दी" },
@@ -49,6 +49,39 @@ const LANGUAGES = [
   { value: "Kannada", label: "ಕನ್ನಡ" },
   { value: "Tamil", label: "தமிழ்" },
 ];
+
+const normalizeLanguage = (value) => {
+  const raw = String(value || "").trim().toLowerCase();
+
+  const aliases = {
+    te: "Telugu",
+    "te-in": "Telugu",
+    telugu: "Telugu",
+    "తెలుగు": "Telugu",
+    en: "English",
+    "en-in": "English",
+    english: "English",
+    hi: "Hindi",
+    "hi-in": "Hindi",
+    hindi: "Hindi",
+    "हिन्दी": "Hindi",
+    "हिंदी": "Hindi",
+    ml: "Malayalam",
+    "ml-in": "Malayalam",
+    malayalam: "Malayalam",
+    "മലയാളം": "Malayalam",
+    kn: "Kannada",
+    "kn-in": "Kannada",
+    kannada: "Kannada",
+    "ಕನ್ನಡ": "Kannada",
+    ta: "Tamil",
+    "ta-in": "Tamil",
+    tamil: "Tamil",
+    "தமிழ்": "Tamil",
+  };
+
+  return aliases[raw] || String(value || "").trim();
+};
 
 /* =====================================================
    LANGUAGE-SPECIFIC UI TEXT
@@ -154,8 +187,48 @@ const getSongId = (song) =>
 
 const getSongTitle = (song) =>
   song?.title ||
+  song?.title_telugu ||
   song?.title_english ||
   "Untitled Song";
+
+/*
+ * Show the title matching the selected language first and the
+ * alternate available title underneath.
+ * In "All Languages", use each song's own language as the primary title.
+ */
+const getSongDisplayTitles = (song, selectedLanguage) => {
+  const nativeTitle =
+    song?.title_telugu ||
+    song?.title ||
+    "";
+
+  const englishTitle =
+    song?.title_english ||
+    song?.english_title ||
+    "";
+
+  const songLanguage = normalizeLanguage(song?.language || "Telugu");
+
+  const preferEnglish =
+    selectedLanguage === "English" ||
+    (selectedLanguage === "All" && songLanguage === "English");
+
+  const primary = preferEnglish
+    ? englishTitle || nativeTitle
+    : nativeTitle || englishTitle;
+
+  const secondary = preferEnglish
+    ? nativeTitle
+    : englishTitle;
+
+  return {
+    primary: primary || "Untitled Song",
+    secondary:
+      secondary && secondary.trim() !== primary.trim()
+        ? secondary
+        : "",
+  };
+};
 
 const getArtistName = (song) =>
   song?.artist_name ||
@@ -173,7 +246,7 @@ const getAlbumName = (song) =>
     : "");
 
 const getLanguage = (song) =>
-  song?.language || "Telugu";
+  normalizeLanguage(song?.language || "Telugu");
 
 const normalizeSong = (song) => ({
   ...song,
@@ -354,7 +427,9 @@ export default function AllSongs() {
 
       const searchableText = [
         song.title,
+        song.title_telugu,
         song.title_english,
+        song.english_title,
         getArtistName(song),
         getAlbumName(song),
         song.category_name,
@@ -419,10 +494,23 @@ export default function AllSongs() {
      PLAY ALL
   =================================================== */
 
+  const isFilteredPlaylistActive = filteredSongs.some(
+    (song) => getSongId(song) === currentSongId
+  );
+
+  const isPlayAllPlaying = isFilteredPlaylistActive && isPlaying;
+
   const handlePlayAll = () => {
-    if (filteredSongs.length > 0) {
-      handlePlay(filteredSongs[0], filteredSongs);
+    if (!filteredSongs.length) return;
+
+    // If this filtered playlist is already active, toggle play/pause.
+    if (isFilteredPlaylistActive && typeof togglePlay === "function") {
+      togglePlay();
+      return;
     }
+
+    // Otherwise start the filtered playlist from its first song.
+    handlePlay(filteredSongs[0], filteredSongs);
   };
 
   /* ===================================================
@@ -664,53 +752,90 @@ export default function AllSongs() {
             <h2>{languageText.allSongs}</h2>
           </div>
 
-          {/* PLAY ALL */}
+          {/* PLAY ALL LEFT / LANGUAGE FILTER RIGHT */}
 
-          <div className="all-songs-play-all-row">
-
+          <div
+            className="all-songs-play-all-row"
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "14px",
+            }}
+          >
             <button
               type="button"
               className="all-songs-play-all"
               onClick={handlePlayAll}
-              disabled={
-                !filteredSongs.length || loading
-              }
+              disabled={!filteredSongs.length || loading}
+              style={{ flexShrink: 0, order: 1 }}
             >
-              <FaPlay />
+              {isPlayAllPlaying ? <FaPause /> : <FaPlay />}
               {languageText.playAll}
             </button>
 
+            <label
+              className="all-songs-language-dropdown"
+              aria-label="Select song language"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: "8px",
+                margin: 0,
+                marginLeft: "auto",
+                order: 2,
+              }}
+            >
+              <span
+                style={{
+                  color: "var(--text-secondary, #aebbd0)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Language
+              </span>
+
+              <select
+                className="all-songs-language-select"
+                value={language}
+                onChange={(event) => setLanguage(event.target.value)}
+                aria-label="Filter songs by language"
+                style={{
+                  minWidth: "145px",
+                  maxWidth: "100%",
+                  padding: "11px 36px 11px 13px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(212, 175, 55, 0.38)",
+                  background: "#101d35",
+                  color: "#f5f7fb",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+              >
+                {LANGUAGES.map((item) => (
+                  <option
+                    key={item.value}
+                    value={item.value}
+                    style={{
+                      background: "#101d35",
+                      color: "#f5f7fb",
+                    }}
+                  >
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </div>
 
-        {/* LANGUAGE FILTERS */}
 
-        <div
-          className="all-songs-language-filters"
-          aria-label="Filter songs by language"
-        >
-
-          {LANGUAGES.map((item) => (
-
-            <button
-              key={item.value}
-              type="button"
-              className={`all-songs-language-chip ${
-                language === item.value
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => setLanguage(item.value)}
-              aria-pressed={
-                language === item.value
-              }
-            >
-              {item.label}
-            </button>
-
-          ))}
-
-        </div>
 
         {/* LOADING */}
 
@@ -867,18 +992,26 @@ export default function AllSongs() {
                       title={getSongTitle(song)}
                     >
 
-                      <span className="all-song-primary-title">
-                        {getSongTitle(song)}
-                      </span>
+                      {(() => {
+                        const displayTitles = getSongDisplayTitles(
+                          song,
+                          language
+                        );
 
-                      {song.title_english &&
-                        song.title_english !== song.title && (
+                        return (
+                          <>
+                            <span className="all-song-primary-title">
+                              {displayTitles.primary}
+                            </span>
 
-                          <span className="all-song-english-title">
-                            {song.title_english}
-                          </span>
-
-                        )}
+                            {displayTitles.secondary && (
+                              <span className="all-song-english-title">
+                                {displayTitles.secondary}
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
 
                       <span className="all-song-artist">
                         {getArtistName(song)}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaMicrophone } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -10,10 +10,54 @@ import "../assets/css/artists.css";
 
 /* =========================================================
    KEERTHANA — ARTISTS
-   Bilingual names + alphabetical card order
+   Bilingual names + alphabetical card order + language filter
 ========================================================= */
 
 const DEFAULT_VOICE_LANGUAGE = "te-IN";
+
+const LANGUAGES = [
+  { value: "All", label: "All Languages" },
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "English", label: "English" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
+];
+
+const LANGUAGE_ALIASES = {
+  te: "Telugu",
+  "te-in": "Telugu",
+  telugu: "Telugu",
+  "తెలుగు": "Telugu",
+  en: "English",
+  "en-in": "English",
+  english: "English",
+  hi: "Hindi",
+  "hi-in": "Hindi",
+  hindi: "Hindi",
+  "हिन्दी": "Hindi",
+  "हिंदी": "Hindi",
+  ml: "Malayalam",
+  "ml-in": "Malayalam",
+  malayalam: "Malayalam",
+  "മലയാളം": "Malayalam",
+  kn: "Kannada",
+  "kn-in": "Kannada",
+  kannada: "Kannada",
+  "ಕನ್ನಡ": "Kannada",
+  ta: "Tamil",
+  "ta-in": "Tamil",
+  tamil: "Tamil",
+  "தமிழ்": "Tamil",
+};
+
+const normalizeLanguage = (value) => {
+  if (value == null) return "";
+
+  const raw = String(value).trim().toLowerCase();
+  return LANGUAGE_ALIASES[raw] || String(value).trim();
+};
 
 const getArtistEnglishName = (artist) => {
   const englishName = String(artist?.name_english || "").trim();
@@ -35,6 +79,37 @@ const getArtistTeluguName = (artist) => {
   return "";
 };
 
+/* Read language values from common API response shapes.
+   Artists without a language value remain visible under All Languages. */
+const getArtistLanguages = (artist) => {
+  const rawValues = [
+    artist?.language,
+    artist?.language_name,
+    artist?.language_code,
+    artist?.primary_language,
+    ...(Array.isArray(artist?.languages) ? artist.languages : []),
+    ...(Array.isArray(artist?.song_languages) ? artist.song_languages : []),
+  ];
+
+  const normalized = rawValues
+    .flatMap((value) => {
+      if (value == null || value === "") return [];
+      if (typeof value === "object") {
+        return [
+          value.language,
+          value.name,
+          value.code,
+          value.language_name,
+        ].filter(Boolean);
+      }
+      return [value];
+    })
+    .map(normalizeLanguage)
+    .filter(Boolean);
+
+  return [...new Set(normalized)];
+};
+
 function Artists() {
   const navigate = useNavigate();
 
@@ -42,6 +117,7 @@ function Artists() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [voiceLanguage, setVoiceLanguage] = useState(
     DEFAULT_VOICE_LANGUAGE
   );
@@ -65,7 +141,9 @@ function Artists() {
           ? data
           : Array.isArray(data?.artists)
             ? data.artists
-            : [];
+            : Array.isArray(data?.data)
+              ? data.data
+              : [];
 
         if (!cancelled) {
           setArtists(artistList);
@@ -91,32 +169,41 @@ function Artists() {
   }, []);
 
   /* -------------------------------------------------------
-     SEARCH — TYPED OR VOICE
+     SEARCH + LANGUAGE FILTER
   ------------------------------------------------------- */
 
   const query = searchQuery.trim().toLowerCase();
 
-  const filteredArtists = artists
-    .filter((artist) => {
-      if (!query) return true;
+  const filteredArtists = useMemo(() => {
+    return artists
+      .filter((artist) => {
+        const searchableFields = [
+          artist?.name,
+          artist?.name_english,
+          artist?.name_telugu,
+        ];
 
-      const searchableFields = [
-        artist?.name,
-        artist?.name_english,
-        artist?.name_telugu,
-      ];
+        const matchesSearch =
+          !query ||
+          searchableFields.some((field) =>
+            String(field || "").toLowerCase().includes(query)
+          );
 
-      return searchableFields.some((field) =>
-        String(field || "").toLowerCase().includes(query)
+        const artistLanguages = getArtistLanguages(artist);
+        const matchesLanguage =
+          selectedLanguage === "All" ||
+          artistLanguages.includes(selectedLanguage);
+
+        return matchesSearch && matchesLanguage;
+      })
+      .sort((artistA, artistB) =>
+        getArtistEnglishName(artistA).localeCompare(
+          getArtistEnglishName(artistB),
+          "en",
+          { sensitivity: "base", numeric: true }
+        )
       );
-    })
-    .sort((artistA, artistB) =>
-      getArtistEnglishName(artistA).localeCompare(
-        getArtistEnglishName(artistB),
-        "en",
-        { sensitivity: "base", numeric: true }
-      )
-    );
+  }, [artists, query, selectedLanguage]);
 
   const handleVoiceSearch = (recognizedText) => {
     setSearchQuery(recognizedText);
@@ -164,8 +251,64 @@ function Artists() {
         />
       </section>
 
+      {/* LANGUAGE FILTER — DEFAULT: ALL LANGUAGES */}
+      <section
+        className="artists-filter-bar"
+        aria-label="Filter artists by language"
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: "10px",
+          width: "100%",
+          margin: "14px 0 18px",
+        }}
+      >
+        <label
+          htmlFor="artists-language-filter"
+          style={{
+            color: "var(--text-secondary, #aebbd0)",
+            fontSize: "13px",
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+          }}
+        >
+          Language
+        </label>
+
+        <select
+          id="artists-language-filter"
+          className="artists-language-select"
+          value={selectedLanguage}
+          onChange={(event) => setSelectedLanguage(event.target.value)}
+          style={{
+            minWidth: "160px",
+            maxWidth: "100%",
+            padding: "11px 36px 11px 13px",
+            borderRadius: "12px",
+            border: "1px solid rgba(212, 175, 55, 0.38)",
+            background: "#101d35",
+            color: "#f5f7fb",
+            fontSize: "14px",
+            fontWeight: 600,
+            cursor: "pointer",
+            outline: "none",
+          }}
+        >
+          {LANGUAGES.map((language) => (
+            <option
+              key={language.value}
+              value={language.value}
+              style={{ background: "#101d35", color: "#f5f7fb" }}
+            >
+              {language.label}
+            </option>
+          ))}
+        </select>
+      </section>
+
       {/* SEARCH RESULTS COUNT */}
-      {query && !error && (
+      {(query || selectedLanguage !== "All") && !error && (
         <p className="artists-search-summary" aria-live="polite">
           {filteredArtists.length}{" "}
           {filteredArtists.length === 1 ? "artist" : "artists"} found
@@ -255,22 +398,27 @@ function Artists() {
           />
 
           <h2>
-            {query ? "No matching artists" : "No artists available"}
+            {query || selectedLanguage !== "All"
+              ? "No matching artists"
+              : "No artists available"}
           </h2>
 
           <p>
-            {query
-              ? "Try another artist name or clear your search."
+            {query || selectedLanguage !== "All"
+              ? "Try another artist name or choose All Languages."
               : "Artists will appear here when they are available."}
           </p>
 
-          {query && (
+          {(query || selectedLanguage !== "All") && (
             <button
               type="button"
               className="artists-reset-search"
-              onClick={() => setSearchQuery("")}
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedLanguage("All");
+              }}
             >
-              Clear search
+              Clear filters
             </button>
           )}
         </div>
