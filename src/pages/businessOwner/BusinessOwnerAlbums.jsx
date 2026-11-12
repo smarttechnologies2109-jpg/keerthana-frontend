@@ -32,9 +32,11 @@ const LANGUAGE_ALIASES = {
   te: "telugu",
   "te-in": "telugu",
   telugu: "telugu",
+  "తెలుగు": "telugu",
   hi: "hindi",
   "hi-in": "hindi",
   hindi: "hindi",
+  "हिन्दी": "hindi",
   en: "english",
   "en-in": "english",
   english: "english",
@@ -60,6 +62,9 @@ const firstNonEmpty = (...values) => {
         value.label,
         value.value,
         value.code,
+        value.language_name,
+        value.language_code,
+        value.display_name,
         value.url,
         value.src
       );
@@ -77,15 +82,15 @@ const normalizeLanguage = (value) => {
   const raw = firstNonEmpty(value)
     .toLowerCase()
     .replace(/_/g, "-")
-    .replace(/\s+/g, " ")
+    .replace(/\\s+/g, " ")
     .trim();
 
   if (!raw) return "";
 
   if (LANGUAGE_ALIASES[raw]) return LANGUAGE_ALIASES[raw];
 
-  const prefix = raw.split(/[-\s([]/)[0];
-  return LANGUAGE_ALIASES[prefix] || raw;
+  const prefix = raw.split(/[-\\s([]/)[0];
+  return LANGUAGE_ALIASES[prefix] || "";
 };
 
 const extractAlbumArray = (payload) => {
@@ -179,7 +184,17 @@ const getAlbumNames = (album) => {
     album?.album_name_en,
     album?.albumTitleEn,
     album?.albumNameEn,
+    album?.album_english_name,
+    album?.english_album_name,
+    album?.albumEnglishName,
+    album?.englishAlbumName,
     album?.title_in_english,
+    album?.name_in_english,
+    album?.album_title_in_english,
+    album?.album?.title_english,
+    album?.album?.english_name,
+    album?.album?.name_english,
+    album?.album?.title_en,
     album?.name_in_english,
     album?.englishTitle,
     album?.englishName,
@@ -208,6 +223,17 @@ const getAlbumNames = (album) => {
     album?.album_name_te,
     album?.teluguTitle,
     album?.teluguName,
+    album?.album_telugu_name,
+    album?.telugu_album_name,
+    album?.albumTeluguName,
+    album?.teluguAlbumName,
+    album?.title_in_telugu,
+    album?.name_in_telugu,
+    album?.album_title_in_telugu,
+    album?.album?.title_telugu,
+    album?.album?.telugu_name,
+    album?.album?.name_telugu,
+    album?.album?.title_te,
     album?.titles?.telugu,
     album?.titles?.te,
     album?.names?.telugu,
@@ -217,16 +243,28 @@ const getAlbumNames = (album) => {
     findNamedTranslation(album, "telugu")
   );
 
-  const general = firstNonEmpty(
+  // Check all generic title/name fields independently. Some endpoints return
+  // the Telugu title in `title` and the English title in `album_name` (or vice
+  // versa), so selecting only the first non-empty field loses the English name.
+  const genericNames = [
     album?.title,
     album?.album_title,
     album?.albumTitle,
     album?.name,
-    album?.album_name
-  );
+    album?.album_name,
+    album?.album?.title,
+    album?.album?.album_title,
+    album?.album?.name
+  ]
+    .map((value) => firstNonEmpty(value))
+    .filter(Boolean);
 
-  const english = englishExplicit || (!containsTelugu(general) ? general : "");
-  const telugu = teluguExplicit || (containsTelugu(general) ? general : "");
+  const generalEnglish = genericNames.find((value) => !containsTelugu(value)) || "";
+  const generalTelugu = genericNames.find((value) => containsTelugu(value)) || "";
+
+  const english = englishExplicit || generalEnglish;
+  const telugu = teluguExplicit || generalTelugu;
+  const general = genericNames.join(" ");
 
   return {
     english: english || "English name not provided",
@@ -235,8 +273,8 @@ const getAlbumNames = (album) => {
   };
 };
 
-const getAlbumLanguage = (album) =>
-  firstNonEmpty(
+const getAlbumLanguage = (album) => {
+  const direct = firstNonEmpty(
     album?.language,
     album?.language_name,
     album?.languageName,
@@ -246,8 +284,30 @@ const getAlbumLanguage = (album) =>
     album?.primaryLanguage,
     album?.album_language,
     album?.albumLanguage,
-    album?.lang
+    album?.album_language_name,
+    album?.albumLanguageName,
+    album?.language_label,
+    album?.languageLabel,
+    album?.lang,
+    album?.lang_code,
+    album?.language?.name,
+    album?.language?.label,
+    album?.language?.code
   );
+
+  const normalized = normalizeLanguage(direct);
+  if (normalized) return normalized;
+
+  // Some album APIs return a list of languages instead of one language field.
+  const languages = Array.isArray(album?.languages) ? album.languages : [];
+  for (const item of languages) {
+    const match = normalizeLanguage(item);
+    if (match) return match;
+  }
+
+  // Do not silently classify records with no language as Telugu.
+  return "";
+};
 
 const getAlbumCover = (album) =>
   firstNonEmpty(
@@ -354,6 +414,21 @@ const BusinessOwnerAlbums = () => {
     });
   }, [albums, search, language]);
 
+  const albumLanguageCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      LANGUAGES.map((item) => [normalizeLanguage(item), 0])
+    );
+
+    albums.forEach((album) => {
+      const albumLanguage = getAlbumLanguage(album);
+      if (Object.prototype.hasOwnProperty.call(counts, albumLanguage)) {
+        counts[albumLanguage] += 1;
+      }
+    });
+
+    return counts;
+  }, [albums]);
+
   const uniqueLanguageCount = useMemo(() => {
     const languages = new Set(
       albums
@@ -390,6 +465,70 @@ const BusinessOwnerAlbums = () => {
         .owner-albums-summary-card.owner-albums-summary-total {
           border: 1px solid rgba(216, 184, 106, .38);
           background: linear-gradient(145deg, rgba(30, 53, 88, .92), rgba(12, 25, 46, .96));
+        }
+
+        .owner-albums-language-summary {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+          gap: 14px;
+        }
+
+        .owner-albums-language-summary .owner-albums-summary-card {
+          width: 100%;
+          min-width: 0;
+          min-height: 142px;
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 8px;
+          border-radius: 16px;
+          text-align: left;
+          color: #f4f7ff;
+          cursor: pointer;
+          transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+
+        .owner-albums-language-summary .owner-albums-summary-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(216, 184, 106, .72);
+        }
+
+        .owner-albums-language-summary .owner-albums-summary-card.active {
+          border-color: #d8b86a;
+          box-shadow: 0 0 0 1px rgba(216, 184, 106, .18);
+          background: linear-gradient(145deg, rgba(31, 61, 105, .98), rgba(12, 25, 46, .98));
+        }
+
+        .owner-albums-language-summary .owner-albums-summary-card span {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #d9e5f8;
+          font-weight: 700;
+        }
+
+        .owner-albums-language-summary .owner-albums-summary-card strong {
+          color: #f0d49b;
+          font-size: 1.8rem;
+          line-height: 1.1;
+        }
+
+        .owner-albums-language-summary .owner-albums-summary-card small {
+          color: #aebed7;
+          font-size: .78rem;
+        }
+
+        .owner-albums-language-count {
+          border: 1px solid rgba(104, 153, 220, .34);
+          background: linear-gradient(145deg, rgba(25, 48, 79, .92), rgba(12, 25, 46, .96));
+        }
+
+        @media (max-width: 640px) {
+          .owner-albums-language-summary {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
         }
 
         .owner-albums-summary-card.owner-albums-summary-languages {
@@ -461,23 +600,58 @@ const BusinessOwnerAlbums = () => {
       </header>
 
       <main className="owner-albums-content">
-        {/* SUMMARY: distinct language count and total album count */}
-        <section className="owner-albums-summary">
-          <div className="owner-albums-summary-card owner-albums-summary-languages">
-            <span><FaGlobe /> Languages Available</span>
-            <strong>
-              {loading ? "…" : uniqueLanguageCount.toLocaleString("en-IN")}
-            </strong>
-            <small>Different languages in the collection</small>
-          </div>
-
-          <div className="owner-albums-summary-card owner-albums-summary-total">
-            <span><FaMusic /> Total Albums</span>
+        {/* ALBUM COUNTS: total plus each supported language */}
+        <section className="owner-albums-summary owner-albums-language-summary">
+          <button
+            type="button"
+            className={`owner-albums-summary-card owner-albums-summary-total ${
+              !language ? "active" : ""
+            }`}
+            onClick={() => {
+              setLanguage("");
+              navigate("/owner/music/albums", { replace: true });
+            }}
+          >
+            <span><FaGlobe /> All Albums</span>
             <strong>
               {loading ? "…" : albums.length.toLocaleString("en-IN")}
             </strong>
-            <small>Albums across all languages</small>
-          </div>
+            <small>Total albums in the collection</small>
+          </button>
+
+          {LANGUAGES.map((item) => {
+            const normalized = normalizeLanguage(item);
+            const active = normalizeLanguage(language) === normalized;
+
+            return (
+              <button
+                type="button"
+                key={item}
+                className={`owner-albums-summary-card owner-albums-language-count ${
+                  active ? "active" : ""
+                }`}
+                onClick={() => {
+                  setLanguage(item);
+                  navigate(
+                    `/owner/music/albums?language=${encodeURIComponent(item)}`,
+                    { replace: true }
+                  );
+                }}
+              >
+                <span><FaMusic /> {item}</span>
+                <strong>
+                  {loading
+                    ? "…"
+                    : (albumLanguageCounts[normalized] || 0).toLocaleString("en-IN")}
+                </strong>
+                <small>
+                  {(albumLanguageCounts[normalized] || 0) === 1
+                    ? "Album"
+                    : "Albums"}
+                </small>
+              </button>
+            );
+          })}
         </section>
 
         <section className="owner-albums-filter-card">
