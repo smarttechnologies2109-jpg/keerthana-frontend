@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +12,6 @@ import {
   FaTags,
   FaGlobe,
   FaHeadphones,
-  FaLayerGroup,
   FaCrown,
 } from "react-icons/fa";
 
@@ -33,7 +31,6 @@ const BusinessOwnerDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem("keerthana_token");
     localStorage.removeItem("user");
-
     navigate("/owner/login", { replace: true });
   };
 
@@ -47,7 +44,14 @@ const BusinessOwnerDashboard = () => {
     { name: "Tamil", code: "TA", native: "தமிழ்" },
   ];
 
-  // Dashboard navigation cards
+  /*
+   * IMPORTANT:
+   * These paths must match the routes declared in App.jsx.
+   * Categories and Ministries are nested under /owner/music.
+   * There is no standalone /owner/languages route, so the
+   * language card opens Music Collection where language-wise
+   * browsing is available.
+   */
   const dashboardCards = [
     {
       title: "User Management",
@@ -59,27 +63,27 @@ const BusinessOwnerDashboard = () => {
     },
     {
       title: "Ministry Management",
-      description: "Manage ministries and their Christian music content.",
-      button: "Manage Ministries",
+      description: "View ministries and their Christian music content.",
+      button: "View Ministries",
       icon: <FaChurch />,
       className: "ministries-card",
-      path: "/owner/ministries",
+      path: "/owner/music/ministries",
     },
     {
       title: "Category Management",
-      description: "Create, update and organize music categories.",
-      button: "Manage Categories",
+      description: "View and organize KEERTHANA music categories.",
+      button: "View Categories",
       icon: <FaTags />,
       className: "categories-card",
-      path: "/owner/categories",
+      path: "/owner/music/categories",
     },
     {
       title: "Language Management",
-      description: "Manage the languages available across the platform.",
-      button: "Manage Languages",
+      description: "Browse songs, albums, artists and collections by language.",
+      button: "Explore Languages",
       icon: <FaGlobe />,
       className: "languages-card",
-      path: "/owner/languages",
+      path: "/owner/music",
     },
     {
       title: "Platform Statistics",
@@ -91,7 +95,7 @@ const BusinessOwnerDashboard = () => {
     },
     {
       title: "Music Management",
-      description: "Manage songs, albums and music content.",
+      description: "Explore songs, albums, artists, categories and ministries.",
       button: "Manage Music",
       icon: <FaMusic />,
       className: "music-card",
@@ -101,15 +105,10 @@ const BusinessOwnerDashboard = () => {
 
   return (
     <div className="owner-dashboard-page">
-
       {/* HEADER */}
-
       <header className="owner-dashboard-header">
-
         <div className="owner-dashboard-header-content">
-
           <div className="owner-dashboard-title">
-
             <div className="owner-dashboard-title-icon">
               <FaStore />
             </div>
@@ -118,7 +117,6 @@ const BusinessOwnerDashboard = () => {
               <h1>KEERTHANA</h1>
               <p>Business Owner Dashboard</p>
             </div>
-
           </div>
 
           <button
@@ -129,21 +127,14 @@ const BusinessOwnerDashboard = () => {
             <FaSignOutAlt />
             <span>Logout</span>
           </button>
-
         </div>
-
       </header>
 
       {/* MAIN */}
-
       <main className="owner-dashboard-main">
-
         {/* WELCOME BANNER */}
-
         <section className="owner-welcome-banner">
-
           <div className="owner-welcome-content">
-
             <span className="owner-welcome-label">
               <FaCrown /> BUSINESS OWNER PORTAL
             </span>
@@ -156,50 +147,36 @@ const BusinessOwnerDashboard = () => {
               Manage your KEERTHANA Music platform from one
               powerful dashboard.
             </p>
-
           </div>
 
           <div className="owner-welcome-icon">
             <FaHeadphones />
           </div>
-
         </section>
 
         {/* BUSINESS INFORMATION */}
-
         <section className="owner-business-info">
-
           <div className="business-info-icon">
             <FaStore />
           </div>
 
           <div className="business-info-content">
-            <h2>
-              {user?.name || "Smart Technologies"}
-            </h2>
-
-            <p>
-              {user?.email || "Business Owner"}
-            </p>
+            <h2>{user?.name || "Smart Technologies"}</h2>
+            <p>{user?.email || "Business Owner"}</p>
           </div>
 
           <div className="owner-account-status">
             <span className="owner-status-dot"></span>
             Active Account
           </div>
-
         </section>
 
         {/* MANAGEMENT SECTION */}
-
         <section className="owner-dashboard-section">
-
           <div className="owner-section-heading">
             <div>
               <h2>Platform Management</h2>
-              <p>
-                Manage all your KEERTHANA platform services.
-              </p>
+              <p>Manage all your KEERTHANA platform services.</p>
             </div>
 
             <span className="owner-section-count">
@@ -208,16 +185,12 @@ const BusinessOwnerDashboard = () => {
           </div>
 
           <div className="owner-dashboard-grid">
-
             {dashboardCards.map((card) => (
-
               <div
                 key={card.title}
                 className={`owner-dashboard-card ${card.className}`}
               >
-
                 <div className="dashboard-card-top">
-
                   <div className="dashboard-card-icon">
                     {card.icon}
                   </div>
@@ -225,15 +198,11 @@ const BusinessOwnerDashboard = () => {
                   <span className="dashboard-card-arrow">
                     <FaArrowRight />
                   </span>
-
                 </div>
 
                 <div className="dashboard-card-content">
-
                   <h3>{card.title}</h3>
-
                   <p>{card.description}</p>
-
                 </div>
 
                 <button
@@ -244,46 +213,33 @@ const BusinessOwnerDashboard = () => {
                   {card.button}
                   <FaArrowRight />
                 </button>
-
               </div>
-
             ))}
-
           </div>
-
         </section>
 
         {/* LANGUAGE SECTION */}
-
         <section className="owner-languages-section">
-
           <div className="owner-section-heading">
-
             <div>
               <h2>
                 <FaGlobe /> Supported Languages
               </h2>
 
-              <p>
-                Languages available in KEERTHANA Music.
-              </p>
+              <p>Languages available in KEERTHANA Music.</p>
             </div>
 
             <span className="owner-section-count">
               {languages.length} Languages
             </span>
-
           </div>
 
           <div className="owner-languages-grid">
-
             {languages.map((language) => (
-
               <div
                 key={language.code}
                 className="owner-language-card"
               >
-
                 <div className="owner-language-code">
                   {language.code}
                 </div>
@@ -292,26 +248,19 @@ const BusinessOwnerDashboard = () => {
                   <h3>{language.name}</h3>
                   <p>{language.native}</p>
                 </div>
-
               </div>
-
             ))}
-
           </div>
-
         </section>
 
         {/* FOOTER */}
-
         <footer className="owner-dashboard-footer">
           <FaMusic />
           <span>
             KEERTHANA MUSIC — Praise • Worship • Christian Music
           </span>
         </footer>
-
       </main>
-
     </div>
   );
 };

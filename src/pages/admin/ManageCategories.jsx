@@ -79,6 +79,17 @@ const getSongCategoryId = (song) =>
 const getSongLanguage = (song) =>
   normalizeLanguage(song?.language || song?.language_name);
 
+// Existing categories do not have a language column in the current form/API.
+// Treat categories without an explicit language as Telugu (the app's current
+// default category language). If the backend later returns category.language,
+// that value will be used automatically.
+const getCategoryLanguage = (category) =>
+  normalizeLanguage(
+    category?.language ||
+      category?.language_name ||
+      category?.languageName
+  ) || "Telugu";
+
 const getCategoryEnglishName = (category) =>
   category?.name_english ||
   category?.nameEnglish ||
@@ -503,29 +514,19 @@ function ManageCategories() {
   };
 
   // LANGUAGE-WISE CATEGORY COUNTS
+  // Count category records by their own language, not by linked songs.
+  // Categories without a saved language are counted as Telugu.
   const languageCounts = useMemo(() => {
     const counts = {};
 
     LANGUAGES.forEach(({ value }) => {
-      const usedCategoryIds = new Set();
-
-      songs.forEach((song) => {
-        if (getSongLanguage(song) !== value) return;
-
-        const matchingCategory = categories.find((category) =>
-          songBelongsToCategory(song, category)
-        );
-
-        if (matchingCategory) {
-          usedCategoryIds.add(String(matchingCategory.id));
-        }
-      });
-
-      counts[value] = usedCategoryIds.size;
+      counts[value] = categories.filter(
+        (category) => getCategoryLanguage(category) === value
+      ).length;
     });
 
     return counts;
-  }, [songs, categories]);
+  }, [categories]);
 
   // FILTER CATEGORIES
   const filteredCategories = useMemo(() => {
@@ -543,7 +544,7 @@ function ManageCategories() {
 
         const matchesLanguage =
           selectedLanguage === "All" ||
-          getCategorySongCount(category, selectedLanguage) > 0;
+          getCategoryLanguage(category) === selectedLanguage;
 
         return matchesSearch && matchesLanguage;
       })
