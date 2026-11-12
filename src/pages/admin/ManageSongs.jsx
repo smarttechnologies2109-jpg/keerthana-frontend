@@ -527,6 +527,25 @@ function ManageSongs() {
 
         </div>
 
+        <div className="admin-song-language-filter">
+          <label htmlFor="admin-song-language-select">
+            Filter by language
+          </label>
+
+          <select
+            id="admin-song-language-select"
+            value={selectedLanguage}
+            onChange={(event) => setSelectedLanguage(event.target.value)}
+            aria-label="Filter songs by language"
+          >
+            <option value="All">All Languages</option>
+            {languageOptions.map((language) => (
+              <option key={language.value} value={language.value}>
+                {language.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="admin-song-count">
 

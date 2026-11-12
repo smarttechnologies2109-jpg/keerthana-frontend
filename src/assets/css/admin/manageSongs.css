@@ -2128,3 +2128,116 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* =========================================================
+   KEERTHANA — MANAGE SONGS LANGUAGE DROPDOWN
+   Midnight Navy • Royal Blue • Champagne Gold
+========================================================= */
+
+.admin-song-language-filter {
+  width: 210px;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+
+.admin-song-language-filter label {
+  display: block;
+  color: #9bacc9;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.admin-song-language-filter select {
+  width: 100%;
+  height: 46px;
+  padding: 0 38px 0 14px;
+
+  border: 1px solid rgba(153, 176, 218, 0.2);
+  border-radius: 11px;
+
+  outline: none;
+
+  background-color: #101b30;
+  color: #f3f6ff;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+
+  cursor: pointer;
+  color-scheme: dark;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-song-language-filter select:hover {
+  border-color: rgba(232, 199, 121, 0.5);
+  background-color: #14223b;
+}
+
+.admin-song-language-filter select:focus {
+  border-color: #e8c779;
+  box-shadow: 0 0 0 3px rgba(232, 199, 121, 0.12);
+}
+
+.admin-song-language-filter select option {
+  padding: 12px;
+  background: #101b30;
+  color: #f3f6ff;
+}
+
+/* TOOLBAR LAYOUT */
+.admin-song-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-song-search {
+  flex: 1;
+  min-width: 220px;
+}
+
+/* TABLET */
+@media (max-width: 900px) {
+  .admin-song-language-filter {
+    width: 190px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 650px) {
+  .admin-song-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .admin-song-search {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-song-language-filter {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-song-language-filter select {
+    width: 100%;
+    height: 46px;
+  }
+
+  .admin-song-count {
+    width: fit-content;
+  }
+}
