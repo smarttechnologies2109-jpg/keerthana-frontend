@@ -676,56 +676,57 @@ function Profile() {
         );
 
 
-      const updatedUser =
-        response.data?.user ||
-        {
-          ...profile,
-          name: cleanName,
-          language,
-        };
-
-
       /* ===============================================
-         UPDATE PROFILE STATE
+         BUILD UPDATED PROFILE
       =============================================== */
 
-      setProfile(
-        updatedUser
-      );
-
-
-      setName(
-        updatedUser.name ||
-        cleanName
-      );
-
-
-      setLanguage(
-        updatedUser.language ||
-        language
-      );
-
-
-      setProfileImage(
-        updatedUser.profile_image ||
-        profileImage
-      );
-
+      let updatedUser = {
+        ...user,
+        ...profile,
+        ...(response.data?.user || {}),
+        name: response.data?.user?.name || cleanName,
+        language: response.data?.user?.language || language,
+        profile_image:
+          response.data?.user?.profile_image ||
+          response.data?.profile_image ||
+          profileImage,
+      };
 
       /* ===============================================
-         IMPORTANT
-         UPDATE AUTH CONTEXT
+         RELOAD PROFILE TO GET THE SAVED IMAGE PATH
       =============================================== */
 
-      if (
-        typeof updateUser ===
-        "function"
-      ) {
+      try {
+        const profileResponse = await API.get("/users/profile");
+        const freshProfile =
+          profileResponse.data?.user ||
+          profileResponse.data?.profile ||
+          profileResponse.data;
 
-        updateUser(
-          updatedUser
+        if (freshProfile && typeof freshProfile === "object") {
+          updatedUser = {
+            ...updatedUser,
+            ...freshProfile,
+          };
+        }
+      } catch (refreshError) {
+        console.warn(
+          "Could not reload profile after update:",
+          refreshError
         );
+      }
 
+      /* ===============================================
+         UPDATE PROFILE PAGE AND AUTH CONTEXT
+      =============================================== */
+
+      setProfile(updatedUser);
+      setName(updatedUser.name || cleanName);
+      setLanguage(updatedUser.language || language);
+      setProfileImage(updatedUser.profile_image || "");
+
+      if (typeof updateUser === "function") {
+        updateUser(updatedUser);
       }
 
 

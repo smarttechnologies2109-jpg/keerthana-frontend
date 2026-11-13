@@ -23,6 +23,7 @@ import {
 } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
+import { getMediaUrl } from "../utils/media";
 import { useNotifications } from "../context/NotificationsContext";
 
 import "../assets/css/header.css";
@@ -116,6 +117,11 @@ function Header({ onToggleSidebar }) {
     "My Account";
 
   const avatarLetter = displayName.charAt(0).toUpperCase();
+
+  const profileImage = user?.profile_image || "";
+  const profileImageUrl = profileImage
+    ? getMediaUrl(profileImage)
+    : "";
 
   // ===================================================
   // SEARCH SUBMIT
@@ -531,7 +537,24 @@ function Header({ onToggleSidebar }) {
               aria-label={`Open account menu for ${displayName}`}
             >
               <span className="header-profile-avatar">
-                {avatarLetter}
+                {profileImageUrl ? (
+                  <img
+                    src={profileImageUrl}
+                    alt={displayName}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "block",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                    onError={(event) => {
+                      event.currentTarget.parentElement.textContent = avatarLetter;
+                    }}
+                  />
+                ) : (
+                  avatarLetter
+                )}
               </span>
 
               <span className="header-profile-name">
@@ -555,7 +578,24 @@ function Header({ onToggleSidebar }) {
                 <div className="header-profile-dropdown-heading">
 
                   <span className="header-profile-avatar header-profile-avatar-large">
-                    {avatarLetter}
+                    {profileImageUrl ? (
+                      <img
+                        src={profileImageUrl}
+                        alt={displayName}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "block",
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
+                        onError={(event) => {
+                          event.currentTarget.parentElement.textContent = avatarLetter;
+                        }}
+                      />
+                    ) : (
+                      avatarLetter
+                    )}
                   </span>
 
                   <span className="header-profile-heading-copy">
