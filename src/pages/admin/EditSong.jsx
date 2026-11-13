@@ -1,13 +1,12 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
 import {
   FaArrowLeft,
   FaCloudUploadAlt,
   FaImage,
   FaMusic,
   FaSave,
+  FaSearch,
   FaTimes,
 } from "react-icons/fa";
 
@@ -16,12 +15,12 @@ import { getMediaUrl } from "../../utils/media";
 import "../../assets/css/admin/editSong.css";
 
 const LANGUAGES = [
-  { value: "Telugu", label: "Telugu" },
-  { value: "Hindi", label: "Hindi" },
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "Hindi", label: "हिन्दी" },
   { value: "English", label: "English" },
-  { value: "Malayalam", label: "Malayalam" },
-  { value: "Kannada", label: "Kannada" },
-  { value: "Tamil", label: "Tamil" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
 ];
 
 const LANGUAGE_CONFIG = {
@@ -63,31 +62,223 @@ const EMPTY_FORM = {
 };
 
 const getList = (data, key) => {
+  if (Array.isArray(data)) return data;
   if (Array.isArray(data?.[key])) return data[key];
   if (Array.isArray(data?.data?.[key])) return data.data[key];
-  if (Array.isArray(data)) return data;
   return [];
 };
 
-const getOptionLabel = (item, type) => {
+const normalizeText = (value) =>
+  String(value || "").normalize("NFKC").trim().toLocaleLowerCase();
+
+const getBilingualLabel = (english, telugu, fallback = "") => {
+  const en = String(english || "").trim();
+  const te = String(telugu || "").trim();
+
+  if (en && te && normalizeText(en) !== normalizeText(te)) {
+    return `${en} / ${te}`;
+  }
+
+  return en || te || fallback;
+};
+
+const getEntityLabel = (item, type) => {
   if (!item) return "";
 
-  if (type === "album") {
-    return (
-      item.title ||
-      item.name ||
-      item.title_english ||
-      `Album ${item.id}`
+  if (type === "artist") {
+    return getBilingualLabel(
+      item.name_english,
+      item.name_telugu || item.name,
+      "Unnamed Artist"
     );
   }
 
-  return (
-    item.name ||
-    item.name_english ||
-    item.title ||
-    `Item ${item.id}`
+  if (type === "album") {
+    return getBilingualLabel(
+      item.title_english,
+      item.title_telugu || item.title || item.name,
+      "Untitled Album"
+    );
+  }
+
+  if (type === "category") {
+    return getBilingualLabel(
+      item.name_english,
+      item.name_telugu || item.name,
+      "Unnamed Category"
+    );
+  }
+
+  return getBilingualLabel(
+    item.name_english,
+    item.name_telugu || item.name,
+    "Unnamed Ministry"
   );
 };
+
+function SearchableDropdown({
+  options = [],
+  value = "",
+  onChange,
+  placeholder = "Select an option",
+  searchPlaceholder = "Type to search...",
+  emptyText = "No matching options found.",
+  getLabel,
+  getSearchText,
+  disabled = false,
+  allowClear = false,
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const rootRef = useRef(null);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      const frame = requestAnimationFrame(() => searchRef.current?.focus());
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [open]);
+
+  const selectedOption = options.find(
+    (option) => String(option.id) === String(value)
+  );
+  const selectedLabel = selectedOption ? getLabel(selectedOption) : "";
+  const normalizedQuery = normalizeText(query);
+
+  const visibleOptions = options.filter((option) => {
+    if (!normalizedQuery) return true;
+    const searchable = getSearchText
+      ? getSearchText(option)
+      : getLabel(option);
+    return normalizeText(searchable).includes(normalizedQuery);
+  });
+
+  const chooseOption = (option) => {
+    onChange(String(option.id));
+    setOpen(false);
+    setQuery("");
+  };
+
+  return (
+    <div className="admin-searchable-dropdown" ref={rootRef}>
+      <button
+        type="button"
+        className={`admin-searchable-trigger${open ? " is-open" : ""}`}
+        onClick={() => setOpen((previous) => !previous)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+      >
+        <span className={selectedLabel ? "has-value" : "is-placeholder"}>
+          {selectedLabel || placeholder}
+        </span>
+        <span className="admin-searchable-chevron" aria-hidden="true">
+          ▾
+        </span>
+      </button>
+
+      {open && (
+        <div className="admin-searchable-menu">
+          <div className="admin-searchable-input-wrap">
+            <FaSearch aria-hidden="true" />
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={searchPlaceholder}
+              aria-label={searchPlaceholder}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && visibleOptions.length > 0) {
+                  event.preventDefault();
+                  chooseOption(visibleOptions[0]);
+                }
+              }}
+            />
+            {query && (
+              <button
+                type="button"
+                className="admin-searchable-clear"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="admin-searchable-options" role="listbox">
+            {allowClear && (
+              <button
+                type="button"
+                role="option"
+                aria-selected={!value}
+                className={`admin-searchable-option${!value ? " is-selected" : ""}`}
+                onClick={() => {
+                  onChange("");
+                  setOpen(false);
+                  setQuery("");
+                }}
+              >
+                <span>{placeholder}</span>
+                {!value && <span className="admin-searchable-check">✓</span>}
+              </button>
+            )}
+
+            {visibleOptions.length > 0 ? (
+              visibleOptions.map((option) => (
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={String(option.id) === String(value)}
+                  className={`admin-searchable-option${
+                    String(option.id) === String(value) ? " is-selected" : ""
+                  }`}
+                  key={option.id}
+                  onClick={() => chooseOption(option)}
+                >
+                  <span>{getLabel(option)}</span>
+                  {String(option.id) === String(value) && (
+                    <span className="admin-searchable-check">✓</span>
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="admin-searchable-empty">{emptyText}</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function EditSong() {
   const navigate = useNavigate();
@@ -98,7 +289,6 @@ function EditSong() {
 
   const [existingAudio, setExistingAudio] = useState("");
   const [existingCover, setExistingCover] = useState("");
-
   const [audioFile, setAudioFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState("");
@@ -115,10 +305,6 @@ function EditSong() {
 
   const selectedLanguage =
     LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
-
-  // -----------------------------------------------------
-  // LOAD SONG AND DROPDOWN DATA
-  // -----------------------------------------------------
 
   useEffect(() => {
     let active = true;
@@ -145,10 +331,7 @@ function EditSong() {
         if (!active) return;
 
         const song = songResponse.data?.song;
-
-        if (!song) {
-          throw new Error("Song details were not found.");
-        }
+        if (!song) throw new Error("Song details were not found.");
 
         const loadedForm = {
           title: song.title || "",
@@ -175,7 +358,6 @@ function EditSong() {
 
         setForm(loadedForm);
         setOriginalForm(loadedForm);
-
         setExistingAudio(song.audio_url || "");
         setExistingCover(song.cover_url || "");
 
@@ -185,7 +367,6 @@ function EditSong() {
         setMinistries(getList(ministriesResponse.data, "ministries"));
       } catch (err) {
         console.error("Edit song load error:", err);
-
         if (active) {
           setError(
             err.response?.data?.message ||
@@ -199,47 +380,32 @@ function EditSong() {
     };
 
     loadPage();
-
     return () => {
       active = false;
     };
   }, [id]);
 
-  // -----------------------------------------------------
-  // CLEAN UP COVER PREVIEW
-  // -----------------------------------------------------
-
   useEffect(() => {
     return () => {
-      if (coverPreview) {
-        URL.revokeObjectURL(coverPreview);
-      }
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
     };
   }, [coverPreview]);
 
-  // -----------------------------------------------------
-  // INPUT CHANGE
-  // -----------------------------------------------------
-
   const handleChange = (event) => {
     const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-
+    setForm((previous) => ({ ...previous, [name]: value }));
     setError("");
     setSuccess("");
   };
 
-  // -----------------------------------------------------
-  // AUDIO FILE CHANGE
-  // -----------------------------------------------------
+  const handleRelationshipChange = (field, value) => {
+    setForm((previous) => ({ ...previous, [field]: value }));
+    setError("");
+    setSuccess("");
+  };
 
   const handleAudioChange = (event) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     const allowedTypes = [
@@ -247,8 +413,8 @@ function EditSong() {
       "audio/mp3",
       "audio/mp4",
       "audio/x-m4a",
+      "application/octet-stream",
     ];
-
     const validExtension = /\.(mp3|m4a)$/i.test(file.name);
 
     if (!allowedTypes.includes(file.type) && !validExtension) {
@@ -257,8 +423,8 @@ function EditSong() {
       return;
     }
 
-    if (file.size > 30 * 1024 * 1024) {
-      setError("Audio file must be smaller than 30 MB.");
+    if (!file.size || file.size > 30 * 1024 * 1024) {
+      setError("Audio file must be non-empty and smaller than 30 MB.");
       event.target.value = "";
       return;
     }
@@ -268,35 +434,21 @@ function EditSong() {
     setSuccess("");
   };
 
-  // -----------------------------------------------------
-  // COVER FILE CHANGE
-  // -----------------------------------------------------
-
   const handleCoverChange = (event) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
-
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       setError("Cover must be JPG, PNG or WebP.");
       event.target.value = "";
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Cover image must be smaller than 10 MB.");
+    if (!file.size || file.size > 10 * 1024 * 1024) {
+      setError("Cover image must be non-empty and smaller than 10 MB.");
       event.target.value = "";
       return;
-    }
-
-    if (coverPreview) {
-      URL.revokeObjectURL(coverPreview);
     }
 
     setCoverFile(file);
@@ -305,49 +457,27 @@ function EditSong() {
     setSuccess("");
   };
 
-  // -----------------------------------------------------
-  // REMOVE SELECTED AUDIO
-  // -----------------------------------------------------
-
   const removeNewAudio = () => {
     setAudioFile(null);
-
     const input = document.getElementById("edit-song-audio");
     if (input) input.value = "";
   };
 
-  // -----------------------------------------------------
-  // REMOVE SELECTED COVER
-  // -----------------------------------------------------
-
   const removeNewCover = () => {
-    if (coverPreview) {
-      URL.revokeObjectURL(coverPreview);
-    }
-
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
     setCoverFile(null);
     setCoverPreview("");
-
     const input = document.getElementById("edit-song-cover");
     if (input) input.value = "";
   };
-
-  // -----------------------------------------------------
-  // FILE SIZE
-  // -----------------------------------------------------
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "0 MB";
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
-  // -----------------------------------------------------
-  // SUBMIT - SEND ONLY CHANGED FIELDS
-  // -----------------------------------------------------
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
     setSuccess("");
 
@@ -378,10 +508,7 @@ function EditSong() {
     changedFields.forEach((field) => {
       const currentValue = String(form[field] ?? "");
       const originalValue = String(originalForm[field] ?? "");
-
       if (currentValue !== originalValue) {
-        // Append empty values too, so optional relationships
-        // can be cleared when the user deliberately removes them.
         formData.append(field, currentValue);
         hasChanges = true;
       }
@@ -404,7 +531,6 @@ function EditSong() {
 
     try {
       setSaving(true);
-
       const response = await API.put(`/admin/songs/${id}`, formData);
 
       if (response.data?.success === false) {
@@ -412,15 +538,11 @@ function EditSong() {
       }
 
       setSuccess("Song updated successfully!");
-
       setOriginalForm({ ...form });
 
-      setTimeout(() => {
-        navigate("/admin/songs");
-      }, 900);
+      setTimeout(() => navigate("/admin/songs"), 900);
     } catch (err) {
       console.error("Update song error:", err);
-
       setError(
         err.response?.data?.message ||
           err.message ||
@@ -431,10 +553,6 @@ function EditSong() {
     }
   };
 
-  // -----------------------------------------------------
-  // LOADING
-  // -----------------------------------------------------
-
   if (loading) {
     return (
       <div className="admin-page">
@@ -442,10 +560,6 @@ function EditSong() {
       </div>
     );
   }
-
-  // -----------------------------------------------------
-  // PAGE
-  // -----------------------------------------------------
 
   return (
     <div className="admin-page">
@@ -456,10 +570,8 @@ function EditSong() {
           onClick={() => navigate("/admin/songs")}
           disabled={saving}
         >
-          <FaArrowLeft />
-          Back
+          <FaArrowLeft /> Back
         </button>
-
         <div>
           <span>KEERTHANA ADMIN</span>
           <h1>Edit Song</h1>
@@ -467,25 +579,10 @@ function EditSong() {
         </div>
       </div>
 
-      {error && (
-        <div className="admin-error" role="alert">
-          {error}
-        </div>
-      )}
+      {error && <div className="admin-error" role="alert">{error}</div>}
+      {success && <div className="admin-success" role="status">{success}</div>}
 
-      {success && (
-        <div className="admin-success" role="status">
-          {success}
-        </div>
-      )}
-
-      <form
-        className="admin-song-form"
-        onSubmit={handleSubmit}
-        encType="multipart/form-data"
-      >
-        {/* SONG INFORMATION */}
-
+      <form className="admin-song-form" onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="admin-form-section">
           <div className="admin-form-section-title">
             <h2>Song Information</h2>
@@ -495,17 +592,9 @@ function EditSong() {
           <div className="admin-form-grid">
             <div className="admin-field">
               <label>Song Language *</label>
-              <select
-                name="language"
-                value={form.language}
-                onChange={handleChange}
-                disabled={saving}
-                required
-              >
+              <select name="language" value={form.language} onChange={handleChange} disabled={saving} required>
                 {LANGUAGES.map((language) => (
-                  <option key={language.value} value={language.value}>
-                    {language.label}
-                  </option>
+                  <option key={language.value} value={language.value}>{language.label}</option>
                 ))}
               </select>
             </div>
@@ -539,100 +628,79 @@ function EditSong() {
 
             <div className="admin-field">
               <label>Artist *</label>
-              <select
-                name="artist_id"
+              <SearchableDropdown
+                options={artists}
                 value={form.artist_id}
-                onChange={handleChange}
+                onChange={(value) => handleRelationshipChange("artist_id", value)}
+                placeholder="Select Artist"
+                searchPlaceholder="Search artist in English or Telugu..."
+                emptyText="No artists found."
+                getLabel={(artist) => getEntityLabel(artist, "artist")}
+                getSearchText={(artist) => `${artist.name_english || ""} ${artist.name_telugu || ""} ${artist.name || ""}`}
                 disabled={saving}
-              >
-                <option value="">Select Artist</option>
-                {artists.map((artist) => (
-                  <option key={artist.id} value={String(artist.id)}>
-                    {getOptionLabel(artist, "artist")}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="admin-field">
               <label>Album</label>
-              <select
-                name="album_id"
+              <SearchableDropdown
+                options={albums}
                 value={form.album_id}
-                onChange={handleChange}
+                onChange={(value) => handleRelationshipChange("album_id", value)}
+                placeholder="No Album"
+                searchPlaceholder="Search album in English or Telugu..."
+                emptyText="No albums found."
+                getLabel={(album) => getEntityLabel(album, "album")}
+                getSearchText={(album) => `${album.title_english || ""} ${album.title_telugu || ""} ${album.title || ""} ${album.name || ""}`}
                 disabled={saving}
-              >
-                <option value="">No Album</option>
-                {albums.map((album) => (
-                  <option key={album.id} value={String(album.id)}>
-                    {getOptionLabel(album, "album")}
-                  </option>
-                ))}
-              </select>
+                allowClear
+              />
             </div>
 
             <div className="admin-field">
               <label>Category *</label>
-              <select
-                name="category_id"
+              <SearchableDropdown
+                options={categories}
                 value={form.category_id}
-                onChange={handleChange}
+                onChange={(value) => handleRelationshipChange("category_id", value)}
+                placeholder="Select Category"
+                searchPlaceholder="Search category in English or Telugu..."
+                emptyText="No categories found."
+                getLabel={(category) => getEntityLabel(category, "category")}
+                getSearchText={(category) => `${category.name_english || ""} ${category.name_telugu || ""} ${category.name || ""}`}
                 disabled={saving}
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={String(category.id)}>
-                    {getOptionLabel(category, "category")}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="admin-field">
               <label>Ministry</label>
-              <select
-                name="ministry_id"
+              <SearchableDropdown
+                options={ministries}
                 value={form.ministry_id}
-                onChange={handleChange}
+                onChange={(value) => handleRelationshipChange("ministry_id", value)}
+                placeholder="No Ministry"
+                searchPlaceholder="Search ministry in English or Telugu..."
+                emptyText="No ministries found."
+                getLabel={(ministry) => getEntityLabel(ministry, "ministry")}
+                getSearchText={(ministry) => `${ministry.name_english || ""} ${ministry.name_telugu || ""} ${ministry.name || ""}`}
                 disabled={saving}
-              >
-                <option value="">No Ministry</option>
-                {ministries.map((ministry) => (
-                  <option key={ministry.id} value={String(ministry.id)}>
-                    {getOptionLabel(ministry, "ministry")}
-                  </option>
-                ))}
-              </select>
+                allowClear
+              />
             </div>
           </div>
         </div>
 
-        {/* MEDIA */}
-
         <div className="admin-form-section">
           <div className="admin-form-section-title">
             <h2>Media</h2>
-            <p>
-              Your existing files will be kept unless you select replacements.
-            </p>
+            <p>Your existing files will be kept unless you select replacements.</p>
           </div>
 
           <div className="admin-upload-grid">
-            {/* AUDIO */}
-
             <div className="admin-upload-box">
-              <div className="admin-upload-icon">
-                <FaMusic />
-              </div>
-
+              <div className="admin-upload-icon"><FaMusic /></div>
               <h3>Audio File</h3>
-
-              {existingAudio && (
-                <p className="admin-existing-media">
-                  Current audio is available
-                </p>
-              )}
-
+              {existingAudio && <p className="admin-existing-media">Current audio is available</p>}
               {!audioFile ? (
                 <>
                   <input
@@ -643,67 +711,33 @@ function EditSong() {
                     onChange={handleAudioChange}
                     disabled={saving}
                   />
-
-                  <label
-                    htmlFor="edit-song-audio"
-                    className="admin-upload-button"
-                  >
-                    <FaCloudUploadAlt />
-                    Replace Audio
+                  <label htmlFor="edit-song-audio" className="admin-upload-button">
+                    <FaCloudUploadAlt /> Replace Audio
                   </label>
                 </>
               ) : (
                 <div className="admin-selected-file">
                   <div>
                     <strong>{audioFile.name}</strong>
-                    <span>
-                      New audio • {formatFileSize(audioFile.size)}
-                    </span>
+                    <span>New audio • {formatFileSize(audioFile.size)}</span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={removeNewAudio}
-                    disabled={saving}
-                    aria-label="Remove selected audio"
-                  >
+                  <button type="button" onClick={removeNewAudio} disabled={saving} aria-label="Remove selected audio">
                     <FaTimes />
                   </button>
                 </div>
               )}
             </div>
 
-            {/* COVER */}
-
             <div className="admin-upload-box">
               {coverPreview ? (
-                <img
-                  className="admin-cover-preview"
-                  src={coverPreview}
-                  alt="New cover preview"
-                />
+                <img className="admin-cover-preview" src={coverPreview} alt="New cover preview" />
               ) : existingCover ? (
-                <img
-                  className="admin-cover-preview"
-                  src={getMediaUrl(existingCover)}
-                  alt="Current song cover"
-                />
+                <img className="admin-cover-preview" src={getMediaUrl(existingCover)} alt="Current song cover" />
               ) : (
-                <div className="admin-upload-icon">
-                  <FaImage />
-                </div>
+                <div className="admin-upload-icon"><FaImage /></div>
               )}
-
               <h3>Cover Image</h3>
-
-              <p>
-                {coverFile
-                  ? "New cover selected"
-                  : existingCover
-                    ? "Current cover"
-                    : "No current cover"}
-              </p>
-
+              <p>{coverFile ? "New cover selected" : existingCover ? "Current cover" : "No current cover"}</p>
               {!coverFile ? (
                 <>
                   <input
@@ -714,13 +748,8 @@ function EditSong() {
                     onChange={handleCoverChange}
                     disabled={saving}
                   />
-
-                  <label
-                    htmlFor="edit-song-cover"
-                    className="admin-upload-button"
-                  >
-                    <FaCloudUploadAlt />
-                    {existingCover ? "Replace Cover" : "Add Cover"}
+                  <label htmlFor="edit-song-cover" className="admin-upload-button">
+                    <FaCloudUploadAlt /> {existingCover ? "Replace Cover" : "Add Cover"}
                   </label>
                 </>
               ) : (
@@ -729,13 +758,7 @@ function EditSong() {
                     <strong>{coverFile.name}</strong>
                     <span>{formatFileSize(coverFile.size)}</span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={removeNewCover}
-                    disabled={saving}
-                    aria-label="Remove selected cover"
-                  >
+                  <button type="button" onClick={removeNewCover} disabled={saving} aria-label="Remove selected cover">
                     <FaTimes />
                   </button>
                 </div>
@@ -744,14 +767,11 @@ function EditSong() {
           </div>
         </div>
 
-        {/* LYRICS */}
-
         <div className="admin-form-section">
           <div className="admin-form-section-title">
             <h2>Lyrics</h2>
             <p>Edit the lyrics without changing the other song details.</p>
           </div>
-
           <div className="admin-field">
             <textarea
               name="lyrics"
@@ -764,25 +784,12 @@ function EditSong() {
           </div>
         </div>
 
-        {/* ACTIONS */}
-
         <div className="admin-form-actions">
-          <button
-            type="button"
-            className="admin-cancel-button"
-            disabled={saving}
-            onClick={() => navigate("/admin/songs")}
-          >
+          <button type="button" className="admin-cancel-button" disabled={saving} onClick={() => navigate("/admin/songs")}>
             Cancel
           </button>
-
-          <button
-            type="submit"
-            className="admin-primary-button"
-            disabled={saving}
-          >
-            <FaSave />
-            {saving ? "Saving..." : "Update Song"}
+          <button type="submit" className="admin-primary-button" disabled={saving}>
+            <FaSave /> {saving ? "Saving..." : "Update Song"}
           </button>
         </div>
       </form>
