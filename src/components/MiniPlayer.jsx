@@ -412,9 +412,9 @@ export default function MiniPlayer({ onExpand }) {
                     }}
                   />
                 )}
-                <span className="mini-queue-number">
+                {/* <span className="mini-queue-number">
                   {index + 1}
-                </span>
+                </span> */}
                 <span className="mini-queue-song-info">
                   <strong>
                     {song.title || "Unknown Song"}

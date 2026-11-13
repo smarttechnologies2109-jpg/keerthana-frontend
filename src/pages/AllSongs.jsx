@@ -284,6 +284,7 @@ export default function AllSongs() {
   const [error, setError] = useState("");
 
   const isFetchingRef = useRef(false);
+  const pendingRefreshRef = useRef(false);
   const hasSongsRef = useRef(false);
   const touchStartYRef = useRef(null);
   const shouldRefreshOnTouchEndRef = useRef(false);
@@ -365,16 +366,37 @@ export default function AllSongs() {
 
       return false;
     } finally {
+      // Always release the request lock, including failed requests.
       isFetchingRef.current = false;
 
       if (!silent) {
         setLoading(false);
       }
+
+      // If a refresh was requested while the initial/API request was
+      // still running, perform one fresh request after the lock is released.
+      if (pendingRefreshRef.current) {
+        pendingRefreshRef.current = false;
+
+        window.setTimeout(async () => {
+          setRefreshing(true);
+          try {
+            await loadSongs({ silent: true });
+          } finally {
+            setRefreshing(false);
+            setPullDistance(0);
+          }
+        }, 0);
+      }
     }
   }, []);
 
   const refreshSongs = useCallback(async () => {
+    // Do not lose a user refresh just because another request is finishing.
+    // Queue exactly one follow-up request instead.
     if (isFetchingRef.current) {
+      pendingRefreshRef.current = true;
+      setRefreshing(true);
       return;
     }
 
@@ -398,17 +420,7 @@ export default function AllSongs() {
   =================================================== */
 
   useEffect(() => {
-    let lastResumeRefresh = 0;
-
     const handleAppResume = () => {
-      const now = Date.now();
-
-      // Extra protection against duplicate resume notifications.
-      if (now - lastResumeRefresh < 2000) {
-        return;
-      }
-
-      lastResumeRefresh = now;
       refreshSongs();
     };
 

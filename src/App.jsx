@@ -139,21 +139,24 @@ function AndroidBackButtonHandler() {
 function AppResumeHandler() {
   useEffect(() => {
     let wasHidden = document.visibilityState === "hidden";
+    let wasBlurred = false;
     let lastRefreshTime = 0;
 
     const notifyAppResume = () => {
+      if (document.visibilityState === "hidden") return;
+
       const now = Date.now();
 
-      // Prevent duplicate events when visibility and
-      // focus events fire close together.
-      if (now - lastRefreshTime < 2000) {
-        return;
-      }
+      // visibilitychange and focus can fire together. Suppress only
+      // duplicate events from the same foreground transition.
+      if (now - lastRefreshTime < 700) return;
 
       lastRefreshTime = now;
 
       window.dispatchEvent(
-        new CustomEvent("keerthana:app-resume")
+        new CustomEvent("keerthana:app-resume", {
+          detail: { timestamp: now },
+        })
       );
     };
 
@@ -163,36 +166,48 @@ function AppResumeHandler() {
         return;
       }
 
-      if (
-        document.visibilityState === "visible" &&
-        wasHidden
-      ) {
+      if (wasHidden) {
         wasHidden = false;
+        wasBlurred = false;
         notifyAppResume();
       }
+    };
+
+    const handleBlur = () => {
+      wasBlurred = true;
     };
 
     const handleFocus = () => {
-      if (wasHidden) {
+      if (document.visibilityState === "hidden") return;
+
+      // Some browsers/webviews do not reliably emit visibilitychange
+      // when returning from another app or window.
+      if (wasHidden || wasBlurred) {
         wasHidden = false;
+        wasBlurred = false;
         notifyAppResume();
       }
     };
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+    const handlePageShow = (event) => {
+      // Also refresh when a page is restored from the browser back-forward cache.
+      if (event.persisted) {
+        wasHidden = false;
+        wasBlurred = false;
+        notifyAppResume();
+      }
+    };
 
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
+    window.addEventListener("pageshow", handlePageShow);
 
     return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
-
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
 
