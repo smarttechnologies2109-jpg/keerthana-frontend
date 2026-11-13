@@ -1,7 +1,9 @@
 
 import {
+  useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -238,6 +240,14 @@ function Albums() {
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const requestInProgressRef = useRef(false);
+  const albumsRef = useRef(albums);
+  albumsRef.current = albums;
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -256,13 +266,20 @@ function Albums() {
 
   /* FETCH ALBUMS */
 
-  const fetchAlbums = async () => {
-    try {
+  const fetchAlbums = useCallback(async ({ silent = false } = {}) => {
+    if (requestInProgressRef.current) return;
+
+    requestInProgressRef.current = true;
+
+    if (silent) {
+      setRefreshing(true);
+    } else {
       setLoading(true);
       setError("");
+    }
 
+    try {
       const response = await API.get("/albums");
-
       const data = response?.data;
 
       const albumList = Array.isArray(data?.albums)
@@ -274,20 +291,77 @@ function Albums() {
             : [];
 
       setAlbums(albumList);
+      albumsRef.current = albumList;
+      setError("");
     } catch (err) {
       console.error("Unable to load albums:", err);
 
-      setError(
-        "Unable to load albums. Please try again."
-      );
+      // Keep the current album list visible during background refresh failures.
+      if (!silent || albumsRef.current.length === 0) {
+        setError("Unable to load albums. Please try again.");
+      }
     } finally {
+      requestInProgressRef.current = false;
       setLoading(false);
+      setRefreshing(false);
+      setPullDistance(0);
+      pullDistanceRef.current = 0;
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAlbums();
-  }, []);
+  }, [fetchAlbums]);
+
+  /* REFRESH WHEN THE APP RETURNS TO THE FOREGROUND */
+
+  useEffect(() => {
+    const handleAppResume = () => {
+      fetchAlbums({ silent: true });
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [fetchAlbums]);
+
+  /* PULL DOWN TO REFRESH */
+
+  const handleTouchStart = (event) => {
+    if (window.scrollY > 0 || loading || refreshing) return;
+    if (event.touches.length !== 1) return;
+
+    touchStartYRef.current = event.touches[0].clientY;
+    pullDistanceRef.current = 0;
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartYRef.current == null || loading || refreshing) return;
+    if (window.scrollY > 0) return;
+
+    const delta = event.touches[0].clientY - touchStartYRef.current;
+    const distance = Math.max(0, Math.min(delta * 0.55, 90));
+
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const resetPullGesture = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
+
+  const handleTouchEnd = () => {
+    const shouldRefresh = pullDistanceRef.current >= 65;
+    resetPullGesture();
+
+    if (shouldRefresh) {
+      fetchAlbums({ silent: true });
+    }
+  };
 
   /* SEARCH AND LANGUAGE FILTER */
 
@@ -353,7 +427,46 @@ function Albums() {
   /* MAIN PAGE */
 
   return (
-    <div className="albums-page">
+    <div
+      className="albums-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={resetPullGesture}
+    >
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className="albums-refresh-indicator"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "sticky",
+            top: "8px",
+            zIndex: 20,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "9px",
+            minHeight: "42px",
+            margin: "0 auto 8px",
+            color: "#f0d58a",
+            fontSize: "13px",
+            fontWeight: 600,
+            pointerEvents: "none",
+          }}
+        >
+          <span
+            className="albums-loading-spinner"
+            style={{
+              width: "16px",
+              height: "16px",
+              borderWidth: "2px",
+              opacity: refreshing ? 1 : Math.min(1, pullDistance / 65),
+            }}
+          />
+          {refreshing ? "Refreshing albums..." : "Release to refresh"}
+        </div>
+      )}
 
       {/* HEADER */}
 

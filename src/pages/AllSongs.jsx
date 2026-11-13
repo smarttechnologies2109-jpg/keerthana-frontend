@@ -279,7 +279,14 @@ export default function AllSongs() {
 
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
   const [error, setError] = useState("");
+
+  const isFetchingRef = useRef(false);
+  const hasSongsRef = useRef(false);
+  const touchStartYRef = useRef(null);
+  const shouldRefreshOnTouchEndRef = useRef(false);
 
   const [search, setSearch] = useState("");
   const [language, setLanguage] = useState("All");
@@ -302,9 +309,18 @@ export default function AllSongs() {
      LOAD SONGS
   =================================================== */
 
-  const loadSongs = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  const loadSongs = useCallback(async ({ silent = false } = {}) => {
+    // Avoid overlapping requests from pull-to-refresh and app-resume events.
+    if (isFetchingRef.current) {
+      return false;
+    }
+
+    isFetchingRef.current = true;
+
+    if (!silent) {
+      setLoading(true);
+      setError("");
+    }
 
     try {
       const response = await API.get("/songs");
@@ -328,21 +344,140 @@ export default function AllSongs() {
       );
 
       setSongs(validSongs);
+      hasSongsRef.current = validSongs.length > 0;
+
+      if (silent) {
+        setError("");
+      }
+
+      return true;
     } catch (err) {
       console.error("Failed to load songs:", err);
 
-      setError(
-        err?.response?.data?.message ||
-          "Unable to load songs. Please try again."
-      );
+      // During a silent refresh, keep the already displayed songs.
+      // Show an error only if there is no existing data to display.
+      if (!silent || !hasSongsRef.current) {
+        setError(
+          err?.response?.data?.message ||
+            "Unable to load songs. Please try again."
+        );
+      }
+
+      return false;
     } finally {
-      setLoading(false);
+      isFetchingRef.current = false;
+
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, []);
+
+  const refreshSongs = useCallback(async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    setRefreshing(true);
+
+    try {
+      await loadSongs({ silent: true });
+    } finally {
+      setRefreshing(false);
+      setPullDistance(0);
+    }
+  }, [loadSongs]);
 
   useEffect(() => {
     loadSongs();
   }, [loadSongs]);
+
+  /* ===================================================
+     REFRESH WHEN APP RETURNS TO FOREGROUND
+     App.jsx dispatches "keerthana:app-resume".
+  =================================================== */
+
+  useEffect(() => {
+    let lastResumeRefresh = 0;
+
+    const handleAppResume = () => {
+      const now = Date.now();
+
+      // Extra protection against duplicate resume notifications.
+      if (now - lastResumeRefresh < 2000) {
+        return;
+      }
+
+      lastResumeRefresh = now;
+      refreshSongs();
+    };
+
+    window.addEventListener(
+      "keerthana:app-resume",
+      handleAppResume
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keerthana:app-resume",
+        handleAppResume
+      );
+    };
+  }, [refreshSongs]);
+
+  /* ===================================================
+     PULL DOWN TO REFRESH
+     Only activates when the page is already at the top.
+  =================================================== */
+
+  const handleTouchStart = useCallback((event) => {
+    if (window.scrollY > 1 || event.touches.length !== 1) {
+      touchStartYRef.current = null;
+      shouldRefreshOnTouchEndRef.current = false;
+      return;
+    }
+
+    touchStartYRef.current = event.touches[0].clientY;
+    shouldRefreshOnTouchEndRef.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback((event) => {
+    if (touchStartYRef.current === null || refreshing) {
+      return;
+    }
+
+    if (window.scrollY > 1 || event.touches.length !== 1) {
+      touchStartYRef.current = null;
+      shouldRefreshOnTouchEndRef.current = false;
+      setPullDistance(0);
+      return;
+    }
+
+    const currentY = event.touches[0].clientY;
+    const distance = Math.max(0, currentY - touchStartYRef.current);
+    const limitedDistance = Math.min(distance * 0.5, 90);
+
+    setPullDistance(limitedDistance);
+    shouldRefreshOnTouchEndRef.current = limitedDistance >= 65;
+  }, [refreshing]);
+
+  const handleTouchEnd = useCallback(() => {
+    const shouldRefresh = shouldRefreshOnTouchEndRef.current;
+
+    touchStartYRef.current = null;
+    shouldRefreshOnTouchEndRef.current = false;
+    setPullDistance(0);
+
+    if (shouldRefresh) {
+      refreshSongs();
+    }
+  }, [refreshSongs]);
+
+  const handleTouchCancel = useCallback(() => {
+    touchStartYRef.current = null;
+    shouldRefreshOnTouchEndRef.current = false;
+    setPullDistance(0);
+  }, []);
 
   /* ===================================================
      CLOSE MENU ON OUTSIDE CLICK OR ESCAPE
@@ -695,7 +830,60 @@ export default function AllSongs() {
   =================================================== */
 
   return (
-    <main className="all-songs-page">
+    <main
+      className="all-songs-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
+
+      {/* PULL-TO-REFRESH INDICATOR */}
+
+      {(refreshing || pullDistance > 0) && (
+        <div
+          className="all-songs-refresh-indicator"
+          role="status"
+          aria-live="polite"
+          style={{
+            minHeight: "42px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            color: "#d4af65",
+            fontSize: "13px",
+            fontWeight: 600,
+            opacity: refreshing ? 1 : Math.min(pullDistance / 65, 1),
+            transform: `translateY(${refreshing ? 0 : Math.min(pullDistance * 0.25, 22)}px)`,
+            transition: refreshing ? "opacity 180ms ease" : "none",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              width: "16px",
+              height: "16px",
+              border: "2px solid rgba(212, 175, 101, 0.3)",
+              borderTopColor: "#d4af65",
+              borderRadius: "50%",
+              display: "inline-block",
+              animation: refreshing ? "allSongsRefreshSpin 0.8s linear infinite" : "none",
+              transform: refreshing ? "none" : `rotate(${pullDistance * 4}deg)`,
+            }}
+          />
+          {refreshing
+            ? "Refreshing songs..."
+            : pullDistance >= 65
+              ? "Release to refresh"
+              : "Pull down to refresh"}
+          <style>{`
+            @keyframes allSongsRefreshSpin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      )}
 
       {/* PAGE HEADER */}
 

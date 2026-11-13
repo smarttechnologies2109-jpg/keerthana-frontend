@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   Navigate,
@@ -94,7 +94,6 @@ import ManageCategories from "./pages/admin/ManageCategories";
 import ManageUsers from "./pages/admin/ManageUsers";
 import ManageMinistries from "./pages/admin/ManageMinistries";
 
-
 /* =========================================================
    BUSINESS OWNER PAGES
 ========================================================= */
@@ -111,8 +110,6 @@ import BusinessOwnerArtists from "./pages/businessOwner/BusinessOwnerArtists";
 import BusinessOwnerCategories from "./pages/businessOwner/BusinessOwnerCategories";
 import BusinessOwnerMinistries from "./pages/businessOwner/BusinessOwnerMinistries";
 
-
-
 /* =========================================================
    ANDROID BACK BUTTON
 ========================================================= */
@@ -121,6 +118,84 @@ import useAndroidBackButton from "./hooks/useAndroidBackButton";
 
 function AndroidBackButtonHandler() {
   useAndroidBackButton();
+  return null;
+}
+
+/* =========================================================
+   KEERTHANA APP RESUME HANDLER
+
+   Detects when the app returns to the foreground.
+
+   Dispatches a custom event so individual pages can
+   refresh their API data without reloading the app.
+
+   IMPORTANT:
+   - Does not reload the application.
+   - Does not clear login sessions.
+   - Does not remount PlayerProvider.
+   - Does not interrupt music playback.
+========================================================= */
+
+function AppResumeHandler() {
+  useEffect(() => {
+    let wasHidden = document.visibilityState === "hidden";
+    let lastRefreshTime = 0;
+
+    const notifyAppResume = () => {
+      const now = Date.now();
+
+      // Prevent duplicate events when visibility and
+      // focus events fire close together.
+      if (now - lastRefreshTime < 2000) {
+        return;
+      }
+
+      lastRefreshTime = now;
+
+      window.dispatchEvent(
+        new CustomEvent("keerthana:app-resume")
+      );
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        wasHidden = true;
+        return;
+      }
+
+      if (
+        document.visibilityState === "visible" &&
+        wasHidden
+      ) {
+        wasHidden = false;
+        notifyAppResume();
+      }
+    };
+
+    const handleFocus = () => {
+      if (wasHidden) {
+        wasHidden = false;
+        notifyAppResume();
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
   return null;
 }
 
@@ -144,7 +219,11 @@ function App() {
       <LikedSongsProvider>
         <NotificationsProvider>
 
+          {/* ANDROID BACK BUTTON */}
           <AndroidBackButtonHandler />
+
+          {/* APP FOREGROUND / RESUME LISTENER */}
+          <AppResumeHandler />
 
           <Routes>
 
@@ -182,22 +261,26 @@ function App() {
 
             <Route element={<AppLayout />}>
 
+              {/* PUBLIC PAGES */}
+
+              <Route
+                path="/terms-and-conditions"
+                element={<TermsAndConditions />}
+              />
+
+              <Route
+                path="/contact-us"
+                element={<ContactUs />}
+              />
+
               {/* ROOT - PUBLIC HOMEPAGE */}
 
-               <Route
-    path="/terms-and-conditions"
-    element={<TermsAndConditions />}
-  />
-  <Route
-              path="/contact-us"
-              element={<ContactUs />}
-            />
               <Route
                 path="/"
                 element={<UserHomeRedirect />}
               />
 
-              {/* HOME - PUBLIC */}
+              {/* HOME */}
 
               <Route
                 path="/home"
@@ -210,12 +293,14 @@ function App() {
                 path="/all-songs"
                 element={<AllSongs />}
               />
-               {/* RECENTLY ADDED */}
 
-<Route
-  path="/recently-added"
-  element={<RecentlyAdded />}
-/>
+              {/* RECENTLY ADDED */}
+
+              <Route
+                path="/recently-added"
+                element={<RecentlyAdded />}
+              />
+
               {/* SONG DETAILS */}
 
               <Route
@@ -293,17 +378,19 @@ function App() {
                 path="/albums/:id"
                 element={<AlbumDetails />}
               />
-{/* CATEGORIES */}
 
-<Route
-  path="/categories"
-  element={<Categories />}
-/>
+              {/* CATEGORIES */}
 
-<Route
-  path="/categories/:id"
-  element={<CategoryDetails />}
-/>
+              <Route
+                path="/categories"
+                element={<Categories />}
+              />
+
+              <Route
+                path="/categories/:id"
+                element={<CategoryDetails />}
+              />
+
               {/* MINISTRIES */}
 
               <Route
@@ -589,12 +676,6 @@ function App() {
                 </OwnerRoute>
               }
             />
-
-         
-
-          
-
-
 
             {/* =========================================
                 404 FALLBACK

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -112,13 +113,36 @@ export default function RecentlyAdded() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const requestInProgressRef = useRef(false);
+  const songsRef = useRef(songs);
+  songsRef.current = songs;
+
+  const touchStartYRef = useRef(null);
+  const pullTriggeredRef = useRef(false);
 
   /* =====================================================
      LOAD SONGS
+
+     Initial load shows the page loader.
+     Background / pull refresh keeps existing songs visible.
   ===================================================== */
 
-  const loadSongs = useCallback(async () => {
-    setLoading(true);
+  const loadSongs = useCallback(async ({ silent = false } = {}) => {
+    if (requestInProgressRef.current) {
+      return;
+    }
+
+    requestInProgressRef.current = true;
+
+    if (silent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     setError("");
 
     try {
@@ -133,17 +157,98 @@ export default function RecentlyAdded() {
         err
       );
 
-      setError(
-        "Unable to load new songs. Please try again."
-      );
+      // Keep the already-loaded list visible during a
+      // background refresh if the network is unavailable.
+      if (!silent || songsRef.current.length === 0) {
+        setError(
+          "Unable to load new songs. Please try again."
+        );
+      }
     } finally {
+      requestInProgressRef.current = false;
       setLoading(false);
+      setRefreshing(false);
+      setPullDistance(0);
     }
   }, []);
 
   useEffect(() => {
     loadSongs();
   }, [loadSongs]);
+
+  /* =====================================================
+     REFRESH WHEN APP RETURNS TO FOREGROUND
+     App.jsx dispatches "keerthana:app-resume".
+  ===================================================== */
+
+  useEffect(() => {
+    const handleAppResume = () => {
+      loadSongs({ silent: true });
+    };
+
+    window.addEventListener(
+      "keerthana:app-resume",
+      handleAppResume
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keerthana:app-resume",
+        handleAppResume
+      );
+    };
+  }, [loadSongs]);
+
+  /* =====================================================
+     PULL DOWN TO REFRESH
+     Only activates when the page is already at the top.
+  ===================================================== */
+
+  const handleTouchStart = useCallback((event) => {
+    if (window.scrollY > 0 || event.touches.length !== 1) {
+      touchStartYRef.current = null;
+      return;
+    }
+
+    touchStartYRef.current = event.touches[0].clientY;
+    pullTriggeredRef.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback((event) => {
+    if (
+      touchStartYRef.current === null ||
+      refreshing ||
+      loading ||
+      window.scrollY > 0 ||
+      event.touches.length !== 1
+    ) {
+      return;
+    }
+
+    const distance =
+      event.touches[0].clientY - touchStartYRef.current;
+
+    if (distance > 0) {
+      setPullDistance(Math.min(distance * 0.55, 90));
+    }
+  }, [refreshing, loading]);
+
+  const handleTouchEnd = useCallback(() => {
+    const shouldRefresh =
+      pullDistance >= 65 &&
+      !pullTriggeredRef.current &&
+      !refreshing &&
+      !loading;
+
+    touchStartYRef.current = null;
+
+    if (shouldRefresh) {
+      pullTriggeredRef.current = true;
+      loadSongs({ silent: true });
+    } else {
+      setPullDistance(0);
+    }
+  }, [pullDistance, refreshing, loading, loadSongs]);
 
   /* =====================================================
      SEARCH
@@ -238,7 +343,52 @@ export default function RecentlyAdded() {
   ===================================================== */
 
   return (
-    <main className="recently-added-page">
+    <main
+      className="recently-added-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+    >
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className="recently-added-refresh-indicator"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: "14px",
+            left: "50%",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "9px",
+            padding: "10px 16px",
+            borderRadius: "999px",
+            background: "#101d35",
+            color: "#f5f7fb",
+            border: "1px solid rgba(212, 175, 55, 0.45)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.25)",
+            fontSize: "13px",
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            opacity: refreshing ? 1 : Math.min(pullDistance / 65, 1),
+            transform: `translate(-50%, ${refreshing ? 0 : Math.min(pullDistance - 42, 12)}px)`,
+            pointerEvents: "none",
+          }}
+        >
+          <span className="recently-added-spinner" />
+          <span>
+            {refreshing
+              ? "Refreshing songs..."
+              : pullDistance >= 65
+                ? "Release to refresh"
+                : "Pull down to refresh"}
+          </span>
+        </div>
+      )}
+
       <div className="recently-added-content">
 
         {/* BACK BUTTON */}

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -138,18 +138,35 @@ function Ministries() {
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   /* =========================================================
-     LOAD MINISTRIES
+     LOAD MINISTRIES + SMART REFRESH
+     - Initial load uses the existing loading screen.
+     - Background/app-resume refresh keeps the current UI visible.
+     - No page reload and no player/provider changes.
   ========================================================= */
 
-  useEffect(() => {
-    loadMinistries();
-  }, []);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
 
-  const loadMinistries = async () => {
-    try {
+  const ministriesRequestRef = useRef(false);
+  const ministriesRef = useRef(ministries);
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
+
+  ministriesRef.current = ministries;
+
+  const loadMinistries = useCallback(async ({ silent = false } = {}) => {
+    if (ministriesRequestRef.current) return;
+
+    ministriesRequestRef.current = true;
+
+    if (silent) {
+      setRefreshing(true);
+    } else {
       setLoading(true);
       setError("");
+    }
 
+    try {
       const response = await API.get("/ministries");
       const data = response.data;
 
@@ -162,16 +179,76 @@ function Ministries() {
         : [];
 
       setMinistries(ministryData);
+      setError("");
     } catch (err) {
       console.error("Load ministries error:", err);
 
-      setError(
-        err?.response?.data?.message ||
-          "Unable to load ministries"
-      );
+      // Keep already-loaded ministries visible if a background refresh fails.
+      if (!silent || ministriesRef.current.length === 0) {
+        setError(
+          err?.response?.data?.message ||
+            "Unable to load ministries"
+        );
+      }
     } finally {
-      setLoading(false);
+      ministriesRequestRef.current = false;
+      if (silent) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
     }
+  }, []);
+
+  const refreshMinistries = useCallback(() => {
+    return loadMinistries({ silent: true });
+  }, [loadMinistries]);
+
+  useEffect(() => {
+    loadMinistries();
+  }, [loadMinistries]);
+
+  useEffect(() => {
+    const handleAppResume = () => {
+      refreshMinistries();
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [refreshMinistries]);
+
+  const handleTouchStart = (event) => {
+    if (window.scrollY > 0 || ministriesRequestRef.current) return;
+    touchStartYRef.current = event.touches?.[0]?.clientY ?? null;
+    pullDistanceRef.current = 0;
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartYRef.current === null || window.scrollY > 0) return;
+
+    const currentY = event.touches?.[0]?.clientY;
+    if (typeof currentY !== "number") return;
+
+    const distance = Math.max(0, Math.min((currentY - touchStartYRef.current) * 0.5, 88));
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const handleTouchEnd = () => {
+    const shouldRefresh = pullDistanceRef.current >= 62;
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+
+    if (shouldRefresh) refreshMinistries();
+  };
+
+  const handleTouchCancel = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
   };
 
   /* =========================================================
@@ -246,7 +323,13 @@ function Ministries() {
   ========================================================= */
 
   return (
-    <div className="ministries-page">
+    <div
+      className="ministries-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
       {/* SIDEBAR */}
 
       <Sidebar />
@@ -255,6 +338,44 @@ function Ministries() {
 
       <div className="ministries-main">
         <div className="ministries-body">
+          {((pullDistance > 0 && !refreshing) || refreshing) && (
+            <div
+              className="ministries-refresh-indicator"
+              role="status"
+              aria-live="polite"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "9px",
+                minHeight: "38px",
+                opacity: refreshing ? 1 : Math.min(pullDistance / 62, 1),
+                transform: `translateY(${refreshing ? 0 : Math.min(pullDistance, 38) - 38}px)`,
+                color: "var(--text-secondary, #aebbd0)",
+                fontSize: "13px",
+                fontWeight: 600,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  width: "15px",
+                  height: "15px",
+                  border: "2px solid rgba(212, 175, 55, 0.3)",
+                  borderTopColor: "#d4af37",
+                  borderRadius: "50%",
+                  animation: "ministriesRefreshSpin 0.75s linear infinite",
+                }}
+              />
+              {refreshing ? "Refreshing ministries..." : "Pull down to refresh"}
+            </div>
+          )}
+          <style>{`
+            @keyframes ministriesRefreshSpin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+
           {/* LOADING */}
 
           {loading && (

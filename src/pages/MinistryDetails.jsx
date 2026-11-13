@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -80,71 +80,126 @@ const MinistryDetails = () => {
   const [search, setSearch] = useState("");
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
   const [openMenuSongId, setOpenMenuSongId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
 
   const menuRef = useRef(null);
+  const requestInProgressRef = useRef(false);
+  const ministryRef = useRef(ministry);
+  const songsRef = useRef(songs);
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
+
+  ministryRef.current = ministry;
+  songsRef.current = songs;
 
   /* =====================================================
      LOAD MINISTRY + SONGS
+     Silent refresh keeps the current page and player intact.
   ===================================================== */
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadData = useCallback(async ({ silent = false } = {}) => {
+    if (!id || requestInProgressRef.current) return;
 
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    requestInProgressRef.current = true;
 
-        const [ministryResponse, songsResponse] =
-          await Promise.all([
-            API.get(`/ministries/${id}`),
-            API.get(`/ministries/${id}/songs`),
-          ]);
-
-        if (cancelled) return;
-
-        const ministryData = ministryResponse.data;
-
-        setMinistry(
-          ministryData?.ministry || ministryData
-        );
-
-        const songData = songsResponse.data;
-
-        if (Array.isArray(songData?.songs)) {
-          setSongs(songData.songs);
-        } else if (Array.isArray(songData)) {
-          setSongs(songData);
-        } else {
-          setSongs([]);
-        }
-      } catch (err) {
-        if (cancelled) return;
-
-        console.error("Load ministry details error:", err);
-
-        setError(
-          err?.response?.data?.message ||
-            "Unable to load ministry."
-        );
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    if (id) {
-      loadData();
+    if (!silent) {
+      if (!ministryRef.current) setLoading(true);
+      setError("");
     } else {
-      setError("Ministry ID is missing.");
-      setLoading(false);
+      setRefreshing(true);
     }
 
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const [ministryResponse, songsResponse] = await Promise.all([
+        API.get(`/ministries/${id}`),
+        API.get(`/ministries/${id}/songs`),
+      ]);
+
+      const ministryData = ministryResponse.data;
+      const nextMinistry = ministryData?.ministry || ministryData || null;
+
+      const songData = songsResponse.data;
+      const nextSongs = Array.isArray(songData?.songs)
+        ? songData.songs
+        : Array.isArray(songData)
+        ? songData
+        : [];
+
+      setMinistry(nextMinistry);
+      setSongs(nextSongs);
+      setError("");
+    } catch (err) {
+      console.error("Load ministry details error:", err);
+
+      if (!ministryRef.current) {
+        setError(
+          err?.response?.data?.message || "Unable to load ministry."
+        );
+      }
+    } finally {
+      requestInProgressRef.current = false;
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    if (!id) {
+      setError("Ministry ID is missing.");
+      setLoading(false);
+      return;
+    }
+
+    setMinistry(null);
+    setSongs([]);
+    ministryRef.current = null;
+    songsRef.current = [];
+    setLoading(true);
+    loadData();
+  }, [id, loadData]);
+
+  // Refresh API data whenever the app returns to the foreground.
+  useEffect(() => {
+    const handleAppResume = () => loadData({ silent: true });
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [loadData]);
+
+  // Pull down from the top of the page to refresh ministry details and songs.
+  const handleTouchStart = (event) => {
+    if (window.scrollY > 0 || requestInProgressRef.current) return;
+    touchStartYRef.current = event.touches?.[0]?.clientY ?? null;
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartYRef.current == null || requestInProgressRef.current) return;
+
+    const currentY = event.touches?.[0]?.clientY ?? touchStartYRef.current;
+    const distance = Math.max(
+      0,
+      Math.min((currentY - touchStartYRef.current) * 0.5, 88)
+    );
+
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const resetPullGesture = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
+
+  const handleTouchEnd = () => {
+    const shouldRefresh = pullDistanceRef.current >= 62;
+    resetPullGesture();
+
+    if (shouldRefresh) loadData({ silent: true });
+  };
 
   /* =====================================================
      VOICE SEARCH
@@ -377,7 +432,7 @@ const MinistryDetails = () => {
           <button
             type="button"
             className="ministry-retry-button"
-            onClick={() => window.location.reload()}
+            onClick={() => loadData()}
           >
             Try Again
           </button>
@@ -430,7 +485,52 @@ const MinistryDetails = () => {
   ===================================================== */
 
   return (
-    <div className="ministry-details-page">
+    <div
+      className="ministry-details-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={resetPullGesture}
+    >
+      <style>{`
+        .ministry-refresh-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 9px;
+          min-height: 38px;
+          color: var(--text-secondary, #aebbd0);
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .ministry-refresh-spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(212, 175, 55, 0.25);
+          border-top-color: #d4af37;
+          border-radius: 50%;
+          animation: ministry-refresh-spin 0.75s linear infinite;
+        }
+        @keyframes ministry-refresh-spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      {refreshing && (
+        <div className="ministry-refresh-indicator" role="status" aria-live="polite">
+          <span className="ministry-refresh-spinner" aria-hidden="true" />
+          <span>Refreshing ministry...</span>
+        </div>
+      )}
+      {!refreshing && pullDistance > 0 && (
+        <div
+          className="ministry-refresh-indicator"
+          style={{ transform: `translateY(${Math.min(pullDistance, 62)}px)` }}
+          aria-hidden="true"
+        >
+          <span className="ministry-refresh-spinner" aria-hidden="true" />
+          <span>Pull to refresh</span>
+        </div>
+      )}
       {/* BACK BUTTON */}
 
       <button

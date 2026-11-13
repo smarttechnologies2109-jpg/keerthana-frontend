@@ -133,11 +133,24 @@ function CategoryDetails() {
   const [notice, setNotice] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Refresh state is separate from the initial loading states so existing
+  // category content stays visible during background updates.
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const categoryRequestRef = useRef(false);
+  const songsRequestRef = useRef(false);
+  const categoryRef = useRef(category);
+  const songsRef = useRef(songs);
+  categoryRef.current = category;
+  songsRef.current = songs;
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
+
   /* =========================================================
      LOAD CATEGORY DETAILS
   ========================================================= */
 
-  const loadCategory = useCallback(async () => {
+  const loadCategory = useCallback(async ({ silent = false } = {}) => {
     if (!id) {
       setCategory(null);
       setError("A category ID was not provided.");
@@ -145,10 +158,16 @@ function CategoryDetails() {
       return;
     }
 
+    if (categoryRequestRef.current) return;
+
+    categoryRequestRef.current = true;
+
     try {
-      setLoading(true);
-      setError("");
-      setCategory(null);
+      if (!silent) {
+        setLoading(true);
+        setError("");
+        if (!categoryRef.current) setCategory(null);
+      }
 
       const response = await API.get(
         `/categories/${encodeURIComponent(id)}`
@@ -177,20 +196,24 @@ function CategoryDetails() {
       }
 
       setCategory(categoryData);
+      if (!silent) setError("");
     } catch (err) {
       console.error("Load category details error:", err);
 
-      setCategory(null);
-
-      setError(
-        err?.response?.status === 404
-          ? "This category could not be found."
-          : err?.response?.data?.message ||
-              err?.message ||
-              "Unable to load this category. Please try again."
-      );
+      // Keep previously loaded category data during silent refresh failures.
+      if (!silent || !category) {
+        if (!categoryRef.current) setCategory(null);
+        setError(
+          err?.response?.status === 404
+            ? "This category could not be found."
+            : err?.response?.data?.message ||
+                err?.message ||
+                "Unable to load this category. Please try again."
+        );
+      }
     } finally {
-      setLoading(false);
+      categoryRequestRef.current = false;
+      if (!silent) setLoading(false);
     }
   }, [id]);
 
@@ -205,7 +228,7 @@ function CategoryDetails() {
      category's song_count field.
   ========================================================= */
 
-  const loadCategorySongs = useCallback(async () => {
+  const loadCategorySongs = useCallback(async ({ silent = false } = {}) => {
     if (!id) {
       setSongs([]);
       setSongsError("");
@@ -213,9 +236,15 @@ function CategoryDetails() {
       return;
     }
 
+    if (songsRequestRef.current) return;
+
+    songsRequestRef.current = true;
+
     try {
-      setSongsLoading(true);
-      setSongsError("");
+      if (!silent) {
+        setSongsLoading(true);
+        setSongsError("");
+      }
 
       const response = await API.get("/songs");
       const data = response.data;
@@ -236,11 +265,12 @@ function CategoryDetails() {
 
       // Keep song rows, Play All, and the player queue in the same A-Z order.
       setSongs(categorySongs);
+      if (!silent) setSongsError("");
 
       console.log(
         `[CategoryDetails] Category ${id}:`,
         {
-          categoryName: category?.name || "",
+          categoryName: categoryRef.current?.name || "",
           totalSongsFromAPI: allSongs.length,
           matchingSongs: categorySongs.length,
           songs: categorySongs.map((song) => ({
@@ -259,19 +289,89 @@ function CategoryDetails() {
         err
       );
 
-      setSongs([]);
-      setSongsError(
-        err?.response?.data?.message ||
-          "Unable to load this category's songs. Please try again."
-      );
+      // Do not clear the existing song list if a background refresh fails.
+      if (!silent || songs.length === 0) {
+        if (songs.length === 0) setSongs([]);
+        setSongsError(
+          err?.response?.data?.message ||
+            "Unable to load this category's songs. Please try again."
+        );
+      }
     } finally {
-      setSongsLoading(false);
+      songsRequestRef.current = false;
+      if (!silent) setSongsLoading(false);
     }
-  }, [id, category?.name]);
+  }, [id]);
 
   useEffect(() => {
     loadCategorySongs();
   }, [loadCategorySongs]);
+
+  /* =========================================================
+     APP RESUME + PULL-TO-REFRESH
+  ========================================================= */
+
+  const refreshCategoryPage = useCallback(async () => {
+    if (categoryRequestRef.current || songsRequestRef.current) return;
+
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        loadCategory({ silent: true }),
+        loadCategorySongs({ silent: true }),
+      ]);
+    } finally {
+      setRefreshing(false);
+      setPullDistance(0);
+      pullDistanceRef.current = 0;
+    }
+  }, [loadCategory, loadCategorySongs]);
+
+  useEffect(() => {
+    const handleAppResume = () => {
+      refreshCategoryPage();
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [refreshCategoryPage]);
+
+  const handleTouchStart = (event) => {
+    if (window.scrollY <= 0 && event.touches?.length === 1) {
+      touchStartYRef.current = event.touches[0].clientY;
+    } else {
+      touchStartYRef.current = null;
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartYRef.current === null || window.scrollY > 0 || refreshing) return;
+
+    const distance = Math.max(
+      0,
+      Math.min((event.touches[0].clientY - touchStartYRef.current) * 0.5, 88)
+    );
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const handleTouchEnd = () => {
+    touchStartYRef.current = null;
+    if (pullDistanceRef.current >= 62 && !refreshing) {
+      refreshCategoryPage();
+    } else {
+      pullDistanceRef.current = 0;
+      setPullDistance(0);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
 
   /* =========================================================
      CLOSE MENU ON OUTSIDE CLICK / ESCAPE

@@ -1,5 +1,5 @@
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -184,15 +184,31 @@ function Categories() {
   const [search, setSearch] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const requestInProgressRef = useRef(false);
+  const categoriesRef = useRef(categories);
+  categoriesRef.current = categories;
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
 
   /* =========================================================
      LOAD CATEGORIES
   ========================================================= */
 
-  const loadCategories = useCallback(async () => {
+  const loadCategories = useCallback(async ({ silent = false } = {}) => {
+    if (requestInProgressRef.current) return;
+
+    requestInProgressRef.current = true;
+
     try {
-      setLoading(true);
-      setError("");
+      if (silent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+        setError("");
+      }
 
       // Uses the shared API instance and its configured base URL.
       const response = await API.get("/categories");
@@ -214,24 +230,96 @@ function Categories() {
       }
 
       setCategories(categoryData);
+      setError("");
     } catch (err) {
       console.error("Load categories error:", err);
 
-      setCategories([]);
-
-      setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Unable to load categories. Please check your connection and try again."
-      );
+      // Keep the currently displayed categories during background refresh.
+      if (!silent || categoriesRef.current.length === 0) {
+        if (!silent) setCategories([]);
+        setError(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Unable to load categories. Please check your connection and try again."
+        );
+      }
     } finally {
+      requestInProgressRef.current = false;
       setLoading(false);
+      setRefreshing(false);
+      setPullDistance(0);
+      pullDistanceRef.current = 0;
     }
   }, []);
 
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  // Refresh only category data when the app returns to the foreground.
+  useEffect(() => {
+    const handleAppResume = () => {
+      loadCategories({ silent: true });
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [loadCategories]);
+
+  /* =========================================================
+     PULL DOWN TO REFRESH
+  ========================================================= */
+
+  const handleTouchStart = (event) => {
+    if (
+      window.scrollY <= 0 &&
+      event.touches?.length === 1 &&
+      !loading &&
+      !refreshing
+    ) {
+      touchStartYRef.current = event.touches[0].clientY;
+      pullDistanceRef.current = 0;
+    } else {
+      touchStartYRef.current = null;
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (
+      touchStartYRef.current === null ||
+      window.scrollY > 0 ||
+      loading ||
+      refreshing
+    ) {
+      return;
+    }
+
+    const delta = event.touches[0].clientY - touchStartYRef.current;
+    const distance = Math.min(Math.max(delta, 0) * 0.5, 84);
+
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const handleTouchEnd = () => {
+    const shouldRefresh = pullDistanceRef.current >= 58;
+    touchStartYRef.current = null;
+
+    if (shouldRefresh && !requestInProgressRef.current) {
+      loadCategories({ silent: true });
+    } else {
+      pullDistanceRef.current = 0;
+      setPullDistance(0);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
 
   /* =========================================================
      SEARCH CATEGORIES — ENGLISH + TELUGU
@@ -305,7 +393,43 @@ function Categories() {
   ========================================================= */
 
   return (
-    <div className="categories-page">
+    <div
+      className="categories-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className="categories-pull-refresh"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: "12px",
+            left: "50%",
+            zIndex: 1000,
+            transform: `translate(-50%, ${Math.min(pullDistance, 58)}px)`,
+            display: "flex",
+            alignItems: "center",
+            gap: "9px",
+            padding: "10px 16px",
+            borderRadius: "999px",
+            background: "#101d35",
+            color: "#f5f7fb",
+            border: "1px solid rgba(212, 175, 55, 0.55)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
+            pointerEvents: "none",
+          }}
+        >
+          <span
+            className="categories-spinner"
+            style={{ width: "16px", height: "16px" }}
+          />
+          <span>{refreshing ? "Refreshing categories..." : "Release to refresh"}</span>
+        </div>
+      )}
       {/* SIDEBAR */}
 
       <Sidebar />

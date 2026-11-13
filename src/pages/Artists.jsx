@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FaMicrophone } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -122,51 +122,121 @@ function Artists() {
     DEFAULT_VOICE_LANGUAGE
   );
 
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const requestInProgressRef = useRef(false);
+  const artistsRef = useRef(artists);
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
+
+  artistsRef.current = artists;
+
   /* -------------------------------------------------------
      LOAD ARTISTS
+     Silent refresh keeps the current page and filters intact.
   ------------------------------------------------------- */
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadArtists = async ({ silent = false } = {}) => {
+    if (requestInProgressRef.current) return;
 
-    const loadArtists = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    requestInProgressRef.current = true;
 
-        const response = await API.get("/artists");
-        const data = response?.data;
+    if (silent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+      setError("");
+    }
 
-        const artistList = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.artists)
-            ? data.artists
-            : Array.isArray(data?.data)
-              ? data.data
-              : [];
+    try {
+      const response = await API.get("/artists");
+      const data = response?.data;
 
-        if (!cancelled) {
-          setArtists(artistList);
-        }
-      } catch (err) {
-        console.error("Artists error:", err);
+      const artistList = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.artists)
+          ? data.artists
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
 
-        if (!cancelled) {
-          setError("Unable to load artists. Please try again.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      setArtists(artistList);
+      setError("");
+    } catch (err) {
+      console.error("Artists error:", err);
+
+      if (!silent || artistsRef.current.length === 0) {
+        setError("Unable to load artists. Please try again.");
       }
-    };
+    } finally {
+      requestInProgressRef.current = false;
+      setLoading(false);
+      setRefreshing(false);
+      setPullDistance(0);
+      pullDistanceRef.current = 0;
+      touchStartYRef.current = null;
+    }
+  };
 
+  useEffect(() => {
     loadArtists();
 
-    return () => {
-      cancelled = true;
+    const handleAppResume = () => {
+      loadArtists({ silent: true });
     };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* -------------------------------------------------------
+     PULL DOWN TO REFRESH
+  ------------------------------------------------------- */
+
+  const handleTouchStart = (event) => {
+    if (window.scrollY > 0 || event.touches.length !== 1) return;
+    if (loading || refreshing) return;
+
+    touchStartYRef.current = event.touches[0].clientY;
+    pullDistanceRef.current = 0;
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartYRef.current == null || loading || refreshing) return;
+    if (window.scrollY > 0) return;
+
+    const distance = Math.max(
+      0,
+      Math.min((event.touches[0].clientY - touchStartYRef.current) * 0.55, 90)
+    );
+
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const handleTouchEnd = () => {
+    const shouldRefresh = pullDistanceRef.current >= 65;
+
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+
+    if (shouldRefresh && !requestInProgressRef.current) {
+      loadArtists({ silent: true });
+    } else {
+      setPullDistance(0);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
 
   /* -------------------------------------------------------
      SEARCH + LANGUAGE FILTER
@@ -228,7 +298,54 @@ function Artists() {
   ------------------------------------------------------- */
 
   return (
-    <main className="artists-page">
+    <main
+      className="artists-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
+      <style>
+        {"@keyframes artists-refresh-spin { to { transform: rotate(360deg); } }"}
+      </style>
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className="artists-refresh-indicator"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: "76px",
+            left: "50%",
+            transform: `translate(-50%, ${Math.min(pullDistance, 65)}px)`,
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            gap: "9px",
+            padding: "10px 16px",
+            borderRadius: "999px",
+            background: "#101d35",
+            color: "#f5f7fb",
+            border: "1px solid rgba(212, 175, 55, 0.45)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+            pointerEvents: "none",
+          }}
+        >
+          <span
+            className="artists-refresh-spinner"
+            style={{
+              width: "16px",
+              height: "16px",
+              border: "2px solid rgba(212, 175, 55, 0.3)",
+              borderTopColor: "#d4af37",
+              borderRadius: "50%",
+              animation: refreshing ? "artists-refresh-spin 0.8s linear infinite" : "none",
+              transform: `rotate(${pullDistance * 4}deg)`,
+            }}
+          />
+          {refreshing ? "Refreshing artists..." : "Release to refresh"}
+        </div>
+      )}
       <header className="artists-header">
         <p>KEERTHANA</p>
         <h1>Artists</h1>
@@ -321,7 +438,7 @@ function Artists() {
           <span>{error}</span>
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => loadArtists()}
           >
             Try again
           </button>

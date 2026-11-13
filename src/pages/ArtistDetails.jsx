@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   FaArrowLeft,
@@ -26,6 +26,10 @@ function ArtistDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const menuRef = useRef(null);
+  const requestInProgressRef = useRef(false);
+  const requestIdRef = useRef(0);
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
 
   const {
     playSong,
@@ -36,8 +40,12 @@ function ArtistDetails() {
   } = usePlayer();
 
   const [artist, setArtist] = useState(null);
+  const artistRef = useRef(null);
+  artistRef.current = artist;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
   const [activeMenu, setActiveMenu] = useState(null);
   const [notice, setNotice] = useState("");
 
@@ -50,49 +58,120 @@ function ArtistDetails() {
 
   /* =========================================================
      LOAD ARTIST DETAILS
+     Silent refresh updates API data without resetting the page,
+     search state, player, or current playback.
   ========================================================= */
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadArtist = useCallback(async ({ silent = false } = {}) => {
+    if (!id || requestInProgressRef.current) return;
 
-    const loadArtist = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    requestInProgressRef.current = true;
+    const requestId = ++requestIdRef.current;
 
-        const response = await API.get(`/artists/${id}`);
-
-        if (cancelled) return;
-
-        const data = response.data;
-        setArtist(data.artist || data || null);
-      } catch (err) {
-        console.error("Failed to load artist:", err);
-
-        if (!cancelled) {
-          setError(
-            err.response?.data?.message ||
-              "Unable to load artist details. Please try again."
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    if (id) {
-      loadArtist();
+    if (!silent) {
+      setLoading(true);
+      setError("");
     } else {
-      setError("Artist ID is missing.");
-      setLoading(false);
+      setRefreshing(true);
     }
 
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const response = await API.get(`/artists/${id}`);
+      if (requestId !== requestIdRef.current) return;
+
+      const data = response?.data;
+      const nextArtist = data?.artist || data || null;
+
+      if (nextArtist) {
+        setArtist(nextArtist);
+        setError("");
+      } else if (!artistRef.current) {
+        setError("Artist details are not available.");
+      }
+    } catch (err) {
+      console.error("Failed to load artist:", err);
+      if (!silent || !artistRef.current) {
+        setError(
+          err.response?.data?.message ||
+            "Unable to load artist details. Please try again."
+        );
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        requestInProgressRef.current = false;
+        setLoading(false);
+        setRefreshing(false);
+        setPullDistance(0);
+        pullDistanceRef.current = 0;
+      }
+    }
   }, [id]);
+
+  useEffect(() => {
+    if (!id) {
+      setError("Artist ID is missing.");
+      setLoading(false);
+      return undefined;
+    }
+
+    loadArtist();
+
+    return () => {
+      requestIdRef.current += 1;
+      requestInProgressRef.current = false;
+    };
+  }, [id, loadArtist]);
+
+  /* Refresh when the app returns to the foreground. */
+  useEffect(() => {
+    const handleAppResume = () => {
+      if (document.visibilityState === "hidden") return;
+      loadArtist({ silent: true });
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [loadArtist]);
+
+  /* Pull-to-refresh: only activate when the page is at the top. */
+  const handleTouchStart = (event) => {
+    if (window.scrollY > 0 || event.touches.length !== 1) return;
+    touchStartYRef.current = event.touches[0].clientY;
+    pullDistanceRef.current = 0;
+  };
+
+  const handleTouchMove = (event) => {
+    if (
+      touchStartYRef.current == null ||
+      window.scrollY > 0 ||
+      loading ||
+      refreshing
+    ) return;
+
+    const delta = event.touches[0].clientY - touchStartYRef.current;
+    if (delta <= 0) return;
+
+    const distance = Math.min(delta * 0.5, 88);
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const handleTouchEnd = () => {
+    const shouldRefresh = pullDistanceRef.current >= 64;
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+
+    if (shouldRefresh) loadArtist({ silent: true });
+  };
+
+  const handleTouchCancel = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
 
   /* =========================================================
      CLOSE MENU ON OUTSIDE CLICK / ESCAPE
@@ -325,6 +404,12 @@ function ArtistDetails() {
 
           <button
             type="button"
+            onClick={() => loadArtist()}
+          >
+            Try again
+          </button>
+          <button
+            type="button"
             onClick={() => navigate("/artists")}
           >
             Browse artists
@@ -339,7 +424,38 @@ function ArtistDetails() {
   ========================================================= */
 
   return (
-    <main className="artist-details-page">
+    <main
+      className="artist-details-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
+      {(refreshing || pullDistance > 0) && (
+        <div
+          className="artist-details-refresh-indicator"
+          role="status"
+          aria-live="polite"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            minHeight: "42px",
+            color: "#e7c978",
+            fontSize: "13px",
+            fontWeight: 600,
+            opacity: refreshing ? 1 : Math.min(pullDistance / 64, 1),
+          }}
+        >
+          <span className="artist-loading-indicator" />
+          {refreshing
+            ? "Refreshing artist..."
+            : pullDistance >= 64
+              ? "Release to refresh"
+              : "Pull down to refresh"}
+        </div>
+      )}
       <div className="artist-details-main">
         {/* BACK NAVIGATION */}
 

@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   FaArrowLeft,
@@ -72,6 +72,16 @@ function AlbumDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const requestVersionRef = useRef(0);
+  const requestInProgressRef = useRef(false);
+  const albumRef = useRef(album);
+  albumRef.current = album;
+  const touchStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
+
   /* =====================================================
      VOICE SEARCH
   ===================================================== */
@@ -81,50 +91,111 @@ function AlbumDetails() {
   };
 
   /* =====================================================
-     LOAD ALBUM
+     LOAD / REFRESH ALBUM
   ===================================================== */
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadAlbum = useCallback(async ({ silent = false } = {}) => {
+    if (!id || requestInProgressRef.current) return;
 
-    const loadAlbum = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    requestInProgressRef.current = true;
+    const requestVersion = ++requestVersionRef.current;
 
-        const response = await API.get(`/albums/${id}`);
+    if (silent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    setError("");
 
-        if (!cancelled) {
-          setAlbum(response.data.album);
-        }
-      } catch (err) {
-        console.error("Album error:", err);
-
-        if (!cancelled) {
-          setError(
-            err.response?.data?.message ||
-              "Unable to load album"
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+    try {
+      const response = await API.get(`/albums/${id}`);
+      if (requestVersion === requestVersionRef.current) {
+        const loadedAlbum = response?.data?.album || null;
+        setAlbum(loadedAlbum);
+        if (!loadedAlbum) setError("Album not found");
       }
-    };
+    } catch (err) {
+      console.error("Album error:", err);
+      if (requestVersion === requestVersionRef.current) {
+        setError((previousError) =>
+          silent && albumRef.current
+            ? previousError
+            : (err.response?.data?.message || "Unable to load album")
+        );
+      }
+    } finally {
+      if (requestVersion === requestVersionRef.current) {
+        requestInProgressRef.current = false;
+        setLoading(false);
+        setRefreshing(false);
+        pullDistanceRef.current = 0;
+        setPullDistance(0);
+      }
+    }
+  }, [id]);
 
+  useEffect(() => {
     if (!id) {
       setError("Album ID is missing.");
       setLoading(false);
-      return;
+      return undefined;
     }
 
     loadAlbum();
 
     return () => {
-      cancelled = true;
+      requestVersionRef.current += 1;
+      requestInProgressRef.current = false;
     };
-  }, [id]);
+  }, [id, loadAlbum]);
+
+  useEffect(() => {
+    const handleAppResume = () => {
+      if (document.visibilityState === "hidden") return;
+      loadAlbum({ silent: true });
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+    return () => window.removeEventListener("keerthana:app-resume", handleAppResume);
+  }, [loadAlbum]);
+
+  /* =====================================================
+     PULL DOWN TO REFRESH
+  ===================================================== */
+
+  const handleTouchStart = (event) => {
+    if (window.scrollY <= 0 && event.touches?.length === 1 && !loading && !refreshing) {
+      touchStartYRef.current = event.touches[0].clientY;
+      pullDistanceRef.current = 0;
+    } else {
+      touchStartYRef.current = null;
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartYRef.current === null || window.scrollY > 0 || loading || refreshing) return;
+
+    const currentY = event.touches?.[0]?.clientY;
+    if (typeof currentY !== "number") return;
+
+    const distance = Math.max(0, Math.min((currentY - touchStartYRef.current) * 0.55, 90));
+    pullDistanceRef.current = distance;
+    setPullDistance(distance);
+  };
+
+  const handleTouchEnd = () => {
+    touchStartYRef.current = null;
+    const shouldRefresh = pullDistanceRef.current >= 65;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+    if (shouldRefresh) loadAlbum({ silent: true });
+  };
+
+  const handleTouchCancel = () => {
+    touchStartYRef.current = null;
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  };
 
   /* =====================================================
      LOADING STATE
@@ -156,6 +227,13 @@ function AlbumDetails() {
         </button>
 
         <p>{error || "Album not found"}</p>
+        <button
+          type="button"
+          className="album-details-back"
+          onClick={() => loadAlbum()}
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -317,7 +395,49 @@ function AlbumDetails() {
   ===================================================== */
 
   return (
-    <div className="album-details-page">
+    <div
+      className="album-details-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
+      {(refreshing || pullDistance > 0) && (
+        <>
+          <style>{`@keyframes albumDetailsRefreshSpin { to { transform: rotate(360deg); } }`}</style>
+          <div
+            className="album-details-refresh-indicator"
+            role="status"
+            aria-live="polite"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "9px",
+              minHeight: "38px",
+              color: "#e8c96a",
+              fontSize: "13px",
+              fontWeight: 600,
+              transform: `translateY(${Math.min(pullDistance, 65) * 0.25}px)`,
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                width: "15px",
+                height: "15px",
+                border: "2px solid rgba(232, 201, 106, 0.28)",
+                borderTopColor: "#e8c96a",
+                borderRadius: "50%",
+                display: "inline-block",
+                animation: refreshing ? "albumDetailsRefreshSpin 0.8s linear infinite" : "none",
+              }}
+            />
+            {refreshing ? "Refreshing album..." : "Pull down to refresh"}
+          </div>
+        </>
+      )}
+
       {/* BACK NAVIGATION */}
 
       <button

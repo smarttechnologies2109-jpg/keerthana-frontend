@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
@@ -364,13 +365,32 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
+  const refreshInProgressRef = useRef(false);
+  const touchStartYRef = useRef(0);
+  const pullEligibleRef = useRef(false);
+  const pullDistanceRef = useRef(0);
+
+  const PULL_REFRESH_THRESHOLD = 75;
+  const MAX_PULL_DISTANCE = 110;
 
   /* =======================================================
      LOAD HOMEPAGE DATA
   ======================================================= */
 
-  const loadHomeData = useCallback(async () => {
-    setLoading(true);
+  const loadHomeData = useCallback(async ({ silent = false } = {}) => {
+    if (refreshInProgressRef.current) return;
+
+    refreshInProgressRef.current = true;
+
+    if (silent) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     setError("");
 
     try {
@@ -491,12 +511,98 @@ export default function Home() {
         "Something went wrong while loading your music."
       );
     } finally {
+      refreshInProgressRef.current = false;
       setLoading(false);
+      setIsRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
     loadHomeData();
+  }, [loadHomeData]);
+
+  /* =======================================================
+     REFRESH WHEN APP RETURNS TO FOREGROUND
+
+     App.jsx dispatches this event when KEERTHANA becomes
+     visible again. Refresh is silent, so the page does not
+     return to its full-screen loading state.
+  ======================================================= */
+
+  useEffect(() => {
+    const handleAppResume = () => {
+      loadHomeData({ silent: true });
+    };
+
+    window.addEventListener("keerthana:app-resume", handleAppResume);
+
+    return () => {
+      window.removeEventListener("keerthana:app-resume", handleAppResume);
+    };
+  }, [loadHomeData]);
+
+  /* =======================================================
+     PULL DOWN TO REFRESH
+  ======================================================= */
+
+  const handleTouchStart = useCallback((event) => {
+    if (refreshInProgressRef.current || loading) return;
+
+    const target = event.target;
+    if (
+      target instanceof Element &&
+      target.closest("button, a, input, textarea, select, [role='button']")
+    ) {
+      pullEligibleRef.current = false;
+      return;
+    }
+
+    const pageAtTop = window.scrollY <= 0;
+    const mainAtTop = event.currentTarget.scrollTop <= 0;
+
+    pullEligibleRef.current = pageAtTop && mainAtTop;
+    touchStartYRef.current = event.touches[0]?.clientY || 0;
+  }, [loading]);
+
+  const handleTouchMove = useCallback((event) => {
+    if (!pullEligibleRef.current || refreshInProgressRef.current) return;
+    if (window.scrollY > 0) {
+      pullEligibleRef.current = false;
+      return;
+    }
+
+    const currentY = event.touches[0]?.clientY || 0;
+    const distance = currentY - touchStartYRef.current;
+
+    if (distance <= 0) {
+      pullDistanceRef.current = 0;
+      setPullDistance(0);
+      return;
+    }
+
+    const resistedDistance = Math.min(distance * 0.55, MAX_PULL_DISTANCE);
+    pullDistanceRef.current = resistedDistance;
+    setPullDistance(resistedDistance);
+
+    if (distance > 8 && event.cancelable) {
+      event.preventDefault();
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!pullEligibleRef.current) return;
+
+    pullEligibleRef.current = false;
+
+    const shouldRefresh =
+      pullDistanceRef.current >= PULL_REFRESH_THRESHOLD * 0.55;
+
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+
+    if (shouldRefresh) {
+      loadHomeData({ silent: true });
+    }
   }, [loadHomeData]);
 
   /* =======================================================
@@ -759,7 +865,56 @@ export default function Home() {
   ======================================================= */
 
   return (
-    <main className="home-page">
+    <main
+      className="home-page"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      style={{ touchAction: "pan-x pan-y" }}
+    >
+      <style>{`@keyframes keerthanaRefreshSpin { to { transform: rotate(360deg); } }`}</style>
+
+      {(pullDistance > 0 || isRefreshing) && (
+        <div
+          className="home-pull-refresh-indicator"
+          role="status"
+          aria-live="polite"
+          style={{
+            height: `${Math.max(pullDistance, isRefreshing ? 48 : 0)}px`,
+            opacity: isRefreshing ? 1 : Math.min(pullDistance / 45, 1),
+            transition: isRefreshing ? "height 180ms ease" : "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            color: "#d4af65",
+            fontSize: "13px",
+            fontWeight: 600,
+            overflow: "hidden",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-block",
+              width: "16px",
+              height: "16px",
+              border: "2px solid rgba(212,175,101,.3)",
+              borderTopColor: "#d4af65",
+              borderRadius: "50%",
+              animation: isRefreshing ? "keerthanaRefreshSpin .8s linear infinite" : "none",
+              transform: isRefreshing ? "none" : `rotate(${pullDistance * 4}deg)`,
+            }}
+          />
+          {isRefreshing
+            ? "Refreshing KEERTHANA..."
+            : pullDistance >= PULL_REFRESH_THRESHOLD * 0.55
+              ? "Release to refresh"
+              : "Pull down to refresh"}
+        </div>
+      )}
+
       <div className="home-content">
 
         {error && (
