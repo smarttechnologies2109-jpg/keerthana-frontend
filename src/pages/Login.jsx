@@ -20,6 +20,50 @@ function Login() {
   const [error, setError] = useState("");
 
   /* =====================================================
+     FRIENDLY ERROR MESSAGES
+  ===================================================== */
+
+  const getFriendlyError = (error) => {
+    const status = error.response?.status;
+
+    // No internet / Network connection issue
+    if (
+      !navigator.onLine ||
+      error.code === "ERR_NETWORK" ||
+      error.message === "Network Error" ||
+      error.code === "ECONNABORTED"
+    ) {
+      return "Your internet connection seems to be unavailable. Please check your Wi-Fi or mobile data and try again.";
+    }
+
+    // Request timeout
+    if (
+      error.code === "ETIMEDOUT" ||
+      error.message?.toLowerCase().includes("timeout")
+    ) {
+      return "The connection is taking too long. Please check your internet and try again.";
+    }
+
+    // Invalid login details
+    if (status === 401 || status === 400) {
+      return "We couldn't sign you in. Please check your email or mobile number and try again.";
+    }
+
+    // Too many requests
+    if (status === 429) {
+      return "You've tried too many times. Please wait a little and try again.";
+    }
+
+    // Server error
+    if (status >= 500) {
+      return "We're having a little trouble right now. Please try again in a few minutes.";
+    }
+
+    // Other errors
+    return "Something went wrong. Please try again. If the problem continues, contact our support team.";
+  };
+
+  /* =====================================================
      LOGIN
   ===================================================== */
 
@@ -31,22 +75,35 @@ function Login() {
     const cleanContact = contact.trim();
 
     if (!cleanContact) {
-      setError("Please enter your email or 10-digit mobile number.");
+      setError("Please enter your email or mobile number.");
       return;
     }
 
-    // Check whether the input is an email address.
+    // Email validation
     const isEmail =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanContact);
 
-    // If it is not an email, validate it as a mobile number.
+    // Mobile number validation
     if (!isEmail) {
       const digitsOnly = cleanContact.replace(/\D/g, "");
 
-      if (!/^\d+$/.test(cleanContact) || digitsOnly.length !== 10) {
-        setError("Please enter a valid 10-digit mobile number.");
+      if (
+        !/^\d+$/.test(cleanContact) ||
+        digitsOnly.length !== 10
+      ) {
+        setError(
+          "Please enter a valid 10-digit mobile number."
+        );
         return;
       }
+    }
+
+    // Check internet before login
+    if (!navigator.onLine) {
+      setError(
+        "You're currently offline. Please connect to the internet and try again."
+      );
+      return;
     }
 
     setLoading(true);
@@ -57,15 +114,12 @@ function Login() {
       navigate("/", {
         replace: true,
       });
+
     } catch (error) {
       console.error("LOGIN ERROR:", error);
 
-      setError(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Unable to login. Please check your email or mobile number."
-      );
+      setError(getFriendlyError(error));
+
     } finally {
       setLoading(false);
     }
@@ -78,6 +132,7 @@ function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+
         {/* LOGO */}
         <div className="auth-logo">♪</div>
 
@@ -89,15 +144,20 @@ function Login() {
 
         <h2>Welcome Back</h2>
 
-        {/* ERROR */}
+        {/* FRIENDLY ERROR */}
         {error && (
-          <div className="auth-error" role="alert">
+          <div
+            className="auth-error"
+            role="alert"
+            aria-live="polite"
+          >
             {error}
           </div>
         )}
 
         {/* LOGIN FORM */}
         <form onSubmit={handleSubmit}>
+
           <label htmlFor="contact">
             Email or Phone Number
           </label>
@@ -111,11 +171,13 @@ function Login() {
               setContact(event.target.value);
               setError("");
             }}
-            placeholder="Enter email or 10-digit mobile number"
+            placeholder="Enter your email or mobile number"
             autoComplete="username"
             autoCapitalize="none"
             spellCheck={false}
+            aria-invalid={!!error}
             required
+            disabled={loading}
           />
 
           <button
@@ -123,8 +185,9 @@ function Login() {
             className="auth-submit"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Please wait..." : "Login"}
           </button>
+
         </form>
 
         {/* REGISTER */}
@@ -134,6 +197,7 @@ function Login() {
             Create Account
           </Link>
         </p>
+
       </div>
     </div>
   );

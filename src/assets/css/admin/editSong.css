@@ -1238,3 +1238,63 @@
     transform: none;
   }
 }
+
+/* =========================================
+   SEARCHABLE DROPDOWN VISIBILITY FIX
+========================================= */
+
+.admin-form-section,
+.admin-form-grid,
+.admin-field,
+.admin-song-form {
+  overflow: visible !important;
+}
+
+.admin-searchable-dropdown {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+.admin-searchable-dropdown.is-open {
+  z-index: 99999 !important;
+}
+
+.admin-searchable-trigger {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+
+.admin-searchable-dropdown.is-open .admin-searchable-trigger {
+  z-index: 99999;
+}
+
+.admin-searchable-menu {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100%;
+  z-index: 100000 !important;
+  max-height: 320px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.admin-searchable-options {
+  max-height: 250px;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.admin-searchable-menu,
+.admin-searchable-options {
+  scrollbar-width: thin;
+}
+
+.admin-searchable-option {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}

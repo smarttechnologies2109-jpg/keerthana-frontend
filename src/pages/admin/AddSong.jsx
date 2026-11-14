@@ -225,7 +225,10 @@ function SearchableDropdown({
   };
 
   return (
-    <div className="admin-searchable-dropdown" ref={rootRef}>
+   <div
+  className={`admin-searchable-dropdown ${open ? "is-open" : ""}`}
+  ref={rootRef}
+>
       <button
         type="button"
         className={`admin-searchable-trigger${open ? " is-open" : ""}`}

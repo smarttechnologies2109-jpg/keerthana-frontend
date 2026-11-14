@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   FaBars,
@@ -7,10 +7,7 @@ import {
   FaChevronDown,
   FaChevronLeft,
   FaChevronRight,
-  FaMicrophone,
-  FaMicrophoneSlash,
   FaMusic,
-  FaSearch,
   FaSignInAlt,
   FaSignOutAlt,
   FaUserCircle,
@@ -97,16 +94,11 @@ function Header({ onToggleSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const searchInputRef = useRef(null);
-  const recognitionRef = useRef(null);
   const profileMenuRef = useRef(null);
 
   const { user, logout } = useAuth();
   const { unreadCount = 0 } = useNotifications();
 
-  const [searchValue, setSearchValue] = useState("");
-  const [isListening, setIsListening] = useState(false);
-  const [voiceSupported, setVoiceSupported] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const pageTitle = getPageTitle(location.pathname);
@@ -122,191 +114,6 @@ function Header({ onToggleSidebar }) {
   const profileImageUrl = profileImage
     ? getMediaUrl(profileImage)
     : "";
-
-  // ===================================================
-  // SEARCH SUBMIT
-  // ===================================================
-
-  const handleSearchSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
-
-      const query = searchValue.trim();
-
-      navigate(
-        query
-          ? `/search?q=${encodeURIComponent(query)}`
-          : "/search"
-      );
-    },
-    [navigate, searchValue]
-  );
-
-  // ===================================================
-  // STOP VOICE SEARCH
-  // ===================================================
-
-  const stopVoiceSearch = useCallback(() => {
-    try {
-      recognitionRef.current?.stop();
-    } catch {
-      // Recognition may already be inactive.
-    }
-
-    setIsListening(false);
-  }, []);
-
-  // ===================================================
-  // START VOICE SEARCH
-  // ===================================================
-
-  const handleVoiceSearch = useCallback(() => {
-    const recognition = recognitionRef.current;
-
-    if (!recognition) {
-      if (!voiceSupported) {
-        window.alert(
-          "Voice search is not supported. Please use Chrome or Edge."
-        );
-      }
-
-      return;
-    }
-
-    if (isListening) {
-      stopVoiceSearch();
-      return;
-    }
-
-    try {
-      recognition.start();
-    } catch (error) {
-      console.warn("Unable to start voice search:", error);
-    }
-  }, [isListening, stopVoiceSearch, voiceSupported]);
-
-  // ===================================================
-  // VOICE RECOGNITION
-  // ===================================================
-
-  useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setVoiceSupported(false);
-      return undefined;
-    }
-
-    const recognition = new SpeechRecognition();
-
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-    recognition.lang = "en-IN";
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.onerror = (event) => {
-      console.warn("Voice search error:", event.error);
-      setIsListening(false);
-    };
-
-    recognition.onresult = (event) => {
-      let interimTranscript = "";
-      let finalTranscript = "";
-
-      for (
-        let index = event.resultIndex;
-        index < event.results.length;
-        index += 1
-      ) {
-        const result = event.results[index];
-        const transcript = result[0]?.transcript || "";
-
-        if (result.isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-
-      const finalQuery = finalTranscript.trim();
-
-      const currentQuery =
-        `${finalTranscript} ${interimTranscript}`.trim();
-
-      if (currentQuery) {
-        setSearchValue(currentQuery);
-      }
-
-      if (finalQuery) {
-        navigate(
-          `/search?q=${encodeURIComponent(finalQuery)}`
-        );
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.onstart = null;
-      recognition.onend = null;
-      recognition.onerror = null;
-      recognition.onresult = null;
-
-      try {
-        recognition.stop();
-      } catch {
-        // Ignore cleanup errors.
-      }
-
-      recognitionRef.current = null;
-    };
-  }, [navigate]);
-
-  // ===================================================
-  // KEYBOARD SHORTCUT: /
-  // ===================================================
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      const target = event.target;
-
-      const isTyping =
-        target instanceof HTMLElement &&
-        (
-          target.matches("input, textarea, select") ||
-          target.isContentEditable
-        );
-
-      if (
-        event.key !== "/" ||
-        event.altKey ||
-        event.ctrlKey ||
-        event.metaKey ||
-        isTyping
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      searchInputRef.current?.focus();
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
 
   // ===================================================
   // CLOSE PROFILE MENU ON OUTSIDE CLICK OR ESCAPE
@@ -433,65 +240,6 @@ function Header({ onToggleSidebar }) {
       {/* RIGHT SECTION */}
 
       <div className="keerthana-header-right">
-
-        {/* SEARCH */}
-
-        <form
-          className={`header-search-box ${
-            isListening ? "header-search-listening" : ""
-          }`}
-          onSubmit={handleSearchSubmit}
-          role="search"
-        >
-          <FaSearch className="header-search-icon" />
-
-          <input
-            ref={searchInputRef}
-            type="search"
-            name="search"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            className="header-search-input"
-            placeholder={
-              isListening
-                ? "Listening..."
-                : "Search songs, artists, lyrics..."
-            }
-            autoComplete="off"
-            aria-label="Search songs, artists, and lyrics"
-          />
-
-          {voiceSupported && (
-            <button
-              type="button"
-              className={`header-voice-button ${
-                isListening
-                  ? "header-voice-button-active"
-                  : ""
-              }`}
-              onClick={handleVoiceSearch}
-              aria-label={
-                isListening
-                  ? "Stop listening"
-                  : "Start voice search"
-              }
-              aria-pressed={isListening}
-              title={
-                isListening
-                  ? "Stop listening"
-                  : "Voice search"
-              }
-            >
-              {isListening ? (
-                <FaMicrophoneSlash />
-              ) : (
-                <FaMicrophone />
-              )}
-            </button>
-          )}
-
-          <kbd aria-hidden="true">/</kbd>
-        </form>
 
         {/* NOTIFICATIONS */}
 
