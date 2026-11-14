@@ -13,6 +13,8 @@ import {
   FaTimes,
   FaMicrophone,
   FaListUl,
+  FaUndo,
+  FaRedo,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "../context/usePlayer";
@@ -89,6 +91,8 @@ export default function MiniPlayer({ onExpand }) {
     nextSong,
     previousSong,
     seek,
+    seekBackward,
+    seekForward,
     changeVolume,
     toggleShuffle,
     toggleRepeat,
@@ -412,9 +416,9 @@ export default function MiniPlayer({ onExpand }) {
                     }}
                   />
                 )}
-                {/* <span className="mini-queue-number">
+                <span className="mini-queue-number">
                   {index + 1}
-                </span> */}
+                </span>
                 <span className="mini-queue-song-info">
                   <strong>
                     {song.title || "Unknown Song"}
@@ -553,11 +557,31 @@ export default function MiniPlayer({ onExpand }) {
                 </button>
                 <button
                   type="button"
+                  className="mini-player-seek-button"
+                  onClick={() => seekBackward(10)}
+                  aria-label="Rewind 10 seconds"
+                  title="Rewind 10 seconds"
+                >
+                  <FaUndo />
+                  <span>10</span>
+                </button>
+                <button
+                  type="button"
                   className="mini-player-play"
                   onClick={togglePlay}
                   aria-label={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? <FaPause /> : <FaPlay />}
+                </button>
+                <button
+                  type="button"
+                  className="mini-player-seek-button"
+                  onClick={() => seekForward(10)}
+                  aria-label="Forward 10 seconds"
+                  title="Forward 10 seconds"
+                >
+                  <FaRedo />
+                  <span>10</span>
                 </button>
                 <button
                   type="button"

@@ -8,8 +8,7 @@ import {
 let initialized = false;
 let initializationPromise = null;
 
-export const isNativeAndroid =
-  Capacitor.getPlatform() === "android";
+export const isNativeAndroid = Capacitor.getPlatform() === "android";
 
 export async function initializeNativeMusicPlayer() {
   if (!isNativeAndroid) return false;
@@ -23,15 +22,11 @@ export async function initializeNativeMusicPlayer() {
       });
 
       await Playlist.initialize();
-
       initialized = true;
       return true;
     })().catch((error) => {
       initializationPromise = null;
-      console.error(
-        "Native music player initialization failed:",
-        error
-      );
+      console.error("Native music player initialization failed:", error);
       throw error;
     });
   }
@@ -65,19 +60,13 @@ export function toNativeTrack(song, audioUrl) {
       typeof artist === "string"
         ? artist
         : artist?.name ?? "KEERTHANA",
-    album:
-      song?.album_title ??
-      song?.album?.title ??
-      "KEERTHANA",
+    album: song?.album_title ?? song?.album?.title ?? "KEERTHANA",
     ...(albumArt ? { albumArt } : {}),
     isStream: false,
   };
 }
 
-export async function setNativePlaylist(
-  songs,
-  resolveAudioUrl
-) {
+export async function setNativePlaylist(songs, resolveAudioUrl) {
   if (!isNativeAndroid) return [];
 
   await initializeNativeMusicPlayer();
@@ -88,21 +77,16 @@ export async function setNativePlaylist(
     const id = song?.id ?? song?.song_id;
 
     if (id == null) {
-      console.warn(
-        "Skipping native track without an ID:",
-        song
-      );
+      console.warn("Skipping native track without an ID:", song);
       continue;
     }
 
     try {
       const audioUrl = await resolveAudioUrl(song);
+      const normalizedUrl =
+        typeof audioUrl === "string" ? audioUrl.trim() : "";
 
-      if (
-        typeof audioUrl !== "string" ||
-        !audioUrl.trim() ||
-        !/^https?:\/\//i.test(audioUrl.trim())
-      ) {
+      if (!normalizedUrl || !/^https?:\/\//i.test(normalizedUrl)) {
         console.warn("Invalid native audio URL:", {
           id,
           title: song?.title,
@@ -111,9 +95,7 @@ export async function setNativePlaylist(
         continue;
       }
 
-      items.push(
-        toNativeTrack(song, audioUrl.trim())
-      );
+      items.push(toNativeTrack(song, normalizedUrl));
     } catch (error) {
       console.error(
         `Failed to resolve audio URL for song ${id}:`,
@@ -145,7 +127,10 @@ export async function setNativePlaylist(
   return items;
 }
 
-export { Playlist, RmxAudioStatusMessage };
+export {
+  Playlist,
+  RmxAudioStatusMessage,
+};
 
 export async function playNativeMusic() {
   await initializeNativeMusicPlayer();
