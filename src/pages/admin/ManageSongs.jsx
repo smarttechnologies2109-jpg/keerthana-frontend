@@ -36,19 +36,20 @@ function ManageSongs() {
 
   const [search, setSearch] = useState("");
 
-  // ONLY TWO DROPDOWN FILTERS
+  // FILTER 1: LANGUAGE
   const [selectedLanguage, setSelectedLanguage] = useState("All");
 
+  // FILTER 2: ADVANCED
   const [selectedAdvancedFilter, setSelectedAdvancedFilter] =
     useState("All");
 
   const [deletingId, setDeletingId] = useState(null);
 
-  /* =====================================================
-     CONSTANTS
-  ===================================================== */
-
   const ALL = "All";
+
+  /* =====================================================
+     LANGUAGE OPTIONS
+  ===================================================== */
 
   const languageOptions = [
     { value: "Telugu", label: "తెలుగు" },
@@ -63,59 +64,71 @@ function ManageSongs() {
      NORMALIZE TEXT
   ===================================================== */
 
-  const normalizeText = (value) => {
-    return String(value ?? "")
+  const normalizeText = (value) =>
+    String(value ?? "")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, " ");
-  };
 
   /* =====================================================
-     GET SONG FIELDS
+     GET SONG FIELD VALUES
+
+     Supports text and common object responses.
   ===================================================== */
 
-  const getArtist = (song) => {
-    return (
+  const getValue = (value) => {
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    if (typeof value === "object") {
+      return (
+        value.name ??
+        value.title ??
+        value.artist_name ??
+        value.album_name ??
+        value.ministry_name ??
+        value.category_name ??
+        ""
+      );
+    }
+
+    return value;
+  };
+
+  const getArtist = (song) =>
+    getValue(
       song.artist_name ??
       song.artist ??
       ""
     );
-  };
 
-  const getAlbum = (song) => {
-    return (
+  const getAlbum = (song) =>
+    getValue(
       song.album_title ??
       song.album_name ??
       song.album ??
       ""
     );
-  };
 
-  const getMinistry = (song) => {
-    return (
+  const getMinistry = (song) =>
+    getValue(
       song.ministry_name ??
       song.ministry_title ??
       song.ministry ??
       ""
     );
-  };
 
-  const getCategory = (song) => {
-    return (
+  const getCategory = (song) =>
+    getValue(
       song.category_name ??
       song.category_title ??
       song.category ??
       ""
     );
-  };
 
   /* =====================================================
      EMPTY VALUE CHECK
-
-     NULL
-     UNDEFINED
-     EMPTY STRING
-     SPACES ONLY
   ===================================================== */
 
   const isEmptyValue = (value) => {
@@ -129,10 +142,8 @@ function ManageSongs() {
   /* =====================================================
      UNKNOWN VALUE CHECK
 
-     EMPTY VALUES ARE NOT INCLUDED.
+     Empty and Unknown are different.
 
-     Supported:
-     Unknown
      Unknown Artist
      Unknown Album
      Unknown Ministry
@@ -165,10 +176,6 @@ function ManageSongs() {
     return match ? match.value : "";
   };
 
-  /* =====================================================
-     LANGUAGE LABEL
-  ===================================================== */
-
   const getLanguageLabel = (value) => {
     const normalized = normalizeLanguage(value);
 
@@ -190,16 +197,20 @@ function ManageSongs() {
 
       const response = await API.get("/songs");
 
-      console.log("Admin songs:", response.data);
+      console.log("MANAGE SONGS RESPONSE:", response.data);
 
-      setSongs(response.data.songs || []);
+      const songData = Array.isArray(response.data)
+        ? response.data
+        : response.data?.songs || [];
+
+      setSongs(songData);
 
     } catch (error) {
-      console.error("Load songs error:", error);
+      console.error("LOAD SONGS ERROR:", error);
 
       setError(
         error.response?.data?.message ||
-        "Unable to load songs. Please try again."
+        "Unable to load songs. Please check your internet connection."
       );
 
     } finally {
@@ -212,7 +223,7 @@ function ManageSongs() {
   }, []);
 
   /* =====================================================
-     LANGUAGE-WISE SONG COUNTS
+     LANGUAGE COUNTS
   ===================================================== */
 
   const languageCounts = useMemo(() => {
@@ -235,9 +246,9 @@ function ManageSongs() {
   }, [songs]);
 
   /* =====================================================
-     ADVANCED FILTER OPTIONS
+     ADVANCED FILTER GROUPS
 
-     ONLY 8 OPTIONS
+     ONLY 8 OPTIONS.
 
      ARTIST:
        Empty Artist
@@ -314,7 +325,7 @@ function ManageSongs() {
   ];
 
   /* =====================================================
-     GET FILTER FIELD VALUE
+     GET FIELD VALUE
   ===================================================== */
 
   const getFieldValue = (song, field) => {
@@ -338,18 +349,6 @@ function ManageSongs() {
 
   /* =====================================================
      ADVANCED FILTER MATCHING
-
-     EMPTY:
-       NULL / UNDEFINED / EMPTY STRING
-
-     UNKNOWN:
-       Unknown
-       Unknown Artist
-       Unknown Album
-       Unknown Ministry
-       Unknown Category
-
-     EMPTY AND UNKNOWN ARE SEPARATE.
   ===================================================== */
 
   const matchesAdvancedFilter = (song, filter) => {
@@ -357,19 +356,16 @@ function ManageSongs() {
       return true;
     }
 
-    const parts = filter.split("|");
-
-    const field = parts[0];
-    const filterType = parts[1];
+    const [field, filterType] = filter.split("|");
 
     const value = getFieldValue(song, field);
 
-    // EMPTY VALUES ONLY
+    // EMPTY ONLY
     if (filterType === "empty") {
       return isEmptyValue(value);
     }
 
-    // UNKNOWN VALUES ONLY
+    // UNKNOWN ONLY
     if (filterType === "unknown") {
       return isUnknownValue(value, field);
     }
@@ -385,9 +381,10 @@ function ManageSongs() {
     const query = normalizeText(search);
 
     const matchingSongs = songs.filter((song) => {
-      const songLanguage = normalizeLanguage(song.language);
 
       // LANGUAGE FILTER
+      const songLanguage = normalizeLanguage(song.language);
+
       if (
         selectedLanguage !== ALL &&
         songLanguage !== selectedLanguage
@@ -405,12 +402,12 @@ function ManageSongs() {
         return false;
       }
 
-      // SEARCH FILTER
+      // SEARCH
       if (!query) {
         return true;
       }
 
-      const values = [
+      const searchableValues = [
         song.title,
         song.title_english,
         getArtist(song),
@@ -420,13 +417,13 @@ function ManageSongs() {
         song.language,
       ];
 
-      return values.some((value) =>
+      return searchableValues.some((value) =>
         normalizeText(value).includes(query)
       );
     });
 
     // ALPHABETICAL SORT
-    return matchingSongs.sort((a, b) => {
+    return [...matchingSongs].sort((a, b) => {
       const titleA = String(
         a.title_english || a.title || ""
       ).trim();
@@ -469,7 +466,7 @@ function ManageSongs() {
 
   const handleDelete = async (song) => {
     const confirmed = window.confirm(
-      `Delete "${song.title}"?`
+      `Are you sure you want to delete "${song.title}"?`
     );
 
     if (!confirmed) return;
@@ -492,11 +489,11 @@ function ManageSongs() {
       );
 
     } catch (error) {
-      console.error("Delete song error:", error);
+      console.error("DELETE SONG ERROR:", error);
 
       setError(
         error.response?.data?.message ||
-        "Unable to delete song."
+        "Unable to delete song. Please try again."
       );
 
     } finally {
@@ -524,7 +521,7 @@ function ManageSongs() {
   };
 
   /* =====================================================
-     DISPLAY VALUES
+     DISPLAY EMPTY VALUES
   ===================================================== */
 
   const displayValue = (value, label) => {
@@ -550,7 +547,7 @@ function ManageSongs() {
   }
 
   /* =====================================================
-     PAGE
+     PAGE RENDER
   ===================================================== */
 
   return (
@@ -581,7 +578,7 @@ function ManageSongs() {
         </button>
       </div>
 
-      {/* MESSAGES */}
+      {/* ERROR MESSAGE */}
 
       {error && (
         <div className="admin-error" role="alert">
@@ -589,13 +586,17 @@ function ManageSongs() {
         </div>
       )}
 
+      {/* SUCCESS MESSAGE */}
+
       {success && (
         <div className="admin-success" role="status">
           {success}
         </div>
       )}
 
-      {/* LANGUAGE SUMMARY CARDS */}
+      {/* =================================================
+          LANGUAGE SUMMARY CARDS
+      ================================================= */}
 
       <section
         className="admin-song-language-section"
@@ -627,7 +628,7 @@ function ManageSongs() {
           </span>
         </button>
 
-        {/* LANGUAGE-WISE CARDS */}
+        {/* LANGUAGE CARDS */}
 
         {languageOptions.map((language) => (
           <button
@@ -667,7 +668,9 @@ function ManageSongs() {
 
       </section>
 
-      {/* SEARCH + TWO DROPDOWN FILTERS */}
+      {/* =================================================
+          SEARCH + TWO FILTER DROPDOWNS
+      ================================================= */}
 
       <div className="admin-song-toolbar">
 
@@ -683,6 +686,7 @@ function ManageSongs() {
               setSearch(event.target.value)
             }
             placeholder="Search songs, artists, albums..."
+            aria-label="Search songs"
           />
         </div>
 
@@ -700,6 +704,7 @@ function ManageSongs() {
             onChange={(event) =>
               setSelectedLanguage(event.target.value)
             }
+            aria-label="Filter by language"
           >
             <option value={ALL}>
               All Languages
@@ -713,17 +718,17 @@ function ManageSongs() {
                 {language.label}
               </option>
             ))}
-
           </select>
 
         </div>
 
-        {/* FILTER 2: ADVANCED */}
+        {/* FILTER 2: ADVANCED FILTER */}
 
         <div className="admin-song-language-filter admin-song-advanced-filter">
 
           <label htmlFor="admin-song-advanced-select">
-            <FaFilter /> Advanced Filter
+            <FaFilter />
+            Advanced Filter
           </label>
 
           <select
@@ -732,10 +737,10 @@ function ManageSongs() {
             onChange={(event) =>
               setSelectedAdvancedFilter(event.target.value)
             }
+            aria-label="Filter by artist, album, ministry or category"
           >
-
             <option value={ALL}>
-              All Artists, Albums, Ministries & Categories
+              All Filters
             </option>
 
             {advancedFilterGroups.map((group) => (
@@ -743,7 +748,6 @@ function ManageSongs() {
                 key={group.label}
                 label={group.label}
               >
-
                 {group.options.map((option) => (
                   <option
                     key={option.value}
@@ -752,7 +756,6 @@ function ManageSongs() {
                     {option.label}
                   </option>
                 ))}
-
               </optgroup>
             ))}
 
@@ -765,7 +768,7 @@ function ManageSongs() {
         {hasActiveFilters && (
           <button
             type="button"
-            className="admin-primary-button"
+            className="admin-primary-button admin-song-clear-filters"
             onClick={clearFilters}
           >
             <FaTimes />
@@ -797,7 +800,9 @@ function ManageSongs() {
         </div>
       )}
 
-      {/* EMPTY STATE */}
+      {/* =================================================
+          EMPTY STATE
+      ================================================= */}
 
       {filteredSongs.length === 0 ? (
 
@@ -847,7 +852,9 @@ function ManageSongs() {
 
       ) : (
 
-        /* SONGS TABLE */
+        /* =================================================
+           SONGS TABLE
+        ================================================= */
 
         <div className="admin-table-wrapper">
 
@@ -872,6 +879,7 @@ function ManageSongs() {
             <tbody>
 
               {filteredSongs.map((song, index) => {
+
                 const cover = getCover(song);
 
                 const artist = getArtist(song);
@@ -976,8 +984,6 @@ function ManageSongs() {
                     <td>
                       <div className="admin-table-actions">
 
-                        {/* EDIT */}
-
                         <button
                           type="button"
                           className="admin-action-button edit"
@@ -990,8 +996,6 @@ function ManageSongs() {
                         >
                           <FaEdit />
                         </button>
-
-                        {/* DELETE */}
 
                         <button
                           type="button"

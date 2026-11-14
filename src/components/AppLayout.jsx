@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
@@ -18,9 +17,8 @@ function AppLayout() {
     setSidebarOpen((previous) => !previous);
   };
 
-  // Scroll to top whenever the route changes
+  // Scroll the page content to the top whenever the route changes.
   useEffect(() => {
-    // Scroll the main content area, if it has its own scrollbar
     const mainContent = document.querySelector(".main-content");
 
     if (mainContent) {
@@ -31,7 +29,6 @@ function AppLayout() {
       });
     }
 
-    // Also scroll the browser window to the top
     window.scrollTo({
       top: 0,
       left: 0,
@@ -40,35 +37,24 @@ function AppLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="app">
-
-      {/* Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={toggleSidebar}
-      />
+    <div className="app keerthana-app-layout">
+      <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
       <div className="app-body">
-
-        {/* Header */}
         <Header onToggleSidebar={toggleSidebar} />
 
-        {/* Page Content */}
         <main className="main-content">
           <Outlet />
         </main>
 
-        {/* Public Footer */}
         <Footer />
-
       </div>
 
-      {/* Persistent Music Player */}
+      {/* Persistent player remains mounted while navigating between pages. */}
       <MusicPlayer />
 
-      {/* Mobile Navigation */}
+      {/* Keep mobile navigation mounted above both player modes. */}
       <BottomNav />
-
     </div>
   );
 }

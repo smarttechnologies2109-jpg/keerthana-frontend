@@ -7,6 +7,7 @@ import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { LikedSongsProvider } from "./context/LikedSongsContext";
 import { PlayerProvider } from "./context/PlayerContext";
+import "./assets/css/player-mobile-overrides.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
