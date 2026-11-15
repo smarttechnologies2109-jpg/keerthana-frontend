@@ -68,13 +68,67 @@ const getCategoryTeluguName = (item) => {
   return "";
 };
 
-const getSongPrimaryTitle = (song) =>
-  String(song?.title || song?.title_english || "Untitled song").trim();
+const hasTeluguScript = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
 
 const getSongEnglishTitle = (song) => {
-  const english = String(song?.title_english || "").trim();
-  const primary = getSongPrimaryTitle(song);
-  return english && english !== primary ? english : "";
+  const candidates = [
+    song?.title_english,
+    song?.titleEnglish,
+    song?.english_title,
+    song?.englishTitle,
+    song?.title,
+    song?.name,
+  ];
+
+  const english = candidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !hasTeluguScript(value)
+  );
+
+  return String(english || "Untitled song").trim();
+};
+
+const getSongTeluguTitle = (song) => {
+  const candidates = [
+    song?.title_telugu,
+    song?.titleTelugu,
+    song?.title_native,
+    song?.title,
+    song?.name,
+  ];
+
+  const telugu = candidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      hasTeluguScript(value)
+  );
+
+  return String(telugu || "").trim();
+};
+
+const getSongEnglishArtistName = (song) => {
+  const candidates = [
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artistEnglish,
+    song?.artist?.name_english,
+    song?.artist?.english_name,
+    song?.artist,
+    song?.artist_name,
+    song?.artistName,
+  ];
+
+  const artist = candidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !hasTeluguScript(value)
+  );
+
+  return String(artist || "Unknown Artist").trim();
 };
 
 const compareSongsAlphabetically = (a, b) => {
@@ -911,10 +965,8 @@ function CategoryDetails() {
                   const menuOpen =
                     activeMenu === song.id;
 
-                  const songTitle =
-                    song.title ||
-                    song.title_english ||
-                    "Untitled song";
+                  const songTitle = getSongEnglishTitle(song);
+                  const songTeluguTitle = getSongTeluguTitle(song);
 
                   return (
                     <article
@@ -981,14 +1033,14 @@ function CategoryDetails() {
                           {songTitle}
                         </strong>
 
-                        {getSongEnglishTitle(song) && (
+                        {songTeluguTitle && songTeluguTitle !== songTitle && (
                           <span className="category-song-english-title">
-                            {getSongEnglishTitle(song)}
+                            {songTeluguTitle}
                           </span>
                         )}
 
                         <span className="category-song-artist">
-                          {song.artist_name || "Unknown artist"}
+                          {getSongEnglishArtistName(song)}
                         </span>
                       </button>
 

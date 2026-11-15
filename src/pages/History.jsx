@@ -33,17 +33,44 @@ const getSongId = (song) =>
   song?.id ?? song?.song_id ?? song?.songId ?? null;
 
 const getSongTitle = (song) =>
-  song?.title ||
-  song?.title_english ||
-  song?.name ||
-  "Untitled Song";
+  String(
+    song?.title_english ||
+    song?.english_title ||
+    song?.title ||
+    song?.name ||
+    "Untitled Song"
+  ).trim();
 
-const getArtistName = (song) =>
-  song?.artist_name ||
-  (typeof song?.artist === "string"
-    ? song.artist
-    : song?.artist?.name) ||
-  "Unknown Artist";
+const getSongTeluguTitle = (song) => {
+  const englishTitle = getSongTitle(song);
+  const teluguTitle =
+    song?.title_telugu ||
+    song?.telugu_title ||
+    song?.title_native ||
+    song?.title ||
+    "";
+
+  const cleanedTitle = String(teluguTitle).trim();
+
+  return cleanedTitle &&
+    cleanedTitle.toLowerCase() !== englishTitle.toLowerCase()
+    ? cleanedTitle
+    : "";
+};
+
+const getArtistName = (song) => {
+  const artist = song?.artist;
+
+  return (
+    song?.artist_name_english ||
+    song?.artist_english ||
+    song?.artistEnglish ||
+    artist?.name_english ||
+    artist?.english_name ||
+    (typeof artist === "string" ? artist : "") ||
+    "Unknown Artist"
+  );
+};
 
 const getAlbumName = (song) =>
   song?.album_name ||
@@ -236,6 +263,7 @@ export default function History() {
     if (!query) return true;
 
     const title = getSongTitle(song).toLowerCase();
+    const teluguTitle = getSongTeluguTitle(song).toLowerCase();
     const artist = getArtistName(song).toLowerCase();
     const album = getAlbumName(song).toLowerCase();
 
@@ -244,6 +272,7 @@ export default function History() {
 
     return (
       title.includes(query) ||
+      teluguTitle.includes(query) ||
       artist.includes(query) ||
       album.includes(query) ||
       playedDate.includes(query)
@@ -569,7 +598,6 @@ export default function History() {
             <div className="history-table-header">
               <span className="history-number-heading">#</span>
               <span className="history-song-heading">Song</span>
-              <span className="history-album-heading">Album</span>
               <span className="history-date-heading">
                 Last Played
               </span>
@@ -641,17 +669,28 @@ export default function History() {
                           {getSongTitle(song)}
                         </h3>
 
+                        {getSongTeluguTitle(song) && (
+                          <span
+                            className="history-song-telugu-title"
+                            style={{
+                              display: "block",
+                              fontSize: "0.86em",
+                              fontWeight: 400,
+                              opacity: 0.78,
+                              marginTop: "2px",
+                            }}
+                            title={getSongTeluguTitle(song)}
+                          >
+                            {getSongTeluguTitle(song)}
+                          </span>
+                        )}
+
                         <p title={getArtistName(song)}>
                           {getArtistName(song)}
                         </p>
                       </div>
                     </button>
 
-                    {/* ALBUM */}
-
-                    <div className="history-album">
-                      <span>{getAlbumName(song)}</span>
-                    </div>
 
                     {/* LAST PLAYED */}
 

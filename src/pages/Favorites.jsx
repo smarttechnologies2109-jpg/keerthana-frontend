@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -16,6 +17,9 @@ import {
   FaCheck,
   FaMusic,
   FaArrowLeft,
+  FaEllipsisV,
+  FaStepForward,
+  FaListUl,
 } from "react-icons/fa";
 
 import { usePlayer } from "../context/usePlayer";
@@ -39,12 +43,38 @@ function Favorites() {
      GLOBAL PLAYER
   ========================================= */
 
+  const player = usePlayer();
+
   const {
     currentSong,
     isPlaying,
     playSong,
     togglePlay,
-  } = usePlayer();
+    addToQueue,
+  } = player;
+
+  const [menuSongId, setMenuSongId] = useState(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuSongId(null);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setMenuSongId(null);
+    };
+
+    document.addEventListener("pointerdown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   /* =========================================
      STATE
@@ -180,6 +210,126 @@ function Favorites() {
     () => favorites,
     [favorites]
   );
+
+  const hasTeluguScript = (value) =>
+    /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+  const getSongEnglishTitle = (song) => {
+    const candidates = [
+      song?.title_english,
+      song?.titleEnglish,
+      song?.english_title,
+      song?.englishTitle,
+      song?.title,
+      song?.name,
+    ];
+
+    const value = candidates.find(
+      (item) =>
+        typeof item === "string" &&
+        item.trim() &&
+        !hasTeluguScript(item)
+    );
+
+    return String(value || "Untitled Song").trim();
+  };
+
+  const getSongTeluguTitle = (song) => {
+    const candidates = [
+      song?.title_telugu,
+      song?.titleTelugu,
+      song?.title_native,
+      song?.title,
+      song?.name,
+    ];
+
+    const value = candidates.find(
+      (item) =>
+        typeof item === "string" &&
+        item.trim() &&
+        hasTeluguScript(item)
+    );
+
+    const title = String(value || "").trim();
+    return title && title !== getSongEnglishTitle(song) ? title : "";
+  };
+
+  const getSongEnglishArtist = (song) => {
+    const candidates = [
+      song?.artist_name_english,
+      song?.artist_english,
+      song?.artistEnglish,
+      song?.artist?.name_english,
+      song?.artist?.english_name,
+      song?.artist_name,
+      typeof song?.artist === "string" ? song.artist : "",
+      song?.artist?.name,
+    ];
+
+    const value = candidates.find(
+      (item) =>
+        typeof item === "string" &&
+        item.trim() &&
+        !hasTeluguScript(item)
+    );
+
+    return String(value || "Unknown Artist").trim();
+  };
+
+  const handlePlayNext = (song) => {
+    setMenuSongId(null);
+
+    try {
+      if (typeof player.playNext === "function") {
+        player.playNext(song);
+        return;
+      }
+
+      if (Array.isArray(player.queue) && typeof player.setQueue === "function") {
+        const queue = [...player.queue];
+        const currentIndex = Number.isInteger(player.currentIndex)
+          ? player.currentIndex
+          : -1;
+        queue.splice(Math.max(0, currentIndex + 1), 0, song);
+        player.setQueue(queue);
+        return;
+      }
+
+      if (typeof addToQueue === "function") {
+        addToQueue(song);
+        return;
+      }
+
+      console.warn("Play Next is unavailable in the current player.");
+    } catch (error) {
+      console.error("Play Next failed:", error);
+    }
+  };
+
+  const handleAddToQueue = (song) => {
+    setMenuSongId(null);
+
+    if (typeof addToQueue !== "function") {
+      console.warn("Add to Queue is unavailable in the current player.");
+      return;
+    }
+
+    try {
+      addToQueue(song);
+    } catch (error) {
+      console.error("Add to Queue failed:", error);
+    }
+  };
+
+  const handleAddToPlaylist = (song) => {
+    setMenuSongId(null);
+    navigate("/playlists", {
+      state: {
+        selectedSong: song,
+        action: "add-song",
+      },
+    });
+  };
 
   const handleAddFavorite = (song) => {
     if (!song?.id || isFavorite(song.id)) return;
@@ -396,7 +546,7 @@ function Favorites() {
               allSongs
             )
           }
-          aria-label={`Play ${song.title || "song"}`}
+          aria-label={`Play ${getSongEnglishTitle(song)}`}
         >
           {cover ? (
             <img
@@ -422,7 +572,7 @@ function Favorites() {
               allSongs
             )
           }
-          aria-label={`Play ${song.title || "song"}`}
+          aria-label={`Play ${getSongEnglishTitle(song)}`}
         >
           <h3>{song.title || "Untitled Song"}</h3>
 
@@ -533,7 +683,7 @@ function Favorites() {
           }
           role="button"
           tabIndex={0}
-          aria-label={`Play ${song.title || "song"}`}
+          aria-label={`Play ${getSongEnglishTitle(song)}`}
           onKeyDown={(event) =>
             handleSongInfoKeyDown(
               event,
@@ -561,7 +711,7 @@ function Favorites() {
           }
           role="button"
           tabIndex={0}
-          aria-label={`Play ${song.title || "song"}`}
+          aria-label={`Play ${getSongEnglishTitle(song)}`}
           onKeyDown={(event) =>
             handleSongInfoKeyDown(
               event,
@@ -570,34 +720,93 @@ function Favorites() {
             )
           }
         >
-          <h3>{song.title || "Untitled Song"}</h3>
+          <h3>{getSongEnglishTitle(song)}</h3>
 
-          {(song.titleEnglish || song.title_english) && (
+          {getSongTeluguTitle(song) && (
             <p className="favorite-song-english">
-              {song.titleEnglish || song.title_english}
+              {getSongTeluguTitle(song)}
             </p>
           )}
 
           <p className="favorite-song-artist">
-            {song.artist_name ||
-              song.artist?.name ||
-              song.artist ||
-              "Unknown Artist"}
+            {getSongEnglishArtist(song)}
           </p>
+        </div>
 
-          <div className="favorite-song-meta">
-            {song.language && (
-              <span className="favorite-song-language">
-                {song.language}
-              </span>
-            )}
+        <div
+          className="favorite-song-menu-wrap"
+          ref={menuSongId === song.id ? menuRef : null}
+        >
+          <button
+            type="button"
+            className="favorite-song-menu-button"
+            aria-label={`More options for ${getSongEnglishTitle(song)}`}
+            aria-haspopup="menu"
+            aria-expanded={menuSongId === song.id}
+            onClick={(event) => {
+              event.stopPropagation();
+              setMenuSongId((current) =>
+                String(current) === String(song.id) ? null : song.id
+              );
+            }}
+          >
+            <FaEllipsisV aria-hidden="true" />
+          </button>
 
-            {song.category_name && (
-              <span className="favorite-song-category">
-                {song.category_name}
-              </span>
-            )}
-          </div>
+          {menuSongId === song.id && (
+            <div className="favorite-song-context-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenuSongId(null);
+                  handlePlay(song, favoriteQueue);
+                }}
+              >
+                <FaPlay aria-hidden="true" />
+                <span>Play Now</span>
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => handlePlayNext(song)}
+              >
+                <FaStepForward aria-hidden="true" />
+                <span>Play Next</span>
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => handleAddToQueue(song)}
+              >
+                <FaPlus aria-hidden="true" />
+                <span>Add to Queue</span>
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenuSongId(null);
+                  handleRemove(song);
+                }}
+              >
+                <FaTrash aria-hidden="true" />
+                <span>Remove from Favorites</span>
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => handleAddToPlaylist(song)}
+              >
+                <FaListUl aria-hidden="true" />
+                <span>Add to Playlist</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );

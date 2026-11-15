@@ -33,11 +33,7 @@ function getAlbumTeluguTitle(album) {
   return telugu && telugu.trim() !== getAlbumEnglishTitle(album).trim() ? telugu : "";
 }
 function getArtistEnglishName(album) {
-  return album?.artist_name_english || album?.artist_name || album?.artist_name_telugu || "KEERTHANA";
-}
-function getArtistTeluguName(album) {
-  const telugu = album?.artist_name_telugu || "";
-  return telugu && telugu.trim() !== getArtistEnglishName(album).trim() ? telugu : "";
+  return album?.artist_name_english || "KEERTHANA";
 }
 function getSongEnglishTitle(song) {
   return song?.title_english || song?.title || song?.title_telugu || "Untitled song";
@@ -249,7 +245,6 @@ function AlbumDetails() {
   const albumEnglishTitle = getAlbumEnglishTitle(album);
   const albumTeluguTitle = getAlbumTeluguTitle(album);
   const artistEnglishName = getArtistEnglishName(album);
-  const artistTeluguName = getArtistTeluguName(album);
 
   const cover = getAlbumCover(album);
 
@@ -269,10 +264,6 @@ function AlbumDetails() {
         album?.artist_name,
         album?.artist_name_english,
         album?.artist_name_telugu,
-        song?.language,
-        song?.category_name,
-        song?.category_name_english,
-        song?.category_name_telugu,
       ];
 
       return searchableFields.some((field) =>
@@ -489,9 +480,6 @@ function AlbumDetails() {
           >
             <span className="album-details-artist-names">
               <span>{artistEnglishName}</span>
-              {artistTeluguName && (
-                <span className="album-details-telugu-artist">{artistTeluguName}</span>
-              )}
             </span>
           </button>
         </div>
@@ -554,7 +542,7 @@ function AlbumDetails() {
             onSearch={handleVoiceSearch}
             language={voiceLanguage}
             onLanguageChange={setVoiceLanguage}
-            placeholder="Search songs, artists, language..."
+            placeholder="Search songs and artists..."
             ariaLabel="Search tracks in this album"
           />
         </section>
@@ -662,29 +650,9 @@ function AlbumDetails() {
                     )}
 
                     <span>
-                      {song.artist_name_english ||
-                        song.artist_name ||
-                        artistEnglishName}
+                      {song.artist_name_english || artistEnglishName}
                     </span>
-
-                    {(song.artist_name_telugu || artistTeluguName) && (
-                      <span className="album-details-track-telugu-artist">
-                        {song.artist_name_telugu || artistTeluguName}
-                      </span>
-                    )}
                   </button>
-
-                  {/* LANGUAGE */}
-
-                  <span className="album-details-track-language">
-                    {song.language || "Telugu"}
-                  </span>
-
-                  {/* CATEGORY */}
-
-                  <span className="album-details-track-category">
-                    {song.category_name || "Christian Music"}
-                  </span>
 
                   {/* DURATION */}
 
@@ -786,7 +754,7 @@ function AlbumDetails() {
 
             <p>
               {query
-                ? "Try another song title, artist, language, or category."
+                ? "Try another song title or artist."
                 : "Songs added to this album will appear here."}
             </p>
 

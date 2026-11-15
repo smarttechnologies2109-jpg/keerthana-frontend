@@ -226,9 +226,10 @@ function ArtistDetails() {
     });
   });
 
+  // Always use the English artist name; never fall back to the Telugu name.
   const artistEnglishName =
     artist?.name_english ||
-    artist?.name ||
+    artist?.english_name ||
     "Unknown Artist";
 
   const artistTeluguName =
@@ -701,15 +702,16 @@ function ArtistDetails() {
                         )}
 
                       <span>
-                        {song.artist_name || artist.name}
+                        {(
+                          song?.artist_name_english ||
+                          song?.artist_english ||
+                          song?.artistEnglish ||
+                          song?.artist?.name_english ||
+                          song?.artist?.english_name ||
+                          artistEnglishName
+                        )}
                       </span>
                     </button>
-
-                    {/* LANGUAGE */}
-
-                    <span className="artist-track-language">
-                      {song.language || "Telugu"}
-                    </span>
 
                     {/* THREE-DOT MENU */}
 

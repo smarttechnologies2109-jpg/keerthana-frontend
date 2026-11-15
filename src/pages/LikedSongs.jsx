@@ -91,8 +91,72 @@ function LikedSongs() {
     id: getSongId(song),
   });
 
-  const getSongTitle = (song) =>
-    song?.title || song?.title_english || "Untitled Song";
+  // Keep the English and Telugu song titles separate.
+  const hasTeluguScript = (value) =>
+    /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+  const getSongEnglishTitle = (song) => {
+    const candidates = [
+      song?.title_english,
+      song?.english_title,
+      song?.englishTitle,
+      song?.title,
+      song?.name,
+    ];
+
+    const englishTitle = candidates.find(
+      (value) =>
+        typeof value === "string" &&
+        value.trim() &&
+        !hasTeluguScript(value)
+    );
+
+    return String(englishTitle || "Untitled Song").trim();
+  };
+
+  const getSongTeluguTitle = (song) => {
+    const candidates = [
+      song?.title_telugu,
+      song?.titleTelugu,
+      song?.title_native,
+      song?.title,
+      song?.name,
+    ];
+
+    const teluguTitle = candidates.find(
+      (value) =>
+        typeof value === "string" &&
+        value.trim() &&
+        hasTeluguScript(value)
+    );
+
+    const title = String(teluguTitle || "").trim();
+    return title && title !== getSongEnglishTitle(song) ? title : "";
+  };
+
+  const getSongTitle = getSongEnglishTitle;
+
+  const getSongEnglishArtist = (song) => {
+    const candidates = [
+      song?.artist_name_english,
+      song?.artist_english,
+      song?.artistEnglish,
+      song?.artist?.name_english,
+      song?.artist?.english_name,
+      song?.artist_name,
+      typeof song?.artist === "string" ? song.artist : "",
+      song?.artist?.name,
+    ];
+
+    const englishArtist = candidates.find(
+      (value) =>
+        typeof value === "string" &&
+        value.trim() &&
+        !hasTeluguScript(value)
+    );
+
+    return String(englishArtist || "Unknown Artist").trim();
+  };
 
   const getAlbumName = (song) =>
     song?.album_name ||
@@ -718,37 +782,18 @@ function LikedSongs() {
                         onClick={() => handlePlayPause(song)}
                         title={songIsPlaying ? `Pause ${getSongTitle(song)}` : `Play ${getSongTitle(song)}`}
                       >
-                        <strong>{getSongTitle(song)}</strong>
+                        <strong>{getSongEnglishTitle(song)}</strong>
 
-                        {song.title_english &&
-                          song.title_english !== song.title && (
-                            <span className="liked-row-english">
-                              {song.title_english}
-                            </span>
-                          )}
+                        {getSongTeluguTitle(song) && (
+                          <span className="liked-row-english">
+                            {getSongTeluguTitle(song)}
+                          </span>
+                        )}
 
                         <span className="liked-row-artist">
-                          {song.artist_name ||
-                            song.artist ||
-                            "KEERTHANA"}
+                          {getSongEnglishArtist(song)}
                         </span>
                       </button>
-
-                      {/* LANGUAGE */}
-
-                      <div className="liked-row-language">
-                        {song.language && (
-                          <span>{song.language}</span>
-                        )}
-                      </div>
-
-                      {/* CATEGORY */}
-
-                      <div className="liked-row-category">
-                        {song.category_name && (
-                          <span>{song.category_name}</span>
-                        )}
-                      </div>
 
                       {/* THREE-DOT MENU */}
 

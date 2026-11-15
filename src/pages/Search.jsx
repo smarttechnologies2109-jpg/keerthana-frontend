@@ -38,37 +38,46 @@ import "../assets/css/search.css";
 ===================================================== */
 
 const getSongTitles = (song) => {
-  const fields = [
-    song?.title,
+  const hasTeluguScript = (value) => /[\\u0C00-\\u0C7F]/.test(String(value || ""));
+
+  const englishCandidates = [
     song?.title_english,
     song?.titleEnglish,
     song?.english_title,
     song?.englishTitle,
-    song?.title_telugu,
-    song?.titleTelugu,
-    song?.title_hindi,
-    song?.titleHindi,
-    song?.title_tamil,
-    song?.titleTamil,
-    song?.title_kannada,
-    song?.titleKannada,
-    song?.title_malayalam,
-    song?.titleMalayalam,
+    song?.title,
     song?.name,
   ];
 
-  return [
-    ...new Set(
-      fields
-        .filter(
-          (value) =>
-            typeof value === "string" ||
-            typeof value === "number"
-        )
-        .map((value) => String(value).trim())
-        .filter(Boolean)
-    ),
+  const englishTitle = englishCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !hasTeluguScript(value)
+  );
+
+  const teluguCandidates = [
+    song?.title_telugu,
+    song?.titleTelugu,
+    song?.title_native,
+    song?.title,
+    song?.name,
   ];
+
+  const teluguTitle = teluguCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      hasTeluguScript(value)
+  );
+
+  const primary = String(englishTitle || "Untitled Song").trim();
+  const secondary = String(teluguTitle || "").trim();
+
+  return {
+    primary,
+    secondary: secondary && secondary !== primary ? secondary : "",
+  };
 };
 
 /* =====================================================
@@ -86,23 +95,16 @@ const normalizeText = (value) =>
 ===================================================== */
 
 const getArtistName = (song) => {
-  if (typeof song?.artist_name === "string") {
-    return song.artist_name;
-  }
+  const artistEnglish =
+    song?.artist_name_english ||
+    song?.artist_english ||
+    song?.artistEnglish ||
+    song?.artist?.name_english ||
+    song?.artist?.english_name;
 
-  if (typeof song?.artistName === "string") {
-    return song.artistName;
-  }
-
-  if (typeof song?.artist === "string") {
-    return song.artist;
-  }
-
-  if (typeof song?.artist?.name === "string") {
-    return song.artist.name;
-  }
-
-  return "Unknown Artist";
+  return typeof artistEnglish === "string" && artistEnglish.trim()
+    ? artistEnglish.trim()
+    : "Unknown Artist";
 };
 
 /* =====================================================
@@ -337,7 +339,8 @@ function Search() {
           : "";
 
       const fields = [
-        ...getSongTitles(song),
+        getSongTitles(song).primary,
+        getSongTitles(song).secondary,
         getArtistName(song),
         getAlbumName(song),
         getCategoryName(song),
@@ -751,15 +754,10 @@ function Search() {
                    SONG-SPECIFIC VALUES
                 --------------------------------------- */
 
-                const titles = getSongTitles(song);
-
-                const primaryTitle =
-                  titles[0] || "Untitled Song";
-
-                const secondaryTitle =
-                  titles.find(
-                    (title) => title !== primaryTitle
-                  ) || "";
+                const {
+                  primary: primaryTitle,
+                  secondary: secondaryTitle,
+                } = getSongTitles(song);
 
                 const current =
                   String(currentSong?.id ?? "") ===
@@ -865,32 +863,6 @@ function Search() {
                       <p className="search-song-artist">
                         {getArtistName(song)}
                       </p>
-
-                      <div className="search-song-meta">
-
-                        {getAlbumName(song) && (
-                          <span
-                            title={getAlbumName(song)}
-                          >
-                            {getAlbumName(song)}
-                          </span>
-                        )}
-
-                        {song?.language && (
-                          <span title={song.language}>
-                            {song.language}
-                          </span>
-                        )}
-
-                        {getCategoryName(song) && (
-                          <span
-                            title={getCategoryName(song)}
-                          >
-                            {getCategoryName(song)}
-                          </span>
-                        )}
-
-                      </div>
 
                       {current && (
                         <small className="search-playing-indicator">

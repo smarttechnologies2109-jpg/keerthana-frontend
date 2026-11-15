@@ -24,6 +24,70 @@ import VoiceSearch from "../components/VoiceSearch";
 
 import "../assets/css/download-manager.css";
 
+const hasTeluguScript = (value) =>
+  /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const getSongDisplayNames = (song) => {
+  const englishCandidates = [
+    song?.title_english,
+    song?.titleEnglish,
+    song?.english_title,
+    song?.englishTitle,
+    song?.title,
+    song?.name,
+  ];
+
+  const teluguCandidates = [
+    song?.title_telugu,
+    song?.titleTelugu,
+    song?.title_native,
+    song?.titleNative,
+    song?.title,
+    song?.name,
+  ];
+
+  const englishTitle = englishCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !hasTeluguScript(value)
+  );
+
+  const teluguTitle = teluguCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      hasTeluguScript(value)
+  );
+
+  const artistCandidates = [
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artistEnglish,
+    song?.artistNameEnglish,
+    song?.artist?.name_english,
+    song?.artist?.english_name,
+    song?.artist?.nameEnglish,
+    song?.artist_name,
+    song?.artistName,
+    typeof song?.artist === "string" ? song.artist : "",
+    song?.artist?.name,
+  ];
+
+  const artistName = artistCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !hasTeluguScript(value)
+  );
+
+  return {
+    englishTitle: String(englishTitle || "Unknown Song").trim(),
+    teluguTitle: String(teluguTitle || "").trim(),
+    artistName: String(artistName || "Unknown Artist").trim(),
+  };
+};
+
 function DownloadManager() {
   const {
     offlineSongs,
@@ -598,17 +662,11 @@ function DownloadManager() {
                 {filteredSongs.map((song, index) => {
                   const songId = song?.id;
 
-                  const title =
-                    song?.title ||
-                    song?.name ||
-                    "Unknown Song";
-
-                  const artist =
-                    song?.artist_name ||
-                    song?.artist?.name ||
-                    song?.artist ||
-                    song?.artistName ||
-                    "KEERTHANA";
+                  const {
+                    englishTitle: title,
+                    teluguTitle,
+                    artistName: artist,
+                  } = getSongDisplayNames(song);
 
                   const rawSize =
                     song?.size ??
@@ -703,6 +761,12 @@ function DownloadManager() {
                         >
                           {title}
                         </button>
+
+                        {teluguTitle && teluguTitle !== title && (
+                          <span className="download-song-native-title">
+                            {teluguTitle}
+                          </span>
+                        )}
 
                         <span
                           className="download-song-artist"

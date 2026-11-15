@@ -65,27 +65,88 @@ const getSongsFromResponse = (response) => {
   return [];
 };
 
-const getSongTitle = (song) =>
-  song?.title_english ||
-  song?.titleEnglish ||
-  song?.title ||
-  "Unknown Song";
+const hasTeluguScript = (value) =>
+  /[\u0C00-\u0C7F]/.test(String(value || ""));
 
-const getSongArtist = (song) =>
-  song?.artist_name ||
-  song?.artist?.name ||
-  "KEERTHANA";
+const getSongTitles = (song) => {
+  const englishCandidates = [
+    song?.title_english,
+    song?.titleEnglish,
+    song?.english_title,
+    song?.englishTitle,
+    song?.title,
+    song?.name,
+  ];
 
-const getSongCategory = (song) =>
-  song?.category_name ||
-  song?.category?.name ||
-  "Christian Music";
+  const teluguCandidates = [
+    song?.title_telugu,
+    song?.titleTelugu,
+    song?.title_native,
+    song?.title,
+    song?.name,
+  ];
+
+  const englishTitle = englishCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !hasTeluguScript(value)
+  );
+
+  const teluguTitle = teluguCandidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      hasTeluguScript(value)
+  );
+
+  const primary = String(englishTitle || "Unknown Song").trim();
+  const secondary = String(teluguTitle || "").trim();
+
+  return {
+    primary,
+    secondary: secondary && secondary !== primary ? secondary : "",
+  };
+};
+
+const getSongTitle = (song) => getSongTitles(song).primary;
+
+const getSongArtist = (song) => {
+  const candidates = [
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artistEnglish,
+    song?.artist?.name_english,
+    song?.artist?.english_name,
+    song?.artistEnglishName,
+    song?.artist_name,
+    song?.artist?.name,
+  ];
+
+  return (
+    candidates.find(
+      (value) =>
+        typeof value === "string" &&
+        value.trim() &&
+        !hasTeluguScript(value)
+    )?.trim() || "Unknown Artist"
+  );
+};
 
 const getSongSearchFields = (song) => [
   song?.title,
   song?.title_english,
   song?.titleEnglish,
+  song?.title_telugu,
+  song?.titleTelugu,
+  song?.english_title,
+  song?.englishTitle,
+  song?.artist_name_english,
+  song?.artist_english,
+  song?.artistEnglish,
   song?.artist_name,
+  song?.artist?.name_english,
+  song?.artist?.english_name,
   song?.artist?.name,
   song?.album_name,
   song?.album?.name,
@@ -123,6 +184,7 @@ function PlaylistDetails() {
 
   const [playlistSearch, setPlaylistSearch] = useState("");
   const [songSearch, setSongSearch] = useState("");
+  const [visibleSongLimit, setVisibleSongLimit] = useState(10);
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   /* =======================================================
@@ -209,6 +271,7 @@ function PlaylistDetails() {
 
   const openAddSongs = async () => {
     setSongSearch("");
+    setVisibleSongLimit(10);
     setSongsError("");
     setShowAddSongs(true);
 
@@ -220,6 +283,7 @@ function PlaylistDetails() {
 
     setShowAddSongs(false);
     setSongSearch("");
+    setVisibleSongLimit(10);
     setSongsError("");
   };
 
@@ -238,6 +302,11 @@ function PlaylistDetails() {
       )
     );
   }, [allSongs, songSearch]);
+
+  const visibleSongs = useMemo(
+    () => filteredSongs.slice(0, visibleSongLimit),
+    [filteredSongs, visibleSongLimit]
+  );
 
   /* =======================================================
      SEARCH CURRENT PLAYLIST SONGS
@@ -815,7 +884,6 @@ function PlaylistDetails() {
             <div className="playlist-table-header">
               <span>#</span>
               <span>SONG</span>
-              <span>CATEGORY</span>
               <span className="playlist-table-action-heading">
                 ACTION
               </span>
@@ -824,7 +892,8 @@ function PlaylistDetails() {
             {filteredPlaylistSongs.map((song, index) => {
               const current = isCurrentSong(song);
               const playing = isSongPlaying(song);
-              const title = getSongTitle(song);
+              const { primary: title, secondary: nativeTitle } =
+                getSongTitles(song);
 
               return (
                 <div
@@ -882,19 +951,10 @@ function PlaylistDetails() {
                     <div>
                       <strong>{title}</strong>
 
-                      {song.title_english &&
-                        song.title_english !== song.title && (
-                          <small>{song.title_english}</small>
-                        )}
+                      {nativeTitle && <small>{nativeTitle}</small>}
 
                       <span>{getSongArtist(song)}</span>
                     </div>
-                  </div>
-
-                  {/* CATEGORY */}
-
-                  <div className="playlist-song-category">
-                    {getSongCategory(song)}
                   </div>
 
                   {/* REMOVE SONG */}
@@ -989,13 +1049,14 @@ function PlaylistDetails() {
             >
               {songSearch.trim()
                 ? `${filteredSongs.length} matching ${
-                    filteredSongs.length === 1
-                      ? "song"
-                      : "songs"
-                  }`
+                    filteredSongs.length === 1 ? "song" : "songs"
+                  } · Showing ${Math.min(
+                    visibleSongs.length,
+                    filteredSongs.length
+                  )}`
                 : `${allSongs.length} available ${
                     allSongs.length === 1 ? "song" : "songs"
-                  }`}
+                  } · Showing ${visibleSongs.length}`}
             </div>
 
             {/* MODAL ERROR */}
@@ -1054,9 +1115,10 @@ function PlaylistDetails() {
                   )}
                 </div>
               ) : (
-                filteredSongs.map((song) => {
+                visibleSongs.map((song) => {
                   const alreadyAdded = songExistsInPlaylist(song.id);
-                  const title = getSongTitle(song);
+                  const { primary: title, secondary: nativeTitle } =
+                    getSongTitles(song);
 
                   return (
                     <div
@@ -1077,17 +1139,9 @@ function PlaylistDetails() {
                       <div className="add-song-info">
                         <strong>{title}</strong>
 
-                        <small>
-                          {song.artist_name ||
-                            song.artist?.name ||
-                            "Unknown Artist"}
-                        </small>
+                        {nativeTitle && <small>{nativeTitle}</small>}
 
-                        <span>
-                          {song.album_name ||
-                            song.album?.name ||
-                            "Single"}
-                        </span>
+                        <span>{getSongArtist(song)}</span>
                       </div>
 
                       <button
@@ -1107,6 +1161,19 @@ function PlaylistDetails() {
                 })
               )}
             </div>
+
+            {!songsLoading && visibleSongs.length < filteredSongs.length && (
+              <button
+                type="button"
+                className="playlist-load-more-songs"
+                onClick={() =>
+                  setVisibleSongLimit((current) => current + 10)
+                }
+                disabled={actionLoading}
+              >
+                Show 10 more songs
+              </button>
+            )}
           </section>
         </div>
       )}

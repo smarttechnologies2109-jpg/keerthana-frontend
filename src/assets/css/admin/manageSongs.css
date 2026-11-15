@@ -2540,3 +2540,143 @@
   }
 }
 
+
+/* =====================================================
+   MANAGE SONGS - TWO FILTER DROPDOWNS
+===================================================== */
+
+.admin-song-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 22px;
+  overflow: visible !important;
+}
+
+.admin-song-toolbar .admin-song-search {
+  flex: 1 1 300px;
+  min-width: 250px;
+  max-width: none;
+}
+
+.admin-song-toolbar .admin-song-language-filter {
+  display: flex !important;
+  flex: 0 1 220px;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 190px;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.admin-song-toolbar .admin-song-advanced-filter {
+  flex: 1 1 260px;
+  min-width: 240px;
+}
+
+.admin-song-toolbar .admin-song-language-filter label {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  color: #8faee5;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.admin-song-toolbar .admin-song-language-filter select {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0;
+  height: 54px;
+  padding: 0 16px;
+  border: 1px solid #293b59;
+  border-radius: 14px;
+  outline: none;
+  background: #101b30;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.admin-song-toolbar .admin-song-language-filter select:focus {
+  border-color: #d9b96e;
+  box-shadow: 0 0 0 3px rgba(217, 185, 110, 0.12);
+}
+
+.admin-song-toolbar .admin-song-language-filter select option {
+  background: #101b30;
+  color: #fff;
+}
+
+.admin-song-toolbar .admin-song-language-filter select optgroup {
+  background: #101b30;
+  color: #d9b96e;
+  font-weight: 800;
+}
+
+.admin-song-toolbar .admin-song-count {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.admin-song-toolbar .admin-song-clear-filters {
+  flex: 0 0 auto;
+  min-height: 46px;
+}
+
+.admin-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* TABLET */
+
+@media (max-width: 1100px) {
+  .admin-song-toolbar {
+    align-items: stretch !important;
+  }
+
+  .admin-song-toolbar .admin-song-search {
+    flex: 1 1 100%;
+  }
+
+  .admin-song-toolbar .admin-song-language-filter {
+    flex: 1 1 220px;
+  }
+
+  .admin-song-toolbar .admin-song-count {
+    margin-left: 0;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .admin-song-toolbar {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 13px;
+  }
+
+  .admin-song-toolbar .admin-song-search,
+  .admin-song-toolbar .admin-song-language-filter,
+  .admin-song-toolbar .admin-song-advanced-filter {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .admin-song-toolbar .admin-song-count {
+    width: fit-content;
+    margin-left: 0;
+  }
+}

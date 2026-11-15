@@ -186,43 +186,34 @@ const getSongId = (song) =>
   song?.id ?? song?.song_id;
 
 const getSongTitle = (song) =>
-  song?.title ||
-  song?.title_telugu ||
   song?.title_english ||
+  song?.english_title ||
+  song?.title_telugu ||
+  song?.title ||
   "Untitled Song";
 
 /*
- * Show the title matching the selected language first and the
- * alternate available title underneath.
- * In "All Languages", use each song's own language as the primary title.
+ * All Songs title order:
+ * 1. English title first.
+ * 2. Telugu/native-script title underneath.
+ * The selected language filter does not change this display order.
  */
-const getSongDisplayTitles = (song, selectedLanguage) => {
-  const nativeTitle =
-    song?.title_telugu ||
-    song?.title ||
-    "";
-
+const getSongDisplayTitles = (song) => {
   const englishTitle =
     song?.title_english ||
     song?.english_title ||
     "";
 
-  const songLanguage = normalizeLanguage(song?.language || "Telugu");
+  const nativeTitle =
+    song?.title_telugu ||
+    song?.title ||
+    "";
 
-  const preferEnglish =
-    selectedLanguage === "English" ||
-    (selectedLanguage === "All" && songLanguage === "English");
-
-  const primary = preferEnglish
-    ? englishTitle || nativeTitle
-    : nativeTitle || englishTitle;
-
-  const secondary = preferEnglish
-    ? nativeTitle
-    : englishTitle;
+  const primary = englishTitle || nativeTitle || "Untitled Song";
+  const secondary = nativeTitle;
 
   return {
-    primary: primary || "Untitled Song",
+    primary,
     secondary:
       secondary && secondary.trim() !== primary.trim()
         ? secondary
@@ -230,13 +221,34 @@ const getSongDisplayTitles = (song, selectedLanguage) => {
   };
 };
 
-const getArtistName = (song) =>
-  song?.artist_name ||
-  song?.artist?.name ||
-  (typeof song?.artist === "string"
-    ? song.artist
-    : "") ||
-  "Unknown Artist";
+/*
+ * Artist names must always be English, regardless of the selected
+ * language. Telugu-script values are deliberately rejected.
+ */
+const containsTelugu = (value) =>
+  /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const getArtistName = (song) => {
+  const candidates = [
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artist?.name_english,
+    song?.artist?.english_name,
+    song?.artist?.artist_name_english,
+    song?.artist?.name,
+    song?.artist_name,
+    typeof song?.artist === "string" ? song.artist : "",
+  ];
+
+  const englishName = candidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !containsTelugu(value)
+  );
+
+  return englishName?.trim() || "Unknown Artist";
+};
 
 const getAlbumName = (song) =>
   song?.album_name ||
@@ -1193,10 +1205,7 @@ export default function AllSongs() {
                     >
 
                       {(() => {
-                        const displayTitles = getSongDisplayTitles(
-                          song,
-                          language
-                        );
+                        const displayTitles = getSongDisplayTitles(song);
 
                         return (
                           <>

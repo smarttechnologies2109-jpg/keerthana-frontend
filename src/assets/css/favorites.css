@@ -1,5 +1,3 @@
-
-
 /* =========================================================
 
    KEERTHANA MUSIC — FAVORITES PAGE
@@ -8,17 +6,13 @@
 
    Professional Inter Typography
 
-\========================================================= */
-
-
+\\========================================================= */
 
 /* =========================================================
 
    1. DESIGN TOKENS
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-page {
 
@@ -30,21 +24,15 @@
 
   --fav-surface-raised: #192b4c;
 
-
-
   --fav-gold: #e6c875;
 
   --fav-gold-light: #f7e4a6;
 
   --fav-gold-dark: #b99a4e;
 
-
-
   --fav-blue: #4169e1;
 
   --fav-blue-light: #6e91ff;
-
-
 
   --fav-text: #f5f7fc;
 
@@ -52,19 +40,13 @@
 
   --fav-text-muted: #7f90ad;
 
-
-
   --fav-border: rgba(255, 255, 255, 0.085);
 
   --fav-border-gold: rgba(230, 200, 117, 0.3);
 
-
-
   --fav-danger: #ff8095;
 
   --fav-success: #80dfb4;
-
-
 
   position: relative;
 
@@ -77,8 +59,6 @@
   padding: 28px 32px 48px;
 
   overflow-x: clip;
-
-
 
   color: var(--fav-text);
 
@@ -106,8 +86,6 @@
 
     var(--fav-bg);
 
-
-
   font-family: Inter, "Segoe UI", Arial, sans-serif;
 
   -webkit-font-smoothing: antialiased;
@@ -118,19 +96,15 @@
 
 }
 
+.favorites-page \\*,
 
+.favorites-page \\*::before,
 
-.favorites-page \*,
-
-.favorites-page \*::before,
-
-.favorites-page \*::after {
+.favorites-page \\*::after {
 
   box-sizing: border-box;
 
 }
-
-
 
 .favorites-page button,
 
@@ -140,15 +114,11 @@
 
 }
 
-
-
 .favorites-page button {
 
   -webkit-tap-highlight-color: transparent;
 
 }
-
-
 
 .favorites-page button:focus-visible,
 
@@ -162,15 +132,11 @@
 
 }
 
-
-
 /* =========================================================
 
    2. PAGE HEADER
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-header {
 
@@ -186,8 +152,6 @@
 
 }
 
-
-
 .favorites-back-button {
 
   display: inline-flex;
@@ -198,15 +162,11 @@
 
   flex: 0 0 42px;
 
-
-
   width: 42px;
 
   height: 42px;
 
   padding: 0;
-
-
 
   color: var(--fav-text-secondary);
 
@@ -215,8 +175,6 @@
   border: 1px solid var(--fav-border);
 
   border-radius: 13px;
-
-
 
   cursor: pointer;
 
@@ -232,8 +190,6 @@
 
 }
 
-
-
 .favorites-back-button:hover {
 
   color: var(--fav-gold-light);
@@ -245,8 +201,6 @@
   transform: translateX(-2px);
 
 }
-
-
 
 .favorites-title-wrapper {
 
@@ -260,8 +214,6 @@
 
 }
 
-
-
 .favorites-title-icon {
 
   display: flex;
@@ -272,13 +224,9 @@
 
   flex: 0 0 54px;
 
-
-
   width: 54px;
 
   height: 54px;
-
-
 
   color: #17213a;
 
@@ -294,13 +242,9 @@
 
   );
 
-
-
   border: 1px solid rgba(255, 240, 194, 0.5);
 
   border-radius: 16px;
-
-
 
   box-shadow:
 
@@ -308,21 +252,15 @@
 
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
 
-
-
   font-size: 21px;
 
 }
-
-
 
 .favorites-title-wrapper h1 {
 
   margin: 0;
 
   color: var(--fav-text);
-
-
 
   font-size: clamp(23px, 2.5vw, 32px);
 
@@ -334,15 +272,11 @@
 
 }
 
-
-
 .favorites-title-wrapper p {
 
   margin: 7px 0 0;
 
   color: var(--fav-text-secondary);
-
-
 
   font-size: 13px;
 
@@ -352,15 +286,11 @@
 
 }
 
-
-
 /* =========================================================
 
    3. PLAY ALL
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-play-all-row {
 
@@ -374,8 +304,6 @@
 
 }
 
-
-
 .favorites-play-all-button {
 
   display: inline-flex;
@@ -386,15 +314,11 @@
 
   gap: 11px;
 
-
-
   min-width: 140px;
 
   min-height: 46px;
 
   padding: 0 23px;
-
-
 
   color: #101a30;
 
@@ -410,17 +334,11 @@
 
   );
 
-
-
   border: 1px solid rgba(255, 238, 186, 0.5);
 
   border-radius: 13px;
 
-
-
   box-shadow: 0 6px 20px rgba(230, 200, 117, 0.12);
-
-
 
   font-size: 13px;
 
@@ -428,11 +346,7 @@
 
   letter-spacing: 0.1px;
 
-
-
   cursor: pointer;
-
-
 
   transition:
 
@@ -444,15 +358,11 @@
 
 }
 
-
-
 .favorites-play-all-button svg {
 
   font-size: 13px;
 
 }
-
-
 
 .favorites-play-all-button:hover:not(:disabled) {
 
@@ -464,15 +374,11 @@
 
 }
 
-
-
 .favorites-play-all-button:active:not(:disabled) {
 
   transform: translateY(0);
 
 }
-
-
 
 .favorites-play-all-button:disabled {
 
@@ -484,15 +390,11 @@
 
 }
 
-
-
 /* =========================================================
 
    4. ADD SONGS / CLEAR SONGS TOOLBAR
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-toolbar {
 
@@ -504,21 +406,15 @@
 
   gap: 10px;
 
-
-
   width: 100%;
 
   margin: 0 0 28px;
 
   padding-bottom: 20px;
 
-
-
   border-bottom: 1px solid rgba(255, 255, 255, 0.065);
 
 }
-
-
 
 .favorites-add-songs-button,
 
@@ -532,17 +428,11 @@
 
   gap: 9px;
 
-
-
   min-height: 41px;
 
   padding: 0 16px;
 
-
-
   border-radius: 11px;
-
-
 
   font-size: 12px;
 
@@ -550,11 +440,7 @@
 
   letter-spacing: 0.05px;
 
-
-
   cursor: pointer;
-
-
 
   transition:
 
@@ -569,8 +455,6 @@
     box-shadow 180ms ease;
 
 }
-
-
 
 .favorites-add-songs-button {
 
@@ -586,15 +470,11 @@
 
   );
 
-
-
   border: 1px solid rgba(255, 234, 174, 0.45);
 
   box-shadow: 0 4px 14px rgba(230, 200, 117, 0.08);
 
 }
-
-
 
 .favorites-add-songs-button svg,
 
@@ -603,8 +483,6 @@
   font-size: 12px;
 
 }
-
-
 
 .favorites-add-songs-button:hover {
 
@@ -618,15 +496,11 @@
 
   );
 
-
-
   box-shadow: 0 7px 18px rgba(230, 200, 117, 0.17);
 
   transform: translateY(-1px);
 
 }
-
-
 
 .favorites-clear-songs-button {
 
@@ -637,8 +511,6 @@
   border: 1px solid var(--fav-border);
 
 }
-
-
 
 .favorites-clear-songs-button:hover {
 
@@ -652,8 +524,6 @@
 
 }
 
-
-
 .favorites-add-songs-button:active,
 
 .favorites-clear-songs-button:active {
@@ -662,23 +532,17 @@
 
 }
 
-
-
 /* =========================================================
 
    5. FAVORITES LIST HEADING
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-list-section {
 
   width: 100%;
 
 }
-
-
 
 .favorites-list-heading {
 
@@ -690,21 +554,15 @@
 
   gap: 16px;
 
-
-
   margin: 0 0 15px;
 
 }
-
-
 
 .favorites-list-heading h2 {
 
   margin: 0;
 
   color: var(--fav-text);
-
-
 
   font-size: 17px;
 
@@ -714,15 +572,11 @@
 
 }
 
-
-
 .favorites-list-heading p {
 
   margin: 5px 0 0;
 
   color: var(--fav-text-muted);
-
-
 
   font-size: 12px;
 
@@ -730,15 +584,11 @@
 
 }
 
-
-
 /* =========================================================
 
    6. FAVORITE SONG LIST
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-list {
 
@@ -752,17 +602,11 @@
 
 }
 
-
-
 /* Individual song track */
-
-
 
 .favorite-song {
 
   position: relative;
-
-
 
   display: grid;
 
@@ -772,15 +616,11 @@
 
   gap: 15px;
 
-
-
   width: 100%;
 
   min-width: 0;
 
   padding: 13px 15px;
-
-
 
   background: linear-gradient(
 
@@ -792,13 +632,9 @@
 
   );
 
-
-
   border: 1px solid var(--fav-border);
 
   border-radius: 15px;
-
-
 
   transition:
 
@@ -812,8 +648,6 @@
 
 }
 
-
-
 .favorite-song:hover {
 
   background: linear-gradient(
@@ -826,8 +660,6 @@
 
   );
 
-
-
   border-color: rgba(230, 200, 117, 0.22);
 
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
@@ -835,8 +667,6 @@
   transform: translateY(-1px);
 
 }
-
-
 
 .favorite-song-current {
 
@@ -850,11 +680,7 @@
 
   );
 
-
-
   border-color: rgba(230, 200, 117, 0.43);
-
-
 
   box-shadow:
 
@@ -864,21 +690,15 @@
 
 }
 
-
-
 /* =========================================================
 
    7. SONG COVER
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorite-song-cover {
 
   position: relative;
-
-
 
   display: flex;
 
@@ -886,15 +706,11 @@
 
   justify-content: center;
 
-
-
   width: 58px;
 
   height: 58px;
 
   overflow: hidden;
-
-
 
   background: linear-gradient(
 
@@ -906,23 +722,15 @@
 
   );
 
-
-
   border: 1px solid rgba(255, 255, 255, 0.08);
 
   border-radius: 11px;
 
-
-
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-
-
 
   cursor: pointer;
 
 }
-
-
 
 .favorite-song-cover img {
 
@@ -934,21 +742,15 @@
 
   object-fit: cover;
 
-
-
   transition: transform 250ms ease;
 
 }
-
-
 
 .favorite-song:hover .favorite-song-cover img {
 
   transform: scale(1.045);
 
 }
-
-
 
 .favorite-cover-placeholder {
 
@@ -958,13 +760,9 @@
 
   justify-content: center;
 
-
-
   width: 100%;
 
   height: 100%;
-
-
 
   color: var(--fav-gold);
 
@@ -972,15 +770,11 @@
 
 }
 
-
-
 /* =========================================================
 
    8. SONG INFORMATION
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorite-song-info {
 
@@ -992,15 +786,11 @@
 
 }
 
-
-
 .favorite-song-info h3 {
 
   overflow: hidden;
 
   margin: 0;
-
-
 
   color: var(--fav-text);
 
@@ -1012,19 +802,13 @@
 
   line-height: 1.5;
 
-
-
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
-
-
   transition: color 180ms ease;
 
 }
-
-
 
 .favorite-song-info:hover h3 {
 
@@ -1032,15 +816,11 @@
 
 }
 
-
-
 .favorite-song-english {
 
   overflow: hidden;
 
   margin: 3px 0 0;
-
-
 
   color: #c2cde0;
 
@@ -1050,23 +830,17 @@
 
   line-height: 1.45;
 
-
-
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
 }
 
-
-
 .favorite-song-artist {
 
   overflow: hidden;
 
   margin: 4px 0 0;
-
-
 
   color: var(--fav-text-secondary);
 
@@ -1076,19 +850,13 @@
 
   line-height: 1.5;
 
-
-
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
 }
 
-
-
 /* Song language and category */
-
-
 
 .favorite-song-meta {
 
@@ -1100,13 +868,9 @@
 
   gap: 6px;
 
-
-
   margin-top: 7px;
 
 }
-
-
 
 .favorite-song-language,
 
@@ -1118,15 +882,11 @@
 
   justify-content: center;
 
-
-
   max-width: 140px;
 
   overflow: hidden;
 
   padding: 3px 8px;
-
-
 
   color: #c7d4e9;
 
@@ -1136,23 +896,17 @@
 
   border-radius: 6px;
 
-
-
   font-size: 9px;
 
   font-weight: 550;
 
   line-height: 1.4;
 
-
-
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
 }
-
-
 
 .favorite-song-language {
 
@@ -1164,15 +918,11 @@
 
 }
 
-
-
 /* =========================================================
 
    9. SONG ACTION BUTTONS
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorite-song-actions {
 
@@ -1184,13 +934,9 @@
 
   gap: 8px;
 
-
-
   flex-shrink: 0;
 
 }
-
-
 
 .favorite-row-play,
 
@@ -1206,23 +952,15 @@
 
   flex: 0 0 auto;
 
-
-
   width: 36px;
 
   height: 36px;
 
   padding: 0;
 
-
-
   border-radius: 50%;
 
-
-
   cursor: pointer;
-
-
 
   transition:
 
@@ -1238,11 +976,7 @@
 
 }
 
-
-
 /* Play / pause */
-
-
 
 .favorite-row-play {
 
@@ -1258,15 +992,11 @@
 
   );
 
-
-
   border: 1px solid rgba(255, 239, 190, 0.4);
 
   font-size: 12px;
 
 }
-
-
 
 .favorite-row-play:hover:not(:disabled) {
 
@@ -1278,8 +1008,6 @@
 
 }
 
-
-
 .favorite-row-play.is-playing {
 
   color: #14203a;
@@ -1287,8 +1015,6 @@
   background: var(--fav-gold-light);
 
 }
-
-
 
 .favorite-row-play:disabled {
 
@@ -1298,11 +1024,7 @@
 
 }
 
-
-
 /* Queue */
-
-
 
 .favorite-queue-button {
 
@@ -1312,13 +1034,9 @@
 
   border: 1px solid rgba(255, 255, 255, 0.085);
 
-
-
   font-size: 12px;
 
 }
-
-
 
 .favorite-queue-button:hover {
 
@@ -1330,8 +1048,6 @@
 
 }
 
-
-
 .favorite-queue-active {
 
   color: var(--fav-success);
@@ -1342,11 +1058,7 @@
 
 }
 
-
-
 /* Remove from favorites */
-
-
 
 .favorite-remove-button {
 
@@ -1356,13 +1068,9 @@
 
   border: 1px solid rgba(255, 128, 149, 0.12);
 
-
-
   font-size: 12px;
 
 }
-
-
 
 .favorite-remove-button:hover {
 
@@ -1376,15 +1084,11 @@
 
 }
 
-
-
 /* =========================================================
 
    10. ADD SONGS BROWSER
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-browse-section {
 
@@ -1393,8 +1097,6 @@
   margin: 0 0 28px;
 
   padding: 22px;
-
-
 
   background: linear-gradient(
 
@@ -1406,23 +1108,15 @@
 
   );
 
-
-
   border: 1px solid var(--fav-border);
 
   border-radius: 18px;
 
-
-
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-
 
   animation: favorites-section-in 220ms ease both;
 
 }
-
-
 
 .favorites-browse-header {
 
@@ -1434,21 +1128,15 @@
 
   gap: 15px;
 
-
-
   margin-bottom: 20px;
 
 }
-
-
 
 .favorites-browse-header h2 {
 
   margin: 0;
 
   color: var(--fav-text);
-
-
 
   font-size: 18px;
 
@@ -1458,23 +1146,17 @@
 
 }
 
-
-
 .favorites-browse-header p {
 
   margin: 6px 0 0;
 
   color: var(--fav-text-secondary);
 
-
-
   font-size: 12px;
 
   line-height: 1.6;
 
 }
-
-
 
 .favorites-browse-close {
 
@@ -1484,13 +1166,9 @@
 
   justify-content: center;
 
-
-
   min-height: 35px;
 
   padding: 0 13px;
-
-
 
   color: var(--fav-text-secondary);
 
@@ -1500,13 +1178,9 @@
 
   border-radius: 9px;
 
-
-
   font-size: 11px;
 
   font-weight: 600;
-
-
 
   cursor: pointer;
 
@@ -1520,8 +1194,6 @@
 
 }
 
-
-
 .favorites-browse-close:hover {
 
   color: var(--fav-text);
@@ -1532,11 +1204,7 @@
 
 }
 
-
-
 /* Search input */
-
-
 
 .favorites-search {
 
@@ -1546,8 +1214,6 @@
 
   gap: 12px;
 
-
-
   width: 100%;
 
   min-height: 46px;
@@ -1556,8 +1222,6 @@
 
   padding: 0 15px;
 
-
-
   color: var(--fav-text-muted);
 
   background: rgba(5, 12, 27, 0.65);
@@ -1565,8 +1229,6 @@
   border: 1px solid rgba(255, 255, 255, 0.09);
 
   border-radius: 12px;
-
-
 
   transition:
 
@@ -1578,8 +1240,6 @@
 
 }
 
-
-
 .favorites-search:focus-within {
 
   background: rgba(5, 12, 27, 0.85);
@@ -1590,8 +1250,6 @@
 
 }
 
-
-
 .favorites-search > svg {
 
   flex-shrink: 0;
@@ -1599,8 +1257,6 @@
   font-size: 14px;
 
 }
-
-
 
 .favorites-search input {
 
@@ -1612,8 +1268,6 @@
 
   padding: 0;
 
-
-
   color: var(--fav-text);
 
   background: transparent;
@@ -1622,21 +1276,15 @@
 
   outline: none;
 
-
-
   font-size: 12px;
 
 }
-
-
 
 .favorites-search input:focus-visible {
 
   outline: none;
 
 }
-
-
 
 .favorites-search input::placeholder {
 
@@ -1646,11 +1294,7 @@
 
 }
 
-
-
 /* Browse song list */
-
-
 
 .favorites-browse-list {
 
@@ -1664,8 +1308,6 @@
 
 }
 
-
-
 .favorite-browse-row {
 
   display: grid;
@@ -1676,21 +1318,15 @@
 
   gap: 12px;
 
-
-
   min-width: 0;
 
   padding: 10px 12px;
-
-
 
   background: rgba(255, 255, 255, 0.025);
 
   border: 1px solid transparent;
 
   border-radius: 11px;
-
-
 
   transition:
 
@@ -1700,8 +1336,6 @@
 
 }
 
-
-
 .favorite-browse-row:hover {
 
   background: rgba(255, 255, 255, 0.055);
@@ -1710,8 +1344,6 @@
 
 }
 
-
-
 .favorite-browse-current {
 
   background: rgba(230, 200, 117, 0.065);
@@ -1719,8 +1351,6 @@
   border-color: rgba(230, 200, 117, 0.19);
 
 }
-
-
 
 .favorite-browse-number {
 
@@ -1732,8 +1362,6 @@
 
 }
 
-
-
 .favorite-browse-cover {
 
   display: flex;
@@ -1742,27 +1370,19 @@
 
   justify-content: center;
 
-
-
   width: 44px;
 
   height: 44px;
 
   overflow: hidden;
 
-
-
   background: var(--fav-surface);
 
   border-radius: 8px;
 
-
-
   cursor: pointer;
 
 }
-
-
 
 .favorite-browse-cover img {
 
@@ -1776,8 +1396,6 @@
 
 }
 
-
-
 .favorite-browse-cover-placeholder {
 
   display: flex;
@@ -1786,21 +1404,15 @@
 
   justify-content: center;
 
-
-
   width: 100%;
 
   height: 100%;
-
-
 
   color: var(--fav-gold);
 
   font-size: 15px;
 
 }
-
-
 
 .favorite-browse-info {
 
@@ -1812,15 +1424,11 @@
 
 }
 
-
-
 .favorite-browse-info h3 {
 
   overflow: hidden;
 
   margin: 0;
-
-
 
   color: var(--fav-text);
 
@@ -1828,15 +1436,11 @@
 
   font-weight: 650;
 
-
-
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
 }
-
-
 
 .favorite-browse-info p {
 
@@ -1844,21 +1448,15 @@
 
   margin: 3px 0;
 
-
-
   color: var(--fav-text-secondary);
 
   font-size: 10px;
-
-
 
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
 }
-
-
 
 .favorite-browse-info > span {
 
@@ -1868,21 +1466,15 @@
 
   margin-top: 4px;
 
-
-
   color: var(--fav-text-muted);
 
   font-size: 10px;
-
-
 
   text-overflow: ellipsis;
 
   white-space: nowrap;
 
 }
-
-
 
 .favorite-browse-language {
 
@@ -1893,8 +1485,6 @@
   white-space: nowrap;
 
 }
-
-
 
 .favorite-browse-play,
 
@@ -1908,21 +1498,15 @@
 
   justify-content: center;
 
-
-
   width: 32px;
 
   height: 32px;
 
   padding: 0;
 
-
-
   border-radius: 50%;
 
   cursor: pointer;
-
-
 
   transition:
 
@@ -1933,8 +1517,6 @@
     border-color 180ms ease;
 
 }
-
-
 
 .favorite-browse-play {
 
@@ -1948,8 +1530,6 @@
 
 }
 
-
-
 .favorite-browse-play:hover:not(:disabled) {
 
   color: #17213a;
@@ -1958,8 +1538,6 @@
 
 }
 
-
-
 .favorite-browse-play:disabled {
 
   opacity: 0.4;
@@ -1967,8 +1545,6 @@
   cursor: not-allowed;
 
 }
-
-
 
 .favorite-add-button {
 
@@ -1980,8 +1556,6 @@
 
 }
 
-
-
 .favorite-add-button:hover {
 
   background: var(--fav-gold-light);
@@ -1989,8 +1563,6 @@
   transform: scale(1.04);
 
 }
-
-
 
 .favorite-added-button {
 
@@ -2002,15 +1574,11 @@
 
 }
 
-
-
 /* =========================================================
 
    11. BROWSER STATUS / ERROR / EMPTY STATES
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-browse-status,
 
@@ -2020,8 +1588,6 @@
 
   border-radius: 12px;
 
-
-
   font-size: 12px;
 
   line-height: 1.7;
@@ -2030,8 +1596,6 @@
 
 }
 
-
-
 .favorites-browse-status {
 
   color: var(--fav-text-secondary);
@@ -2039,8 +1603,6 @@
   background: rgba(255, 255, 255, 0.025);
 
 }
-
-
 
 .favorites-browse-error {
 
@@ -2052,8 +1614,6 @@
 
 }
 
-
-
 .favorites-browse-empty {
 
   display: flex;
@@ -2064,19 +1624,13 @@
 
   justify-content: center;
 
-
-
   padding: 30px 15px;
-
-
 
   color: var(--fav-text-secondary);
 
   text-align: center;
 
 }
-
-
 
 .favorites-browse-empty > svg {
 
@@ -2087,8 +1641,6 @@
   font-size: 27px;
 
 }
-
-
 
 .favorites-browse-empty h3 {
 
@@ -2102,8 +1654,6 @@
 
 }
 
-
-
 .favorites-browse-empty p {
 
   margin: 7px 0 0;
@@ -2114,15 +1664,11 @@
 
 }
 
-
-
 /* =========================================================
 
    12. EMPTY FAVORITES PAGE
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-empty {
 
@@ -2134,19 +1680,13 @@
 
   justify-content: center;
 
-
-
   width: 100%;
 
   min-height: 330px;
 
   padding: 45px 22px;
 
-
-
   text-align: center;
-
-
 
   background:
 
@@ -2170,15 +1710,11 @@
 
     );
 
-
-
   border: 1px dashed rgba(230, 200, 117, 0.22);
 
   border-radius: 20px;
 
 }
-
-
 
 .favorites-empty-icon {
 
@@ -2188,15 +1724,11 @@
 
   justify-content: center;
 
-
-
   width: 76px;
 
   height: 76px;
 
   margin-bottom: 22px;
-
-
 
   color: var(--fav-gold);
 
@@ -2206,23 +1738,15 @@
 
   border-radius: 23px;
 
-
-
   font-size: 29px;
-
-
 
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 
 }
 
-
-
 .favorites-empty h2 {
 
   margin: 0;
-
-
 
   color: var(--fav-text);
 
@@ -2234,15 +1758,11 @@
 
 }
 
-
-
 .favorites-empty > p {
 
   max-width: 370px;
 
   margin: 11px 0 22px;
-
-
 
   color: var(--fav-text-secondary);
 
@@ -2251,8 +1771,6 @@
   line-height: 1.8;
 
 }
-
-
 
 .favorites-empty-add-button {
 
@@ -2264,13 +1782,9 @@
 
   gap: 9px;
 
-
-
   min-height: 43px;
 
   padding: 0 18px;
-
-
 
   color: #15203a;
 
@@ -2284,23 +1798,15 @@
 
   );
 
-
-
   border: 1px solid rgba(255, 234, 174, 0.4);
 
   border-radius: 12px;
-
-
 
   font-size: 12px;
 
   font-weight: 700;
 
-
-
   cursor: pointer;
-
-
 
   transition:
 
@@ -2312,8 +1818,6 @@
 
 }
 
-
-
 .favorites-empty-add-button:hover {
 
   background: var(--fav-gold-light);
@@ -2324,15 +1828,11 @@
 
 }
 
-
-
 /* =========================================================
 
    13. ANIMATION
 
-\========================================================= */
-
-
+\\========================================================= */
 
 @keyframes favorites-section-in {
 
@@ -2344,8 +1844,6 @@
 
   }
 
-
-
   to {
 
     opacity: 1;
@@ -2356,15 +1854,11 @@
 
 }
 
-
-
 /* =========================================================
 
    14. TABLET RESPONSIVENESS
 
-\========================================================= */
-
-
+\\========================================================= */
 
 @media (max-width: 900px) {
 
@@ -2373,8 +1867,6 @@
     padding: 24px 22px 40px;
 
   }
-
-
 
   .favorite-song {
 
@@ -2386,8 +1878,6 @@
 
   }
 
-
-
   .favorite-song-cover {
 
     width: 52px;
@@ -2396,15 +1886,11 @@
 
   }
 
-
-
   .favorite-song-actions {
 
     gap: 6px;
 
   }
-
-
 
   .favorite-row-play,
 
@@ -2420,15 +1906,11 @@
 
 }
 
-
-
 /* =========================================================
 
    15. MOBILE RESPONSIVENESS
 
-\========================================================= */
-
-
+\\========================================================= */
 
 @media (max-width: 600px) {
 
@@ -2438,8 +1920,6 @@
 
   }
 
-
-
   .favorites-header {
 
     gap: 12px;
@@ -2447,8 +1927,6 @@
     margin-bottom: 23px;
 
   }
-
-
 
   .favorites-back-button {
 
@@ -2462,15 +1940,11 @@
 
   }
 
-
-
   .favorites-title-wrapper {
 
     gap: 11px;
 
   }
-
-
 
   .favorites-title-icon {
 
@@ -2486,8 +1960,6 @@
 
   }
 
-
-
   .favorites-title-wrapper h1 {
 
     font-size: 22px;
@@ -2495,8 +1967,6 @@
     letter-spacing: -0.6px;
 
   }
-
-
 
   .favorites-title-wrapper p {
 
@@ -2506,15 +1976,11 @@
 
   }
 
-
-
   .favorites-play-all-row {
 
     margin-bottom: 12px;
 
   }
-
-
 
   .favorites-play-all-button {
 
@@ -2530,8 +1996,6 @@
 
   }
 
-
-
   .favorites-toolbar {
 
     gap: 8px;
@@ -2541,8 +2005,6 @@
     padding-bottom: 17px;
 
   }
-
-
 
   .favorites-add-songs-button,
 
@@ -2560,15 +2022,11 @@
 
   }
 
-
-
   .favorites-list-heading {
 
     margin-bottom: 12px;
 
   }
-
-
 
   .favorites-list-heading h2 {
 
@@ -2576,23 +2034,17 @@
 
   }
 
-
-
   .favorites-list-heading p {
 
     font-size: 11px;
 
   }
 
-
-
   .favorites-list {
 
     gap: 7px;
 
   }
-
-
 
   .favorite-song {
 
@@ -2606,8 +2058,6 @@
 
   }
 
-
-
   .favorite-song-cover {
 
     width: 45px;
@@ -2618,15 +2068,11 @@
 
   }
 
-
-
   .favorite-cover-placeholder {
 
     font-size: 17px;
 
   }
-
-
 
   .favorite-song-info h3 {
 
@@ -2635,8 +2081,6 @@
     line-height: 1.45;
 
   }
-
-
 
   .favorite-song-english,
 
@@ -2648,8 +2092,6 @@
 
   }
 
-
-
   .favorite-song-meta {
 
     gap: 4px;
@@ -2657,8 +2099,6 @@
     margin-top: 5px;
 
   }
-
-
 
   .favorite-song-language,
 
@@ -2672,15 +2112,11 @@
 
   }
 
-
-
   .favorite-song-actions {
 
     gap: 4px;
 
   }
-
-
 
   .favorite-row-play,
 
@@ -2696,8 +2132,6 @@
 
   }
 
-
-
   .favorites-browse-section {
 
     padding: 15px 11px;
@@ -2705,8 +2139,6 @@
     border-radius: 14px;
 
   }
-
-
 
   .favorites-browse-header {
 
@@ -2716,23 +2148,17 @@
 
   }
 
-
-
   .favorites-browse-header h2 {
 
     font-size: 15px;
 
   }
 
-
-
   .favorites-browse-header p {
 
     font-size: 10px;
 
   }
-
-
 
   .favorites-browse-close {
 
@@ -2744,8 +2170,6 @@
 
   }
 
-
-
   .favorites-search {
 
     min-height: 42px;
@@ -2756,8 +2180,6 @@
 
   }
 
-
-
   .favorites-search input {
 
     height: 40px;
@@ -2765,8 +2187,6 @@
     font-size: 11px;
 
   }
-
-
 
   .favorite-browse-row {
 
@@ -2778,8 +2198,6 @@
 
   }
 
-
-
   .favorite-browse-cover {
 
     width: 37px;
@@ -2788,23 +2206,17 @@
 
   }
 
-
-
   .favorite-browse-number {
 
     font-size: 10px;
 
   }
 
-
-
   .favorite-browse-info h3 {
 
     font-size: 11px;
 
   }
-
-
 
   .favorite-browse-info p,
 
@@ -2814,15 +2226,11 @@
 
   }
 
-
-
   .favorite-browse-language {
 
     display: none;
 
   }
-
-
 
   .favorite-browse-play,
 
@@ -2838,8 +2246,6 @@
 
   }
 
-
-
   .favorites-empty {
 
     min-height: 290px;
@@ -2849,8 +2255,6 @@
     border-radius: 16px;
 
   }
-
-
 
   .favorites-empty-icon {
 
@@ -2866,15 +2270,11 @@
 
   }
 
-
-
   .favorites-empty h2 {
 
     font-size: 19px;
 
   }
-
-
 
   .favorites-empty > p {
 
@@ -2883,8 +2283,6 @@
     font-size: 11px;
 
   }
-
-
 
   .favorites-empty-add-button {
 
@@ -2898,15 +2296,11 @@
 
 }
 
-
-
 /* =========================================================
 
    16. SMALL MOBILE DEVICES
 
-\========================================================= */
-
-
+\\========================================================= */
 
 @media (max-width: 390px) {
 
@@ -2918,15 +2312,11 @@
 
   }
 
-
-
   .favorites-header {
 
     gap: 9px;
 
   }
-
-
 
   .favorites-title-icon {
 
@@ -2940,23 +2330,17 @@
 
   }
 
-
-
   .favorites-title-wrapper h1 {
 
     font-size: 19px;
 
   }
 
-
-
   .favorites-title-wrapper p {
 
     font-size: 10px;
 
   }
-
-
 
   .favorite-song {
 
@@ -2968,8 +2352,6 @@
 
   }
 
-
-
   .favorite-song-cover {
 
     width: 39px;
@@ -2978,15 +2360,11 @@
 
   }
 
-
-
   .favorite-song-info h3 {
 
     font-size: 11px;
 
   }
-
-
 
   .favorite-song-english,
 
@@ -2996,15 +2374,11 @@
 
   }
 
-
-
   .favorite-song-actions {
 
     gap: 3px;
 
   }
-
-
 
   .favorite-row-play,
 
@@ -3020,15 +2394,11 @@
 
   }
 
-
-
   .favorite-song-category {
 
     display: none;
 
   }
-
-
 
   .favorite-browse-row {
 
@@ -3040,8 +2410,6 @@
 
   }
 
-
-
   .favorite-browse-cover {
 
     width: 33px;
@@ -3049,8 +2417,6 @@
     height: 33px;
 
   }
-
-
 
   .favorite-browse-play,
 
@@ -3066,23 +2432,19 @@
 
 }
 
-
-
 /* =========================================================
 
    17. REDUCED MOTION ACCESSIBILITY
 
-\========================================================= */
-
-
+\\========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
-  .favorites-page \*,
+  .favorites-page \\*,
 
-  .favorites-page \*::before,
+  .favorites-page \\*::before,
 
-  .favorites-page \*::after {
+  .favorites-page \\*::after {
 
     scroll-behavior: auto !important;
 
@@ -3096,8 +2458,6 @@
 
 }
 
-
-
 /* =========================================================
 
    KEERTHANA — FAVORITES TOOLBAR POSITION UPDATE
@@ -3106,9 +2466,7 @@
 
    Clear Songs: Left
 
-\========================================================= */
-
-
+\\========================================================= */
 
 .favorites-toolbar {
 
@@ -3132,11 +2490,7 @@
 
 }
 
-
-
 /* Clear Songs — LEFT */
-
-
 
 .favorites-clear-songs-button {
 
@@ -3148,11 +2502,7 @@
 
 }
 
-
-
 /* Add Songs — RIGHT */
-
-
 
 .favorites-add-songs-button {
 
@@ -3164,11 +2514,7 @@
 
 }
 
-
-
 /* Shared button styling */
-
-
 
 .favorites-add-songs-button,
 
@@ -3212,11 +2558,7 @@
 
 }
 
-
-
 /* Add Songs — royal blue */
-
-
 
 .favorites-add-songs-button {
 
@@ -3230,8 +2572,6 @@
 
 }
 
-
-
 .favorites-add-songs-button:hover {
 
   background: linear-gradient(135deg, #3470f0, #214db4);
@@ -3244,11 +2584,7 @@
 
 }
 
-
-
 /* Clear Songs — subtle dark style */
-
-
 
 .favorites-clear-songs-button {
 
@@ -3257,8 +2593,6 @@
   background: rgba(214, 177, 94, 0.07);
 
 }
-
-
 
 .favorites-clear-songs-button:hover {
 
@@ -3272,11 +2606,7 @@
 
 }
 
-
-
 /* Keyboard accessibility */
-
-
 
 .favorites-add-songs-button:focus-visible,
 
@@ -3288,11 +2618,7 @@
 
 }
 
-
-
 /* Play All stays on its own line */
-
-
 
 .favorites-play-all-row {
 
@@ -3306,11 +2632,7 @@
 
 }
 
-
-
 /* Responsive */
-
-
 
 @media (max-width: 480px) {
 
@@ -3323,8 +2645,6 @@
     margin-bottom: 20px;
 
   }
-
-
 
   .favorites-add-songs-button,
 
@@ -3342,8 +2662,6 @@
 
 }
 
-
-
 @media (prefers-reduced-motion: reduce) {
 
   .favorites-add-songs-button,
@@ -3356,685 +2674,1378 @@
 
 }
 
-
 /* =========================================================
+
    KEERTHANA — FAVORITES JSX LAYOUT UPDATE
+
    Play All left; Clear Songs and Add Songs right.
+
    Favorite rows: Play button, cover, song details.
-========================================================= */
+
+\========================================================= */
 
 .favorites-main-actions {
+
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
+
   gap: 16px;
+
   width: 100%;
+
   margin: 0 0 24px;
+
 }
 
 .favorites-main-actions > .favorites-play-all-button {
+
   flex: 0 0 auto;
+
   margin: 0;
+
 }
 
 .favorites-main-actions .favorites-toolbar {
+
   display: flex;
+
   align-items: center;
+
   justify-content: flex-end;
+
   flex: 1 1 auto;
+
   flex-wrap: wrap;
+
   gap: 10px;
+
   width: auto;
+
   margin: 0 0 0 auto;
+
   padding: 0;
+
   border: 0;
+
 }
 
 .favorites-main-actions .favorites-clear-songs-button {
+
   order: 1;
+
   margin: 0;
+
 }
 
 .favorites-main-actions .favorites-add-songs-button {
+
   order: 2;
+
   margin: 0;
+
 }
 
 /* One song row: play control | artwork | details */
+
 .favorites-list .favorite-song {
+
   display: grid;
+
   grid-template-columns: 42px 58px minmax(0, 1fr);
+
   align-items: center;
+
   gap: 16px;
+
   width: 100%;
+
   min-width: 0;
+
 }
 
 .favorites-list .favorite-row-play {
+
   grid-column: 1;
+
   grid-row: 1;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  justify-self: center;
+
+  width: 40px;
+
+  height: 40px;
+
+  padding: 0;
+
+  color: #101b32;
+
+  background: linear-gradient(135deg, var(--fav-gold-light), var(--fav-gold));
+
+  border: 1px solid rgba(255, 239, 190, 0.4);
+
+  border-radius: 50%;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition:
+
+    color 180ms ease,
+
+    background 180ms ease,
+
+    border-color 180ms ease,
+
+    transform 180ms ease,
+
+    box-shadow 180ms ease;
+
+}
+
+.favorites-list .favorite-row-play:hover:not(:disabled) {
+
+  background: var(--fav-gold-light);
+
+  border-color: rgba(255, 239, 190, 0.8);
+
+  box-shadow: 0 4px 12px rgba(230, 200, 117, 0.17);
+
+  transform: scale(1.06);
+
+}
+
+.favorites-list .favorite-row-play.is-playing {
+
+  color: #14203a;
+
+  background: var(--fav-gold-light);
+
+}
+
+.favorites-list .favorite-row-play:disabled {
+
+  opacity: 0.4;
+
+  cursor: not-allowed;
+
+}
+
+.favorites-list .favorite-song-cover {
+
+  grid-column: 2;
+
+  grid-row: 1;
+
+  width: 58px;
+
+  height: 58px;
+
+}
+
+.favorites-list .favorite-song-info {
+
+  grid-column: 3;
+
+  grid-row: 1;
+
+  min-width: 0;
+
+}
+
+/* Keep browse-list play/add controls separate from favorite-row controls. */
+
+.favorites-browse-list .favorite-browse-play,
+
+.favorites-browse-list .favorite-add-button,
+
+.favorites-browse-list .favorite-added-button {
+
+  flex: 0 0 auto;
+
+}
+
+@media (max-width: 900px) {
+
+  .favorites-list .favorite-song {
+
+    grid-template-columns: 38px 52px minmax(0, 1fr);
+
+    gap: 12px;
+
+  }
+
+  .favorites-list .favorite-row-play {
+
+    width: 36px;
+
+    height: 36px;
+
+  }
+
+  .favorites-list .favorite-song-cover {
+
+    width: 52px;
+
+    height: 52px;
+
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .favorites-main-actions {
+
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+  }
+
+  .favorites-main-actions > .favorites-play-all-button {
+
+    min-height: 40px;
+
+    min-width: 120px;
+
+    padding: 0 14px;
+
+  }
+
+  .favorites-main-actions .favorites-toolbar {
+
+    flex: 1 1 100%;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin: 0;
+
+  }
+
+  .favorites-main-actions .favorites-add-songs-button,
+
+  .favorites-main-actions .favorites-clear-songs-button {
+
+    min-height: 38px;
+
+    padding: 0 12px;
+
+    font-size: 11px;
+
+  }
+
+  .favorites-list .favorite-song {
+
+    grid-template-columns: 34px 45px minmax(0, 1fr);
+
+    gap: 10px;
+
+    padding: 10px;
+
+  }
+
+  .favorites-list .favorite-row-play {
+
+    width: 32px;
+
+    height: 32px;
+
+    font-size: 10px;
+
+  }
+
+  .favorites-list .favorite-song-cover {
+
+    width: 45px;
+
+    height: 45px;
+
+  }
+
+}
+
+@media (max-width: 390px) {
+
+  .favorites-main-actions {
+
+    gap: 10px;
+
+  }
+
+  .favorites-main-actions .favorites-toolbar {
+
+    gap: 6px;
+
+  }
+
+  .favorites-main-actions .favorites-add-songs-button,
+
+  .favorites-main-actions .favorites-clear-songs-button {
+
+    gap: 6px;
+
+    padding: 0 9px;
+
+    font-size: 10px;
+
+  }
+
+  .favorites-list .favorite-song {
+
+    grid-template-columns: 30px 39px minmax(0, 1fr);
+
+    gap: 8px;
+
+    padding: 9px 7px;
+
+  }
+
+  .favorites-list .favorite-row-play {
+
+    width: 28px;
+
+    height: 28px;
+
+  }
+
+  .favorites-list .favorite-song-cover {
+
+    width: 39px;
+
+    height: 39px;
+
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .favorites-main-actions *,
+
+  .favorites-list .favorite-row-play {
+
+    transition: none;
+
+  }
+
+}
+
+/* =========================================
+
+   FAVORITES COUNT — SEPARATE RIGHT-ALIGNED ROW
+
+   KEERTHANA Music
+
+\========================================= */
+
+.favorites-count-row {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  width: 100%;
+
+  margin: 0 0 18px;
+
+  padding: 0 4px;
+
+  box-sizing: border-box;
+
+}
+
+.favorites-count-row .favorites-count {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  color: #cbd5e1;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.2px;
+
+  white-space: nowrap;
+
+}
+
+.favorites-count-row .favorites-count svg {
+
+  flex-shrink: 0;
+
+  color: #e8c98a;
+
+  font-size: 13px;
+
+}
+
+@media (max-width: 768px) {
+
+  .favorites-count-row {
+
+    margin-bottom: 14px;
+
+    padding-right: 2px;
+
+  }
+
+  .favorites-count-row .favorites-count {
+
+    font-size: 12px;
+
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .favorites-count-row *,
+
+  .favorites-count-row *::before,
+
+  .favorites-count-row *::after {
+
+    animation: none !important;
+
+    transition: none !important;
+
+  }
+
+}
+
+/* =========================================
+
+   KEERTHANA — FAVORITES SEARCH
+
+   Midnight Navy • Royal Blue • Champagne Gold
+
+\========================================= */
+
+.favorites-list-search {
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+
+  max-width: 620px;
+
+  min-height: 50px;
+
+  margin: 20px 0 22px;
+
+  padding: 0 16px;
+
+  gap: 12px;
+
+  background: rgba(13, 22, 42, 0.88);
+
+  border: 1px solid rgba(120, 145, 190, 0.24);
+
+  border-radius: 14px;
+
+  box-sizing: border-box;
+
+  transition:
+
+    border-color 180ms ease,
+
+    box-shadow 180ms ease,
+
+    background 180ms ease;
+
+}
+
+.favorites-list-search:focus-within {
+
+  border-color: #3978f6;
+
+  background: rgba(16, 28, 52, 0.98);
+
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+
+}
+
+.favorites-list-search-icon {
+
+  flex-shrink: 0;
+
+  color: #e8c98a;
+
+  font-size: 15px;
+
+  pointer-events: none;
+
+}
+
+.favorites-list-search input {
+
+  flex: 1;
+
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 14px 0;
+
+  color: #f4f6fb;
+
+  background: transparent;
+
+  border: none;
+
+  outline: none;
+
+  box-shadow: none;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+  line-height: 1.5;
+
+}
+
+.favorites-list-search input::placeholder {
+
+  color: #8995ac;
+
+  opacity: 1;
+
+}
+
+.favorites-list-search input::-webkit-search-cancel-button {
+
+  display: none;
+
+}
+
+.favorites-list-search-clear {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 30px;
+
+  height: 30px;
+
+  padding: 0;
+
+  color: #b7c2d7;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  transition:
+
+    color 180ms ease,
+
+    background 180ms ease,
+
+    border-color 180ms ease;
+
+}
+
+.favorites-list-search-clear:hover {
+
+  color: #e8c98a;
+
+  background: rgba(57, 120, 246, 0.15);
+
+  border-color: rgba(57, 120, 246, 0.45);
+
+}
+
+.favorites-list-search-clear:focus-visible {
+
+  outline: 2px solid #e8c98a;
+
+  outline-offset: 3px;
+
+}
+
+/* =========================================
+
+   FAVORITES SEARCH — NO RESULTS
+
+\========================================= */
+
+.favorites-search-empty {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 230px;
+
+  padding: 32px 20px;
+
+  text-align: center;
+
+  background: rgba(13, 22, 42, 0.55);
+
+  border: 1px dashed rgba(120, 145, 190, 0.25);
+
+  border-radius: 18px;
+
+  box-sizing: border-box;
+
+}
+
+.favorites-search-empty-icon {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 58px;
+
+  height: 58px;
+
+  margin-bottom: 18px;
+
+  color: #e8c98a;
+
+  background: rgba(57, 120, 246, 0.12);
+
+  border: 1px solid rgba(57, 120, 246, 0.24);
+
+  border-radius: 50%;
+
+  font-size: 20px;
+
+}
+
+.favorites-search-empty h3 {
+
+  margin: 0 0 8px;
+
+  color: #f4f6fb;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 17px;
+
+  font-weight: 650;
+
+  line-height: 1.4;
+
+}
+
+.favorites-search-empty p {
+
+  max-width: 420px;
+
+  margin: 0;
+
+  color: #9aa8c0;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+
+}
+
+.favorites-search-reset-button {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 40px;
+
+  margin-top: 20px;
+
+  padding: 0 20px;
+
+  color: #f4f6fb;
+
+  background: linear-gradient(135deg, #3978f6, #285bd0);
+
+  border: 1px solid rgba(120, 165, 255, 0.35);
+
+  border-radius: 10px;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+
+    transform 180ms ease,
+
+    box-shadow 180ms ease,
+
+    background 180ms ease;
+
+}
+
+.favorites-search-reset-button:hover {
+
+  background: linear-gradient(135deg, #4b88ff, #3268e2);
+
+  box-shadow: 0 5px 18px rgba(57, 120, 246, 0.2);
+
+  transform: translateY(-1px);
+
+}
+
+.favorites-search-reset-button:focus-visible {
+
+  outline: 2px solid #e8c98a;
+
+  outline-offset: 3px;
+
+}
+
+/* =========================================
+
+   BROWSE SEARCH — CLEAR BUTTON
+
+\========================================= */
+
+.favorites-search {
+
+  position: relative;
+
+}
+
+.favorites-search-clear {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 30px;
+
+  height: 30px;
+
+  padding: 0;
+
+  color: #b7c2d7;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+}
+
+.favorites-search-clear:hover {
+
+  color: #e8c98a;
+
+  background: rgba(57, 120, 246, 0.15);
+
+}
+
+.favorites-search-clear:focus-visible {
+
+  outline: 2px solid #e8c98a;
+
+  outline-offset: 3px;
+
+}
+
+/* =========================================
+
+   RESPONSIVE — TABLET
+
+\========================================= */
+
+@media (max-width: 768px) {
+
+  .favorites-list-search {
+
+    max-width: 100%;
+
+    min-height: 48px;
+
+    margin: 16px 0 18px;
+
+    padding: 0 13px;
+
+    gap: 10px;
+
+    border-radius: 12px;
+
+  }
+
+  .favorites-list-search input {
+
+    padding: 13px 0;
+
+    font-size: 13px;
+
+  }
+
+  .favorites-search-empty {
+
+    min-height: 210px;
+
+    padding: 28px 18px;
+
+  }
+
+}
+
+/* =========================================
+
+   RESPONSIVE — MOBILE
+
+\========================================= */
+
+@media (max-width: 480px) {
+
+  .favorites-list-search {
+
+    margin-top: 14px;
+
+    margin-bottom: 16px;
+
+    gap: 9px;
+
+  }
+
+  .favorites-list-search input {
+
+    font-size: 12px;
+
+  }
+
+  .favorites-list-search input::placeholder {
+
+    font-size: 12px;
+
+  }
+
+  .favorites-search-empty {
+
+    min-height: 190px;
+
+    padding: 24px 16px;
+
+    border-radius: 14px;
+
+  }
+
+  .favorites-search-empty-icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    margin-bottom: 14px;
+
+    font-size: 18px;
+
+  }
+
+  .favorites-search-empty h3 {
+
+    font-size: 15px;
+
+  }
+
+  .favorites-search-empty p {
+
+    font-size: 12px;
+
+  }
+
+}
+
+/* =========================================
+
+   ACCESSIBILITY — REDUCED MOTION
+
+\========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .favorites-list-search,
+
+  .favorites-list-search-clear,
+
+  .favorites-search-reset-button {
+
+    transition: none;
+
+  }
+
+  .favorites-search-reset-button:hover {
+
+    transform: none;
+
+  }
+
+}
+
+/* =========================================================
+
+   KEERTHANA — FAVORITES VOICE SEARCH
+
+   Midnight Navy • Royal Blue • Champagne Gold
+
+\========================================================= */
+
+.favorites-voice-search-section,
+
+.favorites-browser-voice-search {
+
+  display: block;
+
+  width: 100%;
+
+  max-width: none;
+
+  min-width: 0;
+
+  margin: 0 0 22px;
+
+}
+
+.favorites-voice-search-section .keerthana-voice-search,
+
+.favorites-browser-voice-search .keerthana-voice-search {
+
+  display: block;
+
+  width: 100%;
+
+  max-width: none;
+
+  min-width: 0;
+
+}
+
+.favorites-voice-search-section .voice-search-bar,
+
+.favorites-browser-voice-search .voice-search-bar {
+
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+
+  max-width: none;
+
+  min-width: 0;
+
+  padding: 5px 10px;
+
+  border: 1px solid rgba(160, 180, 215, 0.18);
+
+  border-radius: 14px;
+
+  background: #10182a;
+
+  transition:
+
+    border-color 180ms ease,
+
+    box-shadow 180ms ease;
+
+}
+
+.favorites-voice-search-section .voice-search-bar:focus-within,
+
+.favorites-browser-voice-search .voice-search-bar:focus-within {
+
+  border-color: #3978f6;
+
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+
+}
+
+.favorites-voice-search-section .voice-search-bar input,
+
+.favorites-browser-voice-search .voice-search-bar input {
+
+  flex: 1 1 auto;
+
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 12px 8px;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #f5f7fc;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 14px;
+
+}
+
+.favorites-voice-search-section .voice-search-bar input::placeholder,
+
+.favorites-browser-voice-search .voice-search-bar input::placeholder {
+
+  color: #8996ad;
+
+  opacity: 1;
+
+}
+
+.favorites-voice-search-section .voice-search-options,
+
+.favorites-browser-voice-search .voice-search-options {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: 100%;
+
+  max-width: none;
+
+  min-width: 0;
+
+  margin-top: 10px;
+
+}
+
+.favorites-voice-search-section .voice-search-feedback,
+
+.favorites-browser-voice-search .voice-search-feedback {
+
+  width: 100%;
+
+  max-width: none;
+
+  color: #a5b0c5;
+
+  font-size: 12px;
+
+}
+
+.favorites-voice-search-section button:focus-visible,
+
+.favorites-voice-search-section select:focus-visible,
+
+.favorites-browser-voice-search button:focus-visible,
+
+.favorites-browser-voice-search select:focus-visible {
+
+  outline: 2px solid #e8c98a;
+
+  outline-offset: 3px;
+
+}
+
+@media (max-width: 600px) {
+
+  .favorites-voice-search-section,
+
+  .favorites-browser-voice-search {
+
+    margin-bottom: 17px;
+
+  }
+
+  .favorites-voice-search-section .voice-search-options,
+
+  .favorites-browser-voice-search .voice-search-options {
+
+    justify-content: flex-start;
+
+    gap: 8px;
+
+  }
+
+  .favorites-voice-search-section .voice-search-bar input,
+
+  .favorites-browser-voice-search .voice-search-bar input {
+
+    font-size: 13px;
+
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .favorites-voice-search-section *,
+
+  .favorites-browser-voice-search *,
+
+  .favorites-voice-search-section *::before,
+
+  .favorites-browser-voice-search *::before {
+
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   KEERTHANA — FAVORITE SONG THREE-DOT MENU
+   ========================================================= */
+
+.favorites-list .favorite-song {
+  grid-template-columns: 42px 58px minmax(0, 1fr) 38px;
+}
+
+.favorite-song-menu-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  grid-column: 4;
+  grid-row: 1;
+  width: 38px;
+  min-width: 38px;
+  z-index: 5;
+}
+
+.favorite-song-menu-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  justify-self: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   padding: 0;
-  color: #101b32;
-  background: linear-gradient(135deg, var(--fav-gold-light), var(--fav-gold));
-  border: 1px solid rgba(255, 239, 190, 0.4);
-  border-radius: 50%;
-  font-size: 12px;
+  color: #b9c5d9;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
   cursor: pointer;
   transition:
     color 180ms ease,
     background 180ms ease,
     border-color 180ms ease,
-    transform 180ms ease,
-    box-shadow 180ms ease;
+    transform 180ms ease;
 }
 
-.favorites-list .favorite-row-play:hover:not(:disabled) {
-  background: var(--fav-gold-light);
-  border-color: rgba(255, 239, 190, 0.8);
-  box-shadow: 0 4px 12px rgba(230, 200, 117, 0.17);
-  transform: scale(1.06);
+.favorite-song-menu-button:hover,
+.favorite-song-menu-button[aria-expanded="true"] {
+  color: #f7e4a6;
+  background: rgba(230, 200, 117, 0.10);
+  border-color: rgba(230, 200, 117, 0.22);
 }
 
-.favorites-list .favorite-row-play.is-playing {
-  color: #14203a;
-  background: var(--fav-gold-light);
+.favorite-song-menu-button:active {
+  transform: scale(0.95);
 }
 
-.favorites-list .favorite-row-play:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.favorite-song-context-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 205px;
+  max-width: min(260px, calc(100vw - 32px));
+  padding: 6px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #172746, #0d172b);
+  border: 1px solid rgba(230, 200, 117, 0.28);
+  border-radius: 13px;
+  box-shadow:
+    0 16px 38px rgba(0, 0, 0, 0.42),
+    0 3px 10px rgba(0, 0, 0, 0.2);
+  animation: favorite-menu-in 150ms ease both;
 }
 
-.favorites-list .favorite-song-cover {
-  grid-column: 2;
-  grid-row: 1;
-  width: 58px;
-  height: 58px;
+.favorite-song-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 39px;
+  padding: 9px 11px;
+  color: #e7edf8;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
 }
 
-.favorites-list .favorite-song-info {
-  grid-column: 3;
-  grid-row: 1;
-  min-width: 0;
+.favorite-song-context-menu button svg {
+  flex: 0 0 14px;
+  width: 14px;
+  color: #e6c875;
+  font-size: 12px;
 }
 
-/* Keep browse-list play/add controls separate from favorite-row controls. */
-.favorites-browse-list .favorite-browse-play,
-.favorites-browse-list .favorite-add-button,
-.favorites-browse-list .favorite-added-button {
-  flex: 0 0 auto;
+.favorite-song-context-menu button:hover {
+  color: #fff2c9;
+  background: rgba(230, 200, 117, 0.12);
+}
+
+.favorite-song-context-menu button:focus-visible {
+  outline: 2px solid #e6c875;
+  outline-offset: -2px;
+}
+
+.favorite-song-context-menu button:nth-child(4) {
+  color: #ffabb8;
+}
+
+.favorite-song-context-menu button:nth-child(4) svg {
+  color: #ff8fa2;
+}
+
+.favorite-song-context-menu button:nth-child(4):hover {
+  color: #fff;
+  background: rgba(255, 96, 122, 0.14);
+}
+
+@keyframes favorite-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 900px) {
   .favorites-list .favorite-song {
-    grid-template-columns: 38px 52px minmax(0, 1fr);
-    gap: 12px;
+    grid-template-columns: 38px 52px minmax(0, 1fr) 36px;
   }
 
-  .favorites-list .favorite-row-play {
+  .favorite-song-menu-wrap {
     width: 36px;
-    height: 36px;
+    min-width: 36px;
   }
 
-  .favorites-list .favorite-song-cover {
-    width: 52px;
-    height: 52px;
+  .favorite-song-menu-button {
+    width: 34px;
+    height: 34px;
   }
 }
 
 @media (max-width: 600px) {
-  .favorites-main-actions {
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .favorites-main-actions > .favorites-play-all-button {
-    min-height: 40px;
-    min-width: 120px;
-    padding: 0 14px;
-  }
-
-  .favorites-main-actions .favorites-toolbar {
-    flex: 1 1 100%;
-    justify-content: flex-end;
+  .favorites-list .favorite-song {
+    grid-template-columns: 34px 45px minmax(0, 1fr) 32px;
     gap: 8px;
-    margin: 0;
   }
 
-  .favorites-main-actions .favorites-add-songs-button,
-  .favorites-main-actions .favorites-clear-songs-button {
-    min-height: 38px;
-    padding: 0 12px;
+  .favorite-song-menu-wrap {
+    width: 32px;
+    min-width: 32px;
+  }
+
+  .favorite-song-menu-button {
+    width: 30px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .favorite-song-context-menu {
+    right: 0;
+    min-width: 190px;
+  }
+
+  .favorite-song-context-menu button {
+    min-height: 37px;
+    padding: 8px 9px;
     font-size: 11px;
   }
-
-  .favorites-list .favorite-song {
-    grid-template-columns: 34px 45px minmax(0, 1fr);
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .favorites-list .favorite-row-play {
-    width: 32px;
-    height: 32px;
-    font-size: 10px;
-  }
-
-  .favorites-list .favorite-song-cover {
-    width: 45px;
-    height: 45px;
-  }
-}
-
-@media (max-width: 390px) {
-  .favorites-main-actions {
-    gap: 10px;
-  }
-
-  .favorites-main-actions .favorites-toolbar {
-    gap: 6px;
-  }
-
-  .favorites-main-actions .favorites-add-songs-button,
-  .favorites-main-actions .favorites-clear-songs-button {
-    gap: 6px;
-    padding: 0 9px;
-    font-size: 10px;
-  }
-
-  .favorites-list .favorite-song {
-    grid-template-columns: 30px 39px minmax(0, 1fr);
-    gap: 8px;
-    padding: 9px 7px;
-  }
-
-  .favorites-list .favorite-row-play {
-    width: 28px;
-    height: 28px;
-  }
-
-  .favorites-list .favorite-song-cover {
-    width: 39px;
-    height: 39px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .favorites-main-actions *,
-  .favorites-list .favorite-row-play {
-    transition: none;
-  }
-}
-
-/* =========================================
-   FAVORITES COUNT — SEPARATE RIGHT-ALIGNED ROW
-   KEERTHANA Music
-========================================= */
-
-.favorites-count-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  margin: 0 0 18px;
-  padding: 0 4px;
-  box-sizing: border-box;
-}
-
-.favorites-count-row .favorites-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #cbd5e1;
-  font-family: "Inter", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  white-space: nowrap;
-}
-
-.favorites-count-row .favorites-count svg {
-  flex-shrink: 0;
-  color: #e8c98a;
-  font-size: 13px;
-}
-
-@media (max-width: 768px) {
-  .favorites-count-row {
-    margin-bottom: 14px;
-    padding-right: 2px;
-  }
-
-  .favorites-count-row .favorites-count {
-    font-size: 12px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .favorites-count-row *,
-  .favorites-count-row *::before,
-  .favorites-count-row *::after {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* =========================================
-   KEERTHANA — FAVORITES SEARCH
-   Midnight Navy • Royal Blue • Champagne Gold
-========================================= */
-
-.favorites-list-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 620px;
-  min-height: 50px;
-  margin: 20px 0 22px;
-  padding: 0 16px;
-  gap: 12px;
-  background: rgba(13, 22, 42, 0.88);
-  border: 1px solid rgba(120, 145, 190, 0.24);
-  border-radius: 14px;
-  box-sizing: border-box;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
-}
-
-.favorites-list-search:focus-within {
-  border-color: #3978f6;
-  background: rgba(16, 28, 52, 0.98);
-  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
-}
-
-.favorites-list-search-icon {
-  flex-shrink: 0;
-  color: #e8c98a;
-  font-size: 15px;
-  pointer-events: none;
-}
-
-.favorites-list-search input {
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  padding: 14px 0;
-  color: #f4f6fb;
-  background: transparent;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  font-family: "Inter", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-.favorites-list-search input::placeholder {
-  color: #8995ac;
-  opacity: 1;
-}
-
-.favorites-list-search input::-webkit-search-cancel-button {
-  display: none;
-}
-
-.favorites-list-search-clear {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  color: #b7c2d7;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  cursor: pointer;
-  transition:
-    color 180ms ease,
-    background 180ms ease,
-    border-color 180ms ease;
-}
-
-.favorites-list-search-clear:hover {
-  color: #e8c98a;
-  background: rgba(57, 120, 246, 0.15);
-  border-color: rgba(57, 120, 246, 0.45);
-}
-
-.favorites-list-search-clear:focus-visible {
-  outline: 2px solid #e8c98a;
-  outline-offset: 3px;
-}
-
-/* =========================================
-   FAVORITES SEARCH — NO RESULTS
-========================================= */
-
-.favorites-search-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 230px;
-  padding: 32px 20px;
-  text-align: center;
-  background: rgba(13, 22, 42, 0.55);
-  border: 1px dashed rgba(120, 145, 190, 0.25);
-  border-radius: 18px;
-  box-sizing: border-box;
-}
-
-.favorites-search-empty-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 58px;
-  height: 58px;
-  margin-bottom: 18px;
-  color: #e8c98a;
-  background: rgba(57, 120, 246, 0.12);
-  border: 1px solid rgba(57, 120, 246, 0.24);
-  border-radius: 50%;
-  font-size: 20px;
-}
-
-.favorites-search-empty h3 {
-  margin: 0 0 8px;
-  color: #f4f6fb;
-  font-family: "Inter", sans-serif;
-  font-size: 17px;
-  font-weight: 650;
-  line-height: 1.4;
-}
-
-.favorites-search-empty p {
-  max-width: 420px;
-  margin: 0;
-  color: #9aa8c0;
-  font-family: "Inter", sans-serif;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.favorites-search-reset-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  margin-top: 20px;
-  padding: 0 20px;
-  color: #f4f6fb;
-  background: linear-gradient(135deg, #3978f6, #285bd0);
-  border: 1px solid rgba(120, 165, 255, 0.35);
-  border-radius: 10px;
-  font-family: "Inter", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
-}
-
-.favorites-search-reset-button:hover {
-  background: linear-gradient(135deg, #4b88ff, #3268e2);
-  box-shadow: 0 5px 18px rgba(57, 120, 246, 0.2);
-  transform: translateY(-1px);
-}
-
-.favorites-search-reset-button:focus-visible {
-  outline: 2px solid #e8c98a;
-  outline-offset: 3px;
-}
-
-/* =========================================
-   BROWSE SEARCH — CLEAR BUTTON
-========================================= */
-
-.favorites-search {
-  position: relative;
-}
-
-.favorites-search-clear {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  color: #b7c2d7;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.favorites-search-clear:hover {
-  color: #e8c98a;
-  background: rgba(57, 120, 246, 0.15);
-}
-
-.favorites-search-clear:focus-visible {
-  outline: 2px solid #e8c98a;
-  outline-offset: 3px;
-}
-
-/* =========================================
-   RESPONSIVE — TABLET
-========================================= */
-
-@media (max-width: 768px) {
-  .favorites-list-search {
-    max-width: 100%;
-    min-height: 48px;
-    margin: 16px 0 18px;
-    padding: 0 13px;
-    gap: 10px;
-    border-radius: 12px;
-  }
-
-  .favorites-list-search input {
-    padding: 13px 0;
-    font-size: 13px;
-  }
-
-  .favorites-search-empty {
-    min-height: 210px;
-    padding: 28px 18px;
-  }
-}
-
-/* =========================================
-   RESPONSIVE — MOBILE
-========================================= */
-
-@media (max-width: 480px) {
-  .favorites-list-search {
-    margin-top: 14px;
-    margin-bottom: 16px;
-    gap: 9px;
-  }
-
-  .favorites-list-search input {
-    font-size: 12px;
-  }
-
-  .favorites-list-search input::placeholder {
-    font-size: 12px;
-  }
-
-  .favorites-search-empty {
-    min-height: 190px;
-    padding: 24px 16px;
-    border-radius: 14px;
-  }
-
-  .favorites-search-empty-icon {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 14px;
-    font-size: 18px;
-  }
-
-  .favorites-search-empty h3 {
-    font-size: 15px;
-  }
-
-  .favorites-search-empty p {
-    font-size: 12px;
-  }
-}
-
-/* =========================================
-   ACCESSIBILITY — REDUCED MOTION
-========================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .favorites-list-search,
-  .favorites-list-search-clear,
-  .favorites-search-reset-button {
-    transition: none;
-  }
-
-  .favorites-search-reset-button:hover {
-    transform: none;
-  }
-}
-/* =========================================================
-   KEERTHANA — FAVORITES VOICE SEARCH
-   Midnight Navy • Royal Blue • Champagne Gold
-========================================================= */
-
-.favorites-voice-search-section,
-.favorites-browser-voice-search {
-  display: block;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  margin: 0 0 22px;
-}
-
-.favorites-voice-search-section .keerthana-voice-search,
-.favorites-browser-voice-search .keerthana-voice-search {
-  display: block;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-}
-
-.favorites-voice-search-section .voice-search-bar,
-.favorites-browser-voice-search .voice-search-bar {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  padding: 5px 10px;
-  border: 1px solid rgba(160, 180, 215, 0.18);
-  border-radius: 14px;
-  background: #10182a;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.favorites-voice-search-section .voice-search-bar:focus-within,
-.favorites-browser-voice-search .voice-search-bar:focus-within {
-  border-color: #3978f6;
-  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
-}
-
-.favorites-voice-search-section .voice-search-bar input,
-.favorites-browser-voice-search .voice-search-bar input {
-  flex: 1 1 auto;
-  width: 100%;
-  min-width: 0;
-  padding: 12px 8px;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #f5f7fc;
-  font-family: "Inter", sans-serif;
-  font-size: 14px;
-}
-
-.favorites-voice-search-section .voice-search-bar input::placeholder,
-.favorites-browser-voice-search .voice-search-bar input::placeholder {
-  color: #8996ad;
-  opacity: 1;
-}
-
-.favorites-voice-search-section .voice-search-options,
-.favorites-browser-voice-search .voice-search-options {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  margin-top: 10px;
-}
-
-.favorites-voice-search-section .voice-search-feedback,
-.favorites-browser-voice-search .voice-search-feedback {
-  width: 100%;
-  max-width: none;
-  color: #a5b0c5;
-  font-size: 12px;
-}
-
-.favorites-voice-search-section button:focus-visible,
-.favorites-voice-search-section select:focus-visible,
-.favorites-browser-voice-search button:focus-visible,
-.favorites-browser-voice-search select:focus-visible {
-  outline: 2px solid #e8c98a;
-  outline-offset: 3px;
-}
-
-@media (max-width: 600px) {
-  .favorites-voice-search-section,
-  .favorites-browser-voice-search {
-    margin-bottom: 17px;
-  }
-
-  .favorites-voice-search-section .voice-search-options,
-  .favorites-browser-voice-search .voice-search-options {
-    justify-content: flex-start;
-    gap: 8px;
-  }
-
-  .favorites-voice-search-section .voice-search-bar input,
-  .favorites-browser-voice-search .voice-search-bar input {
-    font-size: 13px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .favorites-voice-search-section *,
-  .favorites-browser-voice-search *,
-  .favorites-voice-search-section *::before,
-  .favorites-browser-voice-search *::before {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .favorite-song-context-menu {
+    animation: none;
   }
 }

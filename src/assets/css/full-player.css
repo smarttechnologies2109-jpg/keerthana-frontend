@@ -1,12 +1,10 @@
-
-
 /* =========================================================
 
    KEERTHANA — FULL PLAYER
 
    Dedicated fullscreen design
 
-\========================================================= */
+\\========================================================= */
 
 .keerthana-full-player {
 
@@ -1481,31 +1479,115 @@
 }
 
 /* ANDROID / MOBILE: expanded player stays above bottom navigation */
+
 @media (max-width: 600px) {
+
   .keerthana-full-player {
+
     inset: 0 0 calc(var(--keerthana-bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px)) 0 !important;
+
     width: 100% !important;
+
     height: auto !important;
+
     min-height: 0 !important;
+
     max-height: none !important;
+
     z-index: 900 !important;
+
     overflow-x: hidden !important;
+
     overflow-y: auto !important;
+
     padding: max(12px, env(safe-area-inset-top, 0px)) 14px 12px !important;
+
   }
 
   .full-player-overlay {
+
     inset: 0 0 calc(var(--keerthana-bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px)) 0 !important;
+
     z-index: 950 !important;
+
   }
+
 }
 
 /* Common bottom-navigation class names: keep navigation above player */
+
 .bottom-nav,
+
 .bottom-navigation,
+
 .mobile-bottom-nav,
+
 .app-bottom-nav,
+
 .mobile-nav {
+
   position: relative;
+
   z-index: 1100 !important;
+
+}
+
+
+/* ANDROID FIX: Full Player must sit above the app header and bottom navigation. */
+.keerthana-full-player {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483645 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding-top: max(12px, env(safe-area-inset-top, 0px)) !important;
+  padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)) !important;
+  box-sizing: border-box !important;
+}
+.full-player-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex: 0 0 auto;
+  min-height: 48px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(7,16,32,.98), rgba(7,16,32,.82));
+}
+.full-player-icon-button {
+  position: relative;
+  z-index: 6;
+  flex: 0 0 42px;
+  min-width: 42px;
+  min-height: 42px;
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+.full-player-body { min-height: 0; }
+.full-player-toolbar { position: relative; z-index: 2; }
+.full-player-overlay { z-index: 2147483646 !important; }
+
+@media (max-width: 600px) {
+  .keerthana-full-player {
+    inset: 0 !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: max(12px, env(safe-area-inset-top, 0px)) 14px max(14px, env(safe-area-inset-bottom, 0px)) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0;
+  }
+  .full-player-header { min-height: 48px; margin-bottom: 4px; }
+  .full-player-icon-button {
+    width: 40px; height: 40px; min-width: 40px; min-height: 40px; flex-basis: 40px;
+  }
+  .full-player-body { align-content: center; min-height: 0; padding-top: 12px; padding-bottom: 12px; }
+  .full-player-overlay {
+    inset: 0 !important;
+    z-index: 2147483646 !important;
+    padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(12px, env(safe-area-inset-bottom, 0px)) !important;
+  }
 }

@@ -770,21 +770,24 @@ const MinistryDetails = () => {
                     }
                   >
                     <strong>
-                      {getSongTeluguTitle(song) ||
-                        getSongEnglishTitle(song) ||
+                      {getSongEnglishTitle(song) ||
+                        getSongTeluguTitle(song) ||
                         "Untitled Song"}
                     </strong>
 
-                    {getSongEnglishTitle(song) &&
-                      getSongEnglishTitle(song) !== getSongTeluguTitle(song) && (
-                        <span className="song-english-title">
-                          {getSongEnglishTitle(song)}
+                    {getSongTeluguTitle(song) &&
+                      getSongTeluguTitle(song) !== getSongEnglishTitle(song) && (
+                        <span className="song-telugu-title">
+                          {getSongTeluguTitle(song)}
                         </span>
                       )}
 
                     <span className="song-artist">
-                      {song.artist_name ||
-                        song.artist ||
+                      {song.artist_name_english ||
+                        song.artist_english ||
+                        song.artistEnglish ||
+                        song.artist?.name_english ||
+                        song.artist?.english_name ||
                         "Unknown Artist"}
                     </span>
                   </button>

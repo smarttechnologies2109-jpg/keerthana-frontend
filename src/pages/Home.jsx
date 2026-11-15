@@ -130,33 +130,192 @@ function getId(item) {
   return item?.id ?? item?.song_id ?? item?.song?.id;
 }
 
-function getSongTitle(song) {
-  return (
-    song?.title ||
-    song?.title_english ||
-    song?.name ||
-    "Untitled Song"
-  );
+function normalizeLanguage(language) {
+  const value = String(language || "Telugu").trim().toLowerCase();
+  const supported = {
+    telugu: "Telugu",
+    hindi: "Hindi",
+    english: "English",
+    malayalam: "Malayalam",
+    kannada: "Kannada",
+    tamil: "Tamil",
+  };
+  return supported[value] || "Telugu";
 }
 
-function getArtistName(song) {
-  if (typeof song?.artist === "string") {
-    return song.artist;
+function getSelectedLanguage() {
+  if (typeof window === "undefined") return "Telugu";
+
+  try {
+    const savedUser = localStorage.getItem("user");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+    return normalizeLanguage(
+      user?.language ||
+      user?.preferred_language ||
+      localStorage.getItem("keerthana_language") ||
+      localStorage.getItem("language") ||
+      "Telugu"
+    );
+  } catch (error) {
+    console.warn("Unable to read saved KEERTHANA language:", error);
+    return normalizeLanguage(
+      localStorage.getItem("keerthana_language") ||
+      localStorage.getItem("language") ||
+      "Telugu"
+    );
+  }
+}
+
+function getLocalizedField(item, base, language) {
+  if (!item || typeof item !== "object") return "";
+  const lang = normalizeLanguage(language).toLowerCase();
+  const candidates = lang === "english"
+    ? [item[base]]
+    : [item[`${base}_${lang}`], item[`${base}_${lang}_in`], item[base]];
+  return candidates.find((value) => typeof value === "string" && value.trim())?.trim() || "";
+}
+
+// English/transliterated title is always the primary line. The native title
+// appears below it, using the logged-in user's language when that field exists.
+function getSongTitles(song, selectedLanguage = "Telugu") {
+  const englishTitle =
+    song?.title_english ||
+    song?.english_title ||
+    song?.titleEnglish ||
+    song?.title ||
+    song?.name ||
+    "Untitled Song";
+
+  const nativeTitle =
+    getLocalizedField(song, "title", selectedLanguage) ||
+    song?.title_native ||
+    song?.title_telugu ||
+    song?.title ||
+    "";
+
+  return {
+    primary: String(englishTitle).trim(),
+    secondary:
+      nativeTitle && String(nativeTitle).trim() !== String(englishTitle).trim()
+        ? String(nativeTitle).trim()
+        : "",
+  };
+}
+
+// Artist names intentionally stay in English for every app language.
+// Resolve the English name from the song payload first, then from the
+// artists list loaded by the Home page using artist_id or the stored name.
+function getArtistName(song, artists = []) {
+  const artist = song?.artist;
+
+  const directEnglish =
+    (artist && typeof artist === "object"
+      ? artist?.name_english || artist?.english_name
+      : "") ||
+    song?.artist_name_english ||
+    song?.artist_english ||
+    song?.artistEnglish;
+
+  if (typeof directEnglish === "string" && directEnglish.trim()) {
+    return directEnglish.trim();
   }
 
-  return (
-    song?.artist_name ||
-    song?.artist?.name ||
-    "Unknown Artist"
-  );
+  const artistId =
+    song?.artist_id ??
+    song?.artistId ??
+    (artist && typeof artist === "object" ? artist?.id : null);
+
+  let matchedArtist = null;
+
+  if (artistId != null) {
+    matchedArtist = artists.find(
+      (item) => String(item?.id) === String(artistId)
+    );
+  }
+
+  if (!matchedArtist) {
+    const storedArtistName =
+      typeof artist === "string"
+        ? artist.trim().toLowerCase()
+        : String(artist?.name || song?.artist_name || "").trim().toLowerCase();
+
+    if (storedArtistName) {
+      matchedArtist = artists.find((item) =>
+        [item?.name, item?.name_telugu, item?.name_english]
+          .some((value) =>
+            typeof value === "string" &&
+            value.trim().toLowerCase() === storedArtistName
+          )
+      );
+    }
+  }
+
+  const resolvedEnglish =
+    matchedArtist?.name_english ||
+    matchedArtist?.english_name ||
+    "";
+
+  // Do not fall back to a Telugu/localized artist name.
+  return typeof resolvedEnglish === "string" && resolvedEnglish.trim()
+    ? resolvedEnglish.trim()
+    : "Unknown Artist";
+}
+
+function getEntityNames(item, language = "Telugu", isArtist = false) {
+  if (isArtist) {
+    // Artist cards show the English name first and Telugu name underneath.
+    // The database stores the Telugu display name in name_telugu (or name).
+    const artistEnglish =
+      item?.name_english ||
+      item?.english_name ||
+      "Unknown Artist";
+
+    const artistTelugu =
+      item?.name_telugu ||
+      item?.name ||
+      "";
+
+    return {
+      primary: String(artistEnglish).trim(),
+      secondary:
+        artistTelugu &&
+        String(artistTelugu).trim() !== String(artistEnglish).trim()
+          ? String(artistTelugu).trim()
+          : "",
+    };
+  }
+
+  const english =
+    item?.name_english ||
+    item?.title_english ||
+    item?.english_name ||
+    item?.name ||
+    item?.title ||
+    item?.category_name ||
+    "Untitled";
+
+  const native =
+    getLocalizedField(item, "name", language) ||
+    getLocalizedField(item, "title", language) ||
+    item?.name_telugu ||
+    item?.title_telugu ||
+    item?.name ||
+    item?.title ||
+    "";
+
+  return {
+    primary: String(english).trim(),
+    secondary:
+      native && String(native).trim() !== String(english).trim()
+        ? String(native).trim()
+        : "",
+  };
 }
 
 function getEntityName(item) {
   return (
-    item?.name ||
-    item?.title ||
-    item?.category_name ||
-    "Untitled"
+    item?.name_english || item?.title_english || item?.english_name ||
+    item?.name || item?.title || item?.category_name || "Untitled"
   );
 }
 
@@ -341,6 +500,21 @@ function buildRecommendations(
 export default function Home() {
   const navigate = useNavigate();
   const player = usePlayer();
+  const [selectedLanguage, setSelectedLanguage] = useState(getSelectedLanguage);
+
+  // Re-read the preference when the app returns to the foreground or another
+  // tab updates the saved user profile.
+  useEffect(() => {
+    const syncLanguage = () => setSelectedLanguage(getSelectedLanguage());
+    window.addEventListener("storage", syncLanguage);
+    window.addEventListener("keerthana:language-change", syncLanguage);
+    window.addEventListener("keerthana:app-resume", syncLanguage);
+    return () => {
+      window.removeEventListener("storage", syncLanguage);
+      window.removeEventListener("keerthana:language-change", syncLanguage);
+      window.removeEventListener("keerthana:app-resume", syncLanguage);
+    };
+  }, []);
 
   const {
     playSong,
@@ -1025,6 +1199,8 @@ export default function Home() {
                 <SongCard
                   key={getId(song) ?? `recent-${index}`}
                   song={song}
+                  artists={artists}
+                  selectedLanguage={selectedLanguage}
                   songs={recentlyPlayed}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
@@ -1055,6 +1231,8 @@ export default function Home() {
                 <SongCard
                   key={getId(song) ?? `liked-${index}`}
                   song={song}
+                  artists={artists}
+                  selectedLanguage={selectedLanguage}
                   songs={likedSongList}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
@@ -1091,6 +1269,8 @@ export default function Home() {
                 <SongCard
                   key={getId(song) ?? `recommended-${index}`}
                   song={song}
+                  artists={artists}
+                  selectedLanguage={selectedLanguage}
                   songs={madeForYou}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
@@ -1123,6 +1303,8 @@ export default function Home() {
                 <SongCard
                   key={getId(song) ?? `added-${index}`}
                   song={song}
+                  artists={artists}
+                  selectedLanguage={selectedLanguage}
                   songs={newestSongs}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
@@ -1153,8 +1335,9 @@ export default function Home() {
               {popularArtists.map((artist, index) => (
                 <EntityCard
                   key={artist.id ?? `artist-${index}`}
-                  title={getEntityName(artist)}
-                  subtitle="View artist"
+                  title={getEntityNames(artist, selectedLanguage, true).primary}
+                  secondaryTitle={getEntityNames(artist, selectedLanguage, true).secondary}
+                  subtitle="View Artist"
                   image={getArtistImage(artist)}
                   fallbackIcon={<FaMicrophone />}
                   className="home-artist-card"
@@ -1182,8 +1365,10 @@ export default function Home() {
               {popularAlbums.map((album, index) => (
                 <EntityCard
                   key={album.id ?? `album-${index}`}
-                  title={getEntityName(album)}
+                  title={getEntityNames(album, selectedLanguage).primary}
+                  secondaryTitle={getEntityNames(album, selectedLanguage).secondary}
                   subtitle={
+                    album.artist_name_english ||
                     album.artist_name ||
                     album.artist?.name ||
                     "Open album"
@@ -1239,11 +1424,8 @@ export default function Home() {
                       ministry?.ministry_id ??
                       `ministry-${index}`
                     }
-                    title={
-                      ministry?.name ||
-                      ministry?.title ||
-                      "Unnamed Ministry"
-                    }
+                    title={getEntityNames(ministry, selectedLanguage).primary}
+                    secondaryTitle={getEntityNames(ministry, selectedLanguage).secondary}
                     subtitle="Explore music"
                     image={image}
                     fallbackIcon={<FaPrayingHands />}
@@ -1273,7 +1455,8 @@ export default function Home() {
               {categories.slice(0, 8).map((category, index) => (
                 <EntityCard
                   key={category.id ?? `category-${index}`}
-                  title={getEntityName(category)}
+                  title={getEntityNames(category, selectedLanguage).primary}
+                  secondaryTitle={getEntityNames(category, selectedLanguage).secondary}
                   subtitle="Explore collection"
                   image={getCategoryImage(category)}
                   fallbackIcon={<FaMusic />}
@@ -1387,6 +1570,8 @@ function HomeSection({
 
 function SongCard({
   song,
+  artists = [],
+  selectedLanguage = "Telugu",
   songs,
   onPlay,
   onOpen,
@@ -1395,8 +1580,8 @@ function SongCard({
   clickToPlay = false,
 }) {
   const id = getId(song);
-  const title = getSongTitle(song);
-  const artist = getArtistName(song);
+  const { primary: title, secondary: nativeTitle } = getSongTitles(song, selectedLanguage);
+  const artist = getArtistName(song, artists);
 
   const activeSong =
     String(getId(currentSong) ?? "") === String(id ?? "");
@@ -1470,8 +1655,17 @@ function SongCard({
       </div>
 
       <div className="home-song-info">
-        <h3 title={title}>{title}</h3>
-        <p title={artist}>{artist}</p>
+        <h3 title={title} style={{ fontWeight: 700 }}>{title}</h3>
+        {nativeTitle && (
+          <p
+            className="home-song-native-title"
+            title={nativeTitle}
+            style={{ fontSize: "0.88em", opacity: 0.78, marginTop: "2px" }}
+          >
+            {nativeTitle}
+          </p>
+        )}
+        <p className="home-song-artist" title={artist}>{artist}</p>
       </div>
 
       <span className="home-song-row-arrow" aria-hidden="true">
@@ -1487,6 +1681,7 @@ function SongCard({
 
 function EntityCard({
   title,
+  secondaryTitle = "",
   subtitle,
   image,
   fallbackIcon,
@@ -1524,8 +1719,17 @@ function EntityCard({
       </div>
 
       <div className="home-entity-info">
-        <h3 title={title}>{title}</h3>
-        <p title={subtitle}>{subtitle}</p>
+        <h3 title={title} style={{ fontWeight: 700 }}>{title}</h3>
+        {secondaryTitle && (
+          <p
+            className="home-entity-native-title"
+            title={secondaryTitle}
+            style={{ fontSize: "0.88em", opacity: 0.78, marginTop: "2px" }}
+          >
+            {secondaryTitle}
+          </p>
+        )}
+        {subtitle && <p title={subtitle}>{subtitle}</p>}
       </div>
 
       <span className="home-card-arrow" aria-hidden="true">
