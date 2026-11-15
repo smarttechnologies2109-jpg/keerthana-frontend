@@ -96,14 +96,10 @@
 
 }
 
-.favorites-page \\*,
-
-.favorites-page \\*::before,
-
-.favorites-page \\*::after {
-
+.favorites-page *,
+.favorites-page *::before,
+.favorites-page *::after {
   box-sizing: border-box;
-
 }
 
 .favorites-page button,
@@ -2440,11 +2436,11 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-  .favorites-page \\*,
+.favorites-page *,
+.favorites-page *::before,
+.favorites-page *::after {
+  box-sizing: border-box;
 
-  .favorites-page \\*::before,
-
-  .favorites-page \\*::after {
 
     scroll-behavior: auto !important;
 
