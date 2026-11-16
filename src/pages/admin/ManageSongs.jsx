@@ -74,25 +74,19 @@ function ManageSongs() {
      GET ENGLISH DISPLAY NAMES
   ===================================================== */
 
+  // Manage Songs is an English-only admin list.
+  // Never fall back to native-language database fields.
   const getArtist = (song) =>
-    song.artist_name_english ||
-    song.artist_name ||
-    "";
+    song.artist_name_english || "";
 
   const getAlbum = (song) =>
-    song.album_name_english ||
-    song.album_title ||
-    "";
+    song.album_name_english || "";
 
   const getMinistry = (song) =>
-    song.ministry_name_english ||
-    song.ministry_name ||
-    "";
+    song.ministry_name_english || "";
 
   const getCategory = (song) =>
-    song.category_name_english ||
-    song.category_name ||
-    "";
+    song.category_name_english || "";
 
   /* =====================================================
      EMPTY VALUE CHECK
@@ -340,7 +334,6 @@ function ManageSongs() {
       }
 
       const searchableValues = [
-        song.title,
         song.title_english,
         getArtist(song),
         getAlbum(song),
@@ -356,13 +349,8 @@ function ManageSongs() {
 
     // ENGLISH ALPHABETICAL ORDER
     return [...result].sort((a, b) => {
-      const titleA = String(
-        a.title_english || a.title || ""
-      );
-
-      const titleB = String(
-        b.title_english || b.title || ""
-      );
+      const titleA = String(a.title_english || "");
+      const titleB = String(b.title_english || "");
 
       return titleA.localeCompare(
         titleB,
@@ -402,7 +390,7 @@ function ManageSongs() {
 
   const handleDelete = async (song) => {
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${song.title}"?`
+      `Are you sure you want to delete "${song.title_english || "this song"}"?`
     );
 
     if (!confirmed) return;
@@ -421,7 +409,7 @@ function ManageSongs() {
       );
 
       setSuccess(
-        `"${song.title}" deleted successfully.`
+        `"${song.title_english || "Song"}" deleted successfully.`
       );
 
     } catch (error) {
@@ -810,7 +798,7 @@ function ManageSongs() {
                           {cover ? (
                             <img
                               src={cover}
-                              alt={song.title_english || song.title || "Song cover"}
+                              alt={song.title_english || "Song cover"}
                               onError={(event) => {
                                 event.currentTarget.style.display =
                                   "none";
@@ -827,18 +815,9 @@ function ManageSongs() {
                           <strong>
                             {displayValue(
                               song.title_english,
-                              song.title || "Untitled Song"
+                              "Untitled Song"
                             )}
                           </strong>
-
-                          {song.title_english &&
-                            song.title &&
-                            normalizeText(song.title_english) !==
-                              normalizeText(song.title) && (
-                              <span>
-                                {song.title}
-                              </span>
-                            )}
 
                         </div>
 

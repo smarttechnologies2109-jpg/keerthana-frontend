@@ -622,9 +622,11 @@ function ArtistDetails() {
                 const menuOpen = activeMenu === song.id;
 
                 const songTitle =
-                  song.title ||
-                  song.title_english ||
+                  getSongEnglishTitle(song) ||
+                  getSongPrimaryTitle(song) ||
                   "Untitled song";
+
+                const songTeluguTitle = String(song.title || "").trim();
 
                 return (
                   <article
@@ -693,11 +695,11 @@ function ArtistDetails() {
                         {songTitle}
                       </strong>
 
-                      {getSongEnglishTitle(song) &&
-                        getSongEnglishTitle(song).toLowerCase() !==
+                      {songTeluguTitle &&
+                        songTeluguTitle.toLowerCase() !==
                           songTitle.toLowerCase() && (
-                          <span className="artist-track-english-title">
-                            {getSongEnglishTitle(song)}
+                          <span className="artist-track-native-title">
+                            {songTeluguTitle}
                           </span>
                         )}
 

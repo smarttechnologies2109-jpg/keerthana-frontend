@@ -109,16 +109,40 @@ const getSongTeluguTitle = (song) => {
   return String(telugu || "").trim();
 };
 
-const getSongEnglishArtistName = (song) => {
+const getSongEnglishArtistName = (song, artists = []) => {
+  const songArtistId =
+    song?.artist_id ??
+    song?.artistId ??
+    song?.artist?.id ??
+    song?.artist?.artist_id;
+
+  const linkedArtist = artists.find(
+    (artist) =>
+      String(artist?.id ?? artist?.artist_id ?? "") ===
+      String(songArtistId ?? "")
+  );
+
   const candidates = [
     song?.artist_name_english,
     song?.artist_english,
+    song?.artist_english_name,
+    song?.artist_name_en,
     song?.artistEnglish,
+    song?.artistEnglishName,
+    song?.artistNameEnglish,
     song?.artist?.name_english,
     song?.artist?.english_name,
-    song?.artist,
+    song?.artist?.nameEnglish,
+    song?.artist?.englishName,
+    linkedArtist?.name_english,
+    linkedArtist?.english_name,
+    linkedArtist?.nameEnglish,
+    linkedArtist?.englishName,
+    linkedArtist?.artist_name_english,
     song?.artist_name,
     song?.artistName,
+    typeof song?.artist === "string" ? song.artist : "",
+    linkedArtist?.name,
   ];
 
   const artist = candidates.find(
@@ -128,7 +152,7 @@ const getSongEnglishArtistName = (song) => {
       !hasTeluguScript(value)
   );
 
-  return String(artist || "Unknown Artist").trim();
+  return artist ? artist.trim() : "Artist name unavailable";
 };
 
 const compareSongsAlphabetically = (a, b) => {
@@ -176,6 +200,7 @@ function CategoryDetails() {
 
   const [category, setCategory] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [artists, setArtists] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [songsLoading, setSongsLoading] = useState(true);
@@ -300,7 +325,16 @@ function CategoryDetails() {
         setSongsError("");
       }
 
-      const response = await API.get("/songs");
+      const [response, artistsResponse] = await Promise.all([
+        API.get("/songs"),
+        API.get("/artists").catch((artistError) => {
+          console.warn(
+            "[CategoryDetails] Artist directory could not be loaded; using artist data included with songs.",
+            artistError
+          );
+          return null;
+        }),
+      ]);
       const data = response.data;
 
       const allSongs = Array.isArray(data?.songs)
@@ -312,6 +346,19 @@ function CategoryDetails() {
             : Array.isArray(data)
               ? data
               : [];
+
+      const artistData = artistsResponse?.data;
+      const artistList = Array.isArray(artistData)
+        ? artistData
+        : Array.isArray(artistData?.artists)
+          ? artistData.artists
+          : Array.isArray(artistData?.data)
+            ? artistData.data
+            : Array.isArray(artistData?.data?.artists)
+              ? artistData.data.artists
+              : [];
+
+      setArtists(artistList);
 
       const categorySongs = allSongs
         .filter((song) => String(song?.category_id) === String(id))
@@ -481,6 +528,7 @@ function CategoryDetails() {
         song?.title,
         song?.title_english,
         song?.artist_name,
+        getSongEnglishArtistName(song, artists),
         song?.language,
       ];
 
@@ -953,7 +1001,7 @@ function CategoryDetails() {
                 className="artist-song-list category-song-list"
                 id="category-song-list"
               >
-                {filteredSongs.map((song, index) => {
+                {filteredSongs.map((song) => {
                   const cover = song.cover_url
                     ? getMediaUrl(song.cover_url)
                     : "/images/default-cover.png";
@@ -975,23 +1023,6 @@ function CategoryDetails() {
                         isCurrent ? "is-current" : ""
                       }`}
                     >
-                      <span className="artist-track-index">
-                        {isSongPlaying ? (
-                          <span
-                            className="artist-track-equalizer"
-                            aria-label="Currently playing"
-                          >
-                            <i />
-                            <i />
-                            <i />
-                          </span>
-                        ) : (
-                          <span className="artist-track-number">
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                        )}
-                      </span>
-
                       <div className="artist-track-artwork">
                         <img
                           src={cover}
@@ -1040,13 +1071,9 @@ function CategoryDetails() {
                         )}
 
                         <span className="category-song-artist">
-                          {getSongEnglishArtistName(song)}
+                          {getSongEnglishArtistName(song, artists)}
                         </span>
                       </button>
-
-                      <span className="artist-track-language">
-                        {song.language || "Telugu"}
-                      </span>
 
                       <div
                         className="artist-track-actions"

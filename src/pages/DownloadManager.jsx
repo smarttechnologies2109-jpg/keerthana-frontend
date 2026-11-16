@@ -21,6 +21,7 @@ import {
 import { usePlayer } from "../context/usePlayer";
 import Sidebar from "../components/Sidebar";
 import VoiceSearch from "../components/VoiceSearch";
+import API from "../services/api";
 
 import "../assets/css/download-manager.css";
 
@@ -68,6 +69,11 @@ const getSongDisplayNames = (song) => {
     song?.artist?.name_english,
     song?.artist?.english_name,
     song?.artist?.nameEnglish,
+    song?.artist?.nameEnglish,
+    song?.artist?.display_name,
+    song?.artistNameEnglish,
+    song?.artist_name_english,
+    song?.artist_english,
     song?.artist_name,
     song?.artistName,
     typeof song?.artist === "string" ? song.artist : "",
@@ -107,6 +113,71 @@ function DownloadManager() {
   const [searchText, setSearchText] = useState("");
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
+  // Online catalogue is used only to restore missing artist metadata
+  // for songs already saved in the device's offline database.
+  const [catalogSongs, setCatalogSongs] = useState([]);
+  const [catalogArtists, setCatalogArtists] = useState([]);
+
+  /* =========================================================
+     LOAD SONG / ARTIST METADATA
+  ========================================================= */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const unwrapList = (response) => {
+      const data = response?.data ?? response;
+      if (Array.isArray(data)) return data;
+
+      const possibleLists = [
+        data?.songs,
+        data?.artists,
+        data?.data,
+        data?.items,
+        data?.results,
+      ];
+
+      return possibleLists.find(Array.isArray) || [];
+    };
+
+    const loadCatalogueMetadata = async () => {
+      try {
+        const [songsResult, artistsResult] = await Promise.allSettled([
+          API.get("/songs"),
+          API.get("/artists"),
+        ]);
+
+        if (cancelled) return;
+
+        if (songsResult.status === "fulfilled") {
+          setCatalogSongs(unwrapList(songsResult.value));
+        } else {
+          console.warn(
+            "Unable to load song metadata for downloaded songs:",
+            songsResult.reason
+          );
+        }
+
+        if (artistsResult.status === "fulfilled") {
+          setCatalogArtists(unwrapList(artistsResult.value));
+        } else {
+          console.warn(
+            "Unable to load artist metadata for downloaded songs:",
+            artistsResult.reason
+          );
+        }
+      } catch (error) {
+        console.warn("Could not restore downloaded-song artist metadata:", error);
+      }
+    };
+
+    loadCatalogueMetadata();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   /* =========================================================
      REFRESH DOWNLOADS
   ========================================================= */
@@ -129,10 +200,79 @@ function DownloadManager() {
      NORMALIZE DOWNLOADED SONGS
   ========================================================= */
 
-  const downloadedSongs = useMemo(
-    () => (Array.isArray(offlineSongs) ? offlineSongs : []),
-    [offlineSongs]
-  );
+  const downloadedSongs = useMemo(() => {
+    const localSongs = Array.isArray(offlineSongs) ? offlineSongs : [];
+
+    if (localSongs.length === 0) return [];
+
+    const songById = new Map(
+      catalogSongs
+        .filter((song) => song?.id != null)
+        .map((song) => [String(song.id), song])
+    );
+
+    const artistById = new Map(
+      catalogArtists
+        .filter((artist) => artist?.id != null)
+        .map((artist) => [String(artist.id), artist])
+    );
+
+    return localSongs.map((localSong) => {
+      const catalogueSong = songById.get(String(localSong?.id)) || {};
+      const mergedSong = {
+        ...catalogueSong,
+        ...localSong,
+      };
+
+      const artistId =
+        localSong?.artist_id ??
+        localSong?.artistId ??
+        localSong?.artist?.id ??
+        catalogueSong?.artist_id ??
+        catalogueSong?.artistId ??
+        catalogueSong?.artist?.id;
+
+      const artistRecord =
+        (artistId != null && artistById.get(String(artistId))) ||
+        catalogueSong?.artist ||
+        localSong?.artist;
+
+      const englishArtistName = [
+        artistRecord?.name_english,
+        artistRecord?.english_name,
+        artistRecord?.nameEnglish,
+        artistRecord?.artist_name_english,
+        catalogueSong?.artist_name_english,
+        catalogueSong?.artist_english,
+        catalogueSong?.artistNameEnglish,
+        localSong?.artist_name_english,
+        localSong?.artist_english,
+        localSong?.artistNameEnglish,
+        artistRecord?.name,
+        typeof catalogueSong?.artist === "string"
+          ? catalogueSong.artist
+          : "",
+        typeof localSong?.artist === "string"
+          ? localSong.artist
+          : "",
+      ].find(
+        (value) =>
+          typeof value === "string" &&
+          value.trim() &&
+          !hasTeluguScript(value) &&
+          !/^unknown artist$/i.test(value.trim())
+      );
+
+      return {
+        ...mergedSong,
+        artist: artistRecord || mergedSong.artist,
+        artist_name_english:
+          englishArtistName || mergedSong.artist_name_english,
+        artist_name:
+          englishArtistName || mergedSong.artist_name,
+      };
+    });
+  }, [offlineSongs, catalogSongs, catalogArtists]);
 
   const playableSongs = useMemo(
     () =>

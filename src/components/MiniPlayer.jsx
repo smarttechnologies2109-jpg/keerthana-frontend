@@ -34,7 +34,9 @@ import {
 
 } from "react-icons/fa";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import API from "../services/api";
 
 import { usePlayer } from "../context/usePlayer";
 
@@ -52,7 +54,7 @@ import "../assets/css/mini-player.css";
 
    TIME FORMAT
 
-\\========================================================= */
+========================================================= */
 
 function formatTime(seconds) {
 
@@ -76,7 +78,7 @@ function formatTime(seconds) {
 
    LYRICS PARSER
 
-\\========================================================= */
+========================================================= */
 
 function parseLyrics(lyrics) {
 
@@ -136,7 +138,7 @@ function parseLyrics(lyrics) {
 
    SONG ID HELPER
 
-\\========================================================= */
+========================================================= */
 
 function songId(song) {
 
@@ -144,15 +146,210 @@ function songId(song) {
 
 }
 
+
+
+/* =========================================================
+
+   SONG DISPLAY NAMES
+
+   English title first, Telugu title underneath, artist in English.
+
+========================================================= */
+
+function getEnglishTitle(song) {
+
+  return (
+
+    song?.title_english ||
+
+    song?.titleEnglish ||
+
+    song?.english_title ||
+
+    song?.title ||
+
+    "Unknown Song"
+
+  );
+
+}
+
+
+
+function getTeluguTitle(song) {
+
+  const englishTitle = getEnglishTitle(song);
+
+  const teluguTitle =
+
+    song?.title_telugu ||
+
+    song?.titleTelugu ||
+
+    song?.telugu_title ||
+
+    song?.title_native ||
+
+    song?.native_title ||
+
+    song?.title ||
+
+    "";
+
+  return teluguTitle && teluguTitle !== englishTitle ? teluguTitle : "";
+
+}
+
+
+
+const containsTelugu = (value) =>
+
+  /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+
+
+function getEnglishArtist(song, artistsById = {}) {
+
+  const artistObject =
+
+    song?.artist && typeof song.artist === "object"
+
+      ? song.artist
+
+      : {};
+
+
+
+  const nestedArtist =
+
+    song?.artist_details && typeof song.artist_details === "object"
+
+      ? song.artist_details
+
+      : song?.artistDetails && typeof song.artistDetails === "object"
+
+        ? song.artistDetails
+
+        : {};
+
+
+
+  const linkedArtist =
+
+    artistsById[String(song?.artist_id ?? song?.artistId ?? "")] || {};
+
+
+
+  const candidates = [
+
+    song?.artist_name_english,
+
+    linkedArtist?.name_english,
+
+    linkedArtist?.english_name,
+
+    linkedArtist?.nameEnglish,
+
+    song?.artist_english,
+
+    song?.artist_english_name,
+
+    song?.artist_name_en,
+
+    song?.artistEnglishName,
+
+    song?.artistNameEnglish,
+
+    song?.artistEnglish,
+
+    artistObject?.name_english,
+
+    artistObject?.english_name,
+
+    artistObject?.artist_name_english,
+
+    artistObject?.artist_english,
+
+    artistObject?.englishName,
+
+    artistObject?.nameEnglish,
+
+    artistObject?.artistEnglishName,
+
+    artistObject?.artist_name_en,
+
+    artistObject?.name,
+
+    nestedArtist?.name_english,
+
+    nestedArtist?.english_name,
+
+    nestedArtist?.nameEnglish,
+
+    nestedArtist?.englishName,
+
+    nestedArtist?.artist_name_english,
+
+    song?.artist_name,
+
+    song?.artistName,
+
+    typeof song?.artist === "string" ? song.artist : "",
+
+  ];
+
+
+
+  const englishName = candidates.find(
+
+    (value) =>
+
+      typeof value === "string" &&
+
+      value.trim() &&
+
+      !containsTelugu(value)
+
+  );
+
+
+
+  return englishName?.trim() || "Unknown Artist";
+
+}
+
+
+
+function SongTitleLines({ song, className = "" }) {
+
+  return (
+
+    <span className={`mini-song-title-lines ${className}`.trim()}>
+
+      <strong className="mini-song-title-english">{getEnglishTitle(song)}</strong>
+
+      {getTeluguTitle(song) && (
+
+        <small className="mini-song-title-telugu">{getTeluguTitle(song)}</small>
+
+      )}
+
+    </span>
+
+  );
+
+}
+
 /* =========================================================
 
    MINI PLAYER
 
-\\========================================================= */
+========================================================= */
 
 export default function MiniPlayer({ onExpand }) {
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { user } = useAuth();
 
@@ -215,6 +412,14 @@ export default function MiniPlayer({ onExpand }) {
   const [lyricsOpen, setLyricsOpen] = useState(false);
 
   const lyricLineRef = useRef(null);
+  const queuePanelRef = useRef(null);
+  const queueButtonRef = useRef(null);
+
+  const [artistsById, setArtistsById] = useState({});
+
+  const [fetchedLyrics, setFetchedLyrics] = useState({ songId: null, text: "" });
+
+  const [lyricsLoading, setLyricsLoading] = useState(false);
 
   /* =======================================================
 
@@ -222,13 +427,29 @@ export default function MiniPlayer({ onExpand }) {
 
   ======================================================= */
 
+  const currentSongId = songId(currentSong);
+
+  const directLyrics = [
+
+    currentSong?.lyrics,
+
+    currentSong?.song_lyrics,
+
+    currentSong?.lyrics_text,
+
+    currentSong?.lyric,
+
+  ].find((value) => typeof value === "string" && value.trim());
+
   const lyrics =
 
-    typeof currentSong?.lyrics === "string"
+    (typeof directLyrics === "string" ? directLyrics.trim() : "") ||
 
-      ? currentSong.lyrics.trim()
+    (String(fetchedLyrics.songId) === String(currentSongId)
 
-      : "";
+      ? fetchedLyrics.text
+
+      : "");
 
   const syncedLyrics = useMemo(
 
@@ -306,6 +527,248 @@ export default function MiniPlayer({ onExpand }) {
 
   /* =======================================================
 
+     LOAD ENGLISH ARTIST NAMES
+
+     Same /artists fallback used by the All Songs page.
+
+  ======================================================= */
+
+  useEffect(() => {
+
+    let active = true;
+
+
+
+    const loadArtists = async () => {
+
+      try {
+
+        const response = await API.get("/artists");
+
+        const payload = response?.data;
+
+        const artistList = Array.isArray(payload)
+
+          ? payload
+
+          : Array.isArray(payload?.artists)
+
+            ? payload.artists
+
+            : Array.isArray(payload?.data)
+
+              ? payload.data
+
+              : [];
+
+
+
+        const lookup = {};
+
+        artistList.forEach((artist) => {
+
+          const artistId = artist?.id ?? artist?.artist_id;
+
+          const englishName =
+
+            artist?.name_english ||
+
+            artist?.english_name ||
+
+            artist?.nameEnglish ||
+
+            "";
+
+
+
+          if (
+
+            artistId != null &&
+
+            englishName &&
+
+            !containsTelugu(englishName)
+
+          ) {
+
+            lookup[String(artistId)] = {
+
+              ...artist,
+
+              name_english: String(englishName).trim(),
+
+            };
+
+          }
+
+        });
+
+
+
+        if (active) setArtistsById(lookup);
+
+      } catch (error) {
+
+        console.warn("Unable to load English artist names:", error);
+
+      }
+
+    };
+
+
+
+    loadArtists();
+
+    return () => {
+
+      active = false;
+
+    };
+
+  }, []);
+
+
+
+  /* =======================================================
+
+     LOAD FULL SONG LYRICS
+
+     Playlist/search/queue items may contain only basic song fields.
+
+     Song Details uses GET /songs/:id, so load that record when lyrics
+
+     are not included in the current player queue item.
+
+  ======================================================= */
+
+  useEffect(() => {
+
+    const id = songId(currentSong);
+
+    if (id == null) {
+
+      setFetchedLyrics({ songId: null, text: "" });
+
+      setLyricsLoading(false);
+
+      return undefined;
+
+    }
+
+
+
+    const existingLyrics = [
+
+      currentSong?.lyrics,
+
+      currentSong?.song_lyrics,
+
+      currentSong?.lyrics_text,
+
+      currentSong?.lyric,
+
+    ].find((value) => typeof value === "string" && value.trim());
+
+
+
+    if (existingLyrics) {
+
+      setFetchedLyrics({ songId: id, text: existingLyrics.trim() });
+
+      setLyricsLoading(false);
+
+      return undefined;
+
+    }
+
+
+
+    let cancelled = false;
+
+    setFetchedLyrics({ songId: id, text: "" });
+
+    setLyricsLoading(true);
+
+
+
+    const loadLyrics = async () => {
+
+      try {
+
+        const response = await API.get(`/songs/${id}`);
+
+        const payload = response?.data;
+
+        const songData =
+
+          payload?.song ||
+
+          payload?.data?.song ||
+
+          payload?.data ||
+
+          payload;
+
+        const lyricsValue = [
+
+          songData?.lyrics,
+
+          songData?.song_lyrics,
+
+          songData?.lyrics_text,
+
+          songData?.lyric,
+
+        ].find((value) => typeof value === "string" && value.trim());
+
+
+
+        if (!cancelled) {
+
+          setFetchedLyrics({
+
+            songId: id,
+
+            text: typeof lyricsValue === "string" ? lyricsValue.trim() : "",
+
+          });
+
+        }
+
+      } catch (error) {
+
+        console.error(`Unable to load lyrics for song ${id}:`, error);
+
+        if (!cancelled) {
+
+          setFetchedLyrics({ songId: id, text: "" });
+
+        }
+
+      } finally {
+
+        if (!cancelled) setLyricsLoading(false);
+
+      }
+
+    };
+
+
+
+    loadLyrics();
+
+    return () => {
+
+      cancelled = true;
+
+    };
+
+  }, [currentSongId, currentSong]);
+
+
+
+  /* =======================================================
+
      AUTO-SCROLL ACTIVE LYRIC
 
   ======================================================= */
@@ -371,6 +834,33 @@ export default function MiniPlayer({ onExpand }) {
     };
 
   }, [lyricsOpen, queueOpen]);
+
+  // Close the queue whenever the user navigates to another page.
+  useEffect(() => {
+    setQueueOpen(false);
+  }, [location.pathname, location.search, location.hash]);
+
+  // Close the queue when the user clicks anywhere outside the queue panel
+  // and its toggle button, including the page behind the mini-player.
+  useEffect(() => {
+    if (!queueOpen) return undefined;
+
+    const handleOutsidePointerDown = (event) => {
+      const target = event.target;
+      if (
+        queuePanelRef.current?.contains(target) ||
+        queueButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setQueueOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsidePointerDown);
+    };
+  }, [queueOpen]);
 
   /* =======================================================
 
@@ -520,13 +1010,9 @@ export default function MiniPlayer({ onExpand }) {
 
             <p>
 
-              {currentSong.title || "Unknown Song"} ·{" "}
+              {getEnglishTitle(currentSong)} ·{" "}
 
-              {currentSong.artist_name ||
-
-                currentSong.artist ||
-
-                "KEERTHANA"}
+              {getEnglishArtist(currentSong, artistsById)}
 
             </p>
 
@@ -554,7 +1040,19 @@ export default function MiniPlayer({ onExpand }) {
 
         <div className="mini-lyrics-content">
 
-          {!lyrics ? (
+          {lyricsLoading && !lyrics ? (
+
+            <div className="mini-panel-empty" role="status">
+
+              <FaMicrophone />
+
+              <h3>Loading lyrics...</h3>
+
+              <p>Please wait while we load this song's lyrics.</p>
+
+            </div>
+
+          ) : !lyrics ? (
 
             <div className="mini-panel-empty">
 
@@ -667,6 +1165,7 @@ export default function MiniPlayer({ onExpand }) {
       <section
 
         className="mini-player-panel mini-player-queue-panel"
+        ref={queuePanelRef}
 
         role="dialog"
 
@@ -744,21 +1243,9 @@ export default function MiniPlayer({ onExpand }) {
 
             <span>NOW PLAYING</span>
 
-            <strong>
+            <SongTitleLines song={currentSong} className="mini-queue-current-title" />
 
-              {currentSong.title || "Unknown Song"}
-
-            </strong>
-
-            <small>
-
-              {currentSong.artist_name ||
-
-                currentSong.artist ||
-
-                "KEERTHANA"}
-
-            </small>
+            <small>{getEnglishArtist(currentSong, artistsById)}</small>
 
           </div>
 
@@ -834,29 +1321,11 @@ export default function MiniPlayer({ onExpand }) {
 
                 )}
 
-                <span className="mini-queue-number">
-
-                  {index + 1}
-
-                </span>
-
                 <span className="mini-queue-song-info">
 
-                  <strong>
+                  <SongTitleLines song={song} />
 
-                    {song.title || "Unknown Song"}
-
-                  </strong>
-
-                  <small>
-
-                    {song.artist_name ||
-
-                      song.artist ||
-
-                      "KEERTHANA"}
-
-                  </small>
+                  <small>{getEnglishArtist(song, artistsById)}</small>
 
                 </span>
 
@@ -1024,21 +1493,17 @@ export default function MiniPlayer({ onExpand }) {
 
                   }
 
-                  title={currentSong.title || "Unknown Song"}
+                  title={getEnglishTitle(currentSong)}
 
                 >
 
-                  {currentSong.title || "Unknown Song"}
+                  <SongTitleLines song={currentSong} />
 
                 </button>
 
                 <span>
 
-                  {currentSong.artist_name ||
-
-                    currentSong.artist ||
-
-                    "KEERTHANA"}
+                  {getEnglishArtist(currentSong, artistsById)}
 
                 </span>
 
@@ -1304,6 +1769,7 @@ export default function MiniPlayer({ onExpand }) {
 
                 onClick={openQueue}
 
+                ref={queueButtonRef}
                 aria-label="Toggle queue"
 
                 aria-expanded={queueOpen}

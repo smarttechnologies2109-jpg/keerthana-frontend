@@ -1,50 +1,32 @@
-
 /* =========================================================
    KEERTHANA MUSIC — MINISTRY DETAILS
-   Midnight Navy • Royal Blue • Champagne Gold
-   Standardized JSX Classes • Responsive Song Rows
-========================================================= */
-
-/* =========================================================
-   1. ROOT VARIABLES & PAGE
+   Premium Midnight Navy • Royal Blue • Champagne Gold
+   Clean responsive layout matching the supplied reference
 ========================================================= */
 
 .ministry-details-page {
-  --md-bg: #080d1a;
-  --md-surface: #0e1628;
-  --md-card: #111c31;
-  --md-card-hover: #172641;
-  --md-border: rgba(160, 183, 222, 0.14);
-  --md-border-hover: rgba(203, 169, 107, 0.42);
-
+  --md-bg: #07111f;
+  --md-panel: #0d1a2b;
+  --md-panel-soft: #12233a;
+  --md-panel-hover: #182b45;
+  --md-border: rgba(174, 195, 225, 0.14);
+  --md-border-strong: rgba(230, 199, 122, 0.34);
   --md-text: #f5f7fc;
-  --md-text-secondary: #aab7ce;
-  --md-text-muted: #7788a5;
-
-  --md-blue: #527dff;
-  --md-blue-hover: #7094ff;
-  --md-gold: #d7b879;
-  --md-gold-light: #f0d9a4;
-
-  --md-danger: #ff747f;
-  --md-radius: 16px;
-  --md-transition: 180ms ease;
-
+  --md-muted: #9eacc2;
+  --md-subtle: #71829d;
+  --md-gold: #e6c77a;
+  --md-gold-light: #f4dda0;
+  --md-blue: #4778d8;
   min-height: 100vh;
   width: 100%;
+  padding: clamp(18px, 3vw, 34px) clamp(14px, 3.7vw, 54px) 125px;
   box-sizing: border-box;
-  padding: 24px 32px 125px;
-
   color: var(--md-text);
   background:
-    radial-gradient(
-      ellipse at 15% 0%,
-      rgba(48, 79, 151, 0.13),
-      transparent 38%
-    ),
+    radial-gradient(ellipse at 82% 0%, rgba(43, 83, 150, .15), transparent 38%),
+    radial-gradient(ellipse at 0% 24%, rgba(32, 65, 119, .10), transparent 34%),
     var(--md-bg);
-
-  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+  font-family: Inter, "Noto Sans Telugu", "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -59,114 +41,81 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.ministry-details-page button:focus-visible {
+.ministry-details-page button:focus-visible,
+.ministry-details-page input:focus-visible,
+.ministry-details-page select:focus-visible {
   outline: 2px solid var(--md-gold);
   outline-offset: 3px;
 }
 
-/* =========================================================
-   2. BACK BUTTON
-========================================================= */
-
+/* Back navigation */
 .ministry-details-page .ministry-back-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
-
   min-height: 40px;
-  margin: 0 0 20px;
-  padding: 9px 14px;
-
+  margin: 0 0 21px;
+  padding: 0 15px;
+  color: #dce6f5;
+  background: rgba(255, 255, 255, .045);
   border: 1px solid var(--md-border);
-  border-radius: 10px;
-
-  color: var(--md-text-secondary);
-  background: rgba(17, 28, 49, 0.7);
-
+  border-radius: 999px;
   font-size: 13px;
-  font-weight: 600;
-
+  font-weight: 650;
   cursor: pointer;
-  transition:
-    color var(--md-transition),
-    background var(--md-transition),
-    border-color var(--md-transition),
-    transform var(--md-transition);
+  transition: .2s ease;
 }
 
 .ministry-details-page .ministry-back-button:hover {
   color: var(--md-gold-light);
-  background: var(--md-card);
-  border-color: var(--md-border-hover);
+  border-color: var(--md-border-strong);
+  background: rgba(230, 199, 122, .07);
   transform: translateX(-2px);
 }
 
-/* =========================================================
-   3. MINISTRY HERO — NO PLAY BUTTON
-========================================================= */
-
+/* Ministry hero */
 .ministry-details-page .ministry-header {
   position: relative;
   isolation: isolate;
-
   display: flex;
   align-items: center;
-  gap: 25px;
-
+  gap: clamp(18px, 3.5vw, 36px);
   width: 100%;
   min-width: 0;
-  margin-bottom: 22px;
-  padding: 24px;
-
+  min-height: 220px;
+  margin: 0 0 22px;
+  padding: clamp(18px, 3.5vw, 34px);
   overflow: hidden;
-
-  border: 1px solid var(--md-border);
-  border-radius: var(--md-radius);
-
-  background:
-    linear-gradient(
-      115deg,
-      rgba(38, 60, 106, 0.8),
-      rgba(14, 22, 40, 0.96) 68%
-    );
-
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(210, 225, 246, .13);
+  border-radius: 22px;
+  background: linear-gradient(120deg, rgba(20, 42, 72, .98), rgba(11, 25, 43, .97) 65%, rgba(24, 43, 69, .92));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .2), inset 0 1px rgba(255,255,255,.04);
 }
 
-.ministry-details-page .ministry-header::before {
+.ministry-details-page .ministry-header::after {
+  content: "";
   position: absolute;
   z-index: -1;
-  top: -110px;
-  right: -65px;
-
-  width: 290px;
-  height: 290px;
-
+  width: 330px;
+  height: 330px;
+  right: -105px;
+  top: -175px;
+  border: 1px solid rgba(230, 199, 122, .13);
   border-radius: 50%;
-
-  background: radial-gradient(
-    circle,
-    rgba(215, 184, 121, 0.12),
-    transparent 70%
-  );
-
-  content: "";
+  box-shadow: 0 0 0 30px rgba(230,199,122,.025), 0 0 0 62px rgba(230,199,122,.018);
   pointer-events: none;
 }
 
 .ministry-details-page .ministry-header-image {
-  flex: 0 0 155px;
-  width: 155px;
-  height: 155px;
-
+  flex: 0 0 clamp(112px, 17vw, 190px);
+  width: clamp(112px, 17vw, 190px);
+  aspect-ratio: 1;
   overflow: hidden;
-
-  border: 1px solid rgba(215, 184, 121, 0.35);
-  border-radius: 13px;
-
-  background: #121e34;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(230, 199, 122, .42);
+  border-radius: 18px;
+  background: #14243a;
+  box-shadow: 0 14px 35px rgba(0,0,0,.32);
 }
 
 .ministry-details-page .ministry-header-image img {
@@ -177,138 +126,158 @@
 }
 
 .ministry-details-page .ministry-header-content {
-  flex: 1;
+  position: relative;
+  z-index: 1;
   min-width: 0;
+  flex: 1;
 }
 
 .ministry-details-page .ministry-header-eyebrow {
-  display: block;
-  margin: 0 0 8px;
-
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
   color: var(--md-gold);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 2px;
-  line-height: 1.5;
+  letter-spacing: .2em;
   text-transform: uppercase;
 }
 
-.ministry-details-page .ministry-header h1 {
-  margin: 0 0 10px;
+.ministry-details-page .ministry-header-eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: var(--md-gold);
+}
 
-  color: var(--md-text);
-  font-size: clamp(24px, 2.4vw, 32px);
+.ministry-details-page .ministry-header-names {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ministry-details-page .ministry-header-names h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(25px, 3.5vw, 40px);
   font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.7px;
-
+  line-height: 1.15;
+  letter-spacing: -.035em;
   overflow-wrap: anywhere;
 }
 
+.ministry-details-page .ministry-header-telugu-name {
+  margin: 3px 0 0;
+  color: #d7c18b;
+  font-size: clamp(16px, 1.8vw, 21px);
+  line-height: 1.55;
+  font-weight: 500;
+}
+
 .ministry-details-page .ministry-header-description {
-  max-width: 720px;
-  margin: 0;
-
-  color: var(--md-text-secondary);
+  max-width: 650px;
+  margin: 12px 0 0;
+  color: #aebdd1;
   font-size: 13px;
-  line-height: 1.8;
-
-  overflow-wrap: anywhere;
+  line-height: 1.7;
 }
 
 .ministry-details-page .ministry-header-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 9px 15px;
-
-  margin-top: 13px;
-
-  color: var(--md-text-muted);
-  font-size: 12px;
-  font-weight: 500;
+  gap: 8px 14px;
+  margin-top: 12px;
 }
 
-.ministry-details-page .ministry-header-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ministry-details-page .ministry-header-meta strong {
-  color: var(--md-text-secondary);
-  font-weight: 750;
-}
-
-/* =========================================================
-   4. PLAY ALL — BELOW HERO, LEFT ALIGNED
-========================================================= */
-
+/* Play all */
 .ministry-details-page .ministry-actions {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-
-  width: 100%;
-  margin: 0 0 30px;
+  margin: 20px 0 28px;
 }
 
 .ministry-details-page .ministry-play-all-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-
-  min-width: 116px;
-  min-height: 43px;
-  padding: 0 19px;
-
-  border: 1px solid rgba(215, 184, 121, 0.4);
+  gap: 10px;
+  min-width: 136px;
+  min-height: 46px;
+  padding: 0 22px;
+  color: #111827;
+  background: linear-gradient(135deg, #f0d995, #d8b65f);
+  border: 1px solid rgba(255,238,188,.55);
   border-radius: 999px;
-
-  color: #101729;
-  background: linear-gradient(
-    135deg,
-    var(--md-gold-light),
-    var(--md-gold)
-  );
-
-  font-size: 12px;
+  box-shadow: 0 8px 24px rgba(194,153,63,.18);
+  font-size: 13px;
   font-weight: 800;
-
   cursor: pointer;
-
-  transition:
-    filter var(--md-transition),
-    transform var(--md-transition),
-    box-shadow var(--md-transition);
-}
-
-.ministry-details-page .ministry-play-all-btn svg {
-  width: 12px;
-  height: 12px;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
 
 .ministry-details-page .ministry-play-all-btn:hover:not(:disabled) {
-  filter: brightness(1.07);
-  transform: translateY(-1px);
-  box-shadow: 0 7px 22px rgba(215, 184, 121, 0.17);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(194,153,63,.26);
+  filter: brightness(1.04);
 }
 
 .ministry-details-page .ministry-play-all-btn:disabled {
-  opacity: 0.45;
+  opacity: .42;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
 }
 
-/* =========================================================
-   5. SONG SECTION HEADING
-========================================================= */
+.ministry-details-page .ministry-play-all-btn svg {
+  width: 13px;
+  height: 13px;
+}
 
+/* Songs section and search */
 .ministry-details-page .ministry-songs-section {
   width: 100%;
   min-width: 0;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.ministry-details-page .ministry-details-voice-search-section {
+  display: block;
+  width: 100%;
+  max-width: 650px;
+  min-width: 0;
+  margin: 0 0 25px;
+}
+
+.ministry-details-page .ministry-details-voice-search-section .keerthana-voice-search,
+.ministry-details-page .ministry-details-voice-search-section .voice-search-bar {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.ministry-details-page .ministry-details-voice-search-section .voice-search-bar {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.ministry-details-page .ministry-details-voice-search-section .voice-search-bar input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ministry-details-page .ministry-details-voice-search-section .voice-search-options {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  justify-content: flex-end;
+}
+
+.ministry-details-page .ministry-details-voice-search-section .voice-search-feedback {
+  width: 100%;
 }
 
 .ministry-details-page .ministry-songs-heading {
@@ -316,46 +285,46 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-
-  margin: 0 0 15px;
+  margin: 0 0 17px;
+  padding: 0 0 17px;
+  border-bottom: 1px solid var(--md-border);
 }
 
 .ministry-details-page .ministry-songs-heading h2 {
   margin: 0;
-
-  color: var(--md-text);
-  font-size: 20px;
-  font-weight: 750;
-  letter-spacing: -0.35px;
+  color: #f7f9fd;
+  font-size: clamp(21px, 2.4vw, 27px);
+  font-weight: 800;
+  letter-spacing: -.025em;
 }
 
 .ministry-details-page .ministry-songs-heading p {
-  margin: 5px 0 0;
-
-  color: var(--md-text-muted);
-  font-size: 12px;
-  line-height: 1.6;
+  margin: 6px 0 0;
+  color: #8fa3c2;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .ministry-details-page .ministry-track-count {
-  flex-shrink: 0;
-
+  flex: 0 0 auto;
+  padding: 8px 13px;
   color: var(--md-gold);
+  background: rgba(230,199,122,.075);
+  border: 1px solid rgba(230,199,122,.18);
+  border-radius: 999px;
   font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 1px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  white-space: nowrap;
 }
 
-/* =========================================================
-   6. SONG LIST AND DESKTOP GRID
-   play | number | cover | info | language | duration | menu
-========================================================= */
-
+/* Song list — flex layout is intentional:
+   play button | cover | song information | menu.
+   No reserved columns for removed song number/language. */
 .ministry-details-page .ministry-song-list {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-
+  gap: 9px;
   width: 100%;
   min-width: 0;
   margin: 0;
@@ -364,87 +333,58 @@
 
 .ministry-details-page .ministry-song-row {
   position: relative;
-
-  display: grid;
-  grid-template-columns:
-    34px
-    24px
-    48px
-    minmax(0, 1fr)
-    85px
-    52px
-    32px;
+  display: flex;
   align-items: center;
-  gap: 12px;
-
+  gap: 14px;
   width: 100%;
   min-width: 0;
-  min-height: 74px;
-  padding: 10px 12px;
-
-  border: 1px solid transparent;
-  border-radius: 12px;
-
-  background: rgba(17, 28, 49, 0.56);
-
-  transition:
-    background var(--md-transition),
-    border-color var(--md-transition);
+  min-height: 88px;
+  padding: 12px 15px;
+  overflow: visible;
+  background: linear-gradient(105deg, rgba(17,34,55,.96), rgba(12,27,45,.94));
+  border: 1px solid rgba(193,211,235,.09);
+  border-radius: 15px;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
 
 .ministry-details-page .ministry-song-row:hover {
-  border-color: var(--md-border);
-  background: var(--md-card-hover);
+  background: linear-gradient(105deg, rgba(24,46,75,.98), rgba(15,34,56,.98));
+  border-color: rgba(230,199,122,.24);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
 }
 
 .ministry-details-page .ministry-song-row.is-current {
-  border-color: rgba(82, 125, 255, 0.36);
-
-  background: linear-gradient(
-    100deg,
-    rgba(50, 83, 157, 0.2),
-    rgba(17, 28, 49, 0.82)
-  );
+  border-color: rgba(72, 119, 215, .55);
+  background: linear-gradient(105deg, rgba(22,39,65,.99), rgba(13,27,47,.98));
+  box-shadow: inset 0 0 0 1px rgba(72,119,215,.05);
 }
 
-/* =========================================================
-   7. LEFT PLAY / PAUSE BUTTON
-========================================================= */
-
+/* Play button */
 .ministry-details-page .song-play-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: center;
-
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   padding: 0;
-
-  border: 1px solid var(--md-border);
-  border-radius: 50%;
-
   color: var(--md-gold-light);
-  background: rgba(255, 255, 255, 0.035);
-
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(174,195,225,.15);
+  border-radius: 50%;
   cursor: pointer;
-
-  transition:
-    color var(--md-transition),
-    background var(--md-transition),
-    border-color var(--md-transition),
-    transform var(--md-transition);
+  transition: .2s ease;
 }
 
 .ministry-details-page .song-play-btn svg {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
 }
 
 .ministry-details-page .song-play-btn:hover:not(:disabled),
 .ministry-details-page .song-play-btn.is-playing {
-  color: #101729;
+  color: #111827;
   background: var(--md-gold);
   border-color: var(--md-gold);
 }
@@ -454,98 +394,65 @@
 }
 
 .ministry-details-page .song-play-btn:disabled {
-  opacity: 0.4;
+  opacity: .4;
   cursor: not-allowed;
 }
 
-/* =========================================================
-   8. TRACK NUMBER
-========================================================= */
-
-.ministry-details-page .song-number {
-  min-width: 0;
-
-  color: var(--md-text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-}
-
-.ministry-details-page .ministry-song-row.is-current .song-number {
-  color: var(--md-gold);
-}
-
-/* =========================================================
-   9. SONG COVER
-========================================================= */
-
+/* Cover art */
 .ministry-details-page .song-cover {
   display: block;
-
-  width: 48px;
-  height: 48px;
-  min-width: 0;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
   padding: 0;
-
   overflow: hidden;
-
-  border: 1px solid rgba(160, 183, 222, 0.1);
-  border-radius: 8px;
-
   background: #17243a;
+  border: 1px solid rgba(230,199,122,.22);
+  border-radius: 10px;
   cursor: pointer;
 }
 
 .ministry-details-page .song-cover img {
   display: block;
-
   width: 100%;
   height: 100%;
-
   object-fit: cover;
-
-  transition: transform 220ms ease;
+  transition: transform .22s ease;
 }
 
 .ministry-details-page .ministry-song-row:hover .song-cover img {
   transform: scale(1.06);
 }
 
-/* =========================================================
-   10. SONG INFORMATION
-========================================================= */
-
+/* Song information */
 .ministry-details-page .song-info {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   align-items: flex-start;
-
-  width: 100%;
+  justify-content: center;
+  width: auto;
   min-width: 0;
+  max-width: none;
+  min-height: 54px;
   padding: 0;
-
   overflow: hidden;
-
-  border: 0;
   color: inherit;
   background: transparent;
-
+  border: 0;
   text-align: left;
   cursor: pointer;
 }
 
 .ministry-details-page .song-info strong {
   display: block;
-
   width: 100%;
-  margin: 0 0 4px;
-
+  margin: 0 0 3px;
   overflow: hidden;
-
-  color: var(--md-text);
-  font-size: 13px;
-  font-weight: 700;
+  color: #f7f9fd;
+  font-size: 14px;
+  font-weight: 750;
   line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -556,193 +463,131 @@
   color: var(--md-gold-light);
 }
 
-.ministry-details-page .song-info .song-english-title {
+.ministry-details-page .song-info .song-telugu-title {
   display: block;
-
   width: 100%;
   margin: 0 0 3px;
-
   overflow: hidden;
+  color: #e5c77e;
+  font-family: "Noto Sans Telugu", Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-  color: var(--md-text-muted);
-  font-size: 10px;
-  line-height: 1.4;
+.ministry-details-page .song-info .song-english-title {
+  display: block;
+  width: 100%;
+  margin: 0 0 3px;
+  overflow: hidden;
+  color: var(--md-muted);
+  font-size: 12px;
+  line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .ministry-details-page .song-info .song-artist {
   display: block;
-
   width: 100%;
-
   overflow: hidden;
-
-  color: var(--md-text-muted);
-  font-size: 11px;
+  color: #8fa3c2;
+  font-size: 12px;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* =========================================================
-   11. LANGUAGE AND DURATION
-========================================================= */
-
-.ministry-details-page .song-language {
-  min-width: 0;
-  overflow: hidden;
-}
-
-.ministry-details-page .song-language span {
-  display: inline-block;
-
-  max-width: 100%;
-  padding: 5px 8px;
-
-  overflow: hidden;
-
-  border: 1px solid var(--md-border);
-  border-radius: 6px;
-
-  color: var(--md-text-secondary);
-  background: rgba(255, 255, 255, 0.025);
-
-  font-size: 10px;
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ministry-details-page .song-duration {
-  color: var(--md-text-muted);
-  font-size: 11px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* =========================================================
-   12. THREE-DOT MENU BUTTON
-========================================================= */
-
+/* Three-dot menu stays at the far right */
 .ministry-details-page .ministry-song-menu-wrap {
   position: relative;
-
   display: flex;
+  flex: 0 0 36px;
   align-items: center;
   justify-content: center;
-
-  min-width: 0;
+  width: 36px;
+  min-width: 36px;
+  margin-left: auto;
 }
 
 .ministry-details-page .ministry-song-menu-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  width: 32px;
-  height: 34px;
+  width: 36px;
+  height: 40px;
   padding: 0;
-
+  color: #8192ad;
+  background: transparent;
   border: 1px solid transparent;
   border-radius: 9px;
-
-  color: var(--md-text-muted);
-  background: transparent;
-
   cursor: pointer;
-
-  transition:
-    color var(--md-transition),
-    background var(--md-transition),
-    border-color var(--md-transition);
-}
-
-.ministry-details-page .ministry-song-menu-button:hover,
-.ministry-details-page
-.ministry-song-menu-button[aria-expanded="true"] {
-  color: var(--md-gold-light);
-  background: rgba(215, 184, 121, 0.09);
-  border-color: rgba(215, 184, 121, 0.2);
+  transition: .18s ease;
 }
 
 .ministry-details-page .ministry-song-menu-button svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 }
 
-/* =========================================================
-   13. THREE-DOT DROPDOWN
-========================================================= */
+.ministry-details-page .ministry-song-menu-button:hover,
+.ministry-details-page .ministry-song-menu-button[aria-expanded="true"] {
+  color: var(--md-gold-light);
+  background: rgba(230,199,122,.08);
+  border-color: rgba(230,199,122,.18);
+}
 
 .ministry-details-page .ministry-song-menu {
   position: absolute;
-  top: calc(100% + 7px);
-  right: 0;
   z-index: 100;
-
+  top: calc(100% + 6px);
+  right: 0;
   width: 190px;
-  max-width: calc(100vw - 36px);
+  max-width: calc(100vw - 30px);
   padding: 6px;
-
-  border: 1px solid rgba(160, 183, 222, 0.19);
+  background: #101d31;
+  border: 1px solid rgba(174,195,225,.18);
   border-radius: 12px;
-
-  background: #101a2d;
-
-  box-shadow:
-    0 14px 38px rgba(0, 0, 0, 0.42),
-    0 3px 8px rgba(0, 0, 0, 0.2);
-
-  animation: ministryMenuEnter 140ms ease-out;
+  box-shadow: 0 14px 38px rgba(0,0,0,.42);
+  animation: ministryMenuEnter .14s ease-out;
 }
 
 .ministry-details-page .ministry-song-menu button {
   display: flex;
   align-items: center;
   gap: 11px;
-
   width: 100%;
   min-height: 39px;
   padding: 9px 10px;
-
+  color: #c5d0e1;
+  background: transparent;
   border: 0;
   border-radius: 7px;
-
-  color: var(--md-text-secondary);
-  background: transparent;
-
   font-size: 12px;
   font-weight: 550;
   line-height: 1.4;
   text-align: left;
-
   cursor: pointer;
-
-  transition:
-    color var(--md-transition),
-    background var(--md-transition);
+  transition: .18s ease;
 }
 
 .ministry-details-page .ministry-song-menu button:hover:not(:disabled) {
-  color: var(--md-text);
-  background: rgba(82, 125, 255, 0.14);
+  color: #fff;
+  background: rgba(71,120,216,.15);
 }
 
 .ministry-details-page .ministry-song-menu button:disabled {
-  opacity: 0.4;
+  opacity: .4;
   cursor: not-allowed;
 }
 
 .ministry-details-page .ministry-song-menu button svg {
   flex: 0 0 15px;
-
   width: 15px;
   height: 15px;
-
   color: var(--md-gold);
 }
 
@@ -753,132 +598,111 @@
 }
 
 @keyframes ministryMenuEnter {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* =========================================================
-   14. EMPTY STATE
-========================================================= */
-
+/* Empty, loading and error states */
 .ministry-details-page .ministry-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  min-height: 230px;
+  min-height: 220px;
   margin-top: 12px;
-  padding: 35px 20px;
-
-  border: 1px dashed rgba(160, 183, 222, 0.2);
-  border-radius: var(--md-radius);
-
-  background: rgba(17, 28, 49, 0.32);
+  padding: 32px 20px;
+  background: rgba(17,28,49,.32);
+  border: 1px dashed rgba(160,183,222,.2);
+  border-radius: 16px;
   text-align: center;
 }
 
 .ministry-details-page .ministry-empty-state-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 55px;
-  height: 55px;
-  margin-bottom: 16px;
-
-  border: 1px solid rgba(215, 184, 121, 0.22);
-  border-radius: 16px;
-
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 15px;
   color: var(--md-gold);
-  background: rgba(215, 184, 121, 0.07);
-
+  background: rgba(215,184,121,.07);
+  border: 1px solid rgba(215,184,121,.22);
+  border-radius: 16px;
   font-size: 21px;
-}
-
-.ministry-details-page h2 {
-  color: var(--md-text);
 }
 
 .ministry-details-page .ministry-empty-state h2 {
   margin: 0 0 8px;
+  color: var(--md-text);
   font-size: 17px;
   font-weight: 750;
 }
 
 .ministry-details-page .ministry-empty-state p {
-  max-width: 360px;
+  max-width: 380px;
   margin: 0;
-
-  color: var(--md-text-muted);
+  color: var(--md-muted);
   font-size: 12px;
   line-height: 1.8;
 }
 
-/* =========================================================
-   15. LOADING STATE
-========================================================= */
+.ministry-details-page .ministry-clear-search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin-top: 13px;
+  padding: 0 18px;
+  color: #fff;
+  background: #315fba;
+  border: 1px solid #4778d8;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.ministry-details-page .ministry-clear-search-btn:hover {
+  background: #3c70d2;
+  transform: translateY(-1px);
+}
 
 .ministry-details-page .ministry-loading {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-
   min-height: 260px;
   padding: 30px;
-
-  color: var(--md-text-secondary);
+  color: var(--md-muted);
   font-size: 13px;
-  font-weight: 550;
 }
 
-.ministry-details-page .ministry-loading-spinner {
+.ministry-details-page .ministry-loading-spinner,
+.ministry-details-page .ministry-refresh-spinner {
   display: inline-block;
-
-  width: 23px;
-  height: 23px;
-
-  border: 2px solid rgba(160, 183, 222, 0.2);
+  width: 21px;
+  height: 21px;
+  border: 2px solid rgba(160,183,222,.2);
   border-top-color: var(--md-gold);
   border-radius: 50%;
-
-  animation: ministrySpin 750ms linear infinite;
+  animation: ministrySpin .75s linear infinite;
 }
-
-@keyframes ministrySpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* =========================================================
-   16. ERROR STATE
-========================================================= */
 
 .ministry-details-page .ministry-error {
   margin: 20px 0;
   padding: 20px;
-
-  border: 1px solid rgba(255, 116, 127, 0.25);
-  border-radius: 12px;
-
   color: #ffb3ba;
-  background: rgba(255, 116, 127, 0.07);
-
+  background: rgba(255,116,127,.07);
+  border: 1px solid rgba(255,116,127,.25);
+  border-radius: 12px;
   font-size: 13px;
   line-height: 1.7;
 }
 
 .ministry-details-page .ministry-error h2 {
   margin: 0 0 8px;
+  color: #ffd5d9;
   font-size: 18px;
 }
 
@@ -889,174 +713,130 @@
 .ministry-details-page .ministry-retry-button {
   min-height: 38px;
   padding: 8px 14px;
-
-  border: 1px solid rgba(255, 116, 127, 0.3);
-  border-radius: 8px;
-
   color: #ffb3ba;
-  background: rgba(255, 116, 127, 0.08);
-
+  background: rgba(255,116,127,.08);
+  border: 1px solid rgba(255,116,127,.3);
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .ministry-details-page .ministry-retry-button:hover {
-  background: rgba(255, 116, 127, 0.16);
+  background: rgba(255,116,127,.16);
 }
 
-/* =========================================================
-   17. TABLET — UP TO 1100px
-========================================================= */
-
-@media (max-width: 1100px) {
-  .ministry-details-page {
-    padding-right: 24px;
-    padding-left: 24px;
-  }
-
-  .ministry-details-page .ministry-header {
-    gap: 22px;
-    padding: 21px;
-  }
-
-  .ministry-details-page .ministry-header-image {
-    flex-basis: 140px;
-    width: 140px;
-    height: 140px;
-  }
-
-  .ministry-details-page .ministry-song-row {
-    grid-template-columns: 32px 22px 44px minmax(0, 1fr) 76px 46px 30px;
-    gap: 9px;
-  }
-
-  .ministry-details-page .song-cover {
-    width: 44px;
-    height: 44px;
-  }
+@keyframes ministrySpin {
+  to { transform: rotate(360deg); }
 }
 
-/* =========================================================
-   18. SMALL TABLET — UP TO 900px
-========================================================= */
+/* Pull-to-refresh indicator */
+.ministry-details-page .ministry-refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 38px;
+  color: var(--md-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
 
+/* Voice search focus */
+.ministry-details-page .ministry-details-voice-search-section button:focus-visible,
+.ministry-details-page .ministry-details-voice-search-section input:focus-visible,
+.ministry-details-page .ministry-details-voice-search-section select:focus-visible {
+  outline: 2px solid var(--md-gold-light);
+  outline-offset: 3px;
+}
+
+/* Tablet */
 @media (max-width: 900px) {
   .ministry-details-page {
-    padding: 21px 20px 115px;
+    padding: 20px 20px 115px;
   }
 
   .ministry-details-page .ministry-header {
-    gap: 19px;
-    padding: 19px;
-  }
-
-  .ministry-details-page .ministry-header-image {
-    flex-basis: 125px;
-    width: 125px;
-    height: 125px;
-  }
-
-  .ministry-details-page .ministry-header h1 {
-    font-size: 27px;
+    min-height: 190px;
   }
 
   .ministry-details-page .ministry-song-row {
-    min-height: 68px;
-    padding: 9px;
-  }
-
-  .ministry-details-page .song-play-btn {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-  }
-
-  .ministry-details-page .song-language span {
-    padding: 4px 6px;
-    font-size: 9px;
+    min-height: 82px;
   }
 }
 
-/* =========================================================
-   19. MOBILE — UP TO 650px
-   play | number | cover | info | menu
-========================================================= */
-
+/* Mobile */
 @media (max-width: 650px) {
   .ministry-details-page {
-    padding: 16px 13px 105px;
+    padding: 15px 13px 105px;
   }
 
   .ministry-details-page .ministry-back-button {
     min-height: 37px;
     margin-bottom: 15px;
-    padding: 8px 11px;
+    padding: 0 12px;
     font-size: 12px;
   }
 
   .ministry-details-page .ministry-header {
     align-items: center;
-    gap: 15px;
-
+    gap: 14px;
+    min-height: 0;
     margin-bottom: 17px;
-    padding: 15px;
-
-    border-radius: 13px;
+    padding: 14px;
+    border-radius: 15px;
   }
 
   .ministry-details-page .ministry-header-image {
-    flex: 0 0 100px;
-    width: 100px;
-    height: 100px;
-
-    border-radius: 10px;
+    flex: 0 0 94px;
+    width: 94px;
+    border-radius: 11px;
   }
 
   .ministry-details-page .ministry-header-eyebrow {
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     font-size: 9px;
-    letter-spacing: 1.4px;
   }
 
-  .ministry-details-page .ministry-header h1 {
-    margin-bottom: 7px;
+  .ministry-details-page .ministry-header-names h1 {
     font-size: clamp(19px, 5vw, 24px);
-    letter-spacing: -0.4px;
+  }
+
+  .ministry-details-page .ministry-header-telugu-name {
+    font-size: 15px;
   }
 
   .ministry-details-page .ministry-header-description {
     display: -webkit-box;
     overflow: hidden;
-
     font-size: 11px;
     line-height: 1.6;
-
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
 
-  .ministry-details-page .ministry-header-meta {
-    gap: 6px 10px;
-    margin-top: 9px;
-    font-size: 10px;
-  }
-
   .ministry-details-page .ministry-actions {
-    margin-bottom: 24px;
+    margin: 17px 0 23px;
   }
 
   .ministry-details-page .ministry-play-all-btn {
-    min-width: 106px;
-    min-height: 40px;
-    padding: 0 15px;
-    font-size: 11px;
+    min-width: 116px;
+    min-height: 41px;
+    padding: 0 17px;
+    font-size: 12px;
+  }
+
+  .ministry-details-page .ministry-details-voice-search-section {
+    max-width: none;
+    margin-bottom: 21px;
   }
 
   .ministry-details-page .ministry-songs-heading {
-    margin-bottom: 11px;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 13px;
   }
 
   .ministry-details-page .ministry-songs-heading h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .ministry-details-page .ministry-songs-heading p {
@@ -1064,86 +844,78 @@
   }
 
   .ministry-details-page .ministry-track-count {
+    padding: 7px 9px;
     font-size: 9px;
   }
 
   .ministry-details-page .ministry-song-list {
-    gap: 6px;
+    gap: 7px;
   }
 
   .ministry-details-page .ministry-song-row {
-    grid-template-columns: 29px 17px 38px minmax(0, 1fr) 26px;
-    gap: 7px;
-
-    min-height: 62px;
-    padding: 7px 6px;
-
-    border-radius: 10px;
+    gap: 10px;
+    min-height: 76px;
+    padding: 9px 10px;
+    border-radius: 12px;
   }
 
   .ministry-details-page .song-play-btn {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
   }
 
   .ministry-details-page .song-play-btn svg {
-    width: 10px;
-    height: 10px;
-  }
-
-  .ministry-details-page .song-number {
-    font-size: 10px;
+    width: 11px;
+    height: 11px;
   }
 
   .ministry-details-page .song-cover {
-    width: 38px;
-    height: 38px;
-    border-radius: 7px;
+    flex-basis: 45px;
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    border-radius: 8px;
+  }
+
+  .ministry-details-page .song-info {
+    min-height: 48px;
   }
 
   .ministry-details-page .song-info strong {
-    margin-bottom: 3px;
     font-size: 12px;
   }
 
-  .ministry-details-page .song-info .song-english-title,
+  .ministry-details-page .song-info .song-telugu-title {
+    font-size: 11px;
+  }
+
   .ministry-details-page .song-info .song-artist {
     font-size: 10px;
   }
 
-  .ministry-details-page .song-language,
-  .ministry-details-page .song-duration {
-    display: none;
+  .ministry-details-page .song-info .song-english-title {
+    font-size: 10px;
+  }
+
+  .ministry-details-page .ministry-song-menu-wrap {
+    flex-basis: 29px;
+    width: 29px;
+    min-width: 29px;
   }
 
   .ministry-details-page .ministry-song-menu-button {
-    width: 26px;
-    height: 32px;
+    width: 29px;
+    height: 34px;
   }
 
   .ministry-details-page .ministry-song-menu {
-    top: calc(100% + 5px);
-    right: 0;
     width: 175px;
-  }
-
-  .ministry-details-page .ministry-song-menu button {
-    min-height: 37px;
-    padding: 8px 9px;
-    font-size: 11px;
-  }
-
-  .ministry-details-page .ministry-empty-state {
-    min-height: 195px;
-    padding: 25px 16px;
   }
 }
 
-/* =========================================================
-   20. SMALL MOBILE — UP TO 420px
-========================================================= */
-
+/* Small phones */
 @media (max-width: 420px) {
   .ministry-details-page {
     padding-right: 10px;
@@ -1151,17 +923,16 @@
   }
 
   .ministry-details-page .ministry-header {
-    gap: 12px;
-    padding: 12px;
+    gap: 11px;
+    padding: 11px;
   }
 
   .ministry-details-page .ministry-header-image {
-    flex-basis: 84px;
-    width: 84px;
-    height: 84px;
+    flex-basis: 78px;
+    width: 78px;
   }
 
-  .ministry-details-page .ministry-header h1 {
+  .ministry-details-page .ministry-header-names h1 {
     font-size: 19px;
   }
 
@@ -1169,418 +940,53 @@
     font-size: 10px;
   }
 
-  .ministry-details-page .ministry-header-meta {
-    font-size: 9px;
-  }
-
   .ministry-details-page .ministry-song-row {
-    grid-template-columns: 26px 15px 33px minmax(0, 1fr) 23px;
-    gap: 5px;
-    min-height: 59px;
-    padding: 6px 4px;
+    gap: 8px;
+    min-height: 70px;
+    padding: 8px;
   }
 
   .ministry-details-page .song-play-btn {
-    width: 25px;
-    height: 25px;
-    min-width: 25px;
+    flex-basis: 29px;
+    width: 29px;
+    height: 29px;
+    min-width: 29px;
   }
 
   .ministry-details-page .song-cover {
-    width: 33px;
-    height: 33px;
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
   }
 
   .ministry-details-page .song-info strong {
     font-size: 11px;
   }
 
-  .ministry-details-page .song-info .song-english-title,
+  .ministry-details-page .song-info .song-telugu-title,
   .ministry-details-page .song-info .song-artist {
     font-size: 9px;
   }
 
-  .ministry-details-page .ministry-song-menu-button {
-    width: 23px;
-  }
-
-  .ministry-details-page .ministry-song-menu {
-    width: 165px;
-  }
-}
-
-/* =========================================================
-   21. EXTRA SMALL MOBILE — UP TO 340px
-========================================================= */
-
-@media (max-width: 340px) {
-  .ministry-details-page .ministry-header {
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .ministry-details-page .ministry-header-image {
-    flex-basis: 68px;
-    width: 68px;
-    height: 68px;
-  }
-
-  .ministry-details-page .ministry-header h1 {
-    font-size: 17px;
-  }
-
-  .ministry-details-page .ministry-header-description {
-    -webkit-line-clamp: 1;
-  }
-
-  .ministry-details-page .ministry-song-row {
-    grid-template-columns: 24px 13px 30px minmax(0, 1fr) 21px;
-    gap: 4px;
-    padding-right: 3px;
-    padding-left: 3px;
-  }
-
-  .ministry-details-page .song-play-btn {
-    width: 23px;
-    height: 23px;
-    min-width: 23px;
-  }
-
-  .ministry-details-page .song-cover {
-    width: 30px;
-    height: 30px;
-  }
-
-  .ministry-details-page .song-info strong {
-    font-size: 10px;
+  .ministry-details-page .ministry-song-menu-wrap {
+    flex-basis: 25px;
+    width: 25px;
+    min-width: 25px;
   }
 
   .ministry-details-page .ministry-song-menu-button {
-    width: 21px;
+    width: 25px;
   }
 }
-
-/* =========================================================
-   22. ACCESSIBILITY — REDUCED MOTION
-========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .ministry-details-page *,
   .ministry-details-page *::before,
   .ministry-details-page *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
   }
-}
-
-/* =========================================================
-   KEERTHANA — MINISTRY DETAILS SEARCH
-   Premium Navy • Royal Blue • Champagne Gold
-   Search positioned above Songs / TRACKS tracker
-========================================================= */
-
-.ministry-details-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 520px;
-  min-height: 48px;
-  margin: 0 0 24px;
-  padding: 0 16px;
-  box-sizing: border-box;
-
-  background: #0d1425;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 12px;
-
-  color: #94a3b8;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.ministry-details-search:focus-within {
-  background: #101a30;
-  border-color: #3978f6;
-  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.12);
-}
-
-.ministry-details-search-icon {
-  flex-shrink: 0;
-  color: #e8c98a;
-  font-size: 15px;
-}
-
-.ministry-details-search input {
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  padding: 13px 0;
-
-  background: transparent;
-  border: none;
-  outline: none;
-
-  color: #f1f5f9;
-  font-family: "Inter", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.ministry-details-search input::placeholder {
-  color: #8290a8;
-  opacity: 1;
-}
-
-.ministry-details-search input:focus-visible {
-  outline: none;
-}
-
-.ministry-details-search-clear {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-
-  width: 28px;
-  height: 28px;
-  padding: 0;
-
-  background: rgba(148, 163, 184, 0.1);
-  border: none;
-  border-radius: 50%;
-
-  color: #cbd5e1;
-  font-size: 12px;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.ministry-details-search-clear:hover {
-  background: rgba(57, 120, 246, 0.2);
-  color: #ffffff;
-}
-
-.ministry-details-search-clear:focus-visible {
-  outline: 2px solid #e8c98a;
-  outline-offset: 3px;
-}
-
-/* =========================================================
-   SEARCH EMPTY STATE BUTTON
-========================================================= */
-
-.ministry-clear-search-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 42px;
-  margin-top: 12px;
-  padding: 0 20px;
-
-  background: #3978f6;
-  border: 1px solid #3978f6;
-  border-radius: 10px;
-
-  color: #ffffff;
-  font-family: "Inter", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.ministry-clear-search-btn:hover {
-  background: #2865dc;
-  border-color: #2865dc;
-  transform: translateY(-1px);
-}
-
-.ministry-clear-search-btn:focus-visible {
-  outline: 2px solid #e8c98a;
-  outline-offset: 3px;
-}
-
-/* =========================================================
-   RESPONSIVE — TABLET
-========================================================= */
-
-@media (max-width: 768px) {
-  .ministry-details-search {
-    max-width: 100%;
-    margin-bottom: 20px;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE — MOBILE
-========================================================= */
-
-@media (max-width: 480px) {
-  .ministry-details-search {
-    min-height: 46px;
-    gap: 10px;
-    padding: 0 13px;
-    border-radius: 10px;
-  }
-
-  .ministry-details-search input {
-    font-size: 13px;
-  }
-
-  .ministry-details-search-clear {
-    width: 27px;
-    height: 27px;
-  }
-}
-
-/* =========================================================
-   ACCESSIBILITY — REDUCED MOTION
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .ministry-details-search,
-  .ministry-details-search-clear,
-  .ministry-clear-search-btn {
-    transition: none;
-  }
-}
-
-/* =========================================================
-   KEERTHANA — MINISTRY DETAILS VOICE SEARCH
-   Midnight Navy • Royal Blue • Champagne Gold
-========================================================= */
-
-.ministry-details-voice-search-section {
-  display: block;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  margin: 24px 0 16px;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.ministry-details-voice-search-section .keerthana-voice-search {
-  display: block;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-.ministry-details-voice-search-section .voice-search-bar {
-  display: flex;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.ministry-details-voice-search-section .voice-search-bar input {
-  flex: 1 1 auto;
-  width: 100%;
-  max-width: none;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.ministry-details-voice-search-section .voice-search-options {
-  display: flex;
-  width: 100%;
-  max-width: none;
-  justify-content: flex-end;
-  box-sizing: border-box;
-}
-
-.ministry-details-voice-search-section .voice-search-feedback {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Accessible keyboard focus */
-
-.ministry-details-voice-search-section button:focus-visible,
-.ministry-details-voice-search-section input:focus-visible,
-.ministry-details-voice-search-section select:focus-visible {
-  outline: 2px solid #E8C98A;
-  outline-offset: 3px;
-}
-
-/* Tablet */
-
-@media (max-width: 768px) {
-  .ministry-details-voice-search-section {
-    margin: 20px 0 14px;
-  }
-}
-
-/* Mobile */
-
-@media (max-width: 480px) {
-  .ministry-details-voice-search-section {
-    margin: 16px 0 12px;
-  }
-
-  .ministry-details-voice-search-section .voice-search-bar input {
-    font-size: 16px;
-  }
-}
-
-/* Reduced motion */
-
-@media (prefers-reduced-motion: reduce) {
-  .ministry-details-voice-search-section *,
-  .ministry-details-voice-search-section *::before,
-  .ministry-details-voice-search-section *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-/* Bilingual ministry heading */
-.ministry-header-names {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.ministry-header-names h1 {
-  margin-bottom: 0;
-}
-
-.ministry-header-telugu-name {
-  color: #d9b96e;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.6;
-  margin: 0 0 12px;
-}
-
-/* English song title */
-.song-english-title {
-  display: block;
-  color: #d9b96e !important;
-  font-size: 13px;
-  font-weight: 500;
-  margin-top: 3px;
-  line-height: 1.5;
 }

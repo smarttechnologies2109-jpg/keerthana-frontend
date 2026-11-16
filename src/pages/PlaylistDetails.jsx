@@ -65,8 +65,112 @@ const getSongsFromResponse = (response) => {
   return [];
 };
 
+const getArtistsFromResponse = (response) => {
+  const data = response?.data;
+
+  if (Array.isArray(data?.artists)) return data.artists;
+  if (Array.isArray(data?.data?.artists)) return data.data.artists;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+
+  return [];
+};
+
 const hasTeluguScript = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const isUsableEnglishArtistName = (value) => {
+  if (typeof value !== "string" || !value.trim()) return false;
+
+  const normalized = value.trim().toLowerCase();
+
+  return (
+    !hasTeluguScript(value) &&
+    !["unknown artist", "unknown", "n/a", "null", "undefined"].includes(normalized)
+  );
+};
+
+const getSongArtistId = (song) =>
+  song?.artist_id ??
+  song?.artistId ??
+  song?.artist?.id ??
+  song?.artist?.artist_id ??
+  (typeof song?.artist === "number" || typeof song?.artist === "string"
+    ? song.artist
+    : null);
+
+const buildArtistMap = (artists) => {
+  const map = {};
+
+  artists.forEach((artist) => {
+    const artistId = artist?.id ?? artist?.artist_id ?? artist?.artistId;
+    if (artistId == null) return;
+    map[String(artistId)] = artist;
+  });
+
+  return map;
+};
+
+const getSongId = (song) =>
+  song?.id ?? song?.song_id ?? song?.songId ?? null;
+
+const getSongAudioSource = (song) =>
+  song?.audio_url ||
+  song?.audioUrl ||
+  song?.audio_file ||
+  song?.audioFile ||
+  song?.audio ||
+  song?.stream_url ||
+  song?.streamUrl ||
+  song?.file_url ||
+  song?.fileUrl ||
+  song?.url ||
+  "";
+
+const hasSongAudio = (song) =>
+  Boolean(String(getSongAudioSource(song) || "").trim());
+
+const buildSongMap = (songs) => {
+  const map = {};
+  songs.forEach((song) => {
+    const songId = getSongId(song);
+    if (songId != null) map[String(songId)] = song;
+  });
+  return map;
+};
+
+const enrichSongWithArtist = (song, songMap = {}, artistMap = {}) => {
+  const songId = getSongId(song);
+  const catalogueSong = songId != null ? songMap[String(songId)] : null;
+
+  // Playlist responses can contain partial song objects. Match by song ID
+  // against /songs first, then resolve artist_id against /artists.
+  const mergedSong = catalogueSong
+    ? { ...catalogueSong, ...song }
+    : { ...song };
+
+  const artistId =
+    getSongArtistId(mergedSong) ?? getSongArtistId(catalogueSong);
+
+  const matchedArtist =
+    artistId != null ? artistMap[String(artistId)] : null;
+
+  if (!matchedArtist) return mergedSong;
+
+  const englishArtistName =
+    matchedArtist.name_english ||
+    matchedArtist.english_name ||
+    matchedArtist.nameEnglish ||
+    matchedArtist.artist_name_english ||
+    "";
+
+  return {
+    ...mergedSong,
+    artist_id: artistId,
+    artist: matchedArtist,
+    artist_name_english: englishArtistName || mergedSong.artist_name_english,
+  };
+};
 
 const getSongTitles = (song) => {
   const englishCandidates = [
@@ -111,25 +215,33 @@ const getSongTitles = (song) => {
 
 const getSongTitle = (song) => getSongTitles(song).primary;
 
-const getSongArtist = (song) => {
+const getSongArtist = (song, artistMap = {}) => {
+  const artistId = getSongArtistId(song);
+  const matchedArtist =
+    artistId != null ? artistMap[String(artistId)] : null;
+
   const candidates = [
+    matchedArtist?.name_english,
+    matchedArtist?.english_name,
+    matchedArtist?.nameEnglish,
+    matchedArtist?.artist_name_english,
     song?.artist_name_english,
     song?.artist_english,
     song?.artistEnglish,
+    song?.artistEnglishName,
     song?.artist?.name_english,
     song?.artist?.english_name,
-    song?.artistEnglishName,
+    song?.artist?.nameEnglish,
+    song?.artist?.artist_name_english,
     song?.artist_name,
+    song?.artistName,
     song?.artist?.name,
+    typeof song?.artist === "string" ? song.artist : "",
   ];
 
   return (
-    candidates.find(
-      (value) =>
-        typeof value === "string" &&
-        value.trim() &&
-        !hasTeluguScript(value)
-    )?.trim() || "Unknown Artist"
+    candidates.find(isUsableEnglishArtistName)?.trim() ||
+    "Artist details unavailable"
   );
 };
 
@@ -172,6 +284,7 @@ function PlaylistDetails() {
 
   const [playlist, setPlaylist] = useState(null);
   const [allSongs, setAllSongs] = useState([]);
+  const [artistMap, setArtistMap] = useState({});
 
   const [loading, setLoading] = useState(true);
   const [songsLoading, setSongsLoading] = useState(false);
@@ -186,6 +299,10 @@ function PlaylistDetails() {
   const [songSearch, setSongSearch] = useState("");
   const [visibleSongLimit, setVisibleSongLimit] = useState(10);
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
+
+  /* =======================================================
+     LOAD ARTIST DIRECTORY
+  ======================================================= */
 
   /* =======================================================
      LOAD PLAYLIST
@@ -203,8 +320,17 @@ function PlaylistDetails() {
       setLoading(true);
       setError("");
 
-      const response = await API.get(`/playlists/${id}`);
+      const [response, songsResponse, artistsResponse] = await Promise.all([
+        API.get(`/playlists/${id}`),
+        API.get("/songs"),
+        API.get("/artists"),
+      ]);
       const loadedPlaylist = getPlaylistFromResponse(response);
+
+      const catalogueSongs = getSongsFromResponse(songsResponse);
+      const nextArtistMap = buildArtistMap(getArtistsFromResponse(artistsResponse));
+      const catalogueSongMap = buildSongMap(catalogueSongs);
+      setArtistMap(nextArtistMap);
 
       if (!loadedPlaylist || loadedPlaylist.id == null) {
         setPlaylist(null);
@@ -214,9 +340,12 @@ function PlaylistDetails() {
 
       const normalizedPlaylist = {
         ...loadedPlaylist,
-        songs: Array.isArray(loadedPlaylist.songs)
+        songs: (Array.isArray(loadedPlaylist.songs)
           ? loadedPlaylist.songs
-          : [],
+          : []
+        ).map((song) =>
+          enrichSongWithArtist(song, catalogueSongMap, nextArtistMap)
+        ),
       };
 
       setPlaylist(normalizedPlaylist);
@@ -250,9 +379,34 @@ function PlaylistDetails() {
       setSongsLoading(true);
       setSongsError("");
 
-      const response = await API.get("/songs");
+      const [songsResponse, artistsResponse] = await Promise.all([
+        API.get("/songs"),
+        API.get("/artists"),
+      ]);
 
-      setAllSongs(getSongsFromResponse(response));
+      const artists = getArtistsFromResponse(artistsResponse);
+      const nextArtistMap = buildArtistMap(artists);
+
+      setArtistMap(nextArtistMap);
+      const catalogueSongs = getSongsFromResponse(songsResponse);
+      const catalogueSongMap = buildSongMap(catalogueSongs);
+
+      setAllSongs(
+        catalogueSongs.map((song) =>
+          enrichSongWithArtist(song, catalogueSongMap, nextArtistMap)
+        )
+      );
+
+      setPlaylist((current) =>
+        current
+          ? {
+              ...current,
+              songs: (current.songs || []).map((song) =>
+                enrichSongWithArtist(song, catalogueSongMap, nextArtistMap)
+              ),
+            }
+          : current
+      );
     } catch (err) {
       console.error("Load songs error:", err);
 
@@ -320,11 +474,14 @@ function PlaylistDetails() {
     if (!query) return playlistSongs;
 
     return playlistSongs.filter((song) =>
-      getSongSearchFields(song).some((value) =>
+      [
+        ...getSongSearchFields(song),
+        getSongArtist(song, artistMap),
+      ].some((value) =>
         String(value || "").toLowerCase().includes(query)
       )
     );
-  }, [playlistSongs, playlistSearch]);
+  }, [playlistSongs, playlistSearch, artistMap]);
 
   /* =======================================================
      CHECK IF SONG ALREADY EXISTS
@@ -358,7 +515,7 @@ function PlaylistDetails() {
         return;
       }
 
-      if (!songToAdd.audio_url) {
+      if (!hasSongAudio(songToAdd)) {
         setSongsError(
           "Audio is not available for this song."
         );
@@ -384,9 +541,12 @@ function PlaylistDetails() {
         return;
       }
 
-      const updatedSongs = Array.isArray(updatedPlaylist.songs)
+      const catalogueSongMap = buildSongMap(allSongs);
+      const updatedSongs = (Array.isArray(updatedPlaylist.songs)
         ? updatedPlaylist.songs
-        : [];
+        : []).map((song) =>
+          enrichSongWithArtist(song, catalogueSongMap, artistMap)
+        );
 
       setPlaylist({
         ...updatedPlaylist,
@@ -529,15 +689,24 @@ function PlaylistDetails() {
      PLAYBACK HELPERS
   ======================================================= */
 
-  const isCurrentSong = (song) =>
-    currentSong?.id != null &&
-    String(currentSong.id) === String(song?.id);
+  const isCurrentSong = (song) => {
+    const currentId = getSongId(currentSong);
+    const selectedId = getSongId(song);
+
+    return (
+      currentId != null &&
+      selectedId != null &&
+      String(currentId) === String(selectedId)
+    );
+  };
 
   const isSongPlaying = (song) =>
-    isCurrentSong(song) && isPlaying;
+    isCurrentSong(song) && Boolean(isPlaying);
 
   const handleSongPlayPause = async (song) => {
-    if (!song?.audio_url) {
+    if (!song) return;
+
+    if (!hasSongAudio(song)) {
       setError("Audio is not available for this song.");
       return;
     }
@@ -546,13 +715,37 @@ function PlaylistDetails() {
       setError("");
 
       if (isCurrentSong(song)) {
-        await togglePlay();
-      } else {
-        await playSong(song, playlistSongs);
+        if (typeof togglePlay === "function") {
+          await togglePlay();
+        } else {
+          throw new Error("Playback controls are unavailable.");
+        }
+        return;
       }
+
+      if (typeof playSong !== "function") {
+        throw new Error("Song playback is unavailable.");
+      }
+
+      const selectedId = getSongId(song);
+      const queueIndex = playlistSongs.findIndex(
+        (item) => String(getSongId(item)) === String(selectedId)
+      );
+
+      // PlayerContext expects the selected song, the queue, and its index.
+      // Supplying the real index keeps the queue and active track in sync.
+      await playSong(
+        song,
+        playlistSongs.length ? playlistSongs : [song],
+        queueIndex >= 0 ? queueIndex : 0
+      );
     } catch (err) {
       console.error("Song playback error:", err);
-      setError("Unable to play this song.");
+      setError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Unable to play this song. Please try again."
+      );
     }
   };
 
@@ -572,9 +765,7 @@ function PlaylistDetails() {
         return;
       }
 
-      const firstPlayableSong = playlistSongs.find(
-        (song) => song.audio_url
-      );
+      const firstPlayableSong = playlistSongs.find(hasSongAudio);
 
       if (!firstPlayableSong) {
         setError("No playable songs in this playlist.");
@@ -882,7 +1073,7 @@ function PlaylistDetails() {
 
           <div className="playlist-song-list">
             <div className="playlist-table-header">
-              <span>#</span>
+              {/* SONG NUMBER HEADER REMOVED */}
               <span>SONG</span>
               <span className="playlist-table-action-heading">
                 ACTION
@@ -900,31 +1091,18 @@ function PlaylistDetails() {
                   className={`playlist-song-row ${
                     current ? "is-current" : ""
                   } ${playing ? "is-playing" : ""}`}
-                  key={song.id}
+                  key={getSongId(song) ?? index}
                 >
-                  {/* SONG NUMBER AND PLAY BUTTON */}
+                  {/* PLAY BUTTON — SONG NUMBER REMOVED */}
 
                   <div className="playlist-song-number">
-                    <span className="song-number">
-                      {current ? (
-                        <span
-                          className="playlist-current-indicator"
-                          aria-label="Currently selected song"
-                        >
-                          ♫
-                        </span>
-                      ) : (
-                        index + 1
-                      )}
-                    </span>
-
                     <button
                       type="button"
                       className={`playlist-song-play ${
                         playing ? "is-playing" : ""
                       }`}
                       onClick={() => handleSongPlayPause(song)}
-                      disabled={!song.audio_url || actionLoading}
+                      disabled={!hasSongAudio(song) || actionLoading}
                       aria-label={`${
                         playing ? "Pause" : "Play"
                       } ${title}`}
@@ -936,7 +1114,24 @@ function PlaylistDetails() {
 
                   {/* SONG DETAILS */}
 
-                  <div className="playlist-song-title">
+                  <button
+                    type="button"
+                    className={`playlist-song-title playlist-song-title-button ${
+                      playing ? "is-playing" : ""
+                    }`}
+                    onClick={() => handleSongPlayPause(song)}
+                    disabled={!hasSongAudio(song) || actionLoading}
+                    aria-label={`${
+                      playing ? "Pause" : "Play"
+                    } ${title}`}
+                    title={
+                      hasSongAudio(song)
+                        ? playing
+                          ? "Pause song"
+                          : "Play song"
+                        : "Audio is not available"
+                    }
+                  >
                     {song.cover_url && (
                       <img
                         src={getMediaUrl(song.cover_url)}
@@ -953,9 +1148,9 @@ function PlaylistDetails() {
 
                       {nativeTitle && <small>{nativeTitle}</small>}
 
-                      <span>{getSongArtist(song)}</span>
+                      <span>{getSongArtist(song, artistMap)}</span>
                     </div>
-                  </div>
+                  </button>
 
                   {/* REMOVE SONG */}
 
@@ -1141,7 +1336,7 @@ function PlaylistDetails() {
 
                         {nativeTitle && <small>{nativeTitle}</small>}
 
-                        <span>{getSongArtist(song)}</span>
+                        <span>{getSongArtist(song, artistMap)}</span>
                       </div>
 
                       <button

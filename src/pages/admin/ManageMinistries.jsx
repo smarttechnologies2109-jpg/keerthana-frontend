@@ -29,12 +29,12 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 // =========================================================
 
 const LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు" },
-  { value: "Hindi", label: "हिन्दी" },
+  { value: "Telugu", label: "Telugu" },
+  { value: "Hindi", label: "Hindi" },
   { value: "English", label: "English" },
-  { value: "Malayalam", label: "മലയാളം" },
-  { value: "Kannada", label: "ಕನ್ನಡ" },
-  { value: "Tamil", label: "தமிழ்" },
+  { value: "Malayalam", label: "Malayalam" },
+  { value: "Kannada", label: "Kannada" },
+  { value: "Tamil", label: "Tamil" },
 ];
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -635,9 +635,6 @@ function ManageMinistries() {
         const searchableValues = [
           ministry.name_english,
           ministry.nameEnglish,
-          ministry.name_telugu,
-          ministry.nameTelugu,
-          ministry.name,
           ministry.description,
           ministry.language,
         ];
@@ -648,11 +645,11 @@ function ManageMinistries() {
       })
       .sort((a, b) => {
         const nameA = String(
-          a.name_english || a.nameEnglish || a.name || a.name_telugu || ""
+          a.name_english || a.nameEnglish || ""
         ).trim();
 
         const nameB = String(
-          b.name_english || b.nameEnglish || b.name || b.name_telugu || ""
+          b.name_english || b.nameEnglish || ""
         ).trim();
 
         return ministryCollator.compare(nameA, nameB);
@@ -843,7 +840,7 @@ function ManageMinistries() {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search ministries by English name, Telugu name, or language..."
+              placeholder="Search ministries by English name or language..."
               aria-label="Search ministries"
             />
             {search && (
@@ -897,7 +894,7 @@ function ManageMinistries() {
 
               <p>
                 {search
-                  ? "Try another ministry name, Telugu name, or language."
+                  ? "Try another English ministry name or language."
                   : "No ministries have been added yet. Click Add Ministry to create your first ministry."}
               </p>
 
@@ -922,8 +919,7 @@ function ManageMinistries() {
                   <tr>
                     <th className="admin-ministry-number-heading">No.</th>
                     <th>Image</th>
-                    <th>Ministry Name (English)</th>
-                    <th>మినిస్ట్రీ పేరు (తెలుగు)</th>
+                    <th>Ministry Name</th>
                     <th>Language</th>
                     <th>Description</th>
                     <th>Actions</th>
@@ -939,13 +935,7 @@ function ManageMinistries() {
                     const englishName =
                       ministry.name_english ||
                       ministry.nameEnglish ||
-                      ministry.name ||
                       "Untitled Ministry";
-                    const teluguName =
-                      ministry.name_telugu ||
-                      ministry.nameTelugu ||
-                      ministry.name ||
-                      "-";
 
                     return (
                       <tr key={ministryId}>
@@ -963,12 +953,6 @@ function ManageMinistries() {
                         <td>
                           <strong className="admin-ministry-table-english">
                             {englishName}
-                          </strong>
-                        </td>
-
-                        <td>
-                          <strong className="admin-ministry-table-telugu">
-                            {teluguName}
                           </strong>
                         </td>
 

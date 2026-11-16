@@ -53,6 +53,61 @@ const getSongTeluguTitle = (song) =>
 const getSongEnglishTitle = (song) =>
   String(song?.title_english || "").trim();
 
+const containsTelugu = (value) =>
+  /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const getArtistList = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.artists)) return data.artists;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.data?.artists)) return data.data.artists;
+  return [];
+};
+
+const getEnglishArtistName = (song, artists = []) => {
+  const songArtistId =
+    song?.artist_id ??
+    song?.artistId ??
+    song?.artist?.id ??
+    song?.artist?.artist_id;
+
+  const linkedArtist = artists.find((artist) =>
+    String(artist?.id ?? artist?.artist_id ?? "") ===
+    String(songArtistId ?? "")
+  );
+
+  const candidates = [
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artist_english_name,
+    song?.artist_name_en,
+    song?.artistEnglishName,
+    song?.artistNameEnglish,
+    song?.artist?.name_english,
+    song?.artist?.english_name,
+    song?.artist?.nameEnglish,
+    song?.artist?.englishName,
+    linkedArtist?.name_english,
+    linkedArtist?.english_name,
+    linkedArtist?.nameEnglish,
+    linkedArtist?.englishName,
+    linkedArtist?.artist_name_english,
+    song?.artist_name,
+    song?.artistName,
+    typeof song?.artist === "string" ? song.artist : "",
+    linkedArtist?.name,
+  ];
+
+  const name = candidates.find(
+    (value) =>
+      typeof value === "string" &&
+      value.trim() &&
+      !containsTelugu(value)
+  );
+
+  return name ? name.trim() : "Unknown Artist";
+};
+
 const compareMinistrySongs = (a, b) => {
   const titleA = getSongEnglishTitle(a) || getSongTeluguTitle(a);
   const titleB = getSongEnglishTitle(b) || getSongTeluguTitle(b);
@@ -75,6 +130,7 @@ const MinistryDetails = () => {
 
   const [ministry, setMinistry] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [artists, setArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -111,10 +167,18 @@ const MinistryDetails = () => {
     }
 
     try {
-      const [ministryResponse, songsResponse] = await Promise.all([
-        API.get(`/ministries/${id}`),
-        API.get(`/ministries/${id}/songs`),
-      ]);
+      const [ministryResponse, songsResponse, artistsResult] =
+        await Promise.all([
+          API.get(`/ministries/${id}`),
+          API.get(`/ministries/${id}/songs`),
+          API.get("/artists").catch((artistError) => {
+            console.warn(
+              "Unable to load artist directory; using song response artist fields:",
+              artistError
+            );
+            return null;
+          }),
+        ]);
 
       const ministryData = ministryResponse.data;
       const nextMinistry = ministryData?.ministry || ministryData || null;
@@ -126,8 +190,10 @@ const MinistryDetails = () => {
         ? songData
         : [];
 
+      const nextArtists = getArtistList(artistsResult?.data);
       setMinistry(nextMinistry);
       setSongs(nextSongs);
+      setArtists(nextArtists);
       setError("");
     } catch (err) {
       console.error("Load ministry details error:", err);
@@ -153,6 +219,7 @@ const MinistryDetails = () => {
 
     setMinistry(null);
     setSongs([]);
+    setArtists([]);
     ministryRef.current = null;
     songsRef.current = [];
     setLoading(true);
@@ -228,6 +295,7 @@ const MinistryDetails = () => {
         song?.title,
         song?.title_telugu,
         song?.title_english,
+        getEnglishArtistName(song, artists),
         song?.artist_name,
         song?.artist,
         song?.language,
@@ -239,7 +307,7 @@ const MinistryDetails = () => {
         String(field || "").toLowerCase().includes(searchText)
       );
     });
-  }, [sortedSongs, searchText]);
+  }, [sortedSongs, searchText, artists]);
 
   /* =====================================================
      CLOSE MENU ON OUTSIDE CLICK / ESCAPE
@@ -727,12 +795,6 @@ const MinistryDetails = () => {
                     {songIsPlaying ? <FaPause /> : <FaPlay />}
                   </button>
 
-                  {/* TRACK NUMBER */}
-
-                  <span className="song-number">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-
                   {/* SONG COVER */}
 
                   <button
@@ -783,22 +845,9 @@ const MinistryDetails = () => {
                       )}
 
                     <span className="song-artist">
-                      {song.artist_name_english ||
-                        song.artist_english ||
-                        song.artistEnglish ||
-                        song.artist?.name_english ||
-                        song.artist?.english_name ||
-                        "Unknown Artist"}
+                      {getEnglishArtistName(song, artists)}
                     </span>
                   </button>
-
-                  {/* LANGUAGE */}
-
-                  <div className="song-language">
-                    {song.language && (
-                      <span>{song.language}</span>
-                    )}
-                  </div>
 
                   {/* THREE-DOT MENU */}
 

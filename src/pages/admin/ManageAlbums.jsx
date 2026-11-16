@@ -20,12 +20,12 @@ import "../../assets/css/admin/manageAlbums.css";
 // =====================================================
 
 const LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు" },
-  { value: "Hindi", label: "हिन्दी" },
+  { value: "Telugu", label: "Telugu" },
+  { value: "Hindi", label: "Hindi" },
   { value: "English", label: "English" },
-  { value: "Malayalam", label: "മലയാളം" },
-  { value: "Kannada", label: "ಕನ್ನಡ" },
-  { value: "Tamil", label: "தமிழ்" },
+  { value: "Malayalam", label: "Malayalam" },
+  { value: "Kannada", label: "Kannada" },
+  { value: "Tamil", label: "Tamil" },
 ];
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -507,7 +507,7 @@ function ManageAlbums() {
 
   const handleDelete = async (album) => {
     const confirmed = window.confirm(
-      `Delete album "${getEnglishTitle(album)} / ${getTeluguTitle(album)}"?`
+      `Delete album "${album?.title_english || album?.titleEnglish || "Untitled album"}"?`
     );
 
     if (!confirmed) return;
@@ -556,10 +556,8 @@ function ManageAlbums() {
         const matchesSearch =
           !query ||
           [
-            album.title,
-            album.title_english,
-            album.title_telugu,
-            album.language,
+            album.title_english || album.titleEnglish,
+            normalizeLanguage(album.language),
             album.release_year,
           ]
             .filter(Boolean)
@@ -570,10 +568,8 @@ function ManageAlbums() {
         return matchesLanguage && matchesSearch;
       })
       .sort((a, b) => {
-        const titleA =
-          a.title_english || a.titleEnglish || a.title || a.title_telugu || "";
-        const titleB =
-          b.title_english || b.titleEnglish || b.title || b.title_telugu || "";
+        const titleA = a.title_english || a.titleEnglish || "";
+        const titleB = b.title_english || b.titleEnglish || "";
 
         return String(titleA).localeCompare(String(titleB), "en", {
           sensitivity: "base",
@@ -614,15 +610,9 @@ function ManageAlbums() {
   // ALBUM DISPLAY
   // ===================================================
 
-  const getAlbumDisplay = (album) => {
-    const english = getEnglishTitle(album);
-    const telugu = getTeluguTitle(album);
-
-    return {
-      english,
-      telugu,
-    };
-  };
+  const getAlbumDisplay = (album) => ({
+    english: album?.title_english || album?.titleEnglish || "",
+  });
 
   // ===================================================
   // LOADING
@@ -735,7 +725,7 @@ function ManageAlbums() {
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="Search English or Telugu album titles..."
+            placeholder="Search English album titles..."
             aria-label="Search albums"
           />
 
@@ -870,9 +860,6 @@ function ManageAlbums() {
                             {albumNames.english || "—"}
                           </strong>
 
-                          <span>
-                            {albumNames.telugu || "—"}
-                          </span>
                         </div>
 
                       </div>

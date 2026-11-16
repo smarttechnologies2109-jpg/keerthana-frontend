@@ -20,12 +20,12 @@ import "../../assets/css/admin/manageArtists.css";
 // =====================================================
 
 const LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు" },
-  { value: "Hindi", label: "हिन्दी" },
+  { value: "Telugu", label: "Telugu" },
+  { value: "Hindi", label: "Hindi" },
   { value: "English", label: "English" },
-  { value: "Malayalam", label: "മലയാളം" },
-  { value: "Kannada", label: "ಕನ್ನಡ" },
-  { value: "Tamil", label: "தமிழ்" },
+  { value: "Malayalam", label: "Malayalam" },
+  { value: "Kannada", label: "Kannada" },
+  { value: "Tamil", label: "Tamil" },
 ];
 
 // =====================================================
@@ -571,23 +571,14 @@ function ManageArtists() {
         const englishName =
           artist.name_english ||
           artist.nameEnglish ||
-          artist.name ||
-          "";
-
-        const teluguName =
-          artist.name_telugu ||
-          artist.nameTelugu ||
-          artist.name ||
           "";
 
         const bio = artist.bio || "";
-
-        const language = artist.language || "";
+        const language = normalizeLanguage(artist.language) || "";
 
         const matchesSearch =
           !query ||
           String(englishName).toLocaleLowerCase().includes(query) ||
-          String(teluguName).toLocaleLowerCase().includes(query) ||
           String(bio).toLocaleLowerCase().includes(query) ||
           String(language).toLocaleLowerCase().includes(query);
 
@@ -601,15 +592,11 @@ function ManageArtists() {
         const nameA =
           a.name_english ||
           a.nameEnglish ||
-          a.name ||
-          a.name_telugu ||
           "";
 
         const nameB =
           b.name_english ||
           b.nameEnglish ||
-          b.name ||
-          b.name_telugu ||
           "";
 
         return String(nameA).localeCompare(
@@ -743,7 +730,7 @@ function ManageArtists() {
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="Search English or Telugu artist names..."
+            placeholder="Search artists by English name..."
             aria-label="Search artists"
           />
 
@@ -879,9 +866,7 @@ function ManageArtists() {
                         (language) =>
                           language.value ===
                           normalizeLanguage(artist.language)
-                      )?.label ||
-                      artist.language ||
-                      "—"
+                      )?.label || "—"
                     }
                   </td>
 

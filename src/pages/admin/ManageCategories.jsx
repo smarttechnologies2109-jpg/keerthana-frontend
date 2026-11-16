@@ -23,12 +23,12 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 const LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు" },
-  { value: "Hindi", label: "हिन्दी" },
+  { value: "Telugu", label: "Telugu" },
+  { value: "Hindi", label: "Hindi" },
   { value: "English", label: "English" },
-  { value: "Malayalam", label: "മലയാളം" },
-  { value: "Kannada", label: "ಕನ್ನಡ" },
-  { value: "Tamil", label: "தமிழ்" },
+  { value: "Malayalam", label: "Malayalam" },
+  { value: "Kannada", label: "Kannada" },
+  { value: "Tamil", label: "Tamil" },
 ];
 
 const normalizeCategoryName = (value) =>
@@ -535,12 +535,10 @@ function ManageCategories() {
     return [...categories]
       .filter((category) => {
         const englishName = getCategoryEnglishName(category);
-        const teluguName = getCategoryTeluguName(category);
 
         const matchesSearch =
           !query ||
-          String(englishName).toLocaleLowerCase().includes(query) ||
-          String(teluguName).toLocaleLowerCase().includes(query);
+          String(englishName).toLocaleLowerCase().includes(query);
 
         const matchesLanguage =
           selectedLanguage === "All" ||
@@ -585,7 +583,7 @@ function ManageCategories() {
           <h1>Manage Music Categories</h1>
 
           <p>
-            Manage Christian music categories in English and Telugu.
+            Manage your Christian music categories.
           </p>
         </div>
 
@@ -671,7 +669,7 @@ function ManageCategories() {
             type="text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search English or Telugu categories..."
+            placeholder="Search categories by English name..."
             aria-label="Search categories"
           />
 
@@ -762,8 +760,7 @@ function ManageCategories() {
                 </th>
 
                 <th>Category Image</th>
-                <th>English Name</th>
-                <th>Telugu Name</th>
+                <th>Category Name</th>
                 <th>Songs</th>
                 <th>Actions</th>
               </tr>
@@ -799,12 +796,6 @@ function ManageCategories() {
                   <td>
                     <strong>
                       {getCategoryEnglishName(category) || "-"}
-                    </strong>
-                  </td>
-
-                  <td>
-                    <strong>
-                      {getCategoryTeluguName(category) || "-"}
                     </strong>
                   </td>
 

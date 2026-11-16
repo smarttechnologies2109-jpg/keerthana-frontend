@@ -2868,3 +2868,41 @@
   }
   .mini-queue-popover-root { z-index: 2147483646 !important; }
 }
+/* English + Telugu song title layout */
+.mini-song-title-lines {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+  line-height: 1.3;
+}
+
+.mini-song-title-english {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-song-title-telugu {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.78;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-player-title .mini-song-title-lines {
+  text-align: left;
+}
+
+.mini-queue-song-info .mini-song-title-lines,
+.mini-queue-current-title {
+  flex: 1;
+  min-width: 0;
+}

@@ -80,7 +80,31 @@ function Favorites() {
      STATE
   ========================================= */
 
-  const [favorites, setFavorites] = useState([]);
+  const [savedFavorites, setSavedFavorites] = useState([]);
+  const [songDetailsById, setSongDetailsById] = useState({});
+  const [artistsById, setArtistsById] = useState({});
+
+  // Enrich locally saved favorites with current song and artist API records.
+  const favorites = useMemo(() => savedFavorites.map((savedSong) => {
+    const id = savedSong?.id ?? savedSong?.song_id;
+    const fullSong = songDetailsById[String(id)] || {};
+    const merged = { ...savedSong, ...fullSong };
+    const artistId = merged?.artist_id ?? merged?.artistId ?? merged?.artist?.id;
+    const artist = artistsById[String(artistId)] || {};
+    return {
+      ...merged,
+      artist_name_english:
+        merged?.artist_name_english ||
+        merged?.artist_english ||
+        artist?.name_english ||
+        artist?.english_name ||
+        artist?.nameEnglish ||
+        "",
+      artist: merged?.artist && typeof merged.artist === "object"
+        ? { ...artist, ...merged.artist }
+        : artist,
+    };
+  }), [savedFavorites, songDetailsById, artistsById]);
   const [allSongs, setAllSongs] = useState([]);
 
   const [browseLoading, setBrowseLoading] = useState(false);
@@ -105,7 +129,7 @@ function Favorites() {
   const loadFavorites = useCallback(() => {
     const savedFavorites = getFavorites();
 
-    setFavorites(
+    setSavedFavorites(
       Array.isArray(savedFavorites) ? savedFavorites : []
     );
   }, []);
@@ -170,6 +194,66 @@ function Favorites() {
       setBrowseLoading(false);
     }
   };
+
+  /* =========================================
+     LOAD CANONICAL SONG + ARTIST DETAILS
+     Enrich locally stored favorites by song ID.
+  ========================================= */
+
+  useEffect(() => {
+    let active = true;
+
+    const loadSongAndArtistDetails = async () => {
+      const [songsResult, artistsResult] = await Promise.allSettled([
+        API.get("/songs"),
+        API.get("/artists"),
+      ]);
+
+      if (!active) return;
+
+      const songsPayload =
+        songsResult.status === "fulfilled" ? songsResult.value?.data : null;
+      const songsList = Array.isArray(songsPayload)
+        ? songsPayload
+        : Array.isArray(songsPayload?.songs)
+          ? songsPayload.songs
+          : Array.isArray(songsPayload?.data)
+            ? songsPayload.data
+            : [];
+
+      const songLookup = {};
+      songsList.forEach((song) => {
+        const id = song?.id ?? song?.song_id;
+        if (id != null) songLookup[String(id)] = song;
+      });
+      setSongDetailsById(songLookup);
+
+      const artistsPayload =
+        artistsResult.status === "fulfilled" ? artistsResult.value?.data : null;
+      const artistsList = Array.isArray(artistsPayload)
+        ? artistsPayload
+        : Array.isArray(artistsPayload?.artists)
+          ? artistsPayload.artists
+          : Array.isArray(artistsPayload?.data)
+            ? artistsPayload.data
+            : [];
+
+      const artistLookup = {};
+      artistsList.forEach((artist) => {
+        const id = artist?.id ?? artist?.artist_id;
+        if (id != null) artistLookup[String(id)] = artist;
+      });
+      setArtistsById(artistLookup);
+    };
+
+    loadSongAndArtistDetails().catch((error) => {
+      console.error("Unable to load favorite song/artist details:", error);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleBrowseSongs = async () => {
     setShowBrowse(true);
@@ -255,25 +339,40 @@ function Favorites() {
   };
 
   const getSongEnglishArtist = (song) => {
+    const artistId =
+      song?.artist_id ??
+      song?.artistId ??
+      song?.artist?.id ??
+      song?.artist?.artist_id;
+    const linkedArtist = artistsById[String(artistId)] || {};
     const candidates = [
       song?.artist_name_english,
+      song?.artist_english_name,
+      song?.artist_name_en,
+      song?.artistEnglishName,
+      song?.artistNameEnglish,
       song?.artist_english,
-      song?.artistEnglish,
+      linkedArtist?.name_english,
+      linkedArtist?.english_name,
+      linkedArtist?.nameEnglish,
       song?.artist?.name_english,
       song?.artist?.english_name,
+      song?.artist?.nameEnglish,
       song?.artist_name,
       typeof song?.artist === "string" ? song.artist : "",
       song?.artist?.name,
+      linkedArtist?.name,
     ];
 
     const value = candidates.find(
       (item) =>
         typeof item === "string" &&
         item.trim() &&
-        !hasTeluguScript(item)
+        !hasTeluguScript(item) &&
+        !/^unknown artist$/i.test(item.trim())
     );
 
-    return String(value || "Unknown Artist").trim();
+    return String(value || "Artist details unavailable").trim();
   };
 
   const handlePlayNext = (song) => {
@@ -455,6 +554,9 @@ function Favorites() {
       song.title,
       song.title_english,
       song.titleEnglish,
+      song.artist_name_english,
+      song.artist_english,
+      getSongEnglishArtist(song),
       song.artist_name,
       artist,
       song.album_name,
@@ -574,20 +676,13 @@ function Favorites() {
           }
           aria-label={`Play ${getSongEnglishTitle(song)}`}
         >
-          <h3>{song.title || "Untitled Song"}</h3>
+          <h3>{getSongEnglishTitle(song)}</h3>
 
-          {(song.title_english || song.titleEnglish) && (
-            <p>
-              {song.title_english || song.titleEnglish}
-            </p>
+          {getSongTeluguTitle(song) && (
+            <p>{getSongTeluguTitle(song)}</p>
           )}
 
-          <span>
-            {song.artist_name ||
-              song.artist?.name ||
-              song.artist ||
-              "Unknown Artist"}
-          </span>
+          <span>{getSongEnglishArtist(song)}</span>
         </div>
 
         <span className="favorite-browse-language">

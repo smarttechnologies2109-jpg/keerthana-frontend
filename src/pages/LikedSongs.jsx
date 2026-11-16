@@ -27,6 +27,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLikedSongs } from "../context/LikedSongsContext";
 import { usePlayer } from "../context/usePlayer";
+import API from "../services/api";
 
 import VoiceSearch from "../components/VoiceSearch";
 
@@ -70,6 +71,142 @@ function LikedSongs() {
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   const menuRef = useRef(null);
+
+  /* =========================================================
+     LOAD COMPLETE SONG METADATA
+     The liked-songs endpoint may return only the liked-song
+     record and omit the joined artist English name. The main
+     /songs endpoint already returns artist_name_english.
+     Match by song ID so the correct artist is shown.
+  ========================================================= */
+
+  const [songDirectory, setSongDirectory] = useState([]);
+  const [artistsById, setArtistsById] = useState({});
+
+  useEffect(() => {
+    let active = true;
+
+    const loadSongDirectory = async () => {
+      try {
+        const response = await API.get("/songs");
+        const data = response?.data;
+
+        const songs = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.songs)
+            ? data.songs
+            : Array.isArray(data?.data?.songs)
+              ? data.data.songs
+              : Array.isArray(data?.data)
+                ? data.data
+                : [];
+
+        if (active) setSongDirectory(songs);
+
+        // Use the same /artists lookup as AllSongs.jsx. Some liked-song
+        // records contain artist_id but do not include the joined artist.
+        try {
+          const artistsResponse = await API.get("/artists");
+          const artistsPayload = artistsResponse?.data;
+          const artistList = Array.isArray(artistsPayload)
+            ? artistsPayload
+            : Array.isArray(artistsPayload?.artists)
+              ? artistsPayload.artists
+              : Array.isArray(artistsPayload?.data)
+                ? artistsPayload.data
+                : [];
+
+          const artistLookup = {};
+          artistList.forEach((artist) => {
+            const artistId = artist?.id ?? artist?.artist_id;
+            const englishName =
+              artist?.name_english ||
+              artist?.english_name ||
+              artist?.nameEnglish ||
+              "";
+
+            if (
+              artistId != null &&
+              typeof englishName === "string" &&
+              englishName.trim() &&
+              !/[\u0C00-\u0C7F]/.test(englishName)
+            ) {
+              artistLookup[String(artistId)] = {
+                ...artist,
+                name_english: englishName.trim(),
+              };
+            }
+          });
+
+          if (active) setArtistsById(artistLookup);
+        } catch (artistError) {
+          console.warn(
+            "Unable to load artist-name fallback list for Liked Songs:",
+            artistError
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Unable to load song metadata for Liked Songs:",
+          error
+        );
+      }
+    };
+
+    loadSongDirectory();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const likedSongsWithDetails = useMemo(() => {
+    const directoryById = new Map(
+      songDirectory.map((song) => [
+        String(song?.id ?? song?.song_id ?? ""),
+        song,
+      ])
+    );
+
+    return likedSongs.map((likedItem) => {
+      const likedSong = likedItem?.song && typeof likedItem.song === "object"
+        ? likedItem.song
+        : likedItem;
+      const id = likedSong?.id ?? likedSong?.song_id ?? likedItem?.song_id;
+      const completeSong = directoryById.get(String(id ?? "")) || {};
+      const merged = { ...completeSong, ...likedSong };
+      const artistId =
+        merged?.artist_id ??
+        merged?.artistId ??
+        completeSong?.artist_id ??
+        likedSong?.artist_id;
+      const linkedArtist = artistsById[String(artistId ?? "")] || {};
+
+      // Prefer the English artist name from the joined /songs record,
+      // then use the /artists lookup by artist_id (same approach as AllSongs).
+      const artistNameEnglish =
+        completeSong?.artist_name_english ||
+        completeSong?.artist_english ||
+        completeSong?.artist?.name_english ||
+        completeSong?.artist?.english_name ||
+        linkedArtist?.name_english ||
+        linkedArtist?.english_name ||
+        linkedArtist?.nameEnglish ||
+        likedSong?.artist_name_english ||
+        likedSong?.artist_english ||
+        likedSong?.artist?.name_english ||
+        likedSong?.artist?.english_name ||
+        "";
+
+      return {
+        ...merged,
+        id: id ?? merged.id,
+        artist_id: artistId,
+        artist_name_english: artistNameEnglish,
+        artist: completeSong?.artist || linkedArtist || likedSong?.artist || merged.artist,
+      };
+    });
+  }, [likedSongs, songDirectory, artistsById]);
 
   /* =========================================================
      VOICE SEARCH
@@ -136,26 +273,48 @@ function LikedSongs() {
 
   const getSongTitle = getSongEnglishTitle;
 
-  const getSongEnglishArtist = (song) => {
+  const getSongEnglishArtist = (song, artistLookup = artistsById) => {
+    const artistObject =
+      song?.artist && typeof song.artist === "object"
+        ? song.artist
+        : {};
+    const firstArtist = Array.isArray(song?.artists)
+      ? song.artists[0]
+      : {};
+
     const candidates = [
       song?.artist_name_english,
+      artistLookup?.[String(song?.artist_id ?? song?.artistId ?? "")]?.name_english,
+      artistLookup?.[String(song?.artist_id ?? song?.artistId ?? "")]?.english_name,
       song?.artist_english,
       song?.artistEnglish,
-      song?.artist?.name_english,
-      song?.artist?.english_name,
+      song?.artistNameEnglish,
+      song?.artist_name_en,
       song?.artist_name,
+      song?.artistName,
+      artistObject?.name_english,
+      artistObject?.english_name,
+      artistObject?.nameEnglish,
+      artistObject?.englishName,
+      artistObject?.name_en,
+      firstArtist?.name_english,
+      firstArtist?.english_name,
+      firstArtist?.nameEnglish,
+      firstArtist?.englishName,
+      firstArtist?.name,
       typeof song?.artist === "string" ? song.artist : "",
-      song?.artist?.name,
+      artistObject?.name,
     ];
 
     const englishArtist = candidates.find(
       (value) =>
         typeof value === "string" &&
         value.trim() &&
-        !hasTeluguScript(value)
+        !hasTeluguScript(value) &&
+        !/^unknown(?:\s+artist)?$/i.test(value.trim())
     );
 
-    return String(englishArtist || "Unknown Artist").trim();
+    return String(englishArtist || "Artist details unavailable").trim();
   };
 
   const getAlbumName = (song) =>
@@ -229,12 +388,14 @@ function LikedSongs() {
   const filteredLikedSongs = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    if (!query) return likedSongs;
+    if (!query) return likedSongsWithDetails;
 
-    return likedSongs.filter((song) => {
+    return likedSongsWithDetails.filter((song) => {
       const searchableValues = [
         song.title,
         song.title_english,
+        getSongEnglishArtist(song),
+        song.artist_name_english,
         song.artist_name,
         song.artist,
         getAlbumName(song),
@@ -246,7 +407,7 @@ function LikedSongs() {
         String(value || "").toLowerCase().includes(query)
       );
     });
-  }, [likedSongs, search]);
+  }, [likedSongsWithDetails, search]);
 
   /* =========================================================
      PLAY / PAUSE SONG
@@ -264,14 +425,14 @@ function LikedSongs() {
         return;
       }
 
-      const index = likedSongs.findIndex(
+      const index = likedSongsWithDetails.findIndex(
         (item) =>
           Number(getSongId(item)) === Number(getSongId(song))
       );
 
       await playSong(
         normalizeSong(song),
-        likedSongs.map(normalizeSong),
+        likedSongsWithDetails.map(normalizeSong),
         index >= 0 ? index : 0
       );
     } catch (error) {
@@ -285,7 +446,7 @@ function LikedSongs() {
   ========================================================= */
 
   const handlePlayAll = async () => {
-    const firstIndex = likedSongs.findIndex(
+    const firstIndex = likedSongsWithDetails.findIndex(
       (song) => Boolean(song?.audio_url)
     );
 
@@ -296,8 +457,8 @@ function LikedSongs() {
 
     try {
       await playSong(
-        normalizeSong(likedSongs[firstIndex]),
-        likedSongs.map(normalizeSong),
+        normalizeSong(likedSongsWithDetails[firstIndex]),
+        likedSongsWithDetails.map(normalizeSong),
         firstIndex
       );
     } catch (error) {
@@ -318,7 +479,7 @@ function LikedSongs() {
       return;
     }
 
-    const index = likedSongs.findIndex(
+    const index = likedSongsWithDetails.findIndex(
       (item) =>
         Number(getSongId(item)) === Number(getSongId(song))
     );
@@ -334,7 +495,7 @@ function LikedSongs() {
 
       await playSong(
         normalizeSong(song),
-        likedSongs.map(normalizeSong),
+        likedSongsWithDetails.map(normalizeSong),
         index >= 0 ? index : 0
       );
     } catch (error) {

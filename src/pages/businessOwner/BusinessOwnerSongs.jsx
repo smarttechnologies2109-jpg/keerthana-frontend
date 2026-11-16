@@ -48,6 +48,94 @@ const normalizeLanguage = (value) => {
   return aliases[normalized] || String(value ?? "").trim();
 };
 
+// Never render Telugu-script text in the Business Owner song table.
+const containsTelugu = (value) => /[\\u0C00-\\u0C7F]/.test(String(value ?? ""));
+
+const firstEnglish = (...values) => {
+  const value = values.find(
+    (item) =>
+      typeof item === "string" &&
+      item.trim() &&
+      !containsTelugu(item)
+  );
+  return value ? value.trim() : "";
+};
+
+const getEnglishSongTitle = (song) =>
+  firstEnglish(song?.title_english, song?.english_title, song?.titleEnglish) ||
+  "English title not available";
+
+const getEnglishArtist = (song, artistsById = {}) => {
+  const artistObject =
+    song?.artist && typeof song.artist === "object" ? song.artist : {};
+  const artistDetails =
+    song?.artist_details && typeof song.artist_details === "object"
+      ? song.artist_details
+      : song?.artistDetails && typeof song.artistDetails === "object"
+        ? song.artistDetails
+        : {};
+  const artistId =
+    song?.artist_id ??
+    song?.artistId ??
+    artistObject?.id ??
+    artistObject?.artist_id ??
+    artistDetails?.id ??
+    artistDetails?.artist_id;
+  const linkedArtist = artistsById[String(artistId ?? "")] || {};
+
+  return (
+    firstEnglish(
+      song?.artist_name_english,
+      song?.artist_english,
+      song?.artist_english_name,
+      song?.artist_name_en,
+      linkedArtist?.name_english,
+      linkedArtist?.english_name,
+      linkedArtist?.nameEnglish,
+      linkedArtist?.englishName,
+      artistObject?.name_english,
+      artistObject?.english_name,
+      artistObject?.nameEnglish,
+      artistDetails?.name_english,
+      artistDetails?.english_name,
+      song?.artist_name,
+      song?.artistName,
+      typeof song?.artist === "string" ? song.artist : ""
+    ) || "English artist name not available"
+  );
+};
+
+const getEnglishAlbum = (song) =>
+  firstEnglish(
+    song?.album_title_english,
+    song?.album_name_english,
+    song?.album_english,
+    song?.album?.title_english,
+    song?.album?.name_english,
+    song?.album_title,
+    typeof song?.album === "string" ? song.album : ""
+  ) || "English album name not available";
+
+const getEnglishCategory = (song) =>
+  firstEnglish(
+    song?.category_name_english,
+    song?.category_english,
+    song?.category?.name_english,
+    song?.category?.english_name,
+    song?.category_name,
+    typeof song?.category === "string" ? song.category : ""
+  ) || "—";
+
+const getEnglishMinistry = (song) =>
+  firstEnglish(
+    song?.ministry_name_english,
+    song?.ministry_english,
+    song?.ministry?.name_english,
+    song?.ministry?.english_name,
+    song?.ministry_name,
+    typeof song?.ministry === "string" ? song.ministry : ""
+  ) || "—";
+
 /* =========================================================
    BUSINESS OWNER SONGS
 ========================================================= */
@@ -64,6 +152,8 @@ const BusinessOwnerSongs = () => {
   ======================================================= */
 
   const [songs, setSongs] = useState([]);
+
+  const [artistsById, setArtistsById] = useState({});
 
   const [loading, setLoading] = useState(true);
 
@@ -122,6 +212,36 @@ const BusinessOwnerSongs = () => {
         else if (Array.isArray(data?.data)) songList = data.data;
         else if (Array.isArray(data?.rows)) songList = data.rows;
 
+        // Use the same /artists reference as AllSongs.jsx to resolve
+        // English artist names when a song only contains artist_id.
+        try {
+          const artistsResponse = await API.get("/artists");
+          const artistsPayload = artistsResponse?.data;
+          const artistList = Array.isArray(artistsPayload)
+            ? artistsPayload
+            : Array.isArray(artistsPayload?.artists)
+              ? artistsPayload.artists
+              : Array.isArray(artistsPayload?.data)
+                ? artistsPayload.data
+                : [];
+
+          const lookup = {};
+          artistList.forEach((artist) => {
+            const id = artist?.id ?? artist?.artist_id;
+            const englishName = firstEnglish(
+              artist?.name_english,
+              artist?.english_name,
+              artist?.nameEnglish
+            );
+            if (id != null && englishName) {
+              lookup[String(id)] = { ...artist, name_english: englishName };
+            }
+          });
+          if (isMounted) setArtistsById(lookup);
+        } catch (artistError) {
+          console.warn("Unable to load English artist names:", artistError);
+        }
+
         if (isMounted) setSongs(songList);
       } catch (err) {
         console.error("Failed to load owner songs:", err);
@@ -175,32 +295,10 @@ const BusinessOwnerSongs = () => {
     return songs.filter(
       (song) => {
 
-        const title =
-          String(
-            song?.title || ""
-          ).toLowerCase();
-
-
-        const englishTitle =
-          String(
-            song?.title_english || ""
-          ).toLowerCase();
-
-
-        const artist =
-          String(
-            song?.artist_name ||
-            song?.artist ||
-            ""
-          ).toLowerCase();
-
-
-        const album =
-          String(
-            song?.album_title ||
-            song?.album ||
-            ""
-          ).toLowerCase();
+        const title = getEnglishSongTitle(song).toLowerCase();
+        const englishTitle = title;
+        const artist = getEnglishArtist(song, artistsById).toLowerCase();
+        const album = getEnglishAlbum(song).toLowerCase();
 
 
         const songLanguage = normalizeLanguage(song?.language);
@@ -250,6 +348,7 @@ const BusinessOwnerSongs = () => {
     songs,
     search,
     language,
+    artistsById,
   ]);
 
 
@@ -900,49 +999,35 @@ const BusinessOwnerSongs = () => {
                          TITLE
                       --------------------------------------------- */
 
-                      const title =
-                        song?.title ||
-                        "Untitled Song";
+                      const title = getEnglishSongTitle(song);
 
 
                       /* ---------------------------------------------
                          ARTIST
                       --------------------------------------------- */
 
-                      const artist =
-                        song?.artist_name ||
-                        song?.artist ||
-                        "Unknown Artist";
+                      const artist = getEnglishArtist(song, artistsById);
 
 
                       /* ---------------------------------------------
                          ALBUM
                       --------------------------------------------- */
 
-                      const album =
-                        song?.album_title ||
-                        song?.album ||
-                        "No Album";
+                      const album = getEnglishAlbum(song);
 
 
                       /* ---------------------------------------------
                          CATEGORY
                       --------------------------------------------- */
 
-                      const category =
-                        song?.category_name ||
-                        song?.category ||
-                        "—";
+                      const category = getEnglishCategory(song);
 
 
                       /* ---------------------------------------------
                          MINISTRY
                       --------------------------------------------- */
 
-                      const ministry =
-                        song?.ministry_name ||
-                        song?.ministry ||
-                        "—";
+                      const ministry = getEnglishMinistry(song);
 
 
                       return (
@@ -999,15 +1084,7 @@ const BusinessOwnerSongs = () => {
                                 </strong>
 
 
-                                {song?.title_english && (
 
-                                  <span>
-                                    {
-                                      song.title_english
-                                    }
-                                  </span>
-
-                                )}
 
                               </div>
 

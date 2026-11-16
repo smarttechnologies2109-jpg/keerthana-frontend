@@ -58,18 +58,92 @@ const getSongTeluguTitle = (song) => {
     : "";
 };
 
-const getArtistName = (song) => {
-  const artist = song?.artist;
+/*
+ * Artist names are displayed in English.
+ * Prefer English fields on the history song, then resolve artist_id
+ * against the /artists API response (same approach as AllSongs.jsx).
+ */
+const containsTelugu = (value) =>
+  /[\u0C00-\u0C7F]/.test(String(value || ""));
 
-  return (
-    song?.artist_name_english ||
-    song?.artist_english ||
-    song?.artistEnglish ||
-    artist?.name_english ||
-    artist?.english_name ||
-    (typeof artist === "string" ? artist : "") ||
-    "Unknown Artist"
-  );
+const firstEnglishName = (...values) => {
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+
+    const name = value.trim();
+    if (!name || containsTelugu(name)) continue;
+    if (["unknown artist", "null", "undefined", "n/a"].includes(name.toLowerCase())) continue;
+
+    return name;
+  }
+
+  return "";
+};
+
+const getArtistName = (song, artistsById = {}) => {
+  const artistObject =
+    song?.artist && typeof song.artist === "object"
+      ? song.artist
+      : {};
+
+  const nestedArtist =
+    song?.artist_details && typeof song.artist_details === "object"
+      ? song.artist_details
+      : song?.artistDetails && typeof song.artistDetails === "object"
+        ? song.artistDetails
+        : {};
+
+  const artistId =
+    song?.artist_id ??
+    song?.artistId ??
+    song?.artist?.id ??
+    song?.artist?.artist_id ??
+    song?.artist_details?.id ??
+    song?.artistDetails?.id;
+
+  const linkedArtist =
+    artistId != null ? artistsById[String(artistId)] || {} : {};
+
+  return firstEnglishName(
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artist_english_name,
+    song?.artist_name_en,
+    song?.artistEnglishName,
+    song?.artistNameEnglish,
+    song?.artistEnglish,
+    linkedArtist?.name_english,
+    linkedArtist?.english_name,
+    linkedArtist?.nameEnglish,
+    linkedArtist?.englishName,
+    linkedArtist?.artist_name_english,
+    linkedArtist?.artist_english,
+    linkedArtist?.artist_name_en,
+    linkedArtist?.name_en,
+    linkedArtist?.name,
+    artistObject?.name_english,
+    artistObject?.english_name,
+    artistObject?.artist_name_english,
+    artistObject?.artist_english,
+    artistObject?.englishName,
+    artistObject?.nameEnglish,
+    artistObject?.artistEnglishName,
+    artistObject?.artist_name_en,
+    artistObject?.name_en,
+    artistObject?.name,
+    nestedArtist?.name_english,
+    nestedArtist?.english_name,
+    nestedArtist?.nameEnglish,
+    nestedArtist?.englishName,
+    nestedArtist?.artist_name_english,
+    nestedArtist?.artist_english,
+    nestedArtist?.artist_name_en,
+    nestedArtist?.name_en,
+    nestedArtist?.name,
+    song?.artist_name,
+    song?.artistName,
+    typeof song?.artist === "string" ? song.artist : ""
+  ) || "Artist name unavailable";
 };
 
 const getAlbumName = (song) =>
@@ -157,8 +231,20 @@ const normalizeHistory = (responseData) => {
       seen.add(String(id));
 
       return {
+        ...record,
         ...song,
         id,
+        artist_id:
+          song?.artist_id ??
+          song?.artistId ??
+          record?.artist_id ??
+          record?.artistId ??
+          song?.artist?.id ??
+          song?.artist?.artist_id ??
+          song?.artist_details?.id ??
+          song?.artistDetails?.id ??
+          record?.artist?.id ??
+          null,
         played_at:
           record?.played_at ||
           record?.playedAt ||
@@ -184,6 +270,7 @@ export default function History() {
   } = usePlayer();
 
   const [history, setHistory] = useState([]);
+  const [artistsById, setArtistsById] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [clearing, setClearing] = useState(false);
@@ -231,9 +318,65 @@ export default function History() {
     setError("");
 
     try {
-      const response = await API.get("/history");
+      // Load history and the artist directory independently. Some history
+      // responses contain only artist_id, so /artists supplies the English name.
+      const [historyResult, artistsResult] = await Promise.allSettled([
+        API.get("/history"),
+        API.get("/artists"),
+      ]);
 
-      setHistory(normalizeHistory(response?.data));
+      if (historyResult.status === "rejected") {
+        throw historyResult.reason;
+      }
+
+      if (artistsResult.status === "fulfilled") {
+        const artistsPayload = artistsResult.value?.data;
+        const artistList = Array.isArray(artistsPayload)
+          ? artistsPayload
+          : Array.isArray(artistsPayload?.artists)
+            ? artistsPayload.artists
+            : Array.isArray(artistsPayload?.data)
+              ? artistsPayload.data
+              : Array.isArray(artistsPayload?.data?.artists)
+                ? artistsPayload.data.artists
+                : Array.isArray(artistsPayload?.results)
+                  ? artistsPayload.results
+                  : [];
+
+        const artistLookup = {};
+
+        artistList.forEach((artist) => {
+          const artistId = artist?.id ?? artist?.artist_id ?? artist?.artistId;
+          const englishName = firstEnglishName(
+            artist?.name_english,
+            artist?.english_name,
+            artist?.nameEnglish,
+            artist?.englishName,
+            artist?.artist_name_english,
+            artist?.artist_english,
+            artist?.artist_name_en,
+            artist?.name_en,
+            artist?.name
+          );
+
+          if (artistId != null && englishName) {
+            artistLookup[String(artistId)] = {
+              ...artist,
+              name_english: englishName,
+            };
+          }
+        });
+
+        setArtistsById(artistLookup);
+      } else {
+        console.warn(
+          "Unable to load artist-name fallback list:",
+          artistsResult.reason
+        );
+        setArtistsById({});
+      }
+
+      setHistory(normalizeHistory(historyResult.value?.data));
     } catch (err) {
       console.error(
         "Failed to load listening history:",
@@ -264,7 +407,7 @@ export default function History() {
 
     const title = getSongTitle(song).toLowerCase();
     const teluguTitle = getSongTeluguTitle(song).toLowerCase();
-    const artist = getArtistName(song).toLowerCase();
+    const artist = getArtistName(song, artistsById).toLowerCase();
     const album = getAlbumName(song).toLowerCase();
 
     const playedDate = formatPlayedDate(song.played_at)
@@ -624,9 +767,7 @@ export default function History() {
                     {/* PLAY / PAUSE */}
 
                     <div className="history-row-number">
-                      <span className="history-track-number">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
+                    
 
                       <button
                         type="button"
@@ -685,8 +826,8 @@ export default function History() {
                           </span>
                         )}
 
-                        <p title={getArtistName(song)}>
-                          {getArtistName(song)}
+                        <p title={getArtistName(song, artistsById)}>
+                          {getArtistName(song, artistsById)}
                         </p>
                       </div>
                     </button>

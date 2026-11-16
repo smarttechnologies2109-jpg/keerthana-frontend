@@ -82,7 +82,7 @@ const normalizeLanguage = (value) => {
   if (aliases[raw]) return aliases[raw];
 
   const prefix = raw.split(/[-\s([]/)[0];
-  return aliases[prefix] || raw;
+  return aliases[prefix] || "";
 };
 
 const getArtistLanguage = (artist) => {
@@ -129,11 +129,6 @@ const getArtistLanguage = (artist) => {
     }
   }
 
-  // In this Telugu music catalogue, a Telugu-script artist name is a useful
-  // fallback only when the API has omitted its language field entirely.
-  const names = getArtistNames(artist);
-  if (names.telugu && containsTelugu(names.telugu)) return "telugu";
-
   return "";
 };
 
@@ -168,18 +163,13 @@ const getArtistNames = (artist) => {
     artist?.artist_name_en,
     artist?.english_artist_name,
     artist?.artist_english_name,
-    artist?.artist_name_en,
     artist?.englishName,
     artist?.artist?.name_english,
     artist?.artist?.english_name,
     artist?.display_name_english,
     artist?.name_en,
     artist?.nameEnglish,
-    artist?.englishName,
-    artist?.artist_name,
-    artist?.artistName,
-    artist?.display_name,
-    artist?.displayName,
+    artist?.displayNameEnglish,
     artist?.title_english,
     artist?.title_en,
     artist?.names?.english,
@@ -188,28 +178,7 @@ const getArtistNames = (artist) => {
     artist?.translations?.english
   );
 
-  const teluguExplicit = firstNonEmpty(
-    artist?.name_telugu,
-    artist?.telugu_name,
-    artist?.artist_name_telugu,
-    artist?.artistNameTelugu,
-    artist?.artist_name_te,
-    artist?.telugu_artist_name,
-    artist?.artist_telugu_name,
-    artist?.teluguName,
-    artist?.artist?.name_telugu,
-    artist?.artist?.telugu_name,
-    artist?.display_name_telugu,
-    artist?.name_te,
-    artist?.nameTelugu,
-    artist?.teluguName,
-    artist?.names?.telugu,
-    artist?.names?.te,
-    artist?.translations?.te,
-    artist?.translations?.telugu
-  );
-
-  const general = firstNonEmpty(
+  const generic = firstNonEmpty(
     artist?.name,
     artist?.artist_name,
     artist?.artistName,
@@ -220,13 +189,11 @@ const getArtistNames = (artist) => {
     artist?.artist?.artist_name
   );
 
-  const english = englishExplicit || (!containsTelugu(general) ? general : "");
-  const telugu = teluguExplicit || (containsTelugu(general) ? general : "");
+  const english = englishExplicit || (!containsTelugu(generic) ? generic : "");
 
   return {
     english: english || "English name not provided",
-    telugu: telugu || "",
-    searchable: [english, telugu, general].filter(Boolean).join(" "),
+    searchable: english || "",
   };
 };
 
@@ -370,14 +337,15 @@ const BusinessOwnerArtists = () => {
 
         const names = getArtistNames(artist);
         const name = names.searchable.toLowerCase();
-        const bio = firstNonEmpty(
-          artist?.bio,
-          artist?.description,
+        const bioValue = firstNonEmpty(
           artist?.bio_english,
           artist?.english_bio,
-          artist?.bio_telugu,
-          artist?.telugu_bio
-        ).toLowerCase();
+          artist?.description_english,
+          artist?.descriptionEnglish,
+          artist?.bio,
+          artist?.description
+        );
+        const bio = containsTelugu(bioValue) ? "" : bioValue.toLowerCase();
         const artistLanguage = normalizeLanguage(getArtistLanguage(artist));
 
         const matchesSearch =
@@ -474,20 +442,8 @@ const BusinessOwnerArtists = () => {
     <div className="owner-artists-page">
 
       <style>{`
-        .owner-artist-bilingual-name {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
         .owner-artist-bilingual-name h3 {
           margin: 0;
-        }
-        .owner-artist-telugu-name {
-          margin: 0;
-          color: #d8c58f;
-          font-size: .95rem;
-          line-height: 1.5;
-          font-weight: 600;
         }
         .owner-artists-language-card strong {
           font-variant-numeric: tabular-nums;
@@ -734,7 +690,7 @@ const BusinessOwnerArtists = () => {
                     event.target.value
                   )
                 }
-                placeholder="Search artists in English or Telugu..."
+                placeholder="Search artists in English..."
               />
 
 
@@ -929,7 +885,6 @@ const BusinessOwnerArtists = () => {
                   const image = getArtistImage(artist);
                   const names = getArtistNames(artist);
                   const name = names.english;
-                  const teluguName = names.telugu;
                   const artistLanguage = getArtistLanguage(artist) || "Language not provided";
                   const songCount = getArtistSongCount(artist);
 
@@ -940,7 +895,7 @@ const BusinessOwnerArtists = () => {
                       key={
                         artist?.id ||
                         artist?.artist_id ||
-                        `${name}-${teluguName}-${index}`
+                        `${name}-${index}`
                       }
                       className="owner-artist-card"
                     >
@@ -952,7 +907,7 @@ const BusinessOwnerArtists = () => {
 
                         <img
                           src={image || "/images/default-artist.png"}
-                          alt={`${name}${teluguName ? ` - ${teluguName}` : ""}`}
+                          alt={name}
                           className="owner-artist-image"
                           loading="lazy"
                           onError={(event) => {
@@ -971,36 +926,34 @@ const BusinessOwnerArtists = () => {
 
                         <div className="owner-artist-bilingual-name">
                           <h3>{name}</h3>
-                          {teluguName && (
-                            <p className="owner-artist-telugu-name">
-                              {teluguName}
-                            </p>
-                          )}
                         </div>
 
 
-                        {firstNonEmpty(
-                          artist?.bio,
-                          artist?.description,
+                        {!containsTelugu(firstNonEmpty(
                           artist?.bio_english,
                           artist?.english_bio,
-                          artist?.bio_telugu,
-                          artist?.telugu_bio
+                          artist?.description_english,
+                          artist?.descriptionEnglish,
+                          artist?.bio,
+                          artist?.description
+                        )) && firstNonEmpty(
+                          artist?.bio_english,
+                          artist?.english_bio,
+                          artist?.description_english,
+                          artist?.descriptionEnglish,
+                          artist?.bio,
+                          artist?.description
                         ) && (
-
                           <p className="owner-artist-bio">
-
                             {firstNonEmpty(
-                              artist?.bio,
-                              artist?.description,
                               artist?.bio_english,
                               artist?.english_bio,
-                              artist?.bio_telugu,
-                              artist?.telugu_bio
+                              artist?.description_english,
+                              artist?.descriptionEnglish,
+                              artist?.bio,
+                              artist?.description
                             )}
-
                           </p>
-
                         )}
 
 

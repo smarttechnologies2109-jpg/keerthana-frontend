@@ -98,38 +98,50 @@ const getCategoryLanguage = (category) => {
 const hasTeluguScript = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
 
 const getCategoryNames = (category) => {
-  const english = firstNonEmpty(
-    category?.name_english, category?.english_name, category?.nameEnglish,
-    category?.category_name_english, category?.categoryNameEnglish,
-    category?.category_name_en, category?.name_en, category?.nameEn,
-    category?.englishName, category?.title_english, category?.title_en,
-    category?.names?.english, category?.names?.en,
-    category?.translations?.en, category?.translations?.english,
-    category?.category?.name_english, category?.category?.english_name,
-    category?.category?.name_en, category?.names?.English,
-    category?.translations?.English
+  const explicitEnglish = firstNonEmpty(
+    category?.name_english,
+    category?.english_name,
+    category?.nameEnglish,
+    category?.category_name_english,
+    category?.categoryNameEnglish,
+    category?.category_name_en,
+    category?.name_en,
+    category?.nameEn,
+    category?.englishName,
+    category?.title_english,
+    category?.title_en,
+    category?.names?.english,
+    category?.names?.en,
+    category?.translations?.en,
+    category?.translations?.english,
+    category?.category?.name_english,
+    category?.category?.english_name,
+    category?.category?.name_en
   );
 
-  const telugu = firstNonEmpty(
-    category?.name_telugu, category?.telugu_name, category?.nameTelugu,
-    category?.category_name_telugu, category?.categoryNameTelugu,
-    category?.category_name_te, category?.name_te, category?.nameTe,
-    category?.teluguName, category?.names?.telugu, category?.names?.te,
-    category?.translations?.te, category?.translations?.telugu,
-    category?.category?.name_telugu, category?.category?.telugu_name,
-    category?.category?.name_te, category?.names?.Telugu,
-    category?.translations?.Telugu
-  );
-
-  const general = firstNonEmpty(
-    category?.name, category?.category_name, category?.categoryName,
+  const generic = firstNonEmpty(
+    category?.name,
+    category?.category_name,
+    category?.categoryName,
     category?.title
   );
 
-  return {
-    english: english || (!hasTeluguScript(general) ? general : ""),
-    telugu: telugu || (hasTeluguScript(general) ? general : ""),
-  };
+  const english = explicitEnglish || (!hasTeluguScript(generic) ? generic : "");
+  return { english: english || "English name not provided by API" };
+};
+
+const getEnglishDescription = (category) => {
+  const explicitEnglish = firstNonEmpty(
+    category?.description_english,
+    category?.english_description,
+    category?.descriptionEnglish,
+    category?.description_en,
+    category?.bio_english,
+    category?.english_bio
+  );
+  const generic = firstNonEmpty(category?.description);
+  const value = explicitEnglish || (!hasTeluguScript(generic) ? generic : "");
+  return value || "";
 };
 
 const extractCategoryArray = (payload) => {
@@ -274,21 +286,8 @@ const response = await API.get("/owner/music/categories");
       (category) => {
 
         const names = getCategoryNames(category);
-        const searchableNames = [
-          names.english,
-          names.telugu,
-          category?.name,
-          category?.category_name,
-          category?.categoryName,
-          category?.name_english,
-          category?.name_telugu
-        ].filter(Boolean).join(" ").toLowerCase();
-
-        const description =
-          String(
-            category?.description ||
-            ""
-          ).toLowerCase();
+        const searchableNames = names.english.toLowerCase();
+        const description = getEnglishDescription(category).toLowerCase();
 
 
         const categoryLanguage = getCategoryLanguage(category);
@@ -887,24 +886,12 @@ const response = await API.get("/owner/music/categories");
                       <div className="owner-category-details">
 
 
-                        <h3>
-                          {names.english || "English name not provided by API"}
-                        </h3>
+                        <h3>{names.english}</h3>
 
-                        {names.telugu && (
-                          <p className="owner-category-telugu-name">
-                            {names.telugu}
-                          </p>
-                        )}
-
-                        {category?.description && (
-
+                        {getEnglishDescription(category) && (
                           <p className="owner-category-description">
-
-                            {category.description}
-
+                            {getEnglishDescription(category)}
                           </p>
-
                         )}
 
 

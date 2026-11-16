@@ -135,6 +135,8 @@ const getMinistryLanguage = (ministry) => {
   return "Telugu";
 };
 
+const containsTelugu = (value) => /[\\u0C00-\\u0C7F]/.test(String(value ?? ""));
+
 const getMinistryNames = (ministry) => {
   const translations = ministry?.translations || {};
   const names = ministry?.names || {};
@@ -169,31 +171,6 @@ const getMinistryNames = (ministry) => {
     translations?.English
   )).trim();
 
-  const teluguName = String(firstNonEmpty(
-    ministry?.name_telugu,
-    ministry?.telugu_name,
-    ministry?.nameTelugu,
-    ministry?.ministry_name_telugu,
-    ministry?.ministryNameTelugu,
-    ministry?.ministry_name_te,
-    ministry?.telugu_ministry_name,
-    ministry?.ministry_telugu_name,
-    ministry?.name_te,
-    ministry?.nameTe,
-    ministry?.teluguName,
-    ministry?.name_in_telugu,
-    nested?.name_telugu,
-    nested?.telugu_name,
-    nested?.ministry_name_telugu,
-    nested?.name_te,
-    names?.telugu,
-    names?.te,
-    names?.Telugu,
-    translations?.te,
-    translations?.telugu,
-    translations?.Telugu
-  )).trim();
-
   const generalCandidates = [
     ministry?.name,
     ministry?.ministry_name,
@@ -204,21 +181,35 @@ const getMinistryNames = (ministry) => {
     nested?.title
   ].map((value) => String(value ?? "").trim()).filter(Boolean);
 
-  const generalEnglish = generalCandidates.find(
-    (value) => !/[\u0C00-\u0C7F]/.test(value)
-  ) || "";
-  const generalTelugu = generalCandidates.find(
-    (value) => /[\u0C00-\u0C7F]/.test(value)
-  ) || "";
-
-  const displayEnglish = englishName || generalEnglish;
-  const displayTelugu = teluguName || generalTelugu;
+  const generalEnglish = generalCandidates.find((value) => !containsTelugu(value)) || "";
+  const english = englishName && !containsTelugu(englishName)
+    ? englishName
+    : generalEnglish;
 
   return {
-    english: displayEnglish,
-    telugu: displayTelugu,
-    fallback: displayEnglish || displayTelugu || "Unnamed Ministry"
+    english,
+    fallback: english || "English name not provided by API"
   };
+};
+
+const getEnglishDescription = (ministry) => {
+  const explicitEnglish = firstNonEmpty(
+    ministry?.description_english,
+    ministry?.english_description,
+    ministry?.descriptionEnglish,
+    ministry?.description_en,
+    ministry?.about_english,
+    ministry?.english_about
+  );
+
+  if (explicitEnglish && !containsTelugu(explicitEnglish)) {
+    return String(explicitEnglish).trim();
+  }
+
+  const generalDescription = String(ministry?.description ?? "").trim();
+  return generalDescription && !containsTelugu(generalDescription)
+    ? generalDescription
+    : "";
 };
 
 const extractMinistryArray = (payload) => {
@@ -375,27 +366,18 @@ const BusinessOwnerMinistries = () => {
 
           const searchableNames = [
             names.english,
-            names.telugu,
-            names.fallback,
-            ministry?.name,
-            ministry?.ministry_name,
-            ministry?.ministryName,
             ministry?.name_english,
             ministry?.english_name,
             ministry?.ministry_name_english,
             ministry?.ministry_name_en,
-            ministry?.name_telugu,
-            ministry?.telugu_name,
-            ministry?.ministry_name_telugu,
-            ministry?.ministry_name_te,
+            ministry?.title_english,
+            ministry?.title_en
           ]
-            .filter(Boolean)
+            .filter((value) => value && !containsTelugu(value))
             .join(" ")
             .toLowerCase();
 
-          const description = String(
-            ministry?.description || ""
-          ).toLowerCase();
+          const description = getEnglishDescription(ministry).toLowerCase();
 
           const ministryLanguage = getMinistryLanguage(ministry);
 
@@ -617,7 +599,7 @@ const BusinessOwnerMinistries = () => {
           color: #aebed7;
           font-size: 11px;
         }
-        .owner-ministry-bilingual-name {
+        .owner-ministry-name-wrapper {
           display: flex;
           flex-direction: column;
           gap: 5px;
@@ -629,14 +611,6 @@ const BusinessOwnerMinistries = () => {
           font-size: 17px;
           font-weight: 750;
           line-height: 1.3;
-          overflow-wrap: anywhere;
-        }
-        .owner-ministry-name-telugu {
-          margin: 0;
-          color: #e8c98d;
-          font-size: 15px;
-          font-weight: 650;
-          line-height: 1.4;
           overflow-wrap: anywhere;
         }
         .owner-ministry-name-caption {
@@ -1058,7 +1032,7 @@ const BusinessOwnerMinistries = () => {
                           const names = getMinistryNames(ministry);
 
                           return (
-                            <div className="owner-ministry-bilingual-name">
+                            <div className="owner-ministry-name-wrapper">
                               <span className="owner-ministry-name-caption">
                                 Ministry Name
                               </span>
@@ -1067,11 +1041,6 @@ const BusinessOwnerMinistries = () => {
                                 {names.english || "English name not provided by API"}
                               </h2>
 
-                              {names.telugu && (
-                                <p className="owner-ministry-name-telugu">
-                                  {names.telugu}
-                                </p>
-                              )}
                             </div>
                           );
                         })()}
@@ -1091,11 +1060,11 @@ const BusinessOwnerMinistries = () => {
 
                       {/* DESCRIPTION */}
 
-                      {ministry?.description && (
+                      {getEnglishDescription(ministry) && (
 
                         <p className="owner-ministry-description">
 
-                          {ministry.description}
+                          {getEnglishDescription(ministry)}
 
                         </p>
 

@@ -1,354 +1,178 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import {
-  FaMoon,
-  FaTimes,
-} from "react-icons/fa";
-
-import {
-  usePlayer,
-} from "../context/usePlayer";
-
+import { FaMoon, FaTimes } from "react-icons/fa";
+import { usePlayer } from "../context/usePlayer";
 import "../assets/css/sleepTimer.css";
 
+const TIMER_KEY = "keerthana_sleep_timer";
+const MINUTES_KEY = "keerthana_sleep_timer_minutes";
+
 function SleepTimer() {
-  const {
-    togglePlay,
-    isPlaying,
-  } = usePlayer();
+  const { togglePlay, isPlaying } = usePlayer();
+  const [selectedMinutes, setSelectedMinutes] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const [endTime, setEndTime] = useState(null);
+  const [showTimer, setShowTimer] = useState(false);
+  const rootRef = useRef(null);
+  const isPlayingRef = useRef(isPlaying);
+  const togglePlayRef = useRef(togglePlay);
+  const finishedRef = useRef(false);
 
-  const [selectedMinutes, setSelectedMinutes] =
-    useState(null);
-
-  const [remainingSeconds, setRemainingSeconds] =
-    useState(0);
-
-  const [showTimer, setShowTimer] =
-    useState(false);
-
-  /* =====================================================
-     AVAILABLE TIMER OPTIONS
-  ===================================================== */
-
-  const timerOptions = [
-    5,
-    10,
-    15,
-    20,
-    30,
-    45,
-    60,
-    90,
-  ];
-
-  /* =====================================================
-     LOAD SAVED TIMER
-  ===================================================== */
+  const timerOptions = [5, 10, 15, 20, 30, 45, 60, 90];
 
   useEffect(() => {
-    const savedEndTime =
-      localStorage.getItem(
-        "keerthana_sleep_timer"
-      );
+    isPlayingRef.current = isPlaying;
+    togglePlayRef.current = togglePlay;
+  }, [isPlaying, togglePlay]);
 
-    if (!savedEndTime) {
+  // Restore an active timer after a page refresh or app restart.
+  useEffect(() => {
+    const savedEndTime = Number(localStorage.getItem(TIMER_KEY));
+    const savedMinutes = Number(localStorage.getItem(MINUTES_KEY));
+
+    if (!Number.isFinite(savedEndTime) || savedEndTime <= Date.now()) {
+      localStorage.removeItem(TIMER_KEY);
+      localStorage.removeItem(MINUTES_KEY);
       return;
     }
 
-    const endTime =
-      Number(savedEndTime);
-
-    const remaining =
-      Math.max(
-        0,
-        Math.ceil(
-          (endTime - Date.now()) / 1000
-        )
-      );
-
-    if (remaining > 0) {
-      setRemainingSeconds(remaining);
-
-      const savedMinutes =
-        localStorage.getItem(
-          "keerthana_sleep_timer_minutes"
-        );
-
-      if (savedMinutes) {
-        setSelectedMinutes(
-          Number(savedMinutes)
-        );
-      }
-    } else {
-      localStorage.removeItem(
-        "keerthana_sleep_timer"
-      );
-
-      localStorage.removeItem(
-        "keerthana_sleep_timer_minutes"
-      );
-    }
+    setEndTime(savedEndTime);
+    setSelectedMinutes(savedMinutes || null);
+    setRemainingSeconds(Math.max(0, Math.ceil((savedEndTime - Date.now()) / 1000)));
   }, []);
 
-  /* =====================================================
-     TIMER COUNTDOWN
-  ===================================================== */
-
+  // Recalculate from the saved end timestamp so background throttling is safe.
   useEffect(() => {
-    if (remainingSeconds <= 0) {
-      return;
-    }
+    if (!endTime) return undefined;
 
-    const timer =
-      setInterval(() => {
-        setRemainingSeconds(
-          (current) =>
-            Math.max(
-              0,
-              current - 1
-            )
-        );
-      }, 1000);
+    const updateRemaining = () => {
+      const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+      setRemainingSeconds(remaining);
 
-    return () => {
-      clearInterval(timer);
+      if (remaining <= 0 && !finishedRef.current) {
+        finishedRef.current = true;
+        localStorage.removeItem(TIMER_KEY);
+        localStorage.removeItem(MINUTES_KEY);
+        setEndTime(null);
+        setSelectedMinutes(null);
+        setRemainingSeconds(0);
+        setShowTimer(false);
+        if (isPlayingRef.current) togglePlayRef.current?.();
+      }
     };
-  }, [remainingSeconds]);
 
-  /* =====================================================
-     STOP MUSIC WHEN TIMER FINISHES
-  ===================================================== */
+    updateRemaining();
+    const intervalId = window.setInterval(updateRemaining, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [endTime]);
 
+  // Close the popup on outside click or Escape. This does not cancel the timer.
   useEffect(() => {
-    if (remainingSeconds !== 0) {
-      return;
-    }
+    if (!showTimer) return undefined;
 
-    const savedTimer =
-      localStorage.getItem(
-        "keerthana_sleep_timer"
-      );
+    const handlePointerDown = (event) => {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setShowTimer(false);
+      }
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setShowTimer(false);
+    };
 
-    if (!savedTimer) {
-      return;
-    }
-
-    localStorage.removeItem(
-      "keerthana_sleep_timer"
-    );
-
-    localStorage.removeItem(
-      "keerthana_sleep_timer_minutes"
-    );
-
-    setSelectedMinutes(null);
-
-    if (isPlaying) {
-      togglePlay();
-    }
-  }, [
-    remainingSeconds,
-    isPlaying,
-    togglePlay,
-  ]);
-
-  /* =====================================================
-     SET TIMER
-  ===================================================== */
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showTimer]);
 
   const startTimer = (minutes) => {
-    const seconds =
-      minutes * 60;
+    const numericMinutes = Number(minutes);
+    if (!Number.isFinite(numericMinutes) || numericMinutes <= 0) return;
 
-    const endTime =
-      Date.now() +
-      seconds * 1000;
-
-    localStorage.setItem(
-      "keerthana_sleep_timer",
-      String(endTime)
-    );
-
-    localStorage.setItem(
-      "keerthana_sleep_timer_minutes",
-      String(minutes)
-    );
-
-    setSelectedMinutes(minutes);
-
-    setRemainingSeconds(seconds);
-
+    const nextEndTime = Date.now() + numericMinutes * 60 * 1000;
+    finishedRef.current = false;
+    localStorage.setItem(TIMER_KEY, String(nextEndTime));
+    localStorage.setItem(MINUTES_KEY, String(numericMinutes));
+    setEndTime(nextEndTime);
+    setSelectedMinutes(numericMinutes);
+    setRemainingSeconds(numericMinutes * 60);
     setShowTimer(false);
   };
-
-  /* =====================================================
-     CANCEL TIMER
-  ===================================================== */
 
   const cancelTimer = () => {
-    localStorage.removeItem(
-      "keerthana_sleep_timer"
-    );
-
-    localStorage.removeItem(
-      "keerthana_sleep_timer_minutes"
-    );
-
+    localStorage.removeItem(TIMER_KEY);
+    localStorage.removeItem(MINUTES_KEY);
+    finishedRef.current = false;
+    setEndTime(null);
     setSelectedMinutes(null);
-
     setRemainingSeconds(0);
-
     setShowTimer(false);
   };
 
-  /* =====================================================
-     FORMAT TIME
-  ===================================================== */
-
   const formatTime = () => {
-    const minutes =
-      Math.floor(
-        remainingSeconds / 60
-      );
-
-    const seconds =
-      remainingSeconds % 60;
-
-    return `${String(minutes).padStart(
-      2,
-      "0"
-    )}:${String(seconds).padStart(
-      2,
-      "0"
-    )}`;
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
-  /* =====================================================
-     RENDER
-  ===================================================== */
-
   return (
-    <div className="sleep-timer">
-
-      {/* TIMER BUTTON */}
-
+    <div className="sleep-timer" ref={rootRef}>
       <button
         type="button"
-        className={
-          selectedMinutes
-            ? "sleep-timer-button active"
-            : "sleep-timer-button"
-        }
-        onClick={() =>
-          setShowTimer(
-            (current) => !current
-          )
-        }
+        className={selectedMinutes ? "sleep-timer-button active" : "sleep-timer-button"}
+        onClick={() => setShowTimer((current) => !current)}
         title="Sleep Timer"
+        aria-label="Sleep Timer"
+        aria-expanded={showTimer}
       >
         <FaMoon />
-
-        {selectedMinutes && (
-          <span>
-            {formatTime()}
-          </span>
-        )}
+        {selectedMinutes && <span>{formatTime()}</span>}
       </button>
 
-      {/* TIMER POPUP */}
-
       {showTimer && (
-        <div className="sleep-timer-popup">
-
-          {/* HEADER */}
-
+        <div className="sleep-timer-popup" role="dialog" aria-label="Sleep Timer">
           <div className="sleep-timer-header">
-
             <div>
               <FaMoon />
-
               <div>
-                <strong>
-                  Sleep Timer
-                </strong>
-
-                <span>
-                  Stop music automatically
-                </span>
+                <strong>Sleep Timer</strong>
+                <span>Stop music automatically</span>
               </div>
             </div>
-
             <button
               type="button"
               className="sleep-timer-close"
-              onClick={() =>
-                setShowTimer(false)
-              }
-              aria-label="Close"
+              onClick={() => setShowTimer(false)}
+              aria-label="Close Sleep Timer"
             >
               <FaTimes />
             </button>
-
           </div>
-
-          {/* TIMER OPTIONS */}
 
           <div className="sleep-timer-options">
-
-            {timerOptions.map(
-              (minutes) => (
-                <button
-                  type="button"
-                  key={minutes}
-                  className={
-                    selectedMinutes ===
-                    minutes
-                      ? "selected"
-                      : ""
-                  }
-                  onClick={() =>
-                    startTimer(minutes)
-                  }
-                >
-                  {minutes}{" "}
-                  {minutes === 1
-                    ? "Minute"
-                    : "Minutes"}
-                </button>
-              )
-            )}
-
+            {timerOptions.map((minutes) => (
+              <button
+                type="button"
+                key={minutes}
+                className={selectedMinutes === minutes ? "selected" : ""}
+                onClick={() => startTimer(minutes)}
+              >
+                {minutes} {minutes === 1 ? "Minute" : "Minutes"}
+              </button>
+            ))}
           </div>
-
-          {/* CURRENT TIMER */}
 
           {selectedMinutes && (
             <div className="sleep-timer-current">
-
-              <span>
-                Music will stop in
-              </span>
-
-              <strong>
-                {formatTime()}
-              </strong>
-
-              <button
-                type="button"
-                onClick={cancelTimer}
-              >
-                Cancel Timer
-              </button>
-
+              <span>Music will stop in</span>
+              <strong>{formatTime()}</strong>
+              <button type="button" onClick={cancelTimer}>Cancel Timer</button>
             </div>
           )}
-
         </div>
       )}
-
     </div>
   );
 }

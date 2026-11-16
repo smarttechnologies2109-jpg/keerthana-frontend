@@ -228,15 +228,53 @@ const getSongDisplayTitles = (song) => {
 const containsTelugu = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
 
-const getArtistName = (song) => {
+const getArtistName = (song, artistsById = {}) => {
+  /*
+   * Support the artist field names and response shapes commonly
+   * returned by the /songs API. Prefer English-specific fields.
+   */
+  const artistObject =
+    song?.artist && typeof song.artist === "object"
+      ? song.artist
+      : {};
+
+  const nestedArtist =
+    song?.artist_details && typeof song.artist_details === "object"
+      ? song.artist_details
+      : song?.artistDetails && typeof song.artistDetails === "object"
+        ? song.artistDetails
+        : {};
+
+  const linkedArtist =
+    artistsById[String(song?.artist_id ?? song?.artistId ?? "")] || {};
+
   const candidates = [
     song?.artist_name_english,
+    linkedArtist?.name_english,
+    linkedArtist?.english_name,
+    linkedArtist?.nameEnglish,
     song?.artist_english,
-    song?.artist?.name_english,
-    song?.artist?.english_name,
-    song?.artist?.artist_name_english,
-    song?.artist?.name,
+    song?.artist_english_name,
+    song?.artist_name_en,
+    song?.artistEnglishName,
+    song?.artistNameEnglish,
+    song?.artistEnglish,
+    artistObject?.name_english,
+    artistObject?.english_name,
+    artistObject?.artist_name_english,
+    artistObject?.artist_english,
+    artistObject?.englishName,
+    artistObject?.nameEnglish,
+    artistObject?.artistEnglishName,
+    artistObject?.artist_name_en,
+    artistObject?.name,
+    nestedArtist?.name_english,
+    nestedArtist?.english_name,
+    nestedArtist?.nameEnglish,
+    nestedArtist?.englishName,
+    nestedArtist?.artist_name_english,
     song?.artist_name,
+    song?.artistName,
     typeof song?.artist === "string" ? song.artist : "",
   ];
 
@@ -290,6 +328,7 @@ export default function AllSongs() {
   --------------------------------------------------- */
 
   const [songs, setSongs] = useState([]);
+  const [artistsById, setArtistsById] = useState({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -337,6 +376,47 @@ export default function AllSongs() {
 
     try {
       const response = await API.get("/songs");
+
+      // Some API responses include artist_name_english directly, while
+      // others only include artist_id. Load the artists list as a reliable
+      // fallback so All Songs can display the same English artist name
+      // already shown on Album Details and Artist Details.
+      try {
+        const artistsResponse = await API.get("/artists");
+        const artistsPayload = artistsResponse?.data;
+        const artistList = Array.isArray(artistsPayload)
+          ? artistsPayload
+          : Array.isArray(artistsPayload?.artists)
+            ? artistsPayload.artists
+            : Array.isArray(artistsPayload?.data)
+              ? artistsPayload.data
+              : [];
+
+        const artistLookup = {};
+        artistList.forEach((artist) => {
+          const artistId = artist?.id ?? artist?.artist_id;
+          const englishName =
+            artist?.name_english ||
+            artist?.english_name ||
+            artist?.nameEnglish ||
+            "";
+
+          if (artistId != null && englishName && !containsTelugu(englishName)) {
+            artistLookup[String(artistId)] = {
+              ...artist,
+              name_english: String(englishName).trim(),
+            };
+          }
+        });
+
+        setArtistsById(artistLookup);
+      } catch (artistError) {
+        // Keep the songs page usable even if the artists endpoint fails.
+        console.warn(
+          "Unable to load artist-name fallback list:",
+          artistError
+        );
+      }
 
       const payload = response?.data;
 
@@ -589,7 +669,7 @@ export default function AllSongs() {
         song.title_telugu,
         song.title_english,
         song.english_title,
-        getArtistName(song),
+        getArtistName(song, artistsById),
         getAlbumName(song),
         song.category_name,
         song.category?.name,
@@ -605,7 +685,7 @@ export default function AllSongs() {
         searchableText.includes(query)
       );
     });
-  }, [songs, search, language]);
+  }, [songs, search, language, artistsById]);
 
   /* ===================================================
      PLAY SONG
@@ -1223,7 +1303,7 @@ export default function AllSongs() {
                       })()}
 
                       <span className="all-song-artist">
-                        {getArtistName(song)}
+                        {getArtistName(song, artistsById)}
                       </span>
 
                     </button>
