@@ -80,12 +80,83 @@ const firstEnglishName = (...values) => {
   return "";
 };
 
-const getArtistName = (song, artistsById = {}) => {
+const getArtistNames = (song, artistsById = {}) => {
+  const names = [];
+  const addName = (value) => {
+    const name = firstEnglishName(value);
+    if (name && !names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+      names.push(name);
+    }
+  };
+
+  const addArtist = (artist) => {
+    if (typeof artist === "string") {
+      // A string can be an artist name or an artist ID.
+      const linked = artistsById[String(artist)];
+      if (linked) {
+        addName(linked.name_english);
+        addName(linked.english_name);
+        addName(linked.nameEnglish);
+        addName(linked.name);
+      } else if (!/^\d+$/.test(artist.trim())) {
+        addName(artist);
+      }
+      return;
+    }
+
+    if (!artist || typeof artist !== "object") return;
+    const id = artist.id ?? artist.artist_id ?? artist.artistId;
+    const linked = id != null ? artistsById[String(id)] : null;
+
+    [
+      artist.name_english,
+      artist.english_name,
+      artist.nameEnglish,
+      artist.englishName,
+      artist.artist_name_english,
+      artist.artist_english,
+      artist.artist_name_en,
+      artist.name_en,
+      artist.name,
+      linked?.name_english,
+      linked?.english_name,
+      linked?.nameEnglish,
+      linked?.englishName,
+      linked?.artist_name_english,
+      linked?.name,
+    ].forEach(addName);
+  };
+
+  const artistEntries = [
+    ...(Array.isArray(song?.artists) ? song.artists : []),
+    ...(Array.isArray(song?.artist) ? song.artist : []),
+  ];
+  artistEntries.forEach(addArtist);
+
+  const ids = [
+    ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+    ...(Array.isArray(song?.artistIds) ? song.artistIds : []),
+  ];
+  ids.forEach((id) => {
+    const linked = id != null ? artistsById[String(id)] : null;
+    if (linked) addArtist(linked);
+  });
+
+  const singleArtistId =
+    song?.artist_id ??
+    song?.artistId ??
+    (song?.artist && !Array.isArray(song.artist) ? song.artist.id ?? song.artist.artist_id : null) ??
+    song?.artist_details?.id ??
+    song?.artistDetails?.id;
+
+  if (singleArtistId != null) {
+    addArtist(artistsById[String(singleArtistId)] || { id: singleArtistId });
+  }
+
   const artistObject =
-    song?.artist && typeof song.artist === "object"
+    song?.artist && typeof song.artist === "object" && !Array.isArray(song.artist)
       ? song.artist
       : {};
-
   const nestedArtist =
     song?.artist_details && typeof song.artist_details === "object"
       ? song.artist_details
@@ -93,18 +164,7 @@ const getArtistName = (song, artistsById = {}) => {
         ? song.artistDetails
         : {};
 
-  const artistId =
-    song?.artist_id ??
-    song?.artistId ??
-    song?.artist?.id ??
-    song?.artist?.artist_id ??
-    song?.artist_details?.id ??
-    song?.artistDetails?.id;
-
-  const linkedArtist =
-    artistId != null ? artistsById[String(artistId)] || {} : {};
-
-  return firstEnglishName(
+  [
     song?.artist_name_english,
     song?.artist_english,
     song?.artist_english_name,
@@ -112,38 +172,20 @@ const getArtistName = (song, artistsById = {}) => {
     song?.artistEnglishName,
     song?.artistNameEnglish,
     song?.artistEnglish,
-    linkedArtist?.name_english,
-    linkedArtist?.english_name,
-    linkedArtist?.nameEnglish,
-    linkedArtist?.englishName,
-    linkedArtist?.artist_name_english,
-    linkedArtist?.artist_english,
-    linkedArtist?.artist_name_en,
-    linkedArtist?.name_en,
-    linkedArtist?.name,
-    artistObject?.name_english,
-    artistObject?.english_name,
-    artistObject?.artist_name_english,
-    artistObject?.artist_english,
-    artistObject?.englishName,
-    artistObject?.nameEnglish,
-    artistObject?.artistEnglishName,
-    artistObject?.artist_name_en,
-    artistObject?.name_en,
-    artistObject?.name,
-    nestedArtist?.name_english,
-    nestedArtist?.english_name,
-    nestedArtist?.nameEnglish,
-    nestedArtist?.englishName,
-    nestedArtist?.artist_name_english,
-    nestedArtist?.artist_english,
-    nestedArtist?.artist_name_en,
-    nestedArtist?.name_en,
-    nestedArtist?.name,
+    artistObject.name_english,
+    artistObject.english_name,
+    artistObject.nameEnglish,
+    artistObject.name,
+    nestedArtist.name_english,
+    nestedArtist.english_name,
+    nestedArtist.nameEnglish,
+    nestedArtist.name,
     song?.artist_name,
     song?.artistName,
-    typeof song?.artist === "string" ? song.artist : ""
-  ) || "Artist name unavailable";
+    typeof song?.artist === "string" ? song.artist : "",
+  ].forEach(addName);
+
+  return names.join(", ") || "Artist name unavailable";
 };
 
 const getAlbumName = (song) =>
@@ -234,6 +276,18 @@ const normalizeHistory = (responseData) => {
         ...record,
         ...song,
         id,
+        artists:
+          (Array.isArray(song?.artists) && song.artists.length
+            ? song.artists
+            : Array.isArray(record?.artists)
+              ? record.artists
+              : song?.artists),
+        artist_ids:
+          (Array.isArray(song?.artist_ids) && song.artist_ids.length
+            ? song.artist_ids
+            : Array.isArray(record?.artist_ids)
+              ? record.artist_ids
+              : song?.artist_ids),
         artist_id:
           song?.artist_id ??
           song?.artistId ??
@@ -407,7 +461,7 @@ export default function History() {
 
     const title = getSongTitle(song).toLowerCase();
     const teluguTitle = getSongTeluguTitle(song).toLowerCase();
-    const artist = getArtistName(song, artistsById).toLowerCase();
+    const artist = getArtistNames(song, artistsById).toLowerCase();
     const album = getAlbumName(song).toLowerCase();
 
     const playedDate = formatPlayedDate(song.played_at)
@@ -826,8 +880,8 @@ export default function History() {
                           </span>
                         )}
 
-                        <p title={getArtistName(song, artistsById)}>
-                          {getArtistName(song, artistsById)}
+                        <p title={getArtistNames(song, artistsById)}>
+                          {getArtistNames(song, artistsById)}
                         </p>
                       </div>
                     </button>

@@ -229,65 +229,112 @@ const containsTelugu = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
 
 const getArtistName = (song, artistsById = {}) => {
-  /*
-   * Support the artist field names and response shapes commonly
-   * returned by the /songs API. Prefer English-specific fields.
-   */
-  const artistObject =
-    song?.artist && typeof song.artist === "object"
-      ? song.artist
-      : {};
+  const candidates = [];
 
-  const nestedArtist =
-    song?.artist_details && typeof song.artist_details === "object"
-      ? song.artist_details
-      : song?.artistDetails && typeof song.artistDetails === "object"
-        ? song.artistDetails
-        : {};
+  // New multi-artist API shape: [{ id, name_english, ... }, ...]
+  if (Array.isArray(song?.artists)) {
+    candidates.push(...song.artists);
+  } else if (Array.isArray(song?.artist)) {
+    candidates.push(...song.artist);
+  } else if (song?.artist && typeof song.artist === "object") {
+    candidates.push(song.artist);
+  }
 
-  const linkedArtist =
-    artistsById[String(song?.artist_id ?? song?.artistId ?? "")] || {};
+  // Support artist_ids arrays while the API is being migrated.
+  if (!candidates.length && Array.isArray(song?.artist_ids)) {
+    candidates.push(...song.artist_ids);
+  }
 
-  const candidates = [
-    song?.artist_name_english,
-    linkedArtist?.name_english,
-    linkedArtist?.english_name,
-    linkedArtist?.nameEnglish,
-    song?.artist_english,
-    song?.artist_english_name,
-    song?.artist_name_en,
-    song?.artistEnglishName,
-    song?.artistNameEnglish,
-    song?.artistEnglish,
-    artistObject?.name_english,
-    artistObject?.english_name,
-    artistObject?.artist_name_english,
-    artistObject?.artist_english,
-    artistObject?.englishName,
-    artistObject?.nameEnglish,
-    artistObject?.artistEnglishName,
-    artistObject?.artist_name_en,
-    artistObject?.name,
-    nestedArtist?.name_english,
-    nestedArtist?.english_name,
-    nestedArtist?.nameEnglish,
-    nestedArtist?.englishName,
-    nestedArtist?.artist_name_english,
-    song?.artist_name,
-    song?.artistName,
-    typeof song?.artist === "string" ? song.artist : "",
-  ];
+  // Backward-compatible single-artist ID and response fields.
+  if (!candidates.length) {
+    const legacyId = song?.artist_id ?? song?.artistId;
+    if (legacyId != null) candidates.push(legacyId);
+  }
 
-  const englishName = candidates.find(
-    (value) =>
+  const names = [];
+
+  const addName = (value) => {
+    if (
       typeof value === "string" &&
       value.trim() &&
       !containsTelugu(value)
-  );
+    ) {
+      const cleanName = value.trim();
+      if (!names.some((name) => name.toLowerCase() === cleanName.toLowerCase())) {
+        names.push(cleanName);
+      }
+    }
+  };
 
-  return englishName?.trim() || "Unknown Artist";
+  candidates.forEach((candidate) => {
+    if (candidate == null) return;
+
+    const candidateId =
+      typeof candidate === "object"
+        ? candidate.id ?? candidate.artist_id
+        : typeof candidate === "number" || /^\d+$/.test(String(candidate).trim())
+          ? candidate
+          : null;
+
+    const linkedArtist =
+      candidateId != null
+        ? artistsById[String(candidateId)] || {}
+        : {};
+
+    if (typeof candidate === "object") {
+      addName(
+        candidate.name_english ||
+        candidate.english_name ||
+        candidate.nameEnglish ||
+        candidate.englishName ||
+        candidate.artist_name_english
+      );
+
+      // If the object has no English name, try the matching /artists record.
+      if (names.length === 0 || !(
+        candidate.name_english ||
+        candidate.english_name ||
+        candidate.nameEnglish ||
+        candidate.englishName ||
+        candidate.artist_name_english
+      )) {
+        addName(linkedArtist.name_english || linkedArtist.english_name);
+      }
+    } else if (candidateId != null) {
+      addName(linkedArtist.name_english || linkedArtist.english_name);
+    } else {
+      // String-valued legacy artist names are accepted only when not Telugu.
+      addName(candidate);
+    }
+  });
+
+  // Legacy APIs may provide an English artist name without an artist object.
+  if (!names.length) {
+    addName(
+      song?.artist_name_english ||
+      song?.artist_english ||
+      song?.artist_english_name ||
+      song?.artist_name_en ||
+      song?.artistEnglishName ||
+      song?.artistNameEnglish ||
+      song?.artistEnglish ||
+      (song?.artist && typeof song.artist === "object"
+        ? song.artist.name_english || song.artist.english_name
+        : "") ||
+      (typeof song?.artist === "string" ? song.artist : "") ||
+      song?.artist_name ||
+      song?.artistName
+    );
+
+    const legacyId = song?.artist_id ?? song?.artistId;
+    if (!names.length && legacyId != null) {
+      const linkedArtist = artistsById[String(legacyId)] || {};
+      addName(linkedArtist.name_english || linkedArtist.english_name);
+    }
+  }
+
+  return names.length ? names.join(", ") : "Unknown Artist";
 };
-
 const getAlbumName = (song) =>
   song?.album_name ||
   song?.album?.title ||

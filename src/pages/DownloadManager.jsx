@@ -28,7 +28,7 @@ import "../assets/css/download-manager.css";
 const hasTeluguScript = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
 
-const getSongDisplayNames = (song) => {
+const getSongDisplayNames = (song, artistById = new Map()) => {
   const englishCandidates = [
     song?.title_english,
     song?.titleEnglish,
@@ -61,39 +61,112 @@ const getSongDisplayNames = (song) => {
       hasTeluguScript(value)
   );
 
-  const artistCandidates = [
+  const artistNames = [];
+  const addArtistName = (value) => {
+    if (
+      typeof value !== "string" ||
+      !value.trim() ||
+      hasTeluguScript(value) ||
+      /^unknown artist$/i.test(value.trim())
+    ) {
+      return;
+    }
+
+    const name = value.trim();
+    if (!artistNames.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+      artistNames.push(name);
+    }
+  };
+
+  const addArtistRecord = (artist) => {
+    if (artist == null) return;
+
+    if (typeof artist === "string") {
+      const linked = artistById.get(artist);
+      if (linked) {
+        addArtistRecord(linked);
+      } else {
+        addArtistName(artist);
+      }
+      return;
+    }
+
+    if (typeof artist === "number") {
+      const linked = artistById.get(String(artist));
+      if (linked) addArtistRecord(linked);
+      return;
+    }
+
+    if (typeof artist !== "object") return;
+
+    const id = artist.id ?? artist.artist_id ?? artist.artistId;
+    const canonicalArtist = id != null
+      ? artistById.get(String(id)) || {}
+      : {};
+
+    [
+      artist.name_english,
+      artist.english_name,
+      artist.nameEnglish,
+      artist.artist_name_english,
+      artist.display_name,
+      canonicalArtist.name_english,
+      canonicalArtist.english_name,
+      canonicalArtist.nameEnglish,
+      canonicalArtist.name,
+      artist.name,
+    ].forEach(addArtistName);
+  };
+
+  const linkedArtists = Array.isArray(song?.artists)
+    ? song.artists
+    : song?.artists
+      ? [song.artists]
+      : [];
+
+  linkedArtists.forEach(addArtistRecord);
+
+  const artistIds = Array.isArray(song?.artist_ids)
+    ? song.artist_ids
+    : [];
+
+  artistIds.forEach((id) => {
+    const artist = artistById.get(String(
+      typeof id === "object" ? id?.id ?? id?.artist_id : id
+    ));
+    if (artist) addArtistRecord(artist);
+  });
+
+  [
+    song?.artist_id,
+    song?.artistId,
+    song?.artist?.id,
+    song?.artist?.artist_id,
+  ].forEach((id) => {
+    if (id == null) return;
+    const artist = artistById.get(String(id));
+    if (artist) addArtistRecord(artist);
+  });
+
+  addArtistRecord(song?.artist);
+
+  [
     song?.artist_name_english,
-    song?.artist_english,
-    song?.artistEnglish,
+    song?.artist_english_name,
+    song?.artist_name_en,
+    song?.artistEnglishName,
     song?.artistNameEnglish,
-    song?.artist?.name_english,
-    song?.artist?.english_name,
-    song?.artist?.nameEnglish,
-    song?.artist?.nameEnglish,
-    song?.artist?.display_name,
-    song?.artistNameEnglish,
-    song?.artist_name_english,
     song?.artist_english,
     song?.artist_name,
     song?.artistName,
-    typeof song?.artist === "string" ? song.artist : "",
-    song?.artist?.name,
-  ];
-
-  const artistName = artistCandidates.find(
-    (value) =>
-      typeof value === "string" &&
-      value.trim() &&
-      !hasTeluguScript(value)
-  );
+  ].forEach(addArtistName);
 
   return {
     englishTitle: String(englishTitle || "Unknown Song").trim(),
     teluguTitle: String(teluguTitle || "").trim(),
-    artistName: String(artistName || "Unknown Artist").trim(),
+    artistName: artistNames.join(", ") || "Unknown Artist",
   };
 };
-
 function DownloadManager() {
   const {
     offlineSongs,
@@ -224,52 +297,96 @@ function DownloadManager() {
         ...localSong,
       };
 
-      const artistId =
-        localSong?.artist_id ??
-        localSong?.artistId ??
-        localSong?.artist?.id ??
-        catalogueSong?.artist_id ??
-        catalogueSong?.artistId ??
-        catalogueSong?.artist?.id;
+      // Keep every linked artist from both the offline record and live catalogue.
+      const combinedArtists = [
+        ...(Array.isArray(catalogueSong?.artists) ? catalogueSong.artists : []),
+        ...(Array.isArray(localSong?.artists) ? localSong.artists : []),
+      ];
 
-      const artistRecord =
-        (artistId != null && artistById.get(String(artistId))) ||
-        catalogueSong?.artist ||
-        localSong?.artist;
+      const combinedArtistIds = [
+        ...(Array.isArray(catalogueSong?.artist_ids) ? catalogueSong.artist_ids : []),
+        ...(Array.isArray(localSong?.artist_ids) ? localSong.artist_ids : []),
+      ];
 
-      const englishArtistName = [
-        artistRecord?.name_english,
-        artistRecord?.english_name,
-        artistRecord?.nameEnglish,
-        artistRecord?.artist_name_english,
-        catalogueSong?.artist_name_english,
-        catalogueSong?.artist_english,
-        catalogueSong?.artistNameEnglish,
-        localSong?.artist_name_english,
-        localSong?.artist_english,
-        localSong?.artistNameEnglish,
-        artistRecord?.name,
-        typeof catalogueSong?.artist === "string"
-          ? catalogueSong.artist
-          : "",
-        typeof localSong?.artist === "string"
-          ? localSong.artist
-          : "",
-      ].find(
-        (value) =>
-          typeof value === "string" &&
-          value.trim() &&
-          !hasTeluguScript(value) &&
-          !/^unknown artist$/i.test(value.trim())
-      );
+      const legacyArtistIds = [
+        localSong?.artist_id,
+        localSong?.artistId,
+        localSong?.artist?.id,
+        localSong?.artist?.artist_id,
+        catalogueSong?.artist_id,
+        catalogueSong?.artistId,
+        catalogueSong?.artist?.id,
+        catalogueSong?.artist?.artist_id,
+      ].filter((id) => id != null);
+
+      const resolvedArtists = [];
+      const seenArtistIds = new Set();
+
+      const addResolvedArtist = (artist) => {
+        if (artist == null) return;
+
+        if (typeof artist === "string" || typeof artist === "number") {
+          const linked = artistById.get(String(artist));
+          if (linked) {
+            addResolvedArtist(linked);
+          } else if (typeof artist === "string") {
+            resolvedArtists.push(artist);
+          }
+          return;
+        }
+
+        if (typeof artist !== "object") return;
+
+        const id = artist.id ?? artist.artist_id ?? artist.artistId;
+        const canonical = id != null
+          ? artistById.get(String(id)) || {}
+          : {};
+
+        const record = { ...canonical, ...artist };
+        const key = id != null ? String(id) : JSON.stringify(record);
+
+        if (!seenArtistIds.has(key)) {
+          seenArtistIds.add(key);
+          resolvedArtists.push(record);
+        }
+      };
+
+      combinedArtists.forEach(addResolvedArtist);
+      combinedArtistIds.forEach((id) => {
+        const normalizedId = typeof id === "object"
+          ? id?.id ?? id?.artist_id ?? id?.artistId
+          : id;
+        if (normalizedId == null) return;
+        const artist = artistById.get(String(normalizedId));
+        if (artist) addResolvedArtist(artist);
+      });
+      legacyArtistIds.forEach((id) => {
+        const artist = artistById.get(String(id));
+        if (artist) addResolvedArtist(artist);
+      });
+
+      if (resolvedArtists.length === 0) {
+        addResolvedArtist(localSong?.artist);
+        addResolvedArtist(catalogueSong?.artist);
+      }
+
+      const enrichedSong = {
+        ...mergedSong,
+        artists: resolvedArtists,
+      };
+      const { artistName } = getSongDisplayNames(enrichedSong, artistById);
 
       return {
-        ...mergedSong,
-        artist: artistRecord || mergedSong.artist,
+        ...enrichedSong,
+        artist: resolvedArtists[0] || mergedSong.artist,
         artist_name_english:
-          englishArtistName || mergedSong.artist_name_english,
+          artistName !== "Unknown Artist"
+            ? artistName
+            : mergedSong.artist_name_english,
         artist_name:
-          englishArtistName || mergedSong.artist_name,
+          artistName !== "Unknown Artist"
+            ? artistName
+            : mergedSong.artist_name,
       };
     });
   }, [offlineSongs, catalogSongs, catalogArtists]);
@@ -300,6 +417,20 @@ function DownloadManager() {
         song?.artist_name,
         song?.artistName,
         song?.artist?.name,
+        ...(Array.isArray(song?.artists)
+          ? song.artists.flatMap((artist) => (
+              typeof artist === "string"
+                ? [artist]
+                : [
+                    artist?.name_english,
+                    artist?.english_name,
+                    artist?.nameEnglish,
+                    artist?.name,
+                  ]
+            ))
+          : []),
+        ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+        getSongDisplayNames(song).artistName,
         typeof song?.artist === "string"
           ? song.artist
           : "",

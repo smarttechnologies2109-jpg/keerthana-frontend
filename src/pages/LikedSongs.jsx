@@ -181,29 +181,28 @@ function LikedSongs() {
         completeSong?.artist_id ??
         likedSong?.artist_id;
       const linkedArtist = artistsById[String(artistId ?? "")] || {};
-
-      // Prefer the English artist name from the joined /songs record,
-      // then use the /artists lookup by artist_id (same approach as AllSongs).
-      const artistNameEnglish =
-        completeSong?.artist_name_english ||
-        completeSong?.artist_english ||
-        completeSong?.artist?.name_english ||
-        completeSong?.artist?.english_name ||
-        linkedArtist?.name_english ||
-        linkedArtist?.english_name ||
-        linkedArtist?.nameEnglish ||
-        likedSong?.artist_name_english ||
-        likedSong?.artist_english ||
-        likedSong?.artist?.name_english ||
-        likedSong?.artist?.english_name ||
-        "";
+      const artists =
+        Array.isArray(likedSong?.artists) && likedSong.artists.length
+          ? likedSong.artists
+          : Array.isArray(completeSong?.artists)
+            ? completeSong.artists
+            : [];
 
       return {
         ...merged,
         id: id ?? merged.id,
         artist_id: artistId,
-        artist_name_english: artistNameEnglish,
-        artist: completeSong?.artist || linkedArtist || likedSong?.artist || merged.artist,
+        artists,
+        artist_ids:
+          Array.isArray(likedSong?.artist_ids) && likedSong.artist_ids.length
+            ? likedSong.artist_ids
+            : completeSong?.artist_ids || [],
+        artist:
+          (Array.isArray(artists) && artists.length ? artists[0] : null) ||
+          completeSong?.artist ||
+          linkedArtist ||
+          likedSong?.artist ||
+          merged.artist,
       };
     });
   }, [likedSongs, songDirectory, artistsById]);
@@ -273,49 +272,95 @@ function LikedSongs() {
 
   const getSongTitle = getSongEnglishTitle;
 
-  const getSongEnglishArtist = (song, artistLookup = artistsById) => {
-    const artistObject =
-      song?.artist && typeof song.artist === "object"
-        ? song.artist
-        : {};
-    const firstArtist = Array.isArray(song?.artists)
-      ? song.artists[0]
-      : {};
+  const getSongEnglishArtists = (song, artistLookup = artistsById) => {
+    const candidates = [];
+    const addArtist = (artist) => {
+      if (!artist) return;
+      if (typeof artist === "string") {
+        candidates.push(artist);
+        return;
+      }
+      if (typeof artist === "object") {
+        candidates.push(
+          artist.name_english,
+          artist.english_name,
+          artist.nameEnglish,
+          artist.englishName,
+          artist.artist_name_english,
+          artist.name_en,
+          artist.name
+        );
+      }
+    };
 
-    const candidates = [
+    // Prefer the full many-to-many artist list returned by the API.
+    if (Array.isArray(song?.artists)) {
+      song.artists.forEach(addArtist);
+    }
+
+    // Resolve artist IDs when the song response contains IDs but no joined names.
+    const artistIds = [
+      ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+      ...(Array.isArray(song?.artists)
+        ? song.artists.map((artist) =>
+            typeof artist === "object"
+              ? artist.id ?? artist.artist_id
+              : artist
+          )
+        : []),
+      song?.artist_id,
+      song?.artistId,
+      song?.artist?.id,
+      song?.artist?.artist_id,
+    ].filter((id) => id != null);
+
+    [...new Set(artistIds.map(String))].forEach((id) => {
+      addArtist(artistLookup?.[id]);
+    });
+
+    // Backward compatibility with older single-artist song responses.
+    addArtist(song?.artist);
+    candidates.push(
       song?.artist_name_english,
-      artistLookup?.[String(song?.artist_id ?? song?.artistId ?? "")]?.name_english,
-      artistLookup?.[String(song?.artist_id ?? song?.artistId ?? "")]?.english_name,
       song?.artist_english,
       song?.artistEnglish,
       song?.artistNameEnglish,
       song?.artist_name_en,
       song?.artist_name,
       song?.artistName,
-      artistObject?.name_english,
-      artistObject?.english_name,
-      artistObject?.nameEnglish,
-      artistObject?.englishName,
-      artistObject?.name_en,
-      firstArtist?.name_english,
-      firstArtist?.english_name,
-      firstArtist?.nameEnglish,
-      firstArtist?.englishName,
-      firstArtist?.name,
-      typeof song?.artist === "string" ? song.artist : "",
-      artistObject?.name,
-    ];
-
-    const englishArtist = candidates.find(
-      (value) =>
-        typeof value === "string" &&
-        value.trim() &&
-        !hasTeluguScript(value) &&
-        !/^unknown(?:\s+artist)?$/i.test(value.trim())
+      song?.artist?.name_english,
+      song?.artist?.english_name,
+      song?.artist?.nameEnglish,
+      song?.artist?.englishName,
+      song?.artist?.name
     );
 
-    return String(englishArtist || "Artist details unavailable").trim();
+    const uniqueNames = [];
+    const seen = new Set();
+
+    candidates.forEach((value) => {
+      if (
+        typeof value !== "string" ||
+        !value.trim() ||
+        hasTeluguScript(value) ||
+        /^unknown(?:\\s+artist)?$/i.test(value.trim())
+      ) {
+        return;
+      }
+
+      const name = value.trim();
+      const key = name.toLocaleLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueNames.push(name);
+      }
+    });
+
+    return uniqueNames.join(", ") || "Artist details unavailable";
   };
+
+  // Keep the existing helper name for any internal callers.
+  const getSongEnglishArtist = getSongEnglishArtists;
 
   const getAlbumName = (song) =>
     song?.album_name ||

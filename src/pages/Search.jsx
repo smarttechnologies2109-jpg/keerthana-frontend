@@ -194,72 +194,147 @@ const hasTeluguScript = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value ?? ""));
 
 const getArtistName = (song, artistsById = {}) => {
-  const artistObject =
-    song?.artist && typeof song.artist === "object" ? song.artist : {};
-  const nestedArtist =
-    song?.artist_details && typeof song.artist_details === "object"
-      ? song.artist_details
-      : song?.artistDetails && typeof song.artistDetails === "object"
-        ? song.artistDetails
-        : {};
+  const candidates = [];
 
-  const candidates = [
-    song?.artist_name_english,
-    song?.artist_english,
-    song?.artist_english_name,
-    song?.artist_name_en,
-    song?.artistEnglishName,
-    song?.artistNameEnglish,
-    song?.artistEnglish,
-    artistObject?.name_english,
-    artistObject?.english_name,
-    artistObject?.artist_name_english,
-    artistObject?.englishName,
-    artistObject?.nameEnglish,
-    artistObject?.name,
-    nestedArtist?.name_english,
-    nestedArtist?.english_name,
-    nestedArtist?.nameEnglish,
-    nestedArtist?.englishName,
-    song?.artist_name,
-    song?.artistName,
-    typeof song?.artist === "string" ? song.artist : "",
-  ];
-
-  const directEnglishName = candidates.find(
-    (value) =>
-      typeof value === "string" &&
-      value.trim() &&
-      !hasTeluguScript(value)
-  );
-  if (directEnglishName) return directEnglishName.trim();
-
-  const artistId =
-    song?.artist_id ??
-    song?.artistId ??
-    song?.artist?.id ??
-    song?.artist?.artist_id ??
-    song?.artist_details?.id ??
-    song?.artistDetails?.id;
-
-  const matchedArtist =
-    artistId != null ? artistsById[String(artistId)] : null;
-  const matchedName =
-    matchedArtist?.name_english ||
-    matchedArtist?.english_name ||
-    matchedArtist?.nameEnglish;
-
-  if (
-    typeof matchedName === "string" &&
-    matchedName.trim() &&
-    !hasTeluguScript(matchedName)
-  ) {
-    return matchedName.trim();
+  // New multi-artist API shape: [{ id, name_english, ... }, ...]
+  if (Array.isArray(song?.artists)) {
+    candidates.push(...song.artists);
+  } else if (Array.isArray(song?.artist)) {
+    candidates.push(...song.artist);
+  } else if (song?.artist && typeof song.artist === "object") {
+    candidates.push(song.artist);
   }
 
-  return "Unknown Artist";
-};
+  // Also support artist_ids while the API is being migrated.
+  if (!candidates.length && Array.isArray(song?.artist_ids)) {
+    candidates.push(...song.artist_ids);
+  }
 
+  // Backward compatibility with the old single-artist response.
+  if (!candidates.length) {
+    const legacyId = song?.artist_id ?? song?.artistId;
+    if (legacyId != null) candidates.push(legacyId);
+  }
+
+  const names = [];
+
+  const addName = (value) => {
+    if (
+      typeof value !== "string" ||
+      !value.trim() ||
+      hasTeluguScript(value)
+    ) {
+      return;
+    }
+
+    const cleanName = value.trim();
+    if (!names.some((name) => name.toLowerCase() === cleanName.toLowerCase())) {
+      names.push(cleanName);
+    }
+  };
+
+  candidates.forEach((candidate) => {
+    if (candidate == null) return;
+
+    const candidateId =
+      typeof candidate === "object"
+        ? candidate.id ?? candidate.artist_id
+        : typeof candidate === "number" ||
+            /^\d+$/.test(String(candidate).trim())
+          ? candidate
+          : null;
+
+    const linkedArtist =
+      candidateId != null ? artistsById[String(candidateId)] || {} : {};
+
+    if (typeof candidate === "object") {
+      addName(
+        candidate.name_english ||
+          candidate.english_name ||
+          candidate.artist_name_english ||
+          candidate.englishName ||
+          candidate.nameEnglish
+      );
+
+      if (
+        !(
+          candidate.name_english ||
+          candidate.english_name ||
+          candidate.artist_name_english ||
+          candidate.englishName ||
+          candidate.nameEnglish
+        )
+      ) {
+        addName(
+          linkedArtist.name_english ||
+            linkedArtist.english_name ||
+            linkedArtist.nameEnglish
+        );
+      }
+    } else if (candidateId != null) {
+      addName(
+        linkedArtist.name_english ||
+          linkedArtist.english_name ||
+          linkedArtist.nameEnglish
+      );
+    } else {
+      // Legacy string artist names are accepted only if not Telugu script.
+      addName(candidate);
+    }
+  });
+
+  // Support legacy API responses that expose a single English artist field.
+  if (!names.length) {
+    const artistObject =
+      song?.artist && typeof song.artist === "object" ? song.artist : {};
+    const nestedArtist =
+      song?.artist_details && typeof song.artist_details === "object"
+        ? song.artist_details
+        : song?.artistDetails && typeof song.artistDetails === "object"
+          ? song.artistDetails
+          : {};
+
+    addName(
+      song?.artist_name_english ||
+        song?.artist_english ||
+        song?.artist_english_name ||
+        song?.artist_name_en ||
+        song?.artistEnglishName ||
+        song?.artistNameEnglish ||
+        song?.artistEnglish ||
+        artistObject.name_english ||
+        artistObject.english_name ||
+        artistObject.artist_name_english ||
+        artistObject.englishName ||
+        artistObject.nameEnglish ||
+        nestedArtist.name_english ||
+        nestedArtist.english_name ||
+        nestedArtist.nameEnglish ||
+        nestedArtist.englishName ||
+        (typeof song?.artist === "string" ? song.artist : "") ||
+        song?.artist_name ||
+        song?.artistName
+    );
+
+    const legacyId =
+      song?.artist_id ??
+      song?.artistId ??
+      artistObject.id ??
+      artistObject.artist_id ??
+      nestedArtist.id;
+
+    if (!names.length && legacyId != null) {
+      const linkedArtist = artistsById[String(legacyId)] || {};
+      addName(
+        linkedArtist.name_english ||
+          linkedArtist.english_name ||
+          linkedArtist.nameEnglish
+      );
+    }
+  }
+
+  return names.length ? names.join(", ") : "Unknown Artist";
+};
 /* =====================================================
 
    ALBUM

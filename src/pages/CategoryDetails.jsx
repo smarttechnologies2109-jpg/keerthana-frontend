@@ -110,19 +110,104 @@ const getSongTeluguTitle = (song) => {
 };
 
 const getSongEnglishArtistName = (song, artists = []) => {
-  const songArtistId =
+  const isEnglishName = (value) =>
+    typeof value === "string" &&
+    value.trim() &&
+    !hasTeluguScript(value);
+
+  const artistDirectory = Array.isArray(artists) ? artists : [];
+  const names = [];
+  const addName = (value) => {
+    if (isEnglishName(value)) {
+      const name = value.trim();
+      if (!names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+        names.push(name);
+      }
+    }
+  };
+
+  const addArtist = (artist) => {
+    if (!artist) return;
+
+    if (typeof artist === "string") {
+      addName(artist);
+      return;
+    }
+
+    if (typeof artist === "object") {
+      addName(
+        artist.name_english ||
+        artist.english_name ||
+        artist.nameEnglish ||
+        artist.englishName ||
+        artist.artist_name_english ||
+        artist.artist_english
+      );
+
+      const artistId = artist.id ?? artist.artist_id;
+      if (artistId != null) {
+        const directoryArtist = artistDirectory.find(
+          (item) =>
+            String(item?.id ?? item?.artist_id ?? "") === String(artistId)
+        );
+
+        if (directoryArtist) {
+          addName(
+            directoryArtist.name_english ||
+            directoryArtist.english_name ||
+            directoryArtist.nameEnglish ||
+            directoryArtist.englishName ||
+            directoryArtist.artist_name_english
+          );
+        }
+      }
+    }
+  };
+
+  // Preferred many-to-many response from the API.
+  if (Array.isArray(song?.artists)) {
+    song.artists.forEach(addArtist);
+  }
+
+  // Some APIs return the artist collection under artist.
+  if (Array.isArray(song?.artist)) {
+    song.artist.forEach(addArtist);
+  } else {
+    addArtist(song?.artist);
+  }
+
+  // Resolve artist_ids when the API returns IDs without artist objects.
+  const artistIds = Array.isArray(song?.artist_ids)
+    ? song.artist_ids
+    : Array.isArray(song?.artistIds)
+      ? song.artistIds
+      : [];
+
+  artistIds.forEach((id) => {
+    const directoryArtist = artistDirectory.find(
+      (item) => String(item?.id ?? item?.artist_id ?? "") === String(id)
+    );
+
+    if (directoryArtist) addArtist(directoryArtist);
+  });
+
+  // Keep compatibility with the legacy single-artist song fields.
+  const legacyArtistId =
     song?.artist_id ??
     song?.artistId ??
     song?.artist?.id ??
     song?.artist?.artist_id;
 
-  const linkedArtist = artists.find(
-    (artist) =>
-      String(artist?.id ?? artist?.artist_id ?? "") ===
-      String(songArtistId ?? "")
-  );
+  if (legacyArtistId != null) {
+    const linkedArtist = artistDirectory.find(
+      (artist) =>
+        String(artist?.id ?? artist?.artist_id ?? "") ===
+        String(legacyArtistId)
+    );
+    if (linkedArtist) addArtist(linkedArtist);
+  }
 
-  const candidates = [
+  [
     song?.artist_name_english,
     song?.artist_english,
     song?.artist_english_name,
@@ -130,29 +215,11 @@ const getSongEnglishArtistName = (song, artists = []) => {
     song?.artistEnglish,
     song?.artistEnglishName,
     song?.artistNameEnglish,
-    song?.artist?.name_english,
-    song?.artist?.english_name,
-    song?.artist?.nameEnglish,
-    song?.artist?.englishName,
-    linkedArtist?.name_english,
-    linkedArtist?.english_name,
-    linkedArtist?.nameEnglish,
-    linkedArtist?.englishName,
-    linkedArtist?.artist_name_english,
     song?.artist_name,
     song?.artistName,
-    typeof song?.artist === "string" ? song.artist : "",
-    linkedArtist?.name,
-  ];
+  ].forEach(addName);
 
-  const artist = candidates.find(
-    (value) =>
-      typeof value === "string" &&
-      value.trim() &&
-      !hasTeluguScript(value)
-  );
-
-  return artist ? artist.trim() : "Artist name unavailable";
+  return names.length ? names.join(", ") : "Artist name unavailable";
 };
 
 const compareSongsAlphabetically = (a, b) => {
@@ -529,6 +596,13 @@ function CategoryDetails() {
         song?.title_english,
         song?.artist_name,
         getSongEnglishArtistName(song, artists),
+        ...(Array.isArray(song?.artists)
+          ? song.artists.map((artist) =>
+              typeof artist === "string"
+                ? artist
+                : artist?.name_english || artist?.english_name || artist?.nameEnglish || ""
+            )
+          : []),
         song?.language,
       ];
 

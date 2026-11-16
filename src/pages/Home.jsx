@@ -205,62 +205,126 @@ function getSongTitles(song, selectedLanguage = "Telugu") {
 // Artist names intentionally stay in English for every app language.
 // Resolve the English name from the song payload first, then from the
 // artists list loaded by the Home page using artist_id or the stored name.
-function getArtistName(song, artists = []) {
-  const artist = song?.artist;
+function getArtistNames(song, artists = []) {
+  const artistSources = Array.isArray(song?.artists)
+    ? song.artists
+    : Array.isArray(song?.artist)
+      ? song.artist
+      : null;
 
-  const directEnglish =
-    (artist && typeof artist === "object"
-      ? artist?.name_english || artist?.english_name
-      : "") ||
-    song?.artist_name_english ||
-    song?.artist_english ||
-    song?.artistEnglish;
+  const legacyArtist = song?.artist;
+  const candidates = artistSources?.length
+    ? [...artistSources]
+    : legacyArtist != null
+      ? [legacyArtist]
+      : [];
 
-  if (typeof directEnglish === "string" && directEnglish.trim()) {
-    return directEnglish.trim();
+  // Some APIs return artist_ids separately from the artist objects.
+  if (!candidates.length && Array.isArray(song?.artist_ids)) {
+    candidates.push(...song.artist_ids);
   }
 
-  const artistId =
-    song?.artist_id ??
-    song?.artistId ??
-    (artist && typeof artist === "object" ? artist?.id : null);
+  const resolvedNames = [];
 
-  let matchedArtist = null;
+  const resolveArtistName = (candidate) => {
+    if (candidate == null) return "";
 
-  if (artistId != null) {
-    matchedArtist = artists.find(
-      (item) => String(item?.id) === String(artistId)
-    );
-  }
+    const candidateId =
+      typeof candidate === "object"
+        ? candidate.id ?? candidate.artist_id
+        : typeof candidate === "number" || /^\d+$/.test(String(candidate).trim())
+          ? candidate
+          : null;
 
-  if (!matchedArtist) {
-    const storedArtistName =
-      typeof artist === "string"
-        ? artist.trim().toLowerCase()
-        : String(artist?.name || song?.artist_name || "").trim().toLowerCase();
+    let matchedArtist = candidateId != null
+      ? artists.find((item) => String(item?.id) === String(candidateId))
+      : null;
 
-    if (storedArtistName) {
+    if (!matchedArtist && typeof candidate === "object") {
+      const candidateNames = [
+        candidate.name_english,
+        candidate.english_name,
+        candidate.name,
+      ]
+        .filter((value) => typeof value === "string" && value.trim())
+        .map((value) => value.trim().toLowerCase());
+
+      if (candidateNames.length) {
+        matchedArtist = artists.find((item) =>
+          [item?.name_english, item?.english_name, item?.name, item?.name_telugu]
+            .some((value) =>
+              typeof value === "string" &&
+              candidateNames.includes(value.trim().toLowerCase())
+            )
+        );
+      }
+
+      const directEnglish = candidate.name_english || candidate.english_name;
+      if (typeof directEnglish === "string" && directEnglish.trim()) {
+        return directEnglish.trim();
+      }
+    }
+
+    if (!matchedArtist && typeof candidate === "string") {
+      const normalized = candidate.trim().toLowerCase();
       matchedArtist = artists.find((item) =>
-        [item?.name, item?.name_telugu, item?.name_english]
+        [item?.name_english, item?.english_name, item?.name, item?.name_telugu]
           .some((value) =>
-            typeof value === "string" &&
-            value.trim().toLowerCase() === storedArtistName
+            typeof value === "string" && value.trim().toLowerCase() === normalized
           )
       );
     }
+
+    const englishName =
+      matchedArtist?.name_english ||
+      matchedArtist?.english_name ||
+      "";
+
+    // Never display a localized/Telugu name as the English artist name.
+    return typeof englishName === "string" ? englishName.trim() : "";
+  };
+
+  candidates.forEach((candidate) => {
+    const name = resolveArtistName(candidate);
+    if (name && !resolvedNames.some(
+      (existing) => existing.toLowerCase() === name.toLowerCase()
+    )) {
+      resolvedNames.push(name);
+    }
+  });
+
+  // Backward compatibility for APIs that still return only one artist.
+  if (!resolvedNames.length) {
+    const directEnglish =
+      (legacyArtist && typeof legacyArtist === "object"
+        ? legacyArtist.name_english || legacyArtist.english_name
+        : "") ||
+      song?.artist_name_english ||
+      song?.artist_english ||
+      song?.artistEnglish;
+
+    if (typeof directEnglish === "string" && directEnglish.trim()) {
+      resolvedNames.push(directEnglish.trim());
+    } else {
+      const legacyId = song?.artist_id ?? song?.artistId;
+      if (legacyId != null) {
+        const matched = artists.find(
+          (item) => String(item?.id) === String(legacyId)
+        );
+        const englishName = matched?.name_english || matched?.english_name;
+        if (typeof englishName === "string" && englishName.trim()) {
+          resolvedNames.push(englishName.trim());
+        }
+      }
+    }
   }
 
-  const resolvedEnglish =
-    matchedArtist?.name_english ||
-    matchedArtist?.english_name ||
-    "";
-
-  // Do not fall back to a Telugu/localized artist name.
-  return typeof resolvedEnglish === "string" && resolvedEnglish.trim()
-    ? resolvedEnglish.trim()
-    : "Unknown Artist";
+  return resolvedNames.length ? resolvedNames : ["Unknown Artist"];
 }
 
+function getArtistName(song, artists = []) {
+  return getArtistNames(song, artists).join(", ");
+}
 function getEntityNames(item, language = "Telugu", isArtist = false) {
   if (isArtist) {
     // Artist cards show the English name first and Telugu name underneath.

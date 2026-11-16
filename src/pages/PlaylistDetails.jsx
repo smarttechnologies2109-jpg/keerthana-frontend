@@ -143,32 +143,78 @@ const enrichSongWithArtist = (song, songMap = {}, artistMap = {}) => {
   const songId = getSongId(song);
   const catalogueSong = songId != null ? songMap[String(songId)] : null;
 
-  // Playlist responses can contain partial song objects. Match by song ID
-  // against /songs first, then resolve artist_id against /artists.
+  // Playlist responses can contain partial song objects. Merge the canonical
+  // catalogue record while preserving all artist associations from either source.
   const mergedSong = catalogueSong
     ? { ...catalogueSong, ...song }
     : { ...song };
 
-  const artistId =
+  const sourceArtists = [
+    ...(Array.isArray(catalogueSong?.artists) ? catalogueSong.artists : []),
+    ...(Array.isArray(song?.artists) ? song.artists : []),
+  ];
+
+  const artistIds = [
+    ...(Array.isArray(catalogueSong?.artist_ids) ? catalogueSong.artist_ids : []),
+    ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+    ...sourceArtists.map((artist) =>
+      typeof artist === "object" ? artist?.id ?? artist?.artist_id : artist
+    ),
+  ];
+
+  const legacyArtistId =
     getSongArtistId(mergedSong) ?? getSongArtistId(catalogueSong);
 
-  const matchedArtist =
-    artistId != null ? artistMap[String(artistId)] : null;
+  const resolvedArtists = [];
+  const seen = new Set();
 
-  if (!matchedArtist) return mergedSong;
+  const addArtist = (artistOrId) => {
+    if (artistOrId == null) return;
 
-  const englishArtistName =
-    matchedArtist.name_english ||
-    matchedArtist.english_name ||
-    matchedArtist.nameEnglish ||
-    matchedArtist.artist_name_english ||
-    "";
+    const artistId =
+      typeof artistOrId === "object"
+        ? artistOrId?.id ?? artistOrId?.artist_id ?? artistOrId?.artistId
+        : artistOrId;
+
+    const mappedArtist =
+      artistId != null ? artistMap[String(artistId)] : null;
+
+    const artist =
+      typeof artistOrId === "object"
+        ? { ...(mappedArtist || {}), ...artistOrId }
+        : mappedArtist;
+
+    if (!artist) return;
+
+    const key = String(
+      artist?.id ?? artist?.artist_id ?? artist?.artistId ?? artist?.name_english ??
+      artist?.english_name ?? artist?.nameEnglish ?? ""
+    ).toLowerCase();
+
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    resolvedArtists.push(artist);
+  };
+
+  sourceArtists.forEach(addArtist);
+  artistIds.forEach(addArtist);
+  if (legacyArtistId != null) addArtist(legacyArtistId);
+
+  const artists = resolvedArtists.length
+    ? resolvedArtists
+    : sourceArtists.filter((artist) => typeof artist === "object");
+
+  const firstArtist = artists[0] || mergedSong.artist;
+  const firstArtistId =
+    firstArtist?.id ?? firstArtist?.artist_id ?? legacyArtistId ??
+    mergedSong.artist_id;
 
   return {
     ...mergedSong,
-    artist_id: artistId,
-    artist: matchedArtist,
-    artist_name_english: englishArtistName || mergedSong.artist_name_english,
+    ...(artists.length ? { artists } : {}),
+    ...(artistIds.length ? { artist_ids: [...new Set(artistIds.map(String))] } : {}),
+    ...(firstArtistId != null ? { artist_id: firstArtistId } : {}),
+    ...(firstArtist ? { artist: firstArtist } : {}),
   };
 };
 
@@ -215,16 +261,52 @@ const getSongTitles = (song) => {
 
 const getSongTitle = (song) => getSongTitles(song).primary;
 
-const getSongArtist = (song, artistMap = {}) => {
-  const artistId = getSongArtistId(song);
-  const matchedArtist =
-    artistId != null ? artistMap[String(artistId)] : null;
+const getSongArtistNames = (song, artistMap = {}) => {
+  const names = [];
+  const seen = new Set();
 
-  const candidates = [
-    matchedArtist?.name_english,
-    matchedArtist?.english_name,
-    matchedArtist?.nameEnglish,
-    matchedArtist?.artist_name_english,
+  const addName = (value) => {
+    if (!isUsableEnglishArtistName(value)) return;
+    const name = value.trim();
+    const key = name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    names.push(name);
+  };
+
+  const addArtist = (artistOrId) => {
+    if (artistOrId == null) return;
+
+    const artistId =
+      typeof artistOrId === "object"
+        ? artistOrId?.id ?? artistOrId?.artist_id ?? artistOrId?.artistId
+        : artistOrId;
+
+    const matchedArtist =
+      artistId != null ? artistMap[String(artistId)] : null;
+
+    const artist =
+      typeof artistOrId === "object"
+        ? { ...(matchedArtist || {}), ...artistOrId }
+        : matchedArtist;
+
+    if (artist) {
+      addName(artist.name_english);
+      addName(artist.english_name);
+      addName(artist.nameEnglish);
+      addName(artist.artist_name_english);
+      addName(artist.name);
+    } else if (typeof artistOrId === "string" && !/^\\d+$/.test(artistOrId.trim())) {
+      addName(artistOrId);
+    }
+  };
+
+  if (Array.isArray(song?.artists)) song.artists.forEach(addArtist);
+  if (Array.isArray(song?.artist_ids)) song.artist_ids.forEach(addArtist);
+  addArtist(getSongArtistId(song));
+
+  // Keep support for older API responses that only expose a single artist.
+  [
     song?.artist_name_english,
     song?.artist_english,
     song?.artistEnglish,
@@ -237,13 +319,13 @@ const getSongArtist = (song, artistMap = {}) => {
     song?.artistName,
     song?.artist?.name,
     typeof song?.artist === "string" ? song.artist : "",
-  ];
+  ].forEach(addName);
 
-  return (
-    candidates.find(isUsableEnglishArtistName)?.trim() ||
-    "Artist details unavailable"
-  );
+  return names.length ? names.join(", ") : "Artist details unavailable";
 };
+
+const getSongArtist = (song, artistMap = {}) =>
+  getSongArtistNames(song, artistMap);
 
 const getSongSearchFields = (song) => [
   song?.title,
@@ -260,6 +342,17 @@ const getSongSearchFields = (song) => [
   song?.artist?.name_english,
   song?.artist?.english_name,
   song?.artist?.name,
+  ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+  ...(Array.isArray(song?.artists)
+    ? song.artists.flatMap((artist) => [
+        typeof artist === "string" ? artist : "",
+        artist?.name_english,
+        artist?.english_name,
+        artist?.nameEnglish,
+        artist?.artist_name_english,
+        artist?.name,
+      ])
+    : []),
   song?.album_name,
   song?.album?.name,
   song?.category_name,

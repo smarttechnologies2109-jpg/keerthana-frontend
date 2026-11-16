@@ -232,6 +232,66 @@ function ArtistDetails() {
     artist?.english_name ||
     "Unknown Artist";
 
+  // A song can belong to several artists. Prefer the complete artists array
+  // returned by the API, while keeping compatibility with older song records.
+  const getSongArtistNames = (song) => {
+    const candidates = Array.isArray(song?.artists)
+      ? song.artists
+      : Array.isArray(song?.artist)
+        ? song.artist
+        : song?.artist && typeof song.artist === "object"
+          ? [song.artist]
+          : [];
+
+    const names = [];
+    const addEnglishName = (value) => {
+      if (
+        typeof value !== "string" ||
+        !value.trim() ||
+        /[\\u0C00-\\u0C7F]/.test(value)
+      ) return;
+
+      const clean = value.trim();
+      if (!names.some((name) => name.toLowerCase() === clean.toLowerCase())) {
+        names.push(clean);
+      }
+    };
+
+    candidates.forEach((candidate) => {
+      if (typeof candidate === "string") {
+        addEnglishName(candidate);
+        return;
+      }
+      if (!candidate || typeof candidate !== "object") return;
+
+      addEnglishName(
+        candidate.name_english ||
+        candidate.english_name ||
+        candidate.artist_name_english ||
+        candidate.englishName ||
+        candidate.nameEnglish
+      );
+    });
+
+    if (!names.length) {
+      addEnglishName(
+        song?.artist_name_english ||
+        song?.artist_english ||
+        song?.artistEnglish ||
+        song?.artist?.name_english ||
+        song?.artist?.english_name
+      );
+    }
+
+    // Legacy records may not include artist data; use this profile's name
+    // only as a final fallback for songs listed on this artist's page.
+    if (!names.length && artistEnglishName !== "Unknown Artist") {
+      names.push(artistEnglishName);
+    }
+
+    return names.length ? names.join(", ") : "Unknown Artist";
+  };
+
   const artistTeluguName =
     artist?.name_telugu &&
     artist.name_telugu.trim() !== artistEnglishName.trim()
@@ -247,6 +307,15 @@ function ArtistDetails() {
       song?.title,
       song?.title_english,
       song?.artist_name,
+      song?.artist_name_english,
+      song?.artist_english,
+      ...(Array.isArray(song?.artists)
+        ? song.artists.flatMap((item) => [
+            item?.name_english,
+            item?.english_name,
+            item?.artist_name_english,
+          ])
+        : []),
       song?.artist,
       song?.language,
       song?.category_name,
@@ -704,14 +773,7 @@ function ArtistDetails() {
                         )}
 
                       <span>
-                        {(
-                          song?.artist_name_english ||
-                          song?.artist_english ||
-                          song?.artistEnglish ||
-                          song?.artist?.name_english ||
-                          song?.artist?.english_name ||
-                          artistEnglishName
-                        )}
+                        {getSongArtistNames(song)}
                       </span>
                     </button>
 

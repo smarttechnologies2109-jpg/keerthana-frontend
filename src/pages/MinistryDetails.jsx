@@ -64,48 +64,67 @@ const getArtistList = (data) => {
   return [];
 };
 
-const getEnglishArtistName = (song, artists = []) => {
-  const songArtistId =
-    song?.artist_id ??
-    song?.artistId ??
-    song?.artist?.id ??
-    song?.artist?.artist_id;
+const getEnglishArtistNames = (song, artists = []) => {
+  const linkedIds = [
+    ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+    song?.artist_id,
+    song?.artistId,
+    song?.artist?.id,
+    song?.artist?.artist_id,
+  ].filter((id) => id != null && id !== "");
 
-  const linkedArtist = artists.find((artist) =>
-    String(artist?.id ?? artist?.artist_id ?? "") ===
-    String(songArtistId ?? "")
+  const linkedArtists = artists.filter((artist) =>
+    linkedIds.some((id) =>
+      String(artist?.id ?? artist?.artist_id ?? "") === String(id)
+    )
   );
 
+  const rawArtists = [
+    ...(Array.isArray(song?.artists) ? song.artists : []),
+    ...(Array.isArray(song?.artist) ? song.artist : []),
+    ...(song?.artist && !Array.isArray(song.artist) ? [song.artist] : []),
+    ...linkedArtists,
+  ];
+
   const candidates = [
+    ...rawArtists.flatMap((artist) => {
+      if (typeof artist === "string") return [artist];
+      if (!artist || typeof artist !== "object") return [];
+      return [
+        artist.name_english,
+        artist.english_name,
+        artist.nameEnglish,
+        artist.englishName,
+        artist.artist_name_english,
+        artist.artist_name,
+        artist.name,
+      ];
+    }),
     song?.artist_name_english,
     song?.artist_english,
     song?.artist_english_name,
     song?.artist_name_en,
     song?.artistEnglishName,
     song?.artistNameEnglish,
-    song?.artist?.name_english,
-    song?.artist?.english_name,
-    song?.artist?.nameEnglish,
-    song?.artist?.englishName,
-    linkedArtist?.name_english,
-    linkedArtist?.english_name,
-    linkedArtist?.nameEnglish,
-    linkedArtist?.englishName,
-    linkedArtist?.artist_name_english,
     song?.artist_name,
     song?.artistName,
     typeof song?.artist === "string" ? song.artist : "",
-    linkedArtist?.name,
   ];
 
-  const name = candidates.find(
-    (value) =>
-      typeof value === "string" &&
-      value.trim() &&
-      !containsTelugu(value)
-  );
+  const uniqueNames = [];
+  const seen = new Set();
 
-  return name ? name.trim() : "Unknown Artist";
+  candidates.forEach((value) => {
+    if (typeof value !== "string") return;
+    const name = value.trim();
+    if (!name || containsTelugu(name)) return;
+    const key = name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    uniqueNames.push(name);
+  });
+
+  return uniqueNames.length ? uniqueNames.join(", ") : "Unknown Artist";
 };
 
 const compareMinistrySongs = (a, b) => {
@@ -295,9 +314,16 @@ const MinistryDetails = () => {
         song?.title,
         song?.title_telugu,
         song?.title_english,
-        getEnglishArtistName(song, artists),
+        getEnglishArtistNames(song, artists),
+        ...(Array.isArray(song?.artists)
+          ? song.artists.flatMap((artist) => [
+              artist?.name_english,
+              artist?.english_name,
+              artist?.name,
+            ])
+          : []),
+        song?.artist_name_english,
         song?.artist_name,
-        song?.artist,
         song?.language,
         song?.category_name,
         song?.album_name,
@@ -845,7 +871,7 @@ const MinistryDetails = () => {
                       )}
 
                     <span className="song-artist">
-                      {getEnglishArtistName(song, artists)}
+                      {getEnglishArtistNames(song, artists)}
                     </span>
                   </button>
 

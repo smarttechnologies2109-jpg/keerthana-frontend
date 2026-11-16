@@ -93,6 +93,20 @@ function Favorites() {
     const artist = artistsById[String(artistId)] || {};
     return {
       ...merged,
+      artists: Array.isArray(merged?.artists)
+        ? merged.artists
+        : Array.isArray(savedSong?.artists)
+          ? savedSong.artists
+          : artistId != null && Object.keys(artist).length
+            ? [artist]
+            : [],
+      artist_ids: Array.isArray(merged?.artist_ids)
+        ? merged.artist_ids
+        : Array.isArray(savedSong?.artist_ids)
+          ? savedSong.artist_ids
+          : artistId != null
+            ? [artistId]
+            : [],
       artist_name_english:
         merged?.artist_name_english ||
         merged?.artist_english ||
@@ -338,42 +352,98 @@ function Favorites() {
     return title && title !== getSongEnglishTitle(song) ? title : "";
   };
 
-  const getSongEnglishArtist = (song) => {
-    const artistId =
+  // Return every associated artist in English. All artists are equal;
+  // artist_id is used only as a legacy fallback for older API responses.
+  const getSongEnglishArtists = (song) => {
+    const collected = [];
+    const addArtist = (artist) => {
+      if (artist == null) return;
+
+      if (typeof artist === "string") {
+        const name = artist.trim();
+        if (
+          name &&
+          !hasTeluguScript(name) &&
+          !/^unknown artist$/i.test(name)
+        ) {
+          collected.push(name);
+        }
+        return;
+      }
+
+      if (typeof artist !== "object") return;
+
+      const id = artist.id ?? artist.artist_id ?? artist.artistId;
+      const linkedArtist = id != null ? artistsById[String(id)] || {} : {};
+
+      const candidates = [
+        artist.name_english,
+        artist.english_name,
+        artist.nameEnglish,
+        artist.artist_name_english,
+        artist.artist_english,
+        linkedArtist.name_english,
+        linkedArtist.english_name,
+        linkedArtist.nameEnglish,
+        artist.name,
+        linkedArtist.name,
+      ];
+
+      const name = candidates.find(
+        (item) =>
+          typeof item === "string" &&
+          item.trim() &&
+          !hasTeluguScript(item) &&
+          !/^unknown artist$/i.test(item.trim())
+      );
+
+      if (name) collected.push(name.trim());
+    };
+
+    if (Array.isArray(song?.artists)) {
+      song.artists.forEach(addArtist);
+    } else if (song?.artists && typeof song.artists === "object") {
+      addArtist(song.artists);
+    }
+
+    if (Array.isArray(song?.artist_ids)) {
+      song.artist_ids.forEach((id) => {
+        if (id != null) addArtist({ id });
+      });
+    }
+
+    // Legacy single-artist fields keep older songs compatible.
+    const legacyArtistId =
       song?.artist_id ??
       song?.artistId ??
-      song?.artist?.id ??
-      song?.artist?.artist_id;
-    const linkedArtist = artistsById[String(artistId)] || {};
-    const candidates = [
+      (typeof song?.artist === "object"
+        ? song.artist.id ?? song.artist.artist_id
+        : null);
+
+    if (legacyArtistId != null) {
+      addArtist({ id: legacyArtistId });
+    }
+
+    addArtist(song?.artist);
+
+    const legacyNames = [
       song?.artist_name_english,
       song?.artist_english_name,
       song?.artist_name_en,
       song?.artistEnglishName,
       song?.artistNameEnglish,
       song?.artist_english,
-      linkedArtist?.name_english,
-      linkedArtist?.english_name,
-      linkedArtist?.nameEnglish,
-      song?.artist?.name_english,
-      song?.artist?.english_name,
-      song?.artist?.nameEnglish,
       song?.artist_name,
-      typeof song?.artist === "string" ? song.artist : "",
-      song?.artist?.name,
-      linkedArtist?.name,
     ];
 
-    const value = candidates.find(
-      (item) =>
-        typeof item === "string" &&
-        item.trim() &&
-        !hasTeluguScript(item) &&
-        !/^unknown artist$/i.test(item.trim())
-    );
+    legacyNames.forEach(addArtist);
 
-    return String(value || "Artist details unavailable").trim();
+    return [...new Set(collected)];
   };
+
+  // Keep the old helper name for any existing internal call sites.
+  const getSongEnglishArtist = (song) =>
+    getSongEnglishArtists(song).join(", ") || "Artist details unavailable";
 
   const handlePlayNext = (song) => {
     setMenuSongId(null);
@@ -556,7 +626,7 @@ function Favorites() {
       song.titleEnglish,
       song.artist_name_english,
       song.artist_english,
-      getSongEnglishArtist(song),
+      getSongEnglishArtists(song).join(" "),
       song.artist_name,
       artist,
       song.album_name,
@@ -682,7 +752,7 @@ function Favorites() {
             <p>{getSongTeluguTitle(song)}</p>
           )}
 
-          <span>{getSongEnglishArtist(song)}</span>
+          <span>{getSongEnglishArtists(song).join(", ") || "Artist details unavailable"}</span>
         </div>
 
         <span className="favorite-browse-language">
@@ -824,7 +894,7 @@ function Favorites() {
           )}
 
           <p className="favorite-song-artist">
-            {getSongEnglishArtist(song)}
+            {getSongEnglishArtists(song).join(", ") || "Artist details unavailable"}
           </p>
         </div>
 

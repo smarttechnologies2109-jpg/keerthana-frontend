@@ -32,8 +32,83 @@ function getAlbumTeluguTitle(album) {
   const telugu = album?.title_telugu || "";
   return telugu && telugu.trim() !== getAlbumEnglishTitle(album).trim() ? telugu : "";
 }
-function getArtistEnglishName(album) {
-  return album?.artist_name_english || "KEERTHANA";
+function isEnglishArtistName(value) {
+  if (typeof value !== "string") return false;
+  const name = value.trim();
+  if (!name) return false;
+  return !/[\\u0C00-\\u0C7F]/.test(name);
+}
+
+function getArtistEntries(source) {
+  const candidates = [
+    ...(Array.isArray(source?.artists) ? source.artists : []),
+    ...(Array.isArray(source?.artist) ? source.artist : []),
+    ...(source?.artist && !Array.isArray(source.artist) && typeof source.artist === "object"
+      ? [source.artist]
+      : []),
+  ];
+
+  const entries = candidates
+    .map((artist) => {
+      if (typeof artist === "string") {
+        return isEnglishArtistName(artist) ? { name: artist.trim() } : null;
+      }
+      if (!artist || typeof artist !== "object") return null;
+
+      const name =
+        artist.name_english ||
+        artist.artist_name_english ||
+        artist.nameEnglish ||
+        artist.artist_name ||
+        artist.name ||
+        artist.title_english;
+
+      if (!isEnglishArtistName(name)) return null;
+      return {
+        id: artist.id || artist.artist_id || null,
+        name: name.trim(),
+      };
+    })
+    .filter(Boolean);
+
+  const fallbackName =
+    source?.artist_name_english ||
+    source?.artistNameEnglish ||
+    source?.artist_name ||
+    source?.artist;
+
+  if (!entries.length && isEnglishArtistName(fallbackName)) {
+    entries.push({
+      id: source?.artist_id || null,
+      name: fallbackName.trim(),
+    });
+  }
+
+  const seen = new Set();
+  return entries.filter((artist) => {
+    const key = artist.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function getAlbumArtistEntries(album) {
+  const entries = getArtistEntries(album);
+  return entries.length ? entries : [{ id: album?.artist_id || null, name: "KEERTHANA" }];
+}
+
+function getSongArtistNames(song, albumArtists) {
+  const entries = getArtistEntries(song);
+  if (entries.length) return entries.map((artist) => artist.name).join(", ");
+
+  const legacyName =
+    song?.artist_name_english ||
+    song?.artistNameEnglish ||
+    song?.artist_name;
+
+  if (isEnglishArtistName(legacyName)) return legacyName.trim();
+  return albumArtists.map((artist) => artist.name).join(", ") || "KEERTHANA";
 }
 function getSongEnglishTitle(song) {
   return song?.title_english || song?.title || song?.title_telugu || "Untitled song";
@@ -244,7 +319,7 @@ function AlbumDetails() {
 
   const albumEnglishTitle = getAlbumEnglishTitle(album);
   const albumTeluguTitle = getAlbumTeluguTitle(album);
-  const artistEnglishName = getArtistEnglishName(album);
+  const albumArtistEntries = getAlbumArtistEntries(album);
 
   const cover = getAlbumCover(album);
 
@@ -261,9 +336,8 @@ function AlbumDetails() {
         song?.artist_name,
         song?.artist_name_english,
         song?.artist_name_telugu,
-        album?.artist_name,
-        album?.artist_name_english,
-        album?.artist_name_telugu,
+        ...getArtistEntries(song).map((artist) => artist.name),
+        ...albumArtistEntries.map((artist) => artist.name),
       ];
 
       return searchableFields.some((field) =>
@@ -469,19 +543,26 @@ function AlbumDetails() {
             )}
           </div>
 
-          <button
-            type="button"
-            className="album-details-artist"
-            onClick={() => {
-              if (album.artist_id) {
-                navigate(`/artists/${album.artist_id}`);
-              }
-            }}
-          >
+          <div className="album-details-artist">
             <span className="album-details-artist-names">
-              <span>{artistEnglishName}</span>
+              {albumArtistEntries.map((artist, index) => (
+                <span key={`${artist.id || artist.name}-${index}`}>
+                  {artist.id ? (
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/artists/${artist.id}`)}
+                      className="album-details-artist-link"
+                    >
+                      {artist.name}
+                    </button>
+                  ) : (
+                    artist.name
+                  )}
+                  {index < albumArtistEntries.length - 1 ? ", " : ""}
+                </span>
+              ))}
             </span>
-          </button>
+          </div>
         </div>
       </section>
 
@@ -650,7 +731,7 @@ function AlbumDetails() {
                     )}
 
                     <span>
-                      {song.artist_name_english || artistEnglishName}
+                      {getSongArtistNames(song, albumArtistEntries)}
                     </span>
                   </button>
 
