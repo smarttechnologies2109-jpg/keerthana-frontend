@@ -201,6 +201,7 @@ function ManageSongs() {
       ministry: [
         "ministry_name_english", "ministry_english_name", "ministry_name_en",
         "ministryEnglishName", "ministryNameEnglish",
+        "ministry_name", "ministryName", "ministry", "ministry_title",
       ],
       category: [
         "category_name_english", "category_english_name", "category_name_en",
@@ -335,23 +336,25 @@ function ManageSongs() {
 
 
   const extractRows = (payload, keys = []) => {
-
     if (Array.isArray(payload)) return payload;
 
-    for (const key of keys) {
+    const containers = [
+      payload,
+      payload?.data,
+      payload?.result,
+      payload?.results,
+      payload?.ministries,
+      payload?.data?.data,
+    ].filter(Boolean);
 
-      if (Array.isArray(payload?.[key])) return payload[key];
-
-      if (Array.isArray(payload?.data?.[key])) return payload.data[key];
-
+    for (const container of containers) {
+      if (Array.isArray(container)) return container;
+      for (const key of keys) {
+        if (Array.isArray(container?.[key])) return container[key];
+      }
     }
 
-    if (Array.isArray(payload?.data)) return payload.data;
-
-    if (Array.isArray(payload?.results)) return payload.results;
-
     return [];
-
   };
 
 
@@ -385,6 +388,14 @@ function ManageSongs() {
         "ministry_name_en",
         "ministryNameEn",
         "english_ministry_name",
+        "ministry_name",
+        "ministryName",
+        "ministry",
+        "ministry_title",
+        "ministryTitle",
+        "name",
+        "name_en",
+        "nameEn",
       ],
       category: ["category_name_english", "category_english_name", "categoryNameEnglish", "categoryEnglishName"],
     };
@@ -512,6 +523,11 @@ function ManageSongs() {
         const albumId = song?.album_id ?? song?.albumId;
 
         const ministryId = getRelationId(song, "ministry");
+        const ministryRelation = song?.ministry && typeof song.ministry === "object"
+          ? song.ministry
+          : song?.ministry_details && typeof song.ministry_details === "object"
+            ? song.ministry_details
+            : {};
 
         const categoryId = song?.category_id ?? song?.categoryId;
 
@@ -785,12 +801,16 @@ function ManageSongs() {
       category: ["category_id", "categoryId", "categoryID"],
     };
 
+    const directRelation = song?.[field];
     const candidates = [
       song?.[`${field}_id`],
       song?.[`${field}Id`],
       song?.[`${field}ID`],
       relation?.id,
       ...(idFields[field] || []).map((key) => relation?.[key]),
+      ...(typeof directRelation === "string" || typeof directRelation === "number"
+        ? [directRelation]
+        : []),
     ];
 
     return candidates.find(

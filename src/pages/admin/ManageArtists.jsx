@@ -32,6 +32,23 @@ const LANGUAGES = [
 // NORMALIZE LANGUAGE
 // =====================================================
 
+const getEnglishArtistName = (artist) => {
+  const candidates = [
+    artist?.name_english,
+    artist?.nameEnglish,
+    artist?.english_name,
+  ];
+
+  return (
+    candidates.find(
+      (value) =>
+        typeof value === "string" &&
+        value.trim() &&
+        !/[\u0C00-\u0C7F]/.test(value)
+    )?.trim() || "—"
+  );
+};
+
 const normalizeLanguage = (value) => {
   const language = String(value || "").trim().toLowerCase();
 
@@ -230,8 +247,9 @@ function ManageArtists() {
     setForm({
       name: artist.name || "",
 
-      name_english:
-        artist.name_english || artist.name || "",
+      name_english: getEnglishArtistName(artist) === "—"
+        ? ""
+        : getEnglishArtistName(artist),
 
       name_telugu:
         artist.name_telugu || artist.name || "",
@@ -844,17 +862,7 @@ function ManageArtists() {
                       </div>
 
                       <div className="admin-artist-names">
-                        <strong>
-                          {artist.name_english ||
-                            artist.name ||
-                            "—"}
-                        </strong>
-
-                        <small>
-                          {artist.name_telugu ||
-                            artist.name ||
-                            "—"}
-                        </small>
+                        <strong>{getEnglishArtistName(artist)}</strong>
                       </div>
 
                     </div>
