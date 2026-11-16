@@ -1289,6 +1289,124 @@ const BusinessOwnerMinistries = () => {
 
         }
 
+
+        .owner-ministries-table-wrapper {
+          width: min(1440px, calc(100% - 48px));
+          margin: 0 auto;
+          overflow-x: auto;
+          border: 1px solid rgba(104, 153, 220, .22);
+          border-radius: 16px;
+          background: rgba(8, 19, 36, .72);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(216, 184, 106, .55) rgba(10, 22, 43, .7);
+        }
+        .owner-ministries-table {
+          width: 100%;
+          min-width: 760px;
+          border-collapse: collapse;
+          text-align: left;
+        }
+        .owner-ministries-table thead {
+          background: linear-gradient(110deg, rgba(29, 55, 91, .98), rgba(15, 32, 56, .98));
+        }
+        .owner-ministries-table th {
+          padding: 16px 18px;
+          color: #e8d19b;
+          font-size: .78rem;
+          font-weight: 800;
+          letter-spacing: .07em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          border-bottom: 1px solid rgba(216, 184, 106, .25);
+        }
+        .owner-ministries-table td {
+          padding: 13px 18px;
+          color: #e8eef9;
+          font-size: .9rem;
+          border-bottom: 1px solid rgba(130, 157, 194, .13);
+          vertical-align: middle;
+        }
+        .owner-ministries-table tbody tr { transition: background .18s ease; }
+        .owner-ministries-table tbody tr:hover { background: rgba(55, 91, 143, .17); }
+        .owner-ministries-table tbody tr:last-child td { border-bottom: 0; }
+        .owner-ministries-row-number {
+          width: 58px;
+          color: #9fb0ca !important;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
+        .owner-ministries-table-ministry {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          min-width: 280px;
+        }
+        .owner-ministries-table-image {
+          flex: 0 0 54px;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          border-radius: 10px;
+          background: linear-gradient(145deg, #19345b, #091428);
+          border: 1px solid rgba(216, 184, 106, .24);
+        }
+        .owner-ministries-table-image img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .owner-ministries-table-name {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-width: 0;
+        }
+        .owner-ministries-table-name strong {
+          color: #f4f7ff;
+          font-size: .94rem;
+          font-weight: 750;
+          overflow-wrap: anywhere;
+        }
+        .owner-ministries-table-name span {
+          color: #91a4c2;
+          font-size: .74rem;
+          line-height: 1.4;
+          max-width: 460px;
+        }
+        .owner-ministries-language-badge,
+        .owner-ministries-song-count {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 11px;
+          border: 1px solid rgba(104, 153, 220, .3);
+          border-radius: 999px;
+          background: rgba(32, 59, 96, .42);
+          color: #dce8fb;
+          font-size: .78rem;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .owner-ministries-table-id {
+          color: #9fb0ca !important;
+          font-size: .8rem !important;
+          font-variant-numeric: tabular-nums;
+          white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+          .owner-ministries-table-wrapper {
+            width: calc(100% - 28px);
+          }
+          .owner-ministries-table th,
+          .owner-ministries-table td { padding: 11px 12px; }
+          .owner-ministries-table-image {
+            flex-basis: 46px;
+            width: 46px;
+            height: 46px;
+          }
+          .owner-ministries-table-name strong { font-size: .86rem; }
+        }
+
       `}</style>
 
 
@@ -1961,297 +2079,81 @@ const BusinessOwnerMinistries = () => {
 
 
 
-            <div className="owner-ministries-grid">
+            <div className="owner-ministries-table-wrapper">
+              <table className="owner-ministries-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Ministry</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Total Songs</th>
+                    <th scope="col">ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMinistries.map((ministry, index) => {
+                    const names = getMinistryNames(ministry);
+                    const name =
+                      names.english || "English name not provided by API";
+                    const image = getMinistryImage(ministry);
+                    const ministryLanguage = getMinistryLanguage(ministry);
+                    const songCount = getSongCount(ministry);
+                    const ministryId =
+                      ministry.id || ministry.ministry_id || "—";
 
-
-
-              {filteredMinistries.map(
-
-                (ministry) => (
-
-
-
-                  <article
-
-                    className="owner-ministry-card"
-
-                    key={ministry.id || ministry.ministry_id || ministry.uuid || getMinistryNames(ministry).fallback}
-
-                  >
-
-
-
-
-
-                    {/* IMAGE */}
-
-
-
-                    <div className="owner-ministry-image-wrapper">
-
-
-
-                      <img
-
-                        src={
-
-                          getMinistryImage(
-
-                            ministry
-
-                          )
-
+                    return (
+                      <tr
+                        key={
+                          ministry.id ||
+                          ministry.ministry_id ||
+                          ministry.uuid ||
+                          `${name}-${index}`
                         }
-
-                        alt={
-
-                          getMinistryNames(ministry).fallback
-
-                        }
-
-                        className="owner-ministry-image"
-
-                        onError={(
-
-                          event
-
-                        ) => {
-
-
-
-                          if (
-
-                            event.currentTarget.src.endsWith(
-
-                              "/images/default-ministry.png"
-
-                            )
-
-                          ) {
-
-                            return;
-
-                          }
-
-
-
-                          event.currentTarget.src =
-
-                            "/images/default-ministry.png";
-
-
-
-                        }}
-
-                      />
-
-
-
-
-
-                      <div className="owner-ministry-image-icon">
-
-
-
-                        <FaChurch />
-
-
-
-                      </div>
-
-
-
-                    </div>
-
-
-
-
-
-                    {/* CONTENT */}
-
-
-
-                    <div className="owner-ministry-card-content">
-
-
-
-                      <div className="owner-ministry-card-top">
-
-
-
-                        {(() => {
-
-                          const names = getMinistryNames(ministry);
-
-
-
-                          return (
-
-                            <div className="owner-ministry-name-wrapper">
-
-                              <span className="owner-ministry-name-caption">
-
-                                Ministry Name
-
-                              </span>
-
-
-
-                              <h2 className="owner-ministry-name-english">
-
-                                {names.english || "English name not provided by API"}
-
-                              </h2>
-
-
-
+                      >
+                        <td className="owner-ministries-row-number">
+                          {index + 1}
+                        </td>
+                        <td>
+                          <div className="owner-ministries-table-ministry">
+                            <div className="owner-ministries-table-image">
+                              <img
+                                src={image}
+                                alt={name}
+                                loading="lazy"
+                                onError={(event) => {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src =
+                                    "/images/default-ministry.png";
+                                }}
+                              />
                             </div>
-
-                          );
-
-                        })()}
-
-
-
-                        {getMinistryLanguage(ministry) && (
-
-                          <span
-
-                            className={`owner-ministry-language-badge owner-ministry-language-${getMinistryLanguage(
-
-                              ministry
-
-                            ).toLowerCase()}`}
-
-                          >
-
-                            {getMinistryLanguage(ministry)}
-
+                            <div className="owner-ministries-table-name">
+                              <strong>{name}</strong>
+                              {getEnglishDescription(ministry) && (
+                                <span>{getEnglishDescription(ministry)}</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="owner-ministries-language-badge">
+                            {ministryLanguage}
                           </span>
-
-                        )}
-
-
-
-                      </div>
-
-
-
-
-
-                      {/* DESCRIPTION */}
-
-
-
-                      {getEnglishDescription(ministry) && (
-
-
-
-                        <p className="owner-ministry-description">
-
-
-
-                          {getEnglishDescription(ministry)}
-
-
-
-                        </p>
-
-
-
-                      )}
-
-
-
-
-
-                      {/* FOOTER */}
-
-
-
-                      <div className="owner-ministry-card-footer">
-
-
-
-                        <div className="owner-ministry-song-count">
-
-
-
-                          <FaMusic />
-
-
-
-                          <span>
-
-
-
-                            {getSongCount(
-
-                              ministry
-
-                            )}
-
-
-
-                            {" "}
-
-
-
-                            {getSongCount(
-
-                              ministry
-
-                            ) === 1
-
-                              ? "Song"
-
-                              : "Songs"}
-
-
-
+                        </td>
+                        <td>
+                          <span className="owner-ministries-song-count">
+                            {songCount} {Number(songCount) === 1 ? "Song" : "Songs"}
                           </span>
-
-
-
-                        </div>
-
-
-
-
-
-                        <div className="owner-ministry-id">
-
-
-
-                          ID: {ministry.id || ministry.ministry_id || "—"}
-
-
-
-                        </div>
-
-
-
-                      </div>
-
-
-
-                    </div>
-
-
-
-                  </article>
-
-
-
-                )
-
-              )}
-
-
-
+                        </td>
+                        <td className="owner-ministries-table-id">
+                          {ministryId}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-
-
 
           )}
 

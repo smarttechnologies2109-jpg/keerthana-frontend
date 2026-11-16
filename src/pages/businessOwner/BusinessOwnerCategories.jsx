@@ -445,6 +445,142 @@ const response = await API.get("/owner/music/categories");
         .owner-categories-language-card strong { color:#fff; font-size:1.55rem; line-height:1; }
         .owner-categories-language-card small { color:#aebbd0; font-size:.74rem; }
         @media(max-width:600px) { .owner-categories-language-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .owner-categories-language-card { min-height:120px; padding:13px; } }
+
+        .owner-categories-table-wrapper {
+          width: 100%;
+          overflow-x: auto;
+          border: 1px solid rgba(104, 153, 220, .22);
+          border-radius: 16px;
+          background: rgba(8, 19, 36, .72);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(216, 184, 106, .55) rgba(10, 22, 43, .7);
+        }
+
+        .owner-categories-table {
+          width: 100%;
+          min-width: 650px;
+          border-collapse: collapse;
+          text-align: left;
+        }
+
+        .owner-categories-table thead {
+          background: linear-gradient(110deg, rgba(29, 55, 91, .98), rgba(15, 32, 56, .98));
+        }
+
+        .owner-categories-table th {
+          padding: 16px 18px;
+          color: #e8d19b;
+          font-size: .78rem;
+          font-weight: 800;
+          letter-spacing: .07em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          border-bottom: 1px solid rgba(216, 184, 106, .25);
+        }
+
+        .owner-categories-table td {
+          padding: 13px 18px;
+          color: #e8eef9;
+          font-size: .9rem;
+          border-bottom: 1px solid rgba(130, 157, 194, .13);
+          vertical-align: middle;
+        }
+
+        .owner-categories-table tbody tr {
+          transition: background .18s ease;
+        }
+
+        .owner-categories-table tbody tr:hover {
+          background: rgba(55, 91, 143, .17);
+        }
+
+        .owner-categories-table tbody tr:last-child td {
+          border-bottom: 0;
+        }
+
+        .owner-categories-row-number {
+          width: 58px;
+          color: #9fb0ca !important;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .owner-categories-table-category {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          min-width: 260px;
+        }
+
+        .owner-categories-table-image {
+          flex: 0 0 54px;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          border-radius: 10px;
+          background: linear-gradient(145deg, #19345b, #091428);
+          border: 1px solid rgba(216, 184, 106, .24);
+        }
+
+        .owner-categories-table-image img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .owner-categories-table-category-name {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-width: 0;
+        }
+
+        .owner-categories-table-category-name strong {
+          color: #f4f7ff;
+          font-size: .94rem;
+          font-weight: 750;
+          overflow-wrap: anywhere;
+        }
+
+        .owner-categories-table-category-name span {
+          color: #91a4c2;
+          font-size: .74rem;
+          line-height: 1.4;
+          max-width: 460px;
+        }
+
+        .owner-categories-language-badge,
+        .owner-categories-song-count {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 11px;
+          border: 1px solid rgba(104, 153, 220, .3);
+          border-radius: 999px;
+          background: rgba(32, 59, 96, .42);
+          color: #dce8fb;
+          font-size: .78rem;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+          .owner-categories-table th,
+          .owner-categories-table td {
+            padding: 11px 12px;
+          }
+
+          .owner-categories-table-image {
+            flex-basis: 46px;
+            width: 46px;
+            height: 46px;
+          }
+
+          .owner-categories-table-category-name strong {
+            font-size: .86rem;
+          }
+        }
+
       `}</style>
 
 
@@ -822,117 +958,86 @@ const response = await API.get("/owner/music/categories");
             </div>
 
 
-            <div className="owner-categories-grid">
+            <div className="owner-categories-table-wrapper">
+              <table className="owner-categories-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Total Songs</th>
+                  </tr>
+                </thead>
 
-              {filteredCategories.map(
-                (category, index) => {
+                <tbody>
+                  {filteredCategories.map((category, index) => {
+                    const image = getCategoryImage(category);
+                    const name = getCategoryNames(category).english || "Category";
+                    const categoryLanguage =
+                      LANGUAGES.find(
+                        (item) =>
+                          normalizeLanguage(item) === getCategoryLanguage(category)
+                      ) || "Telugu";
+                    const songCount =
+                      category?.song_count ??
+                      category?.songs_count ??
+                      category?.total_songs ??
+                      null;
 
+                    return (
+                      <tr
+                        key={
+                          category?.id ||
+                          category?.category_id ||
+                          `${name}-${index}`
+                        }
+                      >
+                        <td className="owner-categories-row-number">
+                          {index + 1}
+                        </td>
 
-                  const image =
-                    getCategoryImage(
-                      category
-                    );
+                        <td>
+                          <div className="owner-categories-table-category">
+                            <div className="owner-categories-table-image">
+                              <img
+                                src={image}
+                                alt={name}
+                                loading="lazy"
+                                onError={(event) => {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src =
+                                    "/images/default-category.png";
+                                }}
+                              />
+                            </div>
 
+                            <div className="owner-categories-table-category-name">
+                              <strong>{name}</strong>
+                              {getEnglishDescription(category) && (
+                                <span>{getEnglishDescription(category)}</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
 
-                  const names = getCategoryNames(category);
-                  const name = names.english || "Category";
-                  const categoryLanguage = LANGUAGES.find(
-                    (item) => normalizeLanguage(item) === getCategoryLanguage(category)
-                  ) || "Telugu";
-
-
-                  const songCount =
-                    category?.song_count ??
-                    category?.songs_count ??
-                    category?.total_songs ??
-                    null;
-
-
-                  return (
-
-                    <article
-                      key={
-                        category?.id ||
-                        `${name}-${index}`
-                      }
-                      className="owner-category-card"
-                    >
-
-
-                      {/* IMAGE */}
-
-                      <div className="owner-category-image-wrapper">
-
-                        <img
-                          src={image}
-                          alt={name}
-                          className="owner-category-image"
-                          onError={(
-                            event
-                          ) => {
-
-                            event.currentTarget.onerror = null;
-                            event.currentTarget.src =
-                              "/images/default-category.png";
-
-                          }}
-                        />
-
-                      </div>
-
-
-                      {/* DETAILS */}
-
-                      <div className="owner-category-details">
-
-
-                        <h3>{names.english}</h3>
-
-                        {getEnglishDescription(category) && (
-                          <p className="owner-category-description">
-                            {getEnglishDescription(category)}
-                          </p>
-                        )}
-
-
-                        <div className="owner-category-meta">
-
-
-                          <span>
+                        <td>
+                          <span className="owner-categories-language-badge">
                             {categoryLanguage}
                           </span>
+                        </td>
 
-
-                          {songCount !== null && (
-
-                            <span>
-
-                              <FaMusic />
-
-                              {songCount}
-
-                              {" "}
-
-                              song
-                              {songCount !== 1
-                                ? "s"
-                                : ""}
-
-                            </span>
-
-                          )}
-
-                        </div>
-
-                      </div>
-
-                    </article>
-
-                  );
-
-                }
-              )}
-
+                        <td>
+                          <span className="owner-categories-song-count">
+                            {songCount !== null && songCount !== undefined
+                              ? `${songCount} song${Number(songCount) !== 1 ? "s" : ""}`
+                              : "—"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
 
           </section>

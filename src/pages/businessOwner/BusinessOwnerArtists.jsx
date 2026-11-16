@@ -496,6 +496,140 @@ const BusinessOwnerArtists = () => {
           .owner-artists-language-heading { align-items:flex-start; flex-direction:column; }
           .owner-artists-language-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
         }
+
+        .owner-artists-table-wrapper {
+          width: 100%;
+          overflow-x: auto;
+          border: 1px solid rgba(104, 153, 220, .22);
+          border-radius: 16px;
+          background: rgba(8, 19, 36, .72);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(216, 184, 106, .55) rgba(10, 22, 43, .7);
+        }
+
+        .owner-artists-table {
+          width: 100%;
+          min-width: 650px;
+          border-collapse: collapse;
+          text-align: left;
+        }
+
+        .owner-artists-table thead {
+          background: linear-gradient(110deg, rgba(29, 55, 91, .98), rgba(15, 32, 56, .98));
+        }
+
+        .owner-artists-table th {
+          padding: 16px 18px;
+          color: #e8d19b;
+          font-size: .78rem;
+          font-weight: 800;
+          letter-spacing: .07em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          border-bottom: 1px solid rgba(216, 184, 106, .25);
+        }
+
+        .owner-artists-table td {
+          padding: 13px 18px;
+          color: #e8eef9;
+          font-size: .9rem;
+          border-bottom: 1px solid rgba(130, 157, 194, .13);
+          vertical-align: middle;
+        }
+
+        .owner-artists-table tbody tr {
+          transition: background .18s ease;
+        }
+
+        .owner-artists-table tbody tr:hover {
+          background: rgba(55, 91, 143, .17);
+        }
+
+        .owner-artists-table tbody tr:last-child td {
+          border-bottom: 0;
+        }
+
+        .owner-artists-row-number {
+          width: 58px;
+          color: #9fb0ca !important;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .owner-artists-table-artist {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          min-width: 250px;
+        }
+
+        .owner-artists-table-image {
+          flex: 0 0 54px;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          border-radius: 50%;
+          background: linear-gradient(145deg, #19345b, #091428);
+          border: 1px solid rgba(216, 184, 106, .24);
+        }
+
+        .owner-artists-table-image img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .owner-artists-table-artist-name {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-width: 0;
+        }
+
+        .owner-artists-table-artist-name strong {
+          color: #f4f7ff;
+          font-size: .94rem;
+          font-weight: 750;
+          overflow-wrap: anywhere;
+        }
+
+        .owner-artists-table-artist-name span {
+          color: #91a4c2;
+          font-size: .74rem;
+        }
+
+        .owner-artists-language-badge,
+        .owner-artists-song-count {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 11px;
+          border: 1px solid rgba(104, 153, 220, .3);
+          border-radius: 999px;
+          background: rgba(32, 59, 96, .42);
+          color: #dce8fb;
+          font-size: .78rem;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+          .owner-artists-table th,
+          .owner-artists-table td {
+            padding: 11px 12px;
+          }
+
+          .owner-artists-table-image {
+            flex-basis: 46px;
+            width: 46px;
+            height: 46px;
+          }
+
+          .owner-artists-table-artist-name strong {
+            font-size: .86rem;
+          }
+        }
+
       `}</style>
 
 
@@ -876,125 +1010,77 @@ const BusinessOwnerArtists = () => {
             </div>
 
 
-            <div className="owner-artists-grid">
+            <div className="owner-artists-table-wrapper">
+              <table className="owner-artists-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Artist</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Total Songs</th>
+                  </tr>
+                </thead>
 
-              {filteredArtists.map(
-                (artist, index) => {
+                <tbody>
+                  {filteredArtists.map((artist, index) => {
+                    const image = getArtistImage(artist);
+                    const name = getArtistNames(artist).english;
+                    const artistLanguage =
+                      getArtistLanguage(artist) || "Language not provided";
+                    const songCount = getArtistSongCount(artist);
 
+                    return (
+                      <tr
+                        key={
+                          artist?.id ||
+                          artist?.artist_id ||
+                          `${name}-${index}`
+                        }
+                      >
+                        <td className="owner-artists-row-number">
+                          {index + 1}
+                        </td>
 
-                  const image = getArtistImage(artist);
-                  const names = getArtistNames(artist);
-                  const name = names.english;
-                  const artistLanguage = getArtistLanguage(artist) || "Language not provided";
-                  const songCount = getArtistSongCount(artist);
+                        <td>
+                          <div className="owner-artists-table-artist">
+                            <div className="owner-artists-table-image">
+                              <img
+                                src={image || "/images/default-artist.png"}
+                                alt={name}
+                                loading="lazy"
+                                onError={(event) => {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src =
+                                    "/images/default-artist.png";
+                                }}
+                              />
+                            </div>
 
+                            <div className="owner-artists-table-artist-name">
+                              <strong>{name}</strong>
+                              <span>KEERTHANA Music Artist</span>
+                            </div>
+                          </div>
+                        </td>
 
-                  return (
-
-                    <article
-                      key={
-                        artist?.id ||
-                        artist?.artist_id ||
-                        `${name}-${index}`
-                      }
-                      className="owner-artist-card"
-                    >
-
-
-                      {/* IMAGE */}
-
-                      <div className="owner-artist-image-wrapper">
-
-                        <img
-                          src={image || "/images/default-artist.png"}
-                          alt={name}
-                          className="owner-artist-image"
-                          loading="lazy"
-                          onError={(event) => {
-                            event.currentTarget.onerror = null;
-                            event.currentTarget.src = "/images/default-artist.png";
-                          }}
-                        />
-
-                      </div>
-
-
-                      {/* DETAILS */}
-
-                      <div className="owner-artist-details">
-
-
-                        <div className="owner-artist-bilingual-name">
-                          <h3>{name}</h3>
-                        </div>
-
-
-                        {!containsTelugu(firstNonEmpty(
-                          artist?.bio_english,
-                          artist?.english_bio,
-                          artist?.description_english,
-                          artist?.descriptionEnglish,
-                          artist?.bio,
-                          artist?.description
-                        )) && firstNonEmpty(
-                          artist?.bio_english,
-                          artist?.english_bio,
-                          artist?.description_english,
-                          artist?.descriptionEnglish,
-                          artist?.bio,
-                          artist?.description
-                        ) && (
-                          <p className="owner-artist-bio">
-                            {firstNonEmpty(
-                              artist?.bio_english,
-                              artist?.english_bio,
-                              artist?.description_english,
-                              artist?.descriptionEnglish,
-                              artist?.bio,
-                              artist?.description
-                            )}
-                          </p>
-                        )}
-
-
-                        <div className="owner-artist-meta">
-
-
-                          <span>
+                        <td>
+                          <span className="owner-artists-language-badge">
                             {artistLanguage}
                           </span>
+                        </td>
 
-
-                          {songCount !== null && (
-
-                            <span>
-
-                              <FaMusic />
-
-                              {songCount}
-
-                              {" "}
-
-                              song
-                              {songCount !== 1
-                                ? "s"
-                                : ""}
-
-                            </span>
-
-                          )}
-
-                        </div>
-
-                      </div>
-
-                    </article>
-
-                  );
-
-                }
-              )}
-
+                        <td>
+                          <span className="owner-artists-song-count">
+                            {songCount !== null && songCount !== undefined
+                              ? `${songCount} song${Number(songCount) !== 1 ? "s" : ""}`
+                              : "—"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
 
           </section>

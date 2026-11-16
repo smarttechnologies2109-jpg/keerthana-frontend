@@ -971,6 +971,154 @@ const BusinessOwnerAlbums = () => {
 
         }
 
+
+        .owner-albums-table-wrapper {
+          width: 100%;
+          overflow-x: auto;
+          border: 1px solid rgba(104, 153, 220, .22);
+          border-radius: 16px;
+          background: rgba(8, 19, 36, .72);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(216, 184, 106, .55) rgba(10, 22, 43, .7);
+        }
+
+        .owner-albums-table {
+          width: 100%;
+          min-width: 620px;
+          border-collapse: collapse;
+          text-align: left;
+        }
+
+        .owner-albums-table thead {
+          background: linear-gradient(110deg, rgba(29, 55, 91, .98), rgba(15, 32, 56, .98));
+        }
+
+        .owner-albums-table th {
+          padding: 16px 18px;
+          color: #e8d19b;
+          font-size: .78rem;
+          font-weight: 800;
+          letter-spacing: .07em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          border-bottom: 1px solid rgba(216, 184, 106, .25);
+        }
+
+        .owner-albums-table td {
+          padding: 13px 18px;
+          color: #e8eef9;
+          font-size: .9rem;
+          border-bottom: 1px solid rgba(130, 157, 194, .13);
+          vertical-align: middle;
+        }
+
+        .owner-albums-table tbody tr {
+          transition: background .18s ease;
+        }
+
+        .owner-albums-table tbody tr:hover {
+          background: rgba(55, 91, 143, .17);
+        }
+
+        .owner-albums-table tbody tr:last-child td {
+          border-bottom: 0;
+        }
+
+        .owner-albums-row-number {
+          width: 58px;
+          color: #9fb0ca !important;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .owner-albums-table-album {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          min-width: 240px;
+        }
+
+        .owner-albums-table-cover {
+          position: relative;
+          flex: 0 0 54px;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          border-radius: 9px;
+          background: linear-gradient(145deg, #19345b, #091428);
+          border: 1px solid rgba(216, 184, 106, .2);
+        }
+
+        .owner-albums-table-cover img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .owner-albums-table-cover-placeholder {
+          position: absolute;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          color: #d8b86a;
+          font-size: 1.35rem;
+        }
+
+        .owner-albums-table-album-name {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-width: 0;
+        }
+
+        .owner-albums-table-album-name strong {
+          color: #f4f7ff;
+          font-size: .94rem;
+          font-weight: 750;
+          overflow-wrap: anywhere;
+        }
+
+        .owner-albums-table-album-name span {
+          color: #91a4c2;
+          font-size: .74rem;
+        }
+
+        .owner-albums-table-year {
+          color: #d5deed !important;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .owner-albums-song-count {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 11px;
+          border: 1px solid rgba(104, 153, 220, .3);
+          border-radius: 999px;
+          background: rgba(32, 59, 96, .42);
+          color: #dce8fb;
+          font-size: .78rem;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+          .owner-albums-table th,
+          .owner-albums-table td {
+            padding: 11px 12px;
+          }
+
+          .owner-albums-table-cover {
+            flex-basis: 46px;
+            width: 46px;
+            height: 46px;
+          }
+
+          .owner-albums-table-album-name strong {
+            font-size: .86rem;
+          }
+        }
+
       `}</style>
 
 
@@ -1335,127 +1483,88 @@ const BusinessOwnerAlbums = () => {
 
 
 
-            <div className="owner-albums-grid">
+            <div className="owner-albums-table-wrapper">
+              <table className="owner-albums-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Album</th>
+                    <th scope="col">Release Year</th>
+                    <th scope="col">Total Songs</th>
+                  </tr>
+                </thead>
 
-              {filteredAlbums.map((album, index) => {
+                <tbody>
+                  {filteredAlbums.map((album, index) => {
+                    const names = getAlbumNames(album);
+                    const title = names.english;
+                    const year = getAlbumYear(album) || "—";
+                    const songCount = getAlbumSongCount(album);
+                    const cover = getAlbumCover(album);
 
-                const names = getAlbumNames(album);
-
-                const title = names.english;
-
-
-                const year = getAlbumYear(album) || "—";
-
-                const songCount = getAlbumSongCount(album);
-
-                const cover = getAlbumCover(album);
-
-
-
-                return (
-
-                  <article
-
-                    key={
-
-                      album?.id ||
-
-                      album?.album_id ||
-
-                      `${title}-${index}`
-
-                    }
-
-                    className="owner-album-card"
-
-                  >
-
-                    <div className="owner-album-cover-wrapper">
-
-                      {cover && (
-
-                        <img
-
-                          src={cover}
-
-                          alt={`${title} album cover`}
-
-                          className="owner-album-cover"
-
-                          loading="lazy"
-
-                          onError={(event) => {
-
-                            event.currentTarget.style.display = "none";
-
-                            const placeholder =
-
-                              event.currentTarget.parentElement?.querySelector(
-
-                                ".owner-album-cover-placeholder"
-
-                              );
-
-                            if (placeholder) placeholder.style.display = "grid";
-
-                          }}
-
-                        />
-
-                      )}
-
-
-
-                      <div
-
-                        className="owner-album-cover-placeholder"
-
-                        style={{ display: cover ? "none" : "grid" }}
-
-                        aria-label="Album cover unavailable"
-
+                    return (
+                      <tr
+                        key={
+                          album?.id ||
+                          album?.album_id ||
+                          `${title}-${index}`
+                        }
                       >
+                        <td className="owner-albums-row-number">
+                          {index + 1}
+                        </td>
 
-                        <FaCompactDisc />
+                        <td>
+                          <div className="owner-albums-table-album">
+                            <div className="owner-albums-table-cover">
+                              {cover ? (
+                                <img
+                                  src={cover}
+                                  alt={`${title} album cover`}
+                                  loading="lazy"
+                                  onError={(event) => {
+                                    event.currentTarget.style.display = "none";
+                                    const placeholder =
+                                      event.currentTarget.parentElement?.querySelector(
+                                        ".owner-albums-table-cover-placeholder"
+                                      );
+                                    if (placeholder) {
+                                      placeholder.style.display = "grid";
+                                    }
+                                  }}
+                                />
+                              ) : null}
 
-                      </div>
+                              <div
+                                className="owner-albums-table-cover-placeholder"
+                                style={{ display: cover ? "none" : "grid" }}
+                                aria-label="Album cover unavailable"
+                              >
+                                <FaCompactDisc />
+                              </div>
+                            </div>
 
-                    </div>
+                            <div className="owner-albums-table-album-name">
+                              <strong>{title}</strong>
+                              <span>KEERTHANA Music Collection</span>
+                            </div>
+                          </div>
+                        </td>
 
+                        <td className="owner-albums-table-year">{year}</td>
 
-
-                    <div className="owner-album-details">
-
-                      <h3>{title}</h3>
-
-
-
-                      <div className="owner-album-meta">
-
-                        <span>{year}</span>
-
-
-
-                        {songCount !== null && songCount !== undefined && (
-
-                          <span>
-
-                            {songCount} song{Number(songCount) !== 1 ? "s" : ""}
-
+                        <td>
+                          <span className="owner-albums-song-count">
+                            {songCount !== null && songCount !== undefined
+                              ? `${songCount} song${Number(songCount) !== 1 ? "s" : ""}`
+                              : "—"}
                           </span>
-
-                        )}
-
-                      </div>
-
-                    </div>
-
-                  </article>
-
-                );
-
-              })}
-
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
 
           </section>
