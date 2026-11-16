@@ -49,7 +49,7 @@ const normalizeLanguage = (value) => {
 };
 
 // Never render Telugu-script text in the Business Owner song table.
-const containsTelugu = (value) => /[\\u0C00-\\u0C7F]/.test(String(value ?? ""));
+const containsTelugu = (value) => /[\u0C00-\u0C7F]/.test(String(value ?? ""));
 
 const firstEnglish = (...values) => {
   const value = values.find(
@@ -105,36 +105,64 @@ const getEnglishArtist = (song, artistsById = {}) => {
   );
 };
 
-const getEnglishAlbum = (song) =>
-  firstEnglish(
-    song?.album_title_english,
-    song?.album_name_english,
-    song?.album_english,
-    song?.album?.title_english,
-    song?.album?.name_english,
-    song?.album_title,
-    typeof song?.album === "string" ? song.album : ""
+const getRelatedId = (song, field) => {
+  const object = song?.[field] && typeof song[field] === "object" ? song[field] : {};
+  const camel = field === "ministry" ? "ministryId" : `${field}Id`;
+  return song?.[`${field}_id`] ?? song?.[camel] ?? object?.id ?? object?.[`${field}_id`];
+};
+
+const getEnglishAlbum = (song, albumsById = {}) => {
+  const album = song?.album && typeof song.album === "object" ? song.album : {};
+  const linked = albumsById[String(getRelatedId(song, "album") ?? "")] || {};
+  return firstEnglish(
+    song?.album_title_english, song?.album_name_english, song?.album_english,
+    album?.title_english, album?.name_english, album?.english_name,
+    linked?.title_english, linked?.name_english, linked?.english_name,
+    song?.album_title, typeof song?.album === "string" ? song.album : ""
   ) || "English album name not available";
+};
 
-const getEnglishCategory = (song) =>
-  firstEnglish(
-    song?.category_name_english,
-    song?.category_english,
-    song?.category?.name_english,
-    song?.category?.english_name,
-    song?.category_name,
-    typeof song?.category === "string" ? song.category : ""
-  ) || "—";
+const getEnglishCategory = (song, categoriesById = {}) => {
+  const category = song?.category && typeof song.category === "object" ? song.category : {};
+  const linked = categoriesById[String(getRelatedId(song, "category") ?? "")] || {};
+  return firstEnglish(
+    song?.category_name_english, song?.category_english,
+    category?.name_english, category?.english_name,
+    linked?.name_english, linked?.english_name, linked?.nameEnglish,
+    song?.category_name, typeof song?.category === "string" ? song.category : ""
+  ) || "English category name not available";
+};
 
-const getEnglishMinistry = (song) =>
-  firstEnglish(
-    song?.ministry_name_english,
-    song?.ministry_english,
-    song?.ministry?.name_english,
-    song?.ministry?.english_name,
-    song?.ministry_name,
-    typeof song?.ministry === "string" ? song.ministry : ""
-  ) || "—";
+const getEnglishMinistry = (song, ministriesById = {}) => {
+  const ministry = song?.ministry && typeof song.ministry === "object" ? song.ministry : {};
+  const linked = ministriesById[String(getRelatedId(song, "ministry") ?? "")] || {};
+  return firstEnglish(
+    song?.ministry_name_english, song?.ministry_english,
+    ministry?.name_english, ministry?.english_name,
+    linked?.name_english, linked?.english_name, linked?.ministry_name_english,
+    song?.ministry_name, typeof song?.ministry === "string" ? song.ministry : ""
+  ) || "English ministry name not available";
+};
+
+const extractRows = (payload, keys) => {
+  if (Array.isArray(payload)) return payload;
+  for (const key of keys) {
+    if (Array.isArray(payload?.[key])) return payload[key];
+    if (Array.isArray(payload?.data?.[key])) return payload.data[key];
+  }
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
+
+const buildEnglishLookup = (rows, nameFields) => {
+  const lookup = {};
+  rows.forEach((row) => {
+    const id = row?.id ?? row?.artist_id ?? row?.album_id ?? row?.category_id ?? row?.ministry_id;
+    const englishName = firstEnglish(...nameFields.map((field) => row?.[field]));
+    if (id != null && englishName) lookup[String(id)] = { ...row, name_english: englishName };
+  });
+  return lookup;
+};
 
 /* =========================================================
    BUSINESS OWNER SONGS
@@ -154,6 +182,9 @@ const BusinessOwnerSongs = () => {
   const [songs, setSongs] = useState([]);
 
   const [artistsById, setArtistsById] = useState({});
+  const [albumsById, setAlbumsById] = useState({});
+  const [categoriesById, setCategoriesById] = useState({});
+  const [ministriesById, setMinistriesById] = useState({});
 
   const [loading, setLoading] = useState(true);
 
@@ -212,34 +243,39 @@ const BusinessOwnerSongs = () => {
         else if (Array.isArray(data?.data)) songList = data.data;
         else if (Array.isArray(data?.rows)) songList = data.rows;
 
-        // Use the same /artists reference as AllSongs.jsx to resolve
-        // English artist names when a song only contains artist_id.
-        try {
-          const artistsResponse = await API.get("/artists");
-          const artistsPayload = artistsResponse?.data;
-          const artistList = Array.isArray(artistsPayload)
-            ? artistsPayload
-            : Array.isArray(artistsPayload?.artists)
-              ? artistsPayload.artists
-              : Array.isArray(artistsPayload?.data)
-                ? artistsPayload.data
-                : [];
+        // Load master records so relationship IDs can be displayed as English names.
+        const [artistsResult, albumsResult, categoriesResult, ministriesResult] =
+          await Promise.allSettled([
+            API.get("/artists"),
+            API.get("/albums"),
+            API.get("/categories"),
+            API.get("/ministries"),
+          ]);
 
-          const lookup = {};
-          artistList.forEach((artist) => {
-            const id = artist?.id ?? artist?.artist_id;
-            const englishName = firstEnglish(
-              artist?.name_english,
-              artist?.english_name,
-              artist?.nameEnglish
-            );
-            if (id != null && englishName) {
-              lookup[String(id)] = { ...artist, name_english: englishName };
-            }
-          });
-          if (isMounted) setArtistsById(lookup);
-        } catch (artistError) {
-          console.warn("Unable to load English artist names:", artistError);
+        const getResultRows = (result, keys) =>
+          result.status === "fulfilled"
+            ? extractRows(result.value?.data, keys)
+            : [];
+
+        const artistRows = getResultRows(artistsResult, ["artists", "data", "items"]);
+        const albumRows = getResultRows(albumsResult, ["albums", "data", "items"]);
+        const categoryRows = getResultRows(categoriesResult, ["categories", "data", "items"]);
+        const ministryRows = getResultRows(ministriesResult, ["ministries", "data", "items"]);
+
+        if (isMounted) {
+          setArtistsById(buildEnglishLookup(artistRows, [
+            "name_english", "english_name", "nameEnglish", "englishName"
+          ]));
+          setAlbumsById(buildEnglishLookup(albumRows, [
+            "name_english", "title_english", "english_name", "album_name_english",
+            "nameEnglish", "titleEnglish"
+          ]));
+          setCategoriesById(buildEnglishLookup(categoryRows, [
+            "name_english", "english_name", "nameEnglish", "category_name_english"
+          ]));
+          setMinistriesById(buildEnglishLookup(ministryRows, [
+            "name_english", "english_name", "nameEnglish", "ministry_name_english"
+          ]));
         }
 
         if (isMounted) setSongs(songList);
@@ -298,7 +334,7 @@ const BusinessOwnerSongs = () => {
         const title = getEnglishSongTitle(song).toLowerCase();
         const englishTitle = title;
         const artist = getEnglishArtist(song, artistsById).toLowerCase();
-        const album = getEnglishAlbum(song).toLowerCase();
+        const album = getEnglishAlbum(song, albumsById).toLowerCase();
 
 
         const songLanguage = normalizeLanguage(song?.language);
@@ -349,6 +385,7 @@ const BusinessOwnerSongs = () => {
     search,
     language,
     artistsById,
+    albumsById,
   ]);
 
 
@@ -1013,21 +1050,21 @@ const BusinessOwnerSongs = () => {
                          ALBUM
                       --------------------------------------------- */
 
-                      const album = getEnglishAlbum(song);
+                      const album = getEnglishAlbum(song, albumsById);
 
 
                       /* ---------------------------------------------
                          CATEGORY
                       --------------------------------------------- */
 
-                      const category = getEnglishCategory(song);
+                      const category = getEnglishCategory(song, categoriesById);
 
 
                       /* ---------------------------------------------
                          MINISTRY
                       --------------------------------------------- */
 
-                      const ministry = getEnglishMinistry(song);
+                      const ministry = getEnglishMinistry(song, ministriesById);
 
 
                       return (
