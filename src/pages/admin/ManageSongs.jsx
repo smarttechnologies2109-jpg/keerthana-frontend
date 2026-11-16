@@ -356,45 +356,52 @@ function ManageSongs() {
 
 
 
-  const getMasterId = (record) =>
+  const getMasterId = (record, type = "") => {
+    const typeIdFields = {
+      artist: ["artist_id", "artistId", "artistID"],
+      album: ["album_id", "albumId", "albumID"],
+      ministry: ["ministry_id", "ministryId", "ministryID"],
+      category: ["category_id", "categoryId", "categoryID"],
+    };
 
-    record?.id ?? record?.artist_id ?? record?.album_id ??
+    const candidates = [
+      record?.id,
+      ...(typeIdFields[type] || []).map((field) => record?.[field]),
+    ];
+    return candidates.find(
+      (value) => value !== null && value !== undefined && String(value).trim() !== ""
+    ) ?? null;
+  };
 
-    record?.ministry_id ?? record?.category_id;
+  const getMasterEnglishName = (record, type = "") => {
+    const typeNameFields = {
+      artist: ["artist_name_english", "artist_english_name", "artistNameEnglish", "artistEnglishName"],
+      album: ["album_name_english", "album_english_name", "albumNameEnglish", "albumEnglishName"],
+      ministry: [
+        "ministry_name_english",
+        "ministry_english_name",
+        "ministryNameEnglish",
+        "ministryEnglishName",
+        "ministry_name_en",
+        "ministryNameEn",
+        "english_ministry_name",
+      ],
+      category: ["category_name_english", "category_english_name", "categoryNameEnglish", "categoryEnglishName"],
+    };
 
-
-
-  const getMasterEnglishName = (record) =>
-
-    pickEnglish(
-
+    return pickEnglish(
+      ...(typeNameFields[type] || []).map((field) => record?.[field]),
       record?.name_english,
-
       record?.english_name,
-
       record?.nameEnglish,
-
       record?.title_english,
-
-      record?.artist_name_english,
-
-      record?.album_name_english,
-
-      record?.ministry_name_english,
-
-      record?.category_name_english,
-
       record?.name_en,
-
       record?.nameEn,
-
       record?.englishName,
-
       record?.name,
-
       record?.title
-
     );
+  };
 
 
 
@@ -452,11 +459,19 @@ function ManageSongs() {
 
         : [];
 
-      const ministryRows = ministriesResult.status === "fulfilled"
-
+      let ministryRows = ministriesResult.status === "fulfilled"
         ? extractRows(ministriesResult.value?.data, ["ministries"])
-
         : [];
+
+      // Some admin setups expose the ministry master list only on the admin route.
+      if (ministryRows.length === 0) {
+        try {
+          const adminMinistriesResult = await API.get("/admin/ministries");
+          ministryRows = extractRows(adminMinistriesResult?.data, ["ministries"]);
+        } catch (ministryError) {
+          console.warn("Unable to load ministry master records from /admin/ministries:", ministryError);
+        }
+      }
 
       const categoryRows = categoriesResult.status === "fulfilled"
 
@@ -466,37 +481,27 @@ function ManageSongs() {
 
 
 
-      const makeLookup = (rows) => {
-
+      const makeLookup = (rows, type) => {
         const lookup = {};
-
         rows.forEach((record) => {
-
-          const id = getMasterId(record);
-
-          const name = getMasterEnglishName(record);
-
-          if (id != null && name) lookup[String(id)] = name;
-
+          const id = getMasterId(record, type);
+          const name = getMasterEnglishName(record, type);
+          if (id !== null && id !== undefined && name) {
+            lookup[String(id).trim()] = name;
+          }
         });
-
         return lookup;
-
       };
-
-
 
       const lookups = {
-
-        artist: makeLookup(artistRows),
-
-        album: makeLookup(albumRows),
-
-        ministry: makeLookup(ministryRows),
-
-        category: makeLookup(categoryRows),
-
+        artist: makeLookup(artistRows, "artist"),
+        album: makeLookup(albumRows, "album"),
+        ministry: makeLookup(ministryRows, "ministry"),
+        category: makeLookup(categoryRows, "category"),
       };
+
+      console.log("MINISTRY MASTER ROWS:", ministryRows);
+      console.log("MINISTRY LOOKUP:", lookups.ministry);
 
 
 
@@ -506,7 +511,7 @@ function ManageSongs() {
 
         const albumId = song?.album_id ?? song?.albumId;
 
-        const ministryId = song?.ministry_id ?? song?.ministryId;
+        const ministryId = getRelationId(song, "ministry");
 
         const categoryId = song?.category_id ?? song?.categoryId;
 
@@ -526,7 +531,7 @@ function ManageSongs() {
 
           ministry_name_english: getMinistry(song) ||
 
-            (ministryId != null ? lookups.ministry[String(ministryId)] : "") || "",
+            (ministryId != null ? lookups.ministry[String(ministryId).trim()] : "") || "",
 
           category_name_english: getCategory(song) ||
 
@@ -763,19 +768,34 @@ function ManageSongs() {
 
 
   const getRelationId = (song, field) => {
-    const relation = song?.[field] && typeof song[field] === "object"
-      ? song[field]
-      : song?.[`${field}_details`] && typeof song[`${field}_details`] === "object"
-        ? song[`${field}_details`]
-        : {};
+    const relationCandidates = [
+      song?.[field],
+      song?.[`${field}_details`],
+      song?.[`${field}Details`],
+      song?.[`${field}_data`],
+    ];
+    const relation = relationCandidates.find(
+      (item) => item && typeof item === "object"
+    ) || {};
 
-    return (
-      song?.[`${field}_id`] ??
-      song?.[`${field}Id`] ??
-      relation?.id ??
-      relation?.[`${field}_id`] ??
-      null
-    );
+    const idFields = {
+      artist: ["artist_id", "artistId", "artistID"],
+      album: ["album_id", "albumId", "albumID"],
+      ministry: ["ministry_id", "ministryId", "ministryID"],
+      category: ["category_id", "categoryId", "categoryID"],
+    };
+
+    const candidates = [
+      song?.[`${field}_id`],
+      song?.[`${field}Id`],
+      song?.[`${field}ID`],
+      relation?.id,
+      ...(idFields[field] || []).map((key) => relation?.[key]),
+    ];
+
+    return candidates.find(
+      (value) => value !== null && value !== undefined && String(value).trim() !== ""
+    ) ?? null;
   };
 
   const isUnknownLabel = (value, field) => {
