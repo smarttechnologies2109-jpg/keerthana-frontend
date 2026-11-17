@@ -4,4 +4,5 @@
     <string name="title_activity_main">Keerthana</string>
     <string name="package_name">com.keerthana.music</string>
     <string name="custom_url_scheme">com.keerthana.music</string>
+    <string name="admob_app_id">ca-app-pub-4269202427991524~6114154533</string>
 </resources>
