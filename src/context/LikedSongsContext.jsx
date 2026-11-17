@@ -13,14 +13,17 @@ import { useAuth } from "./AuthContext";
 
 const LikedSongsContext = createContext(null);
 
-/*
-  Supports common response formats:
-  - [song, song]
-  - { songs: [...] }
-  - { likedSongs: [...] }
-  - { data: { songs: [...] } }
-  - Like records containing a nested song object
-*/
+/* =====================================================
+   SONG ID HELPER
+===================================================== */
+
+const getSongId = (song) =>
+  song?.id ?? song?.song_id ?? song?.song?.id ?? song?.song?.song_id ?? null;
+
+/* =====================================================
+   NORMALIZE LIKED SONGS
+===================================================== */
+
 function normalizeLikedSongs(response) {
   const data = response?.data;
 
@@ -34,18 +37,32 @@ function normalizeLikedSongs(response) {
     songs = data.likedSongs;
   } else if (Array.isArray(data?.data?.songs)) {
     songs = data.data.songs;
+  } else if (Array.isArray(data?.data?.likedSongs)) {
+    songs = data.data.likedSongs;
   } else if (Array.isArray(data?.data)) {
     songs = data.data;
   }
 
-  return songs
-    .map((item) => item?.song ?? item)
-    .filter((song) => song && (song.id != null || song.song_id != null))
-    .map((song) => ({
+  const uniqueSongs = new Map();
+
+  songs.forEach((item) => {
+    const song = item?.song ?? item;
+    const id = getSongId(song);
+
+    if (id == null) return;
+
+    uniqueSongs.set(String(id), {
       ...song,
-      id: song.id ?? song.song_id,
-    }));
+      id,
+    });
+  });
+
+  return Array.from(uniqueSongs.values());
 }
+
+/* =====================================================
+   PROVIDER
+===================================================== */
 
 export function LikedSongsProvider({ children }) {
   const { user } = useAuth();
@@ -54,9 +71,10 @@ export function LikedSongsProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
-  /*
-    Fetch the current user's liked songs.
-  */
+  /* =====================================================
+     FETCH LIKED SONGS
+  ===================================================== */
+
   const fetchLikedSongs = useCallback(
     async (showLoading = false) => {
       if (!user) {
@@ -77,6 +95,7 @@ export function LikedSongsProvider({ children }) {
         const songs = normalizeLikedSongs(response);
 
         setLikedSongs(songs);
+
         return songs;
       } catch (error) {
         console.error(
@@ -84,7 +103,6 @@ export function LikedSongsProvider({ children }) {
           error?.response?.data || error.message
         );
 
-        // Keep the existing list if the request fails.
         return null;
       } finally {
         setLoading(false);
@@ -94,16 +112,18 @@ export function LikedSongsProvider({ children }) {
     [user]
   );
 
-  /*
-    Fetch when the user signs in or changes.
-  */
+  /* =====================================================
+     INITIAL FETCH
+  ===================================================== */
+
   useEffect(() => {
     fetchLikedSongs(true);
   }, [fetchLikedSongs]);
 
-  /*
-    Refresh when the app becomes active again.
-  */
+  /* =====================================================
+     REFRESH WHEN APP BECOMES ACTIVE
+  ===================================================== */
+
   useEffect(() => {
     if (!user) return;
 
@@ -134,103 +154,132 @@ export function LikedSongsProvider({ children }) {
     };
   }, [user, fetchLikedSongs]);
 
-  /*
-    IDs are compared as strings to avoid
-    mismatches between numeric and string IDs.
-  */
+  /* =====================================================
+     LIKED SONG IDS
+  ===================================================== */
+
   const likedSongIds = useMemo(
     () =>
       new Set(
-        likedSongs.map((song) => String(song.id))
+        likedSongs.map((song) => String(getSongId(song)))
       ),
     [likedSongs]
   );
 
+  /* =====================================================
+     CHECK LIKED STATUS
+  ===================================================== */
+
   const isLiked = useCallback(
-    (songId) => {
-      if (songId == null) return false;
-      return likedSongIds.has(String(songId));
+    (songOrId) => {
+      const id =
+        typeof songOrId === "object"
+          ? getSongId(songOrId)
+          : songOrId;
+
+      if (id == null) return false;
+
+      return likedSongIds.has(String(id));
     },
     [likedSongIds]
   );
 
-  /*
-    Add a song to the current user's likes.
-  */
+  /* =====================================================
+     LIKE SONG
+  ===================================================== */
+
   const likeSong = useCallback(
     async (song) => {
       if (!user) {
         throw new Error("LOGIN_REQUIRED");
       }
 
-      if (song?.id == null) {
+      const songId = getSongId(song);
+
+      if (songId == null) {
         throw new Error("SONG_ID_REQUIRED");
       }
 
-      if (isLiked(song.id)) {
-        return;
-      }
+      if (isLiked(songId)) return;
 
-      // Keep the UI responsive.
+      const normalizedSong = {
+        ...song,
+        id: songId,
+      };
+
+      // Immediately update all components using this context.
       setLikedSongs((previous) => {
-        if (
-          previous.some(
-            (item) => String(item.id) === String(song.id)
+        const exists = previous.some(
+          (item) =>
+            String(getSongId(item)) === String(songId)
+        );
+
+        if (exists) return previous;
+
+        return [...previous, normalizedSong];
+      });
+
+      try {
+        await API.post("/liked-songs", {
+          song_id: Number(songId),
+        });
+
+        await fetchLikedSongs();
+      } catch (error) {
+        // Roll back optimistic update.
+        setLikedSongs((previous) =>
+          previous.filter(
+            (item) =>
+              String(getSongId(item)) !== String(songId)
           )
-        ) {
-          return previous;
-        }
+        );
 
-        return [...previous, song];
-      });try {
-  await API.post("/liked-songs", {
-    song_id: Number(song.id),
-  });
+        console.error(
+          "Failed to like song:",
+          error?.response?.data || error.message
+        );
 
-  await fetchLikedSongs();
-} catch (error) {
-  setLikedSongs((previous) =>
-    previous.filter(
-      (item) => String(item.id) !== String(song.id)
-    )
-  );
-
-  console.error(
-    "Failed to like song:",
-    error?.response?.data || error.message
-  );
-
-  throw error;
-
+        throw error;
       }
     },
     [user, isLiked, fetchLikedSongs]
   );
 
-  /*
-    Remove a song from the current user's likes.
-  */
+  /* =====================================================
+     UNLIKE SONG
+  ===================================================== */
+
   const unlikeSong = useCallback(
-    async (songId) => {
+    async (songOrId) => {
       if (!user) {
         throw new Error("LOGIN_REQUIRED");
       }
 
-      if (songId == null) return;
+      const songId =
+        typeof songOrId === "object"
+          ? getSongId(songOrId)
+          : songOrId;
+
+      if (songId == null) {
+        throw new Error("SONG_ID_REQUIRED");
+      }
 
       const previousSongs = likedSongs;
 
+      // Immediately remove from all components.
       setLikedSongs((previous) =>
         previous.filter(
-          (song) => String(song.id) !== String(songId)
+          (song) =>
+            String(getSongId(song)) !== String(songId)
         )
       );
 
       try {
         await API.delete(`/liked-songs/${songId}`);
+
         await fetchLikedSongs();
       } catch (error) {
-        // Restore the previous list if removal fails.
+        // Restore previous list if API fails.
         setLikedSongs(previousSongs);
 
         console.error(
@@ -244,23 +293,37 @@ export function LikedSongsProvider({ children }) {
     [user, likedSongs, fetchLikedSongs]
   );
 
-  /*
-    Toggle a song's liked status.
-  */
+  /* =====================================================
+     TOGGLE LIKE / UNLIKE
+  ===================================================== */
+
   const toggleLike = useCallback(
     async (song) => {
-      if (song?.id == null) {
+      if (!user) {
+        throw new Error("LOGIN_REQUIRED");
+      }
+
+      const songId = getSongId(song);
+
+      if (songId == null) {
         throw new Error("SONG_ID_REQUIRED");
       }
 
-      if (isLiked(song.id)) {
-        await unlikeSong(song.id);
+      if (isLiked(songId)) {
+        await unlikeSong(songId);
       } else {
-        await likeSong(song);
+        await likeSong({
+          ...song,
+          id: songId,
+        });
       }
     },
-    [isLiked, unlikeSong, likeSong]
+    [user, isLiked, unlikeSong, likeSong]
   );
+
+  /* =====================================================
+     CONTEXT VALUE
+  ===================================================== */
 
   const value = useMemo(
     () => ({
@@ -291,6 +354,10 @@ export function LikedSongsProvider({ children }) {
     </LikedSongsContext.Provider>
   );
 }
+
+/* =====================================================
+   CUSTOM HOOK
+===================================================== */
 
 export function useLikedSongs() {
   const context = useContext(LikedSongsContext);

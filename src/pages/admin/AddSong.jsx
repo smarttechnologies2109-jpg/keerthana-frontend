@@ -132,7 +132,7 @@ const initialForm = {
   title_english: "",
   language: "Telugu",
   lyrics: "",
-  artist_ids: [],
+  artist_id: "",
   album_id: "",
   category_id: "",
   ministry_id: "", 
@@ -296,190 +296,6 @@ function SearchableDropdown({
             ) : (
               <div className="admin-searchable-empty">{emptyText}</div>
             )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-
-/* =====================================================
-   MULTI-ARTIST SEARCHABLE DROPDOWN
-   Every selected artist has equal status.
-===================================================== */
-
-function MultiArtistDropdown({
-  options = [],
-  values = [],
-  onChange,
-  placeholder = "Select one or more artists",
-  searchPlaceholder = "Search artists...",
-  getLabel,
-  getSearchText,
-}) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const rootRef = useRef(null);
-  const searchRef = useRef(null);
-
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (rootRef.current && !rootRef.current.contains(event.target)) {
-        setOpen(false);
-        setQuery("");
-      }
-    };
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        setQuery("");
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("touchstart", handleOutsideClick);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("touchstart", handleOutsideClick);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (open) requestAnimationFrame(() => searchRef.current?.focus());
-  }, [open]);
-
-  const selectedIds = (Array.isArray(values) ? values : []).map(String);
-  const selectedArtists = selectedIds
-    .map((id) => options.find((artist) => String(artist.id) === id))
-    .filter(Boolean);
-  const normalizedQuery = query.trim().toLocaleLowerCase();
-  const visibleOptions = options.filter((artist) => {
-    if (!normalizedQuery) return true;
-    const searchable = getSearchText ? getSearchText(artist) : getLabel(artist);
-    return String(searchable || "").toLocaleLowerCase().includes(normalizedQuery);
-  });
-
-  const toggleArtist = (artist) => {
-    const id = String(artist.id);
-    const next = selectedIds.includes(id)
-      ? selectedIds.filter((selectedId) => selectedId !== id)
-      : [...selectedIds, id];
-    onChange(next);
-  };
-
-  const removeArtist = (id) => {
-    onChange(selectedIds.filter((selectedId) => selectedId !== String(id)));
-  };
-
-  return (
-    <div className="admin-multi-artist-dropdown" ref={rootRef}>
-      <button
-        type="button"
-        className={`admin-searchable-trigger${open ? " is-open" : ""}`}
-        onClick={() => setOpen((previous) => !previous)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        <span className={selectedArtists.length ? "has-value" : "is-placeholder"}>
-          {selectedArtists.length
-            ? `${selectedArtists.length} artist${selectedArtists.length === 1 ? "" : "s"} selected`
-            : placeholder}
-        </span>
-        <span className="admin-searchable-chevron" aria-hidden="true">▾</span>
-      </button>
-
-      {selectedArtists.length > 0 && (
-        <div
-          className="admin-multi-artist-tags"
-          style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "10px" }}
-        >
-          {selectedArtists.map((artist) => (
-            <span
-              key={artist.id}
-              className="admin-multi-artist-tag"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "7px",
-                padding: "6px 10px",
-                borderRadius: "18px",
-                background: "rgba(212, 175, 55, 0.12)",
-                border: "1px solid rgba(212, 175, 55, 0.35)",
-                color: "inherit",
-                fontSize: "13px",
-              }}
-            >
-              <span>{getLabel(artist)}</span>
-              <button
-                type="button"
-                onClick={() => removeArtist(artist.id)}
-                aria-label={`Remove ${getLabel(artist)}`}
-                style={{
-                  border: 0,
-                  background: "transparent",
-                  color: "inherit",
-                  cursor: "pointer",
-                  padding: 0,
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
-              >
-                <FaTimes />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {open && (
-        <div className="admin-searchable-menu">
-          <div className="admin-searchable-input-wrap">
-            <FaSearch aria-hidden="true" />
-            <input
-              ref={searchRef}
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={searchPlaceholder}
-              aria-label={searchPlaceholder}
-            />
-            {query && (
-              <button
-                type="button"
-                className="admin-searchable-clear"
-                onClick={() => setQuery("")}
-                aria-label="Clear search"
-              >
-                <FaTimes />
-              </button>
-            )}
-          </div>
-          <div className="admin-searchable-options" role="listbox" aria-multiselectable="true">
-            {visibleOptions.length > 0 ? (
-              visibleOptions.map((artist) => {
-                const selected = selectedIds.includes(String(artist.id));
-                return (
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={selected}
-                    className={`admin-searchable-option${selected ? " is-selected" : ""}`}
-                    key={artist.id}
-                    onClick={() => toggleArtist(artist)}
-                  >
-                    <span>{getLabel(artist)}</span>
-                    {selected && <span className="admin-searchable-check">✓</span>}
-                  </button>
-                );
-              })
-            ) : (
-              <div className="admin-searchable-empty">No matching artists found.</div>
-            )}
-          </div>
-          <div style={{ padding: "8px 12px", fontSize: "12px", opacity: 0.7 }}>
-            Select multiple artists. Click a selected artist to remove it.
           </div>
         </div>
       )}
@@ -719,10 +535,10 @@ const handleMinistryChangeValue = (ministryId) => {
      Selecting an artist does not change the album.
   ===================================================== */
 
-  const handleArtistChange = (artistIds) => {
+  const handleArtistChange = (event) => {
     setForm((previous) => ({
       ...previous,
-      artist_ids: Array.isArray(artistIds) ? artistIds.map(String) : [],
+      artist_id: event.target.value,
     }));
   };
 
@@ -745,10 +561,7 @@ const handleMinistryChangeValue = (ministryId) => {
       const artist = response.data?.artist;
       if (!artist?.id) throw new Error("Artist was not returned by server.");
       setArtists(previous => [...previous, artist]);
-      setForm((previous) => ({
-        ...previous,
-        artist_ids: [...new Set([...(previous.artist_ids || []).map(String), String(artist.id)])],
-      }));
+      setForm(previous => ({ ...previous, artist_id: String(artist.id) }));
       setNewArtist({ name_english: "", name_telugu: "", bio: "" });
       setShowArtistForm(false);
       setSuccess(`Artist "${nameEnglish} / ${nameTelugu}" added successfully.`);
@@ -970,8 +783,8 @@ const handleMinistryChangeValue = (ministryId) => {
     return;
   }
 
-  if (!Array.isArray(form.artist_ids) || form.artist_ids.length === 0) {
-    alert("At least one artist is required. Please select or create an artist.");
+  if (!form.artist_id) {
+    alert("Artist name is required. Please select or create an artist.");
     return;
   }
 
@@ -997,9 +810,7 @@ const handleMinistryChangeValue = (ministryId) => {
       formData.append("language", form.language);
       formData.append("lyrics", form.lyrics);
 
-      formData.append("artist_ids", JSON.stringify(form.artist_ids));
-      // Backward compatibility for existing API code; backend must consume artist_ids.
-      formData.append("artist_id", form.artist_ids[0]);
+      formData.append("artist_id", form.artist_id);
       formData.append("category_id", form.category_id);
 
       if (form.album_id) {
@@ -1081,7 +892,7 @@ if (form.ministry_id) {
           <span>KEERTHANA ADMIN</span>
           <h1>Add New Song</h1>
           <p>
-            Add the song, artists, album, category, ministry,
+            Add the song, artist, album, category, ministry,
              audio and lyrics from one page.
           </p>
         </div>
@@ -1160,7 +971,7 @@ if (form.ministry_id) {
 
             <div className="admin-field">
               <div className="admin-field-label-row">
-                <label>Artists *</label>
+                <label>Artist *</label>
 
                 <button
                   type="button"
@@ -1177,12 +988,15 @@ if (form.ministry_id) {
                 </button>
               </div>
 
-              <MultiArtistDropdown
+              <SearchableDropdown
                 options={filteredArtists}
-                values={form.artist_ids}
-                onChange={handleArtistChange}
-                placeholder="Select Artists"
+                value={form.artist_id}
+                onChange={(value) =>
+                  setForm((previous) => ({ ...previous, artist_id: value }))
+                }
+                placeholder="Select Artist"
                 searchPlaceholder="Search artists..."
+                emptyText="No artists found. Please create an artist."
                 getLabel={(artist) =>
                   getBilingualLabel(artist.name_english, artist.name_telugu || artist.name, "Unnamed Artist")
                 }
@@ -1199,7 +1013,6 @@ if (form.ministry_id) {
               />
 
               {artistsLoading && <small>Loading artists...</small>}
-              <small>You can select multiple artists for this song. All selected artists are equal.</small>
 
               {!artistsLoading && filteredArtists.length === 0 && (
                 <small>No artists available. Please create an artist.</small>
