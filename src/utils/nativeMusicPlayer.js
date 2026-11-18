@@ -1,3 +1,4 @@
+
 import { Capacitor } from "@capacitor/core";
 
 import {
@@ -5,15 +6,19 @@ import {
   RmxAudioStatusMessage,
 } from "capacitor-plugin-playlist";
 
+// =========================================================
+// PLAYER STATE
+// =========================================================
+
 let initialized = false;
 let initializationPromise = null;
 
 export const isNativeAndroid =
   Capacitor.getPlatform() === "android";
 
-/* =========================================================
-   SONG DISPLAY HELPERS
-========================================================= */
+// =========================================================
+// SONG DISPLAY HELPERS
+// =========================================================
 
 const hasTeluguScript = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
@@ -65,9 +70,9 @@ export function getNativeSongTitles(song) {
   };
 }
 
-/* =========================================================
-   ENGLISH ARTIST NAME
-========================================================= */
+// =========================================================
+// ENGLISH ARTIST NAME
+// =========================================================
 
 export function getNativeArtistName(song) {
   const artist =
@@ -93,45 +98,77 @@ export function getNativeArtistName(song) {
   );
 }
 
-/* =========================================================
-   INITIALIZE NATIVE PLAYER
-========================================================= */
+// =========================================================
+// INITIALIZE NATIVE PLAYER
+// =========================================================
 
 export async function initializeNativeMusicPlayer() {
-  if (!isNativeAndroid) return false;
+  if (!isNativeAndroid) {
+    return false;
+  }
 
-  if (initialized) return true;
+  if (initialized) {
+    return true;
+  }
 
   if (!initializationPromise) {
     initializationPromise = (async () => {
-      await Playlist.setOptions({
-        verbose: import.meta.env.DEV,
-        resetStreamOnPause: true,
-      });
+      try {
+        await Playlist.setOptions({
+          verbose: import.meta.env.DEV,
+          resetStreamOnPause: true,
+        });
 
-      await Playlist.initialize();
+        await Playlist.initialize();
 
-      initialized = true;
+        initialized = true;
 
-      return true;
-    })().catch((error) => {
-      initializationPromise = null;
+        console.log(
+          "KEERTHANA native music player initialized"
+        );
 
-      console.error(
-        "Native music player initialization failed:",
-        error
-      );
+        return true;
+      } catch (error) {
+        initialized = false;
+        initializationPromise = null;
 
-      throw error;
-    });
+        console.error(
+          "Native music player initialization failed:",
+          error
+        );
+
+        throw error;
+      }
+    })();
   }
 
   return initializationPromise;
 }
 
-/* =========================================================
-   CONVERT SONG TO NATIVE TRACK
-========================================================= */
+// =========================================================
+// VALIDATE AUDIO URL
+// =========================================================
+
+function isValidAudioUrl(value) {
+  if (typeof value !== "string" || !value.trim()) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value.trim());
+
+    return (
+      url.protocol === "https:" ||
+      url.protocol === "http:"
+    );
+  } catch {
+    return false;
+  }
+}
+
+// =========================================================
+// CONVERT SONG TO NATIVE TRACK
+// =========================================================
 
 export function toNativeTrack(song, audioUrl) {
   const id = song?.id ?? song?.song_id;
@@ -152,13 +189,9 @@ export function toNativeTrack(song, audioUrl) {
 
   return {
     trackId: String(id),
-
     assetUrl: audioUrl,
 
-    // Android notification / lock-screen title
     title: englishTitle,
-
-    // English artist name
     artist,
 
     album:
@@ -168,25 +201,37 @@ export function toNativeTrack(song, audioUrl) {
 
     ...(albumArt ? { albumArt } : {}),
 
-    isStream: false,
+   isStream: true,
 
-    // Keep Telugu title available for app-side display.
-    // The native plugin may not display custom fields.
     ...(teluguTitle
       ? { subtitle: teluguTitle }
       : {}),
   };
 }
 
-/* =========================================================
-   LOAD NATIVE PLAYLIST
-========================================================= */
+// =========================================================
+// LOAD NATIVE PLAYLIST
+// =========================================================
 
 export async function setNativePlaylist(
   songs,
   resolveAudioUrl
 ) {
-  if (!isNativeAndroid) return [];
+  if (!isNativeAndroid) {
+    return [];
+  }
+
+  if (!Array.isArray(songs) || songs.length === 0) {
+    throw new Error(
+      "No songs were provided for Android playback."
+    );
+  }
+
+  if (typeof resolveAudioUrl !== "function") {
+    throw new Error(
+      "Audio URL resolver is missing."
+    );
+  }
 
   await initializeNativeMusicPlayer();
 
@@ -200,7 +245,6 @@ export async function setNativePlaylist(
         "Skipping native track without an ID:",
         song
       );
-
       continue;
     }
 
@@ -212,12 +256,16 @@ export async function setNativePlaylist(
           ? audioUrl.trim()
           : "";
 
-      if (!/^https?:\/\//i.test(normalizedUrl)) {
-        console.warn("Invalid native audio URL:", {
-          id,
-          title: song?.title,
-          audioUrl,
-        });
+      // Correct HTTP/HTTPS URL validation
+      if (!isValidAudioUrl(normalizedUrl)) {
+        console.warn(
+          "Invalid native audio URL:",
+          {
+            id,
+            title: song?.title,
+            audioUrl,
+          }
+        );
 
         continue;
       }
@@ -235,39 +283,47 @@ export async function setNativePlaylist(
 
   if (items.length === 0) {
     throw new Error(
-      "No songs with valid audio URLs are available for Android playback."
+      "No songs with valid HTTP/HTTPS audio URLs are available for Android playback."
     );
   }
 
-  await Playlist.setPlaylistItems({
-    items,
-    options: {
-      startPaused: true,
-    },
-  });
+  try {
+    await Playlist.setPlaylistItems({
+      items,
+      options: {
+        startPaused: true,
+      },
+    });
 
-  console.log(
-    "Android playlist loaded:",
-    items.map((item) => ({
-      trackId: item.trackId,
-      title: item.title,
-      artist: item.artist,
-      assetUrl: item.assetUrl,
-    }))
-  );
+    console.log(
+      "KEERTHANA Android playlist loaded:",
+      items.map((item) => ({
+        trackId: item.trackId,
+        title: item.title,
+        artist: item.artist,
+        assetUrl: item.assetUrl,
+      }))
+    );
 
-  return items;
+    return items;
+  } catch (error) {
+    console.error(
+      "Failed to load Android playlist:",
+      error
+    );
+
+    throw error;
+  }
 }
 
-/* =========================================================
-   PLAYBACK CONTROLS
-========================================================= */
+// =========================================================
+// PLAYBACK CONTROLS
+// =========================================================
 
 export async function playNativeMusic() {
   if (!isNativeAndroid) return;
 
   await initializeNativeMusicPlayer();
-
   await Playlist.play();
 }
 
@@ -275,7 +331,6 @@ export async function pauseNativeMusic() {
   if (!isNativeAndroid) return;
 
   await initializeNativeMusicPlayer();
-
   await Playlist.pause();
 }
 
@@ -283,7 +338,6 @@ export async function skipNativeNext() {
   if (!isNativeAndroid) return;
 
   await initializeNativeMusicPlayer();
-
   await Playlist.skipForward();
 }
 
@@ -291,23 +345,31 @@ export async function skipNativePrevious() {
   if (!isNativeAndroid) return;
 
   await initializeNativeMusicPlayer();
-
   await Playlist.skipBack();
 }
+
+// =========================================================
+// SEEK CONTROL
+// =========================================================
 
 export async function seekNativeMusic(seconds) {
   if (!isNativeAndroid) return;
 
   await initializeNativeMusicPlayer();
 
+  const position = Math.max(
+    0,
+    Number(seconds) || 0
+  );
+
   await Playlist.seekTo({
-    position: Math.max(0, Number(seconds) || 0),
+    position,
   });
 }
 
-/* =========================================================
-   VOLUME CONTROL
-========================================================= */
+// =========================================================
+// VOLUME CONTROL
+// =========================================================
 
 export async function setNativeMusicVolume(volume) {
   if (!isNativeAndroid) return;
@@ -324,9 +386,9 @@ export async function setNativeMusicVolume(volume) {
   });
 }
 
-/* =========================================================
-   EXPORTS
-========================================================= */
+// =========================================================
+// EXPORTS
+// =========================================================
 
 export {
   Playlist,

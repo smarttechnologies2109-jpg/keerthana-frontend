@@ -4,7 +4,7 @@
 
    Dedicated fullscreen design
 
-\\========================================================= */
+========================================================= */
 
 .keerthana-full-player {
 
@@ -306,7 +306,7 @@
 
 }
 
-.full-player-song-info > p {
+.full-player-song-info> p {
 
   margin: 12px 0 20px;
 
@@ -380,7 +380,7 @@
 
 }
 
-.full-player-controls > button {
+.full-player-controls> button {
 
   position: relative;
 
@@ -408,9 +408,9 @@
 
 }
 
-.full-player-controls > button:hover:not(:disabled),
+.full-player-controls> button:hover:not(:disabled),
 
-.full-player-controls > button.is-active {
+.full-player-controls> button.is-active {
 
   color: var(--full-gold);
 
@@ -418,7 +418,7 @@
 
 }
 
-.full-player-controls > button:disabled {
+.full-player-controls> button:disabled {
 
   opacity: 0.3;
 
@@ -426,7 +426,7 @@
 
 }
 
-.full-player-controls > button > span {
+.full-player-controls> button> span {
 
   position: absolute;
 
@@ -438,7 +438,7 @@
 
 }
 
-.full-player-controls > button.full-player-play {
+.full-player-controls> button.full-player-play {
 
   width: 70px;
 
@@ -458,7 +458,7 @@
 
 }
 
-.full-player-controls > button.full-player-play:hover {
+.full-player-controls> button.full-player-play:hover {
 
   color: #081326;
 
@@ -484,7 +484,7 @@
 
 }
 
-.full-player-progress > span {
+.full-player-progress> span {
 
   color: var(--full-muted);
 
@@ -496,7 +496,7 @@
 
 }
 
-.full-player-progress > span:last-child {
+.full-player-progress> span:last-child {
 
   text-align: right;
 
@@ -556,7 +556,7 @@
 
 }
 
-.full-player-toolbar-group > button {
+.full-player-toolbar-group> button {
 
   display: inline-flex;
 
@@ -582,9 +582,9 @@
 
 }
 
-.full-player-toolbar-group > button:hover,
+.full-player-toolbar-group> button:hover,
 
-.full-player-toolbar-group > button.is-active {
+.full-player-toolbar-group> button.is-active {
 
   color: var(--full-gold);
 
@@ -720,7 +720,7 @@
 
 }
 
-.full-player-panel-header > div > span {
+.full-player-panel-header> div> span {
 
   color: var(--full-gold);
 
@@ -752,7 +752,7 @@
 
 }
 
-.full-player-panel-header > button {
+.full-player-panel-header> button {
 
   display: grid;
 
@@ -880,9 +880,9 @@
 
 }
 
-.full-player-no-lyrics > svg,
+.full-player-no-lyrics> svg,
 
-.full-player-queue-empty > svg {
+.full-player-queue-empty> svg {
 
   color: var(--full-gold);
 
@@ -974,7 +974,7 @@
 
 }
 
-.full-player-queue-current > div,
+.full-player-queue-current> div,
 
 .full-player-queue-song-info {
 
@@ -1076,7 +1076,7 @@
 
 }
 
-.full-player-queue-song > svg {
+.full-player-queue-song> svg {
 
   flex: 0 0 auto;
 
@@ -1220,7 +1220,7 @@
 
   }
 
-  .full-player-song-info > p {
+  .full-player-song-info> p {
 
     margin: 7px 0 12px;
 
@@ -1250,7 +1250,7 @@
 
   }
 
-  .full-player-controls > button {
+  .full-player-controls> button {
 
     width: 34px;
 
@@ -1260,7 +1260,7 @@
 
   }
 
-  .full-player-controls > button.full-player-play {
+  .full-player-controls> button.full-player-play {
 
     width: 58px;
 
@@ -1280,7 +1280,7 @@
 
   }
 
-  .full-player-progress > span {
+  .full-player-progress> span {
 
     font-size: 10px;
 
@@ -1306,7 +1306,7 @@
 
   }
 
-  .full-player-toolbar-group > button {
+  .full-player-toolbar-group> button {
 
     min-height: 36px;
 
@@ -1532,62 +1532,752 @@
 
 }
 
-
 /* ANDROID FIX: Full Player must sit above the app header and bottom navigation. */
+
 .keerthana-full-player {
+
   position: fixed !important;
+
   inset: 0 !important;
+
   z-index: 2147483645 !important;
+
   width: 100vw !important;
+
   height: 100vh !important;
+
   height: 100dvh !important;
+
   max-height: none !important;
+
   overflow-x: hidden !important;
+
   overflow-y: auto !important;
+
   padding-top: max(12px, env(safe-area-inset-top, 0px)) !important;
+
   padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)) !important;
+
   box-sizing: border-box !important;
+
 }
+
 .full-player-header {
+
   position: sticky;
+
   top: 0;
+
   z-index: 5;
+
   display: flex;
+
   flex: 0 0 auto;
+
   min-height: 48px;
+
   align-items: center;
+
   background: linear-gradient(180deg, rgba(7,16,32,.98), rgba(7,16,32,.82));
+
 }
+
 .full-player-icon-button {
+
   position: relative;
+
   z-index: 6;
+
   flex: 0 0 42px;
+
   min-width: 42px;
+
   min-height: 42px;
+
   touch-action: manipulation;
+
   pointer-events: auto;
+
 }
+
 .full-player-body { min-height: 0; }
+
 .full-player-toolbar { position: relative; z-index: 2; }
+
 .full-player-overlay { z-index: 2147483646 !important; }
 
 @media (max-width: 600px) {
+
   .keerthana-full-player {
+
     inset: 0 !important;
+
     height: 100vh !important;
+
     height: 100dvh !important;
+
     padding: max(12px, env(safe-area-inset-top, 0px)) 14px max(14px, env(safe-area-inset-bottom, 0px)) !important;
+
     grid-template-rows: auto minmax(0, 1fr) auto;
+
     gap: 0;
+
   }
+
   .full-player-header { min-height: 48px; margin-bottom: 4px; }
+
   .full-player-icon-button {
+
     width: 40px; height: 40px; min-width: 40px; min-height: 40px; flex-basis: 40px;
+
   }
+
   .full-player-body { align-content: center; min-height: 0; padding-top: 12px; padding-bottom: 12px; }
+
   .full-player-overlay {
+
     inset: 0 !important;
+
     z-index: 2147483646 !important;
+
     padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(12px, env(safe-area-inset-bottom, 0px)) !important;
+
+  }
+
+}
+
+/* =========================================================
+
+   ANDROID NATIVE ONLY — FULL PLAYER REFINEMENT
+
+   Scoped to Capacitor Android; website remains untouched.
+
+\========================================================= */
+
+.keerthana-full-player.keerthana-android-native {
+
+  z-index: 2147483000 !important;
+
+  padding:
+
+    max(12px, env(safe-area-inset-top, 0px))
+
+    16px
+
+    max(12px, env(safe-area-inset-bottom, 0px)) !important;
+
+  overflow: hidden !important;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-header {
+
+  min-height: 42px;
+
+  margin-bottom: 4px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-body {
+
+  display: flex !important;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 12px;
+
+  min-height: 0;
+
+  padding: 8px 0 12px;
+
+  overflow-y: auto;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-artwork-wrap {
+
+  flex: 0 1 auto;
+
+  width: min(58vw, 250px);
+
+  max-width: 250px;
+
+  max-height: 250px;
+
+  margin: 0 auto;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-artwork {
+
+  border-radius: 17px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-song-info {
+
+  width: 100%;
+
+  text-align: center;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-eyebrow {
+
+  margin-bottom: 5px;
+
+  font-size: 9px;
+
+  letter-spacing: 2px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-song-info h1,
+
+.keerthana-full-player.keerthana-android-native .full-player-title-link {
+
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  font-size: clamp(19px, 5vw, 25px);
+
+  line-height: 1.3;
+
+  text-align: center;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-native-title {
+
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-song-info > p {
+
+  margin: 5px 0 9px;
+
+  font-size: 12px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-like {
+
+  min-height: 36px;
+
+  margin: 0 4px;
+
+  padding: 7px 11px;
+
+  font-size: 12px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls-area {
+
+  gap: 17px;
+
+  width: 100%;
+
+  max-width: 440px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls {
+
+  justify-content: space-around;
+
+  gap: 4px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls > button {
+
+  width: 36px;
+
+  height: 40px;
+
+  flex-basis: 36px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls > button.full-player-play {
+
+  width: 58px;
+
+  height: 58px;
+
+  flex-basis: 58px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-progress {
+
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+
+  gap: 8px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-progress > span {
+
+  font-size: 10px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar {
+
+  justify-content: center;
+
+  min-height: 54px;
+
+  padding: 7px 10px;
+
+  border-radius: 14px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group {
+
+  justify-content: center;
+
+  width: 100%;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group > button {
+
+  min-height: 38px;
+
+  padding: 0 13px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-sleep,
+
+.keerthana-full-player.keerthana-android-native .full-player-volume {
+
+  display: none !important;
+
+}
+
+/* Lyrics action sits beside the like action under the song details. */
+
+.keerthana-full-player.keerthana-android-native .full-player-lyrics-trigger {
+
+  display: inline-flex;
+
+}
+
+/* Queue becomes a bottom sheet instead of a floating desktop popover. */
+
+.keerthana-full-player.keerthana-android-native .full-player-queue-overlay {
+
+  position: fixed !important;
+
+  pointer-events: auto !important;
+
+  inset: 0 !important;
+
+  z-index: 2147483002 !important;
+
+  display: block !important;
+
+  padding: 0 !important;
+
+  pointer-events: none;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-queue-panel {
+
+  position: fixed !important;
+
+  top: auto !important;
+
+  right: 0 !important;
+
+  bottom: 0 !important;
+
+  left: 0 !important;
+
+  width: 100% !important;
+
+  max-width: none !important;
+
+  max-height: min(76dvh, 680px) !important;
+
+  margin: 0 !important;
+
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+
+  border-radius: 22px 22px 0 0 !important;
+
+  pointer-events: auto;
+
+  animation: androidQueueSheetIn 220ms ease-out both;
+
+}
+
+@keyframes androidQueueSheetIn {
+
+  from { transform: translateY(28px); opacity: 0.7; }
+
+  to { transform: translateY(0); opacity: 1; }
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-panel-header {
+
+  padding: 17px 18px 13px;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-queue-list {
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-overlay:not(.full-player-queue-overlay) {
+
+  z-index: 2147483003 !important;
+
+  padding: 12px !important;
+
+}
+
+@media (max-height: 700px) {
+
+  .keerthana-full-player.keerthana-android-native .full-player-artwork-wrap {
+
+    width: min(43vw, 190px);
+
+    max-width: 190px;
+
+  }
+
+  .keerthana-full-player.keerthana-android-native .full-player-body {
+
+    gap: 8px;
+
+  }
+
+  .keerthana-full-player.keerthana-android-native .full-player-controls-area {
+
+    gap: 10px;
+
+  }
+
+}
+
+
+/* =========================================================
+   KEERTHANA ANDROID — PREMIUM NOW PLAYING REFINEMENT
+   Android-only overrides. Desktop/web player styling remains intact.
+   ========================================================= */
+
+.keerthana-full-player.keerthana-android-native {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  padding:
+    max(14px, env(safe-area-inset-top, 0px))
+    18px
+    max(92px, calc(env(safe-area-inset-bottom, 0px) + 88px)) !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(41, 83, 137, 0.38), transparent 48%),
+    linear-gradient(160deg, #0b1b32 0%, #071020 56%, #040914 100%) !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-header {
+  position: relative !important;
+  top: auto !important;
+  flex: 0 0 48px !important;
+  min-height: 48px !important;
+  margin: 0 0 4px !important;
+  padding: 0 2px !important;
+  background: transparent !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-brand {
+  gap: 9px;
+  font-size: 12px;
+  letter-spacing: 2.2px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  box-shadow: 0 5px 20px rgba(233, 196, 119, 0.16);
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-body {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0 !important;
+  width: 100%;
+  min-height: 0 !important;
+  padding: 10px 0 12px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-artwork-wrap {
+  flex: 0 0 auto !important;
+  width: min(76vw, 340px) !important;
+  max-width: 340px !important;
+  max-height: none !important;
+  margin: 0 auto 26px !important;
+  border-radius: 22px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-artwork {
+  border: 1px solid rgba(233, 196, 119, 0.48);
+  border-radius: 22px !important;
+  box-shadow:
+    0 24px 65px rgba(0, 0, 0, 0.42),
+    0 0 34px rgba(65, 113, 177, 0.14);
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-artwork-glow {
+  inset: 12% -4% -8%;
+  filter: blur(42px);
+  opacity: 0.75;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-song-info {
+  display: flex !important;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 22px;
+  text-align: center;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-eyebrow {
+  margin: 0 0 7px;
+  color: #e9c477;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 2.8px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-title-link {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  color: #fff4d9;
+  font-size: clamp(21px, 6vw, 27px);
+  font-weight: 760;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-native-title {
+  display: block;
+  margin-top: 6px;
+  color: #c4d0e2;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-song-info > p {
+  margin: 7px 0 13px;
+  color: #aab9cf;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-like {
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls-area {
+  display: flex !important;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 20px !important;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-progress {
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  gap: 9px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-progress > span {
+  color: #aebbd0;
+  font-size: 10px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-progress input[type="range"] {
+  height: 4px;
+  accent-color: #e9c477;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls {
+  justify-content: space-between;
+  gap: 3px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls > button {
+  width: 38px;
+  height: 42px;
+  flex: 0 0 38px;
+  color: #c4d0e2;
+  font-size: 16px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls > button.full-player-play {
+  width: 66px;
+  height: 66px;
+  flex-basis: 66px;
+  color: #101a2a;
+  background: linear-gradient(145deg, #fff1cb, #e9c477 70%, #d5a94f);
+  border: 1px solid rgba(255, 244, 218, 0.9);
+  border-radius: 50%;
+  font-size: 23px;
+  box-shadow: 0 8px 28px rgba(233, 196, 119, 0.24);
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-controls > button.is-active {
+  color: #e9c477;
+  background: rgba(233, 196, 119, 0.1);
+}
+
+/* Keep the two main actions together in a fixed bottom action dock. */
+.keerthana-full-player.keerthana-android-native .full-player-toolbar {
+  position: fixed !important;
+  right: 18px;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  left: 18px;
+  z-index: 10;
+  display: block !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  pointer-events: none;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group {
+  display: contents !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group > button,
+.keerthana-full-player.keerthana-android-native .full-player-lyrics-trigger {
+  position: fixed !important;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 12 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: calc(50vw - 24px) !important;
+  min-height: 52px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  color: #f6f8fd !important;
+  background: linear-gradient(145deg, #172944, #101d32) !important;
+  border: 1px solid rgba(233, 196, 119, 0.34) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  font-size: 13px !important;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group > button {
+  left: 16px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-lyrics-trigger {
+  right: 16px;
+  left: auto !important;
+  width: calc(50vw - 24px) !important;
+  margin-top: 0 !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-lyrics-trigger.is-liked {
+  color: #f6f8fd !important;
+  border-color: rgba(233, 196, 119, 0.62) !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-queue-count {
+  min-width: 21px;
+  height: 21px;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-sleep,
+.keerthana-full-player.keerthana-android-native .full-player-volume {
+  display: none !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-overlay {
+  z-index: 2147483003 !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-queue-panel {
+  max-height: min(78dvh, 700px) !important;
+}
+
+@media (max-height: 740px) {
+  .keerthana-full-player.keerthana-android-native {
+    padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 76px)) !important;
+  }
+
+  .keerthana-full-player.keerthana-android-native .full-player-artwork-wrap {
+    width: min(58vw, 230px) !important;
+    margin-bottom: 14px !important;
+  }
+
+  .keerthana-full-player.keerthana-android-native .full-player-song-info {
+    margin-bottom: 14px;
+  }
+
+  .keerthana-full-player.keerthana-android-native .full-player-controls-area {
+    gap: 13px !important;
+  }
+
+  .keerthana-full-player.keerthana-android-native .full-player-controls > button.full-player-play {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
   }
 }

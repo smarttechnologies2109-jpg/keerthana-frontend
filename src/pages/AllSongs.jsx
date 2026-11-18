@@ -1,11 +1,22 @@
 
 import {
+  Fragment,
+  createElement,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+
+import { Capacitor } from "@capacitor/core";
+
+import {
+  AdMob,
+  AdmobConsentStatus,
+  NativeAdFeed,
+  NativeAdTemplate,
+} from "@capacitor-community/admob";
 
 import {
   FaCompactDisc,
@@ -351,6 +362,16 @@ const normalizeSong = (song) => ({
 });
 
 /* =====================================================
+   ADMOB NATIVE FEED CONFIGURATION
+   Test ads are used during development.
+===================================================== */
+
+const NATIVE_AD_FEED_ID = "keerthana-all-songs";
+const NATIVE_AD_INTERVAL = 4;
+const MAX_NATIVE_AD_SLOTS = 3;
+
+
+/* =====================================================
    ALL SONGS PAGE
 ===================================================== */
 
@@ -376,6 +397,8 @@ export default function AllSongs() {
 
   const [songs, setSongs] = useState([]);
   const [artistsById, setArtistsById] = useState({});
+  const [nativeAdsReady, setNativeAdsReady] = useState(false);
+  const nativeAdFeedRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -552,6 +575,112 @@ export default function AllSongs() {
   useEffect(() => {
     loadSongs();
   }, [loadSongs]);
+
+  /* ===================================================
+     ADMOB NATIVE ADS
+     - Android only
+     - Reuses the app's published consent configuration
+     - Google test ads during development
+     - Feed is destroyed when leaving All Songs
+  =================================================== */
+
+  useEffect(() => {
+    if (
+      !Capacitor.isNativePlatform() ||
+      Capacitor.getPlatform() !== "android"
+    ) {
+      return undefined;
+    }
+
+    let active = true;
+    let createdFeed = null;
+
+    const initializeNativeFeed = async () => {
+      try {
+        console.info(
+          "[KEERTHANA Native Ads] Checking consent..."
+        );
+
+        let consentInfo = await AdMob.requestConsentInfo();
+
+        if (
+          consentInfo?.isConsentFormAvailable &&
+          consentInfo?.status === AdmobConsentStatus.REQUIRED
+        ) {
+          consentInfo = await AdMob.showConsentForm();
+        }
+
+        if (!active) return;
+
+        if (!consentInfo?.canRequestAds) {
+          console.warn(
+            "[KEERTHANA Native Ads] Ads cannot be requested until consent is ready."
+          );
+          return;
+        }
+
+        // AdMob.initialize() is safe to call here even if the
+        // banner component has already initialized the SDK.
+        await AdMob.initialize();
+
+        if (!active) return;
+
+        createdFeed = await NativeAdFeed.create({
+          feedId: NATIVE_AD_FEED_ID,
+          adId: "ca-app-pub-4269202427991524/7049379561",
+          template: NativeAdTemplate.Medium,
+          isTesting: false,
+          androidScrollSnapshot: true,
+          style: {
+            backgroundColor: "#101d35",
+            cornerRadius: 14,
+            headlineColor: "#f5f7fb",
+            callToActionBackgroundColor: "#d4af65",
+          },
+        });
+
+        if (!active) {
+          await createdFeed.destroy();
+          createdFeed = null;
+          return;
+        }
+
+        nativeAdFeedRef.current = createdFeed;
+        setNativeAdsReady(true);
+
+        console.info(
+          "[KEERTHANA Native Ads] Google test native feed is ready."
+        );
+      } catch (error) {
+        console.error(
+          "[KEERTHANA Native Ads] Feed initialization failed:",
+          error
+        );
+      }
+    };
+
+    initializeNativeFeed();
+
+    return () => {
+      active = false;
+      setNativeAdsReady(false);
+
+      const feedToDestroy =
+        nativeAdFeedRef.current || createdFeed;
+
+      nativeAdFeedRef.current = null;
+      createdFeed = null;
+
+      if (feedToDestroy) {
+        feedToDestroy.destroy().catch((error) => {
+          console.warn(
+            "[KEERTHANA Native Ads] Feed cleanup warning:",
+            error
+          );
+        });
+      }
+    };
+  }, []);
 
   /* ===================================================
      REFRESH WHEN APP RETURNS TO FOREGROUND
@@ -1250,7 +1379,7 @@ export default function AllSongs() {
 
           <div className="all-songs-list">
 
-            {filteredSongs.map((song) => {
+            {filteredSongs.map((song, songIndex) => {
 
               const songId = getSongId(song);
 
@@ -1276,10 +1405,26 @@ export default function AllSongs() {
                 cover = "";
               }
 
+              const shouldShowNativeAd =
+                nativeAdsReady &&
+                (songIndex + 1) % NATIVE_AD_INTERVAL === 0 &&
+                (songIndex + 1) / NATIVE_AD_INTERVAL <=
+                  MAX_NATIVE_AD_SLOTS;
+
+              const nativeAdSlot = shouldShowNativeAd
+                ? createElement(
+                    "capacitor-admob-native",
+                    {
+                      "feed-id": NATIVE_AD_FEED_ID,
+                      "slot-key": `sponsored-after-song-${songId}`,
+                    }
+                  )
+                : null;
+
               return (
+                <Fragment key={songId}>
 
                 <article
-                  key={songId}
                   className={`all-song-card ${
                     isCurrent ? "current" : ""
                   }`}
@@ -1505,6 +1650,47 @@ export default function AllSongs() {
 
                 </article>
 
+                {nativeAdSlot && (
+                  <section
+                    className="keerthana-native-ad-slot"
+                    aria-label="Sponsored content"
+                    style={{
+                      width: "100%",
+                      minHeight: "350px",
+                      height: "350px",
+                      margin: "18px 0",
+                      padding: "10px",
+                      boxSizing: "border-box",
+                      overflow: "hidden",
+                      borderRadius: "14px",
+                      background: "rgba(16, 29, 53, 0.45)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        marginBottom: "6px",
+                        color: "var(--text-secondary, #aebbd0)",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Sponsored
+                    </div>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "320px",
+                        minHeight: "320px",
+                      }}
+                    >
+                      {nativeAdSlot}
+                    </div>
+                  </section>
+                )}
+
+                </Fragment>
               );
 
             })}

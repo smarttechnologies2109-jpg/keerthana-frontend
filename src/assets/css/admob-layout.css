@@ -1,0 +1,47 @@
+
+/* =========================================================
+   KEERTHANA MUSIC — ADMOB LAYOUT
+   Android native banner spacing
+   ========================================================= */
+
+:root {
+  --keerthana-admob-banner-height: 0px;
+  --keerthana-admob-bottom-gap: 8px;
+}
+
+/* Keep page content clear of the bottom navigation and player */
+.keerthana-app-layout {
+  --keerthana-admob-reserved-space: 0px;
+}
+
+/* Android native banner is rendered by the native AdMob plugin.
+   This class reserves space for it in the web layout. */
+
+@media (max-width: 768px) {
+  .keerthana-app-layout {
+    padding-bottom: calc(
+      var(--keerthana-admob-banner-height, 0px) +
+      var(--keerthana-admob-bottom-gap) +
+      env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .keerthana-app-layout .main-content {
+    padding-bottom: calc(
+      140px +
+      var(--keerthana-admob-banner-height, 0px) +
+      env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  /* Full player: keep its bottom controls above the banner area. */
+  .keerthana-full-player.keerthana-android-native {
+    padding-bottom: calc(
+      160px +
+      var(--keerthana-admob-banner-height, 50px) +
+      env(safe-area-inset-bottom, 0px)
+    );
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+}

@@ -106,3 +106,94 @@
     height: 40px !important;
   }
 }
+
+/* =========================================
+   KEERTHANA ANDROID PLAYER LAYOUT
+   Single source of truth — mobile only
+========================================= */
+
+@media (max-width: 768px) {
+  :root {
+    --keerthana-bottom-nav-total-space: 78px;
+  }
+
+  /* Compact mini player above bottom navigation */
+  .keerthana-mini-player {
+    display: flex !important;
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(
+      var(--keerthana-bottom-nav-total-space) +
+      env(safe-area-inset-bottom, 0px)
+    ) !important;
+    width: 100% !important;
+    min-height: 58px !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    z-index: 9000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .keerthana-mini-player .mini-player-cover-button {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls {
+    gap: clamp(12px, 3vw, 18px) !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls > .mini-player-play {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+
+  /* Full player */
+  .keerthana-full-player {
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    z-index: 10000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding-top: max(12px, env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(
+      24px + env(safe-area-inset-bottom, 0px)
+    ) !important;
+  }
+
+  /* Overlay layers */
+  .mini-player-overlay,
+  .full-player-overlay {
+    position: fixed !important;
+    z-index: 10010 !important;
+  }
+
+  .mini-queue-popover-root {
+    z-index: 10020 !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .keerthana-mini-player {
+    padding: 7px 9px !important;
+  }
+
+  .keerthana-mini-player .mini-player-cover-button {
+    flex-basis: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+}

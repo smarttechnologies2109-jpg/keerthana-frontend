@@ -1,5 +1,13 @@
 
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Capacitor } from "@capacitor/core";
+import {
+  AdMob,
+  AdmobConsentStatus,
+  AppOpenAdPluginEvents,
+} from "@capacitor-community/admob";
+
+import { usePlayer } from "./context/usePlayer";
 
 import {
   Navigate,
@@ -122,6 +130,301 @@ function AndroidBackButtonHandler() {
 }
 
 /* =========================================================
+   KEERTHANA APP OPEN ADS
+
+   - Uses Google's test App Open unit during development.
+   - Loads without blocking app startup.
+   - Shows on cold launch when an ad is ready and on resume.
+   - Never interrupts active music playback.
+   - Reloads after the previous App Open ad is closed.
+========================================================= */
+
+const APP_OPEN_AD_UNIT_ID =
+  "ca-app-pub-3940256099942544/9257395921";
+
+const APP_OPEN_AD_COOLDOWN = 5 * 60 * 1000;
+
+function AppOpenAdHandler() {
+  const { isPlaying } = usePlayer();
+
+  const isLoadingRef = useRef(false);
+  const isShowingRef = useRef(false);
+  const isLoadedRef = useRef(false);
+  const isPlayingRef = useRef(isPlaying);
+  const lastShownAtRef = useRef(0);
+  const activeRef = useRef(true);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  const loadAppOpenAd = useCallback(async () => {
+    if (
+      !Capacitor.isNativePlatform() ||
+      Capacitor.getPlatform() !== "android" ||
+      isLoadingRef.current ||
+      isLoadedRef.current
+    ) {
+      return false;
+    }
+
+    isLoadingRef.current = true;
+
+    try {
+      let consentInfo = await AdMob.requestConsentInfo();
+
+      if (
+        consentInfo?.isConsentFormAvailable &&
+        consentInfo?.status === AdmobConsentStatus.REQUIRED
+      ) {
+        consentInfo = await AdMob.showConsentForm();
+      }
+
+      if (!activeRef.current || !consentInfo?.canRequestAds) {
+        console.info(
+          "[KEERTHANA App Open] Ads are not currently allowed by consent."
+        );
+        return false;
+      }
+
+      // AdMobBanner also initializes the SDK. Calling initialize here
+      // is safe and ensures App Open can initialize independently.
+      await AdMob.initialize();
+
+      if (!activeRef.current) return false;
+
+      await AdMob.loadAppOpen({
+        adId: APP_OPEN_AD_UNIT_ID,
+      });
+
+      console.info(
+        "[KEERTHANA App Open] Google test App Open ad load requested."
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "[KEERTHANA App Open] Ad load failed:",
+        error
+      );
+      return false;
+    } finally {
+      isLoadingRef.current = false;
+    }
+  }, []);
+
+  const showAppOpenAd = useCallback(async () => {
+    if (
+      !Capacitor.isNativePlatform() ||
+      Capacitor.getPlatform() !== "android" ||
+      isShowingRef.current ||
+      isPlayingRef.current
+    ) {
+      if (isPlayingRef.current) {
+        console.info(
+          "[KEERTHANA App Open] Skipped because music is playing."
+        );
+      }
+      return false;
+    }
+
+    if (
+      Date.now() - lastShownAtRef.current <
+      APP_OPEN_AD_COOLDOWN
+    ) {
+      console.info(
+        "[KEERTHANA App Open] Skipped because of cooldown."
+      );
+      return false;
+    }
+
+    try {
+      const loaded = await AdMob.isAppOpenLoaded({
+        adId: APP_OPEN_AD_UNIT_ID,
+      });
+
+      if (!loaded?.value) {
+        console.info(
+          "[KEERTHANA App Open] No loaded ad available; requesting one."
+        );
+        loadAppOpenAd();
+        return false;
+      }
+
+      isShowingRef.current = true;
+      isLoadedRef.current = false;
+      lastShownAtRef.current = Date.now();
+
+      await AdMob.showAppOpen({
+        adId: APP_OPEN_AD_UNIT_ID,
+      });
+
+      console.info(
+        "[KEERTHANA App Open] Google test App Open ad display requested."
+      );
+
+      return true;
+    } catch (error) {
+      isShowingRef.current = false;
+      isLoadedRef.current = false;
+
+      console.error(
+        "[KEERTHANA App Open] Ad display failed:",
+        error
+      );
+
+      loadAppOpenAd();
+      return false;
+    }
+  }, [loadAppOpenAd]);
+
+  useEffect(() => {
+    activeRef.current = true;
+
+    if (
+      !Capacitor.isNativePlatform() ||
+      Capacitor.getPlatform() !== "android"
+    ) {
+      return () => {
+        activeRef.current = false;
+      };
+    }
+
+    let loadedListener;
+    let failedListener;
+    let closedListener;
+    let openedListener;
+    let failedShowListener;
+
+    const handleResume = () => {
+      // Give the app a moment to return to the foreground before showing.
+      window.setTimeout(() => {
+        if (activeRef.current) {
+          showAppOpenAd();
+        }
+      }, 500);
+    };
+
+    const setup = async () => {
+      try {
+        loadedListener = await AdMob.addListener(
+          AppOpenAdPluginEvents.Loaded,
+          (info) => {
+            isLoadedRef.current = true;
+            isLoadingRef.current = false;
+            console.info(
+              "[KEERTHANA App Open] Test ad loaded:",
+              info?.adUnitId
+            );
+          }
+        );
+
+        failedListener = await AdMob.addListener(
+          AppOpenAdPluginEvents.FailedToLoad,
+          (error) => {
+            isLoadedRef.current = false;
+            isLoadingRef.current = false;
+            console.error(
+              "[KEERTHANA App Open] Ad load failed:",
+              error
+            );
+          }
+        );
+
+        openedListener = await AdMob.addListener(
+          AppOpenAdPluginEvents.Opened,
+          () => {
+            console.info(
+              "[KEERTHANA App Open] Ad opened."
+            );
+          }
+        );
+
+        closedListener = await AdMob.addListener(
+          AppOpenAdPluginEvents.Closed,
+          () => {
+            isShowingRef.current = false;
+            isLoadedRef.current = false;
+            console.info(
+              "[KEERTHANA App Open] Ad closed."
+            );
+            loadAppOpenAd();
+          }
+        );
+
+        failedShowListener = await AdMob.addListener(
+          AppOpenAdPluginEvents.FailedToShow,
+          (error) => {
+            isShowingRef.current = false;
+            isLoadedRef.current = false;
+            console.error(
+              "[KEERTHANA App Open] Failed to show ad:",
+              error
+            );
+            loadAppOpenAd();
+          }
+        );
+
+        if (!activeRef.current) return;
+
+        window.addEventListener(
+          "keerthana:app-resume",
+          handleResume
+        );
+
+        // Load in the background. Do not hold up app rendering.
+        const requested = await loadAppOpenAd();
+
+        if (requested && activeRef.current) {
+          // Allow the native Loaded event to update the ready state.
+          // The app can show on a later foreground transition if loading
+          // has not completed by the time the first request returns.
+          window.setTimeout(() => {
+            if (activeRef.current) {
+              showAppOpenAd();
+            }
+          }, 1200);
+        }
+      } catch (error) {
+        console.error(
+          "[KEERTHANA App Open] Setup failed:",
+          error
+        );
+      }
+    };
+
+    setup();
+
+    return () => {
+      activeRef.current = false;
+      window.removeEventListener(
+        "keerthana:app-resume",
+        handleResume
+      );
+
+      [
+        loadedListener,
+        failedListener,
+        openedListener,
+        closedListener,
+        failedShowListener,
+      ]
+        .filter(Boolean)
+        .forEach((listener) => {
+          listener.remove().catch((error) => {
+            console.warn(
+              "[KEERTHANA App Open] Listener cleanup warning:",
+              error
+            );
+          });
+        });
+    };
+  }, [loadAppOpenAd, showAppOpenAd]);
+
+  return null;
+}
+
+/* =========================================================
    KEERTHANA APP RESUME HANDLER
 
    Detects when the app returns to the foreground.
@@ -239,6 +542,9 @@ function App() {
 
           {/* APP FOREGROUND / RESUME LISTENER */}
           <AppResumeHandler />
+
+          {/* APP OPEN ADS */}
+          <AppOpenAdHandler />
 
           <Routes>
 

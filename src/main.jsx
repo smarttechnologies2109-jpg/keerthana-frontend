@@ -1,3 +1,4 @@
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -5,9 +6,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 
 import { AuthProvider } from "./context/AuthContext";
-import { LikedSongsProvider } from "./context/LikedSongsContext";
-import { PlayerProvider } from "./context/PlayerContext";
+
 import "./assets/css/player-mobile-overrides.css";
+import "./assets/css/admob-layout.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
@@ -15,11 +16,7 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <LikedSongsProvider>
-          <PlayerProvider>
-            <App />
-          </PlayerProvider>
-        </LikedSongsProvider>
+        <App />
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

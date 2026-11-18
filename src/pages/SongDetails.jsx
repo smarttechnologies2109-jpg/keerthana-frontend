@@ -1460,7 +1460,7 @@ const handleLike = async () => {
 
           song_id: song.id,
 
-          song_title: song.title,
+          song_title: englishSongTitle,
 
           report_type: reportType,
 
@@ -1624,15 +1624,15 @@ const handleLike = async () => {
 
       const title = String(
 
-        song.title || "Christian Song"
+        englishSongTitle || "Christian Song"
 
       );
 
 
 
-      const englishTitle = String(
+      const nativeTitle = String(
 
-        song.title_english || ""
+        teluguSongTitle || ""
 
       );
 
@@ -1640,7 +1640,7 @@ const handleLike = async () => {
 
       const artist = String(
 
-        song.artist_name || "KEERTHANA"
+        artistDisplayName || "KEERTHANA"
 
       );
 
@@ -1968,7 +1968,7 @@ const handleLike = async () => {
 
 
 
-      ctx.font = `700 ${titleFontSize}px "Noto Sans Telugu", "Noto Serif Telugu", sans-serif`;
+      ctx.font = `700 ${titleFontSize}px Arial, sans-serif`;
 
 
 
@@ -1992,23 +1992,23 @@ const handleLike = async () => {
 
 
 
-      if (englishTitle) {
+      if (nativeTitle) {
 
         ctx.font =
 
-          `500 ${subtitleFontSize}px Arial, sans-serif`;
+          `500 ${subtitleFontSize}px "Noto Sans Telugu", "Noto Serif Telugu", sans-serif`;
 
 
 
         ctx.fillStyle =
 
-          "rgba(255,255,255,0.75)";
+          "rgba(255,255,255,0.78)";
 
 
 
         ctx.fillText(
 
-          englishTitle,
+          nativeTitle,
 
           horizontalPadding,
 
@@ -2486,6 +2486,89 @@ const handleLike = async () => {
 
     : "/images/default-cover.png";
 
+  // Show the song title in English and Telugu.
+  // Show artist, album, ministry, and category metadata in English only.
+  const englishSongTitle =
+    song.title_english ||
+    song.english_title ||
+    song.title_en ||
+    song.title ||
+    "Christian Song";
+
+  const teluguSongTitle =
+    song.title_english
+      ? song.title
+      : song.title_telugu || song.title_native || "";
+
+  const artistDisplayName =
+    song.artist_name_english ||
+    song.artist_english ||
+    song.artist_name ||
+    song.artist?.name_english ||
+    song.artist?.english_name ||
+    song.artist?.name ||
+    song.artist ||
+    "KEERTHANA";
+
+  // Prefer explicitly English fields. The common *_name / title fields are
+  // included for APIs where those columns already store English values.
+  const albumDisplayName =
+    song.album_title_english ||
+    song.album_name_english ||
+    song.album_english ||
+    song.english_album_name ||
+    song.album_title_en ||
+    song.album_name_en ||
+    song.album?.title_english ||
+    song.album?.name_english ||
+    song.album?.english_name ||
+    song.album?.title_en ||
+    song.album?.name_en ||
+    "";
+
+  const ministryValue =
+    song.ministry_name_english ||
+    song.ministry_title_english ||
+    song.ministry_english ||
+    song.english_ministry_name ||
+    song.ministryNameEnglish ||
+    song.ministryTitleEnglish ||
+    song.ministry_name_en ||
+    song.ministry_title_en ||
+    song.ministry?.name_english ||
+    song.ministry?.title_english ||
+    song.ministry?.english_name ||
+    song.ministry?.name_en ||
+    song.ministry?.title_en ||
+    song.ministry_details?.name_english ||
+    song.ministry_details?.title_english ||
+    song.ministry_details?.english_name ||
+    song.ministry_details?.name_en ||
+    song.ministries?.[0]?.name_english ||
+    song.ministries?.[0]?.title_english ||
+    song.ministries?.[0]?.english_name ||
+    song.ministries?.[0]?.name_en ||
+    "";
+
+  const ministryDisplayName =
+    typeof ministryValue === "string" || typeof ministryValue === "number"
+      ? String(ministryValue).trim()
+      : "";
+
+  const categoryDisplayName =
+    song.category_name_english ||
+    song.category_title_english ||
+    song.category_english ||
+    song.english_category_name ||
+    song.category_name_en ||
+    song.category_title_en ||
+    song.category?.name_english ||
+    song.category?.title_english ||
+    song.category?.english_name ||
+    song.category?.name_en ||
+    song.category?.title_en ||
+    "";
+
 
 
   // =====================================================
@@ -2912,7 +2995,7 @@ const handleLike = async () => {
 
                 src={cover}
 
-                alt={song.title}
+                alt={englishSongTitle}
 
                 onError={(event) => {
 
@@ -2940,15 +3023,15 @@ const handleLike = async () => {
 
 
 
-              <h1>{song.title}</h1>
+              <h1>{englishSongTitle}</h1>
 
 
 
-              {song.title_english && (
+              {teluguSongTitle && (
 
-                <h2>
+                <h2 lang="te">
 
-                  {song.title_english}
+                  {teluguSongTitle}
 
                 </h2>
 
@@ -2956,13 +3039,15 @@ const handleLike = async () => {
 
 
 
-              <p>
+              <p>{artistDisplayName}</p>
 
-                {song.artist_name ||
-
-                  "KEERTHANA"}
-
-              </p>
+              {(albumDisplayName || ministryDisplayName || categoryDisplayName) && (
+                <div className="prayer-mode-song-meta">
+                  {albumDisplayName && <span>{albumDisplayName}</span>}
+                  {ministryDisplayName && <span>{ministryDisplayName}</span>}
+                  {categoryDisplayName && <span>{categoryDisplayName}</span>}
+                </div>
+              )}
 
             </div>
 
@@ -3442,7 +3527,7 @@ const handleLike = async () => {
 
             src={cover}
 
-            alt={song.title}
+            alt={englishSongTitle}
 
             onError={(event) => {
 
@@ -3474,15 +3559,15 @@ const handleLike = async () => {
 
 
 
-          <h1>{song.title}</h1>
+          <h1>{englishSongTitle}</h1>
 
 
 
-          {song.title_english && (
+          {teluguSongTitle && (
 
-            <h2>
+            <h2 className="song-native-title" lang="te">
 
-              {song.title_english}
+              {teluguSongTitle}
 
             </h2>
 
@@ -3490,93 +3575,45 @@ const handleLike = async () => {
 
 
 
-          <div className="song-meta">
+          <div className="song-meta song-meta-details">
+            <div className="song-meta-item">
+              <button
+                type="button"
+                aria-label={`View artist ${artistDisplayName}`}
+                onClick={() => {
+                  if (song.artist_id) navigate(`/artists/${song.artist_id}`);
+                }}
+              >
+                {artistDisplayName}
+              </button>
+            </div>
 
-            <button
-
-              type="button"
-
-              onClick={() => {
-
-                if (song.artist_id) {
-
-                  navigate(
-
-                    `/artists/${song.artist_id}`
-
-                  );
-
-                }
-
-              }}
-
-            >
-
-              {song.artist_name ||
-
-                "KEERTHANA"}
-
-            </button>
-
-
-
-            {song.album_title && (
-
-              <>
-
-                <span>•</span>
-
-
-
+            {albumDisplayName && (
+              <div className="song-meta-item">
                 <button
-
                   type="button"
-
+                  aria-label={`View album ${albumDisplayName}`}
                   onClick={() => {
-
-                    if (song.album_id) {
-
-                      navigate(
-
-                        `/albums/${song.album_id}`
-
-                      );
-
-                    }
-
+                    if (song.album_id) navigate(`/albums/${song.album_id}`);
                   }}
-
                 >
-
-                  {song.album_title}
-
+                  {albumDisplayName}
                 </button>
-
-              </>
-
+              </div>
             )}
 
-
-
-            {song.category_name && (
-
-              <>
-
-                <span>•</span>
-
-                <span>
-
-                  {song.category_name}
-
-                </span>
-
-              </>
-
+            {ministryDisplayName && (
+              <div className="song-meta-item">
+                <span>{ministryDisplayName}</span>
+              </div>
             )}
 
+            {categoryDisplayName && (
+              <div className="song-meta-item">
+                <span>{categoryDisplayName}</span>
+              </div>
+            )}
           </div>
-
-
 
           {/* SONG ACTIONS
 
@@ -4698,17 +4735,17 @@ const handleLike = async () => {
 
                 <strong>
 
-                  {song.title}
+                  {englishSongTitle}
 
                 </strong>
 
 
 
-                {song.title_english && (
+                {teluguSongTitle && (
 
-                  <span>
+                  <span lang="te">
 
-                    {song.title_english}
+                    {teluguSongTitle}
 
                   </span>
 
