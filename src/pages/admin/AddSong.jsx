@@ -623,51 +623,53 @@ const handleMinistryChangeValue = (ministryId) => {
     } finally { setQuickSaving(false); }
   };
 
-  const handleAudioChange = (event) => {
-    const file = event.target.files?.[0];
+ 
+const handleAudioChange = (event) => {
+  const file = event.target.files?.[0];
 
-    if (!file) {
-      setAudioFile(null);
-      return;
-    }
+  if (!file) {
+    setAudioFile(null);
+    return;
+  }
 
-    const fileName = file.name.toLowerCase();
+  const fileName = file.name.toLowerCase();
 
-    const validExtension =
-      fileName.endsWith(".mp3") || fileName.endsWith(".m4a");
+  // Supported audio extensions
+  const validExtension = /\.(mp3|m4a|mp4)$/i.test(fileName);
 
-    const allowedTypes = [
-      "audio/mpeg",
-      "audio/mp3",
-      "audio/mp4",
-      "audio/x-m4a",
-      "application/octet-stream",
-    ];
+  const allowedTypes = [
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/mp4",
+    "audio/x-m4a",
+    "application/octet-stream",
+  ];
 
-    if (!validExtension && !allowedTypes.includes(file.type)) {
-      setError("Please select an MP3 or M4A audio file.");
-      setAudioFile(null);
-      event.target.value = "";
-      return;
-    }
+  if (!validExtension || !allowedTypes.includes(file.type)) {
+    setError("Please select a valid MP3, M4A or audio MP4 file.");
+    setAudioFile(null);
+    event.target.value = "";
+    return;
+  }
 
-    if (file.size === 0) {
-      setError("The selected audio file is empty.");
-      setAudioFile(null);
-      event.target.value = "";
-      return;
-    }
+  if (file.size === 0) {
+    setError("The selected audio file is empty.");
+    setAudioFile(null);
+    event.target.value = "";
+    return;
+  }
 
-    if (file.size > 30 * 1024 * 1024) {
-      setError("Audio file must be smaller than 30 MB.");
-      setAudioFile(null);
-      event.target.value = "";
-      return;
-    }
+  if (file.size > 30 * 1024 * 1024) {
+    setError("Audio file must be smaller than 30 MB.");
+    setAudioFile(null);
+    event.target.value = "";
+    return;
+  }
 
-    setAudioFile(file);
-    setError("");
-  };
+  setAudioFile(file);
+  setError("");
+};
+
 
   const removeAudio = () => {
     setAudioFile(null);
@@ -1307,7 +1309,7 @@ if (form.ministry_id) {
               </div>
 
               <h3>Audio File *</h3>
-              <p>MP3 or M4A, maximum 30 MB</p>
+              <p>MP3, M4A or MP4 Audio, maximum 30 MB</p>
 
               {!audioFile ? (
                 <>
@@ -1315,7 +1317,7 @@ if (form.ministry_id) {
                     id="song-audio-input"
                     className="admin-file-input"
                     type="file"
-                    accept=".mp3,.m4a,audio/mpeg,audio/mp4"
+                   accept=".mp3,.m4a,.mp4,audio/mpeg,audio/mp4"
                     onChange={handleAudioChange}
                   />
 

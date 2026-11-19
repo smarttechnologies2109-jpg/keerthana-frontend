@@ -1868,3 +1868,30 @@
   z-index: 1;
   width: 100%;
 }
+
+/* =========================================
+   FIX: MINISTRY DROPDOWN OVERLAPPING MEDIA
+========================================= */
+
+/* Keep the section containing an open dropdown
+   above the following form sections. */
+.admin-form-section:has(.admin-searchable-dropdown.is-open) {
+  position: relative;
+  z-index: 50;
+}
+
+/* Keep the dropdown itself above nearby elements. */
+.admin-searchable-dropdown {
+  position: relative;
+  z-index: 100;
+}
+
+.admin-searchable-dropdown.is-open {
+  z-index: 1001;
+}
+
+/* Ensure the dropdown menu appears above Media. */
+.admin-searchable-menu {
+  position: absolute;
+  z-index: 1002;
+}
