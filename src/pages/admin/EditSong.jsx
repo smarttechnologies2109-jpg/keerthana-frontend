@@ -306,6 +306,25 @@ function EditSong() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const errorRef = useRef(null);
+
+
+useEffect(() => {
+  if (!error || loading) return;
+
+  const frame = requestAnimationFrame(() => {
+    errorRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    errorRef.current?.focus({ preventScroll: true });
+  });
+
+  return () => cancelAnimationFrame(frame);
+}, [error, loading]);
+
+
   const selectedLanguage =
     LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
 
@@ -582,7 +601,17 @@ function EditSong() {
         </div>
       </div>
 
-      {error && <div className="admin-error" role="alert">{error}</div>}
+      {error && (
+  <div
+    ref={errorRef}
+    className="admin-error"
+    role="alert"
+    aria-live="assertive"
+    tabIndex={-1}
+  >
+    {error}
+  </div>
+)}
       {success && <div className="admin-success" role="status">{success}</div>}
 
       <form className="admin-song-form" onSubmit={handleSubmit} encType="multipart/form-data">

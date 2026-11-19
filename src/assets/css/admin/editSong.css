@@ -1298,3 +1298,12 @@
   z-index: 1;
   width: 100%;
 }
+.admin-error {
+  scroll-margin-top: 30px;
+  outline: none;
+}
+
+.admin-error:focus {
+  outline: 2px solid rgba(252, 165, 165, 0.35);
+  outline-offset: 4px;
+}

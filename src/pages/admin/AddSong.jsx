@@ -338,6 +338,26 @@ function AddSong() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+
+  const errorRef = useRef(null);
+
+
+useEffect(() => {
+  if (!error) return;
+
+  const timer = requestAnimationFrame(() => {
+    errorRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    errorRef.current?.focus({ preventScroll: true });
+  });
+
+  return () => cancelAnimationFrame(timer);
+}, [error]);
+
+
   const selectedLanguage =
     LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
 
@@ -775,30 +795,31 @@ const handleAudioChange = (event) => {
   setError("");
   setSuccess("");
 
-  if (!LANGUAGES.some((language) => language.value === form.language)) {
-    alert("Please select a valid song language.");
-    return;
-  }
+if (!LANGUAGES.some((language) => language.value === form.language)) {
+  setError("Please select a valid song language.");
+  return;
+}
 
-  if (!form.title.trim()) {
-    alert(`${selectedLanguage.titleLabel} is required.`);
-    return;
-  }
+if (!form.title.trim()) {
+  setError(`${selectedLanguage.titleLabel} is required.`);
+  return;
+}
 
-  if (!form.artist_id) {
-    alert("Artist name is required. Please select or create an artist.");
-    return;
-  }
+if (!form.artist_id) {
+  setError("Artist name is required. Please select or create an artist.");
+  return;
+}
 
-  if (!form.category_id) {
-    alert("Category is required. Please select or create a category.");
-    return;
-  }
+if (!form.category_id) {
+  setError("Category is required. Please select or create a category.");
+  return;
+}
 
-  if (!audioFile) {
-    alert("Audio file is required. Please select an audio file.");
-    return;
-  }
+if (!audioFile) {
+  setError("Audio file is required. Please select an audio file.");
+  return;
+}
+
 
   // Keep all your existing upload logic below this point unchanged.
 
@@ -900,7 +921,17 @@ if (form.ministry_id) {
         </div>
       </div>
 
-      {error && <div className="admin-error">{error}</div>}
+     {error && (
+  <div
+    ref={errorRef}
+    className="admin-error"
+    role="alert"
+    aria-live="assertive"
+    tabIndex={-1}
+  >
+    {error}
+  </div>
+)}
       {success && <div className="admin-success">{success}</div>}
 
       <form className="admin-song-form" onSubmit={handleSubmit}>

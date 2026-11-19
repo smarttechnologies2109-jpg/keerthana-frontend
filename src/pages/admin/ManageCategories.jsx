@@ -140,17 +140,23 @@ function ManageCategories() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  // SCROLL TO ERROR
-  useEffect(() => {
-    if (error && showForm && errorRef.current) {
-      requestAnimationFrame(() => {
-        errorRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      });
-    }
-  }, [error, showForm]);
+// SCROLL TO ERROR
+useEffect(() => {
+  if (!error || !showForm) return;
+
+  const frame = requestAnimationFrame(() => {
+    errorRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    errorRef.current?.focus({
+      preventScroll: true,
+    });
+  });
+
+  return () => cancelAnimationFrame(frame);
+}, [error, showForm]);
 
   // LOAD CATEGORIES AND SONGS
   const loadCategories = async (showLoader = true) => {
