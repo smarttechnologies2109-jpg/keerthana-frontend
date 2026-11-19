@@ -243,11 +243,37 @@ function ManageSongs() {
 
 
 
-  const getMinistry = (song) =>
+  const getMinistry = (song) => {
+    const directName = pickEnglish(
+      song?.ministry_name_english,
+      song?.ministry_english_name,
+      song?.ministryNameEnglish,
+      song?.ministry_name,
+      song?.ministryName,
+      song?.ministry_title,
+      song?.ministryTitle
+    );
 
-    pickEnglish(song?.ministry_name_english, song?.ministry_english_name) ||
+    if (directName) return directName;
 
-    getRelationName(song, "ministry");
+    const relationName = getRelationName(song, "ministry");
+    if (relationName && !/^\d+$/.test(String(relationName).trim())) {
+      return relationName;
+    }
+
+    // Some API responses return ministry as a plain name instead of an object.
+    // Do not display a numeric ministry ID as though it were a ministry name.
+    const plainMinistry = song?.ministry;
+    if (
+      typeof plainMinistry === "string" &&
+      plainMinistry.trim() &&
+      !/^\d+$/.test(plainMinistry.trim())
+    ) {
+      return plainMinistry.trim();
+    }
+
+    return "";
+  };
 
 
 
@@ -430,21 +456,23 @@ function ManageSongs() {
 
       // relationship IDs without the joined English display names.
 
-      const [songsResult, artistsResult, albumsResult, ministriesResult, categoriesResult] =
-
-        await Promise.allSettled([
-
-          API.get("/songs"),
-
-          API.get("/artists"),
-
-          API.get("/albums"),
-
-          API.get("/ministries"),
-
-          API.get("/categories"),
-
-        ]);
+      const [
+        songsResult,
+        artistsResult,
+        albumsResult,
+        ministriesResult,
+        adminMinistriesResult,
+        categoriesResult,
+      ] = await Promise.allSettled([
+        API.get("/songs"),
+        API.get("/artists"),
+        API.get("/albums"),
+        API.get("/ministries"),
+        // Always request the admin master list too. The public endpoint can
+        // return a partial/filtered list and may omit ministries such as Hosanna.
+        API.get("/admin/ministries"),
+        API.get("/categories"),
+      ]);
 
 
 
@@ -470,18 +498,28 @@ function ManageSongs() {
 
         : [];
 
-      let ministryRows = ministriesResult.status === "fulfilled"
+      const publicMinistryRows = ministriesResult.status === "fulfilled"
         ? extractRows(ministriesResult.value?.data, ["ministries"])
         : [];
 
-      // Some admin setups expose the ministry master list only on the admin route.
-      if (ministryRows.length === 0) {
-        try {
-          const adminMinistriesResult = await API.get("/admin/ministries");
-          ministryRows = extractRows(adminMinistriesResult?.data, ["ministries"]);
-        } catch (ministryError) {
-          console.warn("Unable to load ministry master records from /admin/ministries:", ministryError);
-        }
+      const adminMinistryRows = adminMinistriesResult.status === "fulfilled"
+        ? extractRows(adminMinistriesResult.value?.data, ["ministries"])
+        : [];
+
+      // Merge both endpoints so a partial public list cannot hide a ministry.
+      const ministryRowsById = new Map();
+      [...publicMinistryRows, ...adminMinistryRows].forEach((record, index) => {
+        const id = getMasterId(record, "ministry");
+        const key = id !== null ? String(id).trim() : `no-id-${index}`;
+        ministryRowsById.set(key, record);
+      });
+      const ministryRows = [...ministryRowsById.values()];
+
+      if (adminMinistriesResult.status === "rejected") {
+        console.warn(
+          "Unable to load ministry master records from /admin/ministries:",
+          adminMinistriesResult.reason
+        );
       }
 
       const categoryRows = categoriesResult.status === "fulfilled"
@@ -511,8 +549,17 @@ function ManageSongs() {
         category: makeLookup(categoryRows, "category"),
       };
 
+      // Name lookup is a fallback for APIs that return a ministry name rather
+      // than its foreign-key ID. Keep comparisons case/space insensitive.
+      const ministryNameLookup = {};
+      ministryRows.forEach((record) => {
+        const name = getMasterEnglishName(record, "ministry");
+        if (name) ministryNameLookup[normalizeText(name)] = name;
+      });
+
       console.log("MINISTRY MASTER ROWS:", ministryRows);
-      console.log("MINISTRY LOOKUP:", lookups.ministry);
+      console.log("MINISTRY ID LOOKUP:", lookups.ministry);
+      console.log("MINISTRY NAME LOOKUP:", ministryNameLookup);
 
 
 
@@ -523,11 +570,13 @@ function ManageSongs() {
         const albumId = song?.album_id ?? song?.albumId;
 
         const ministryId = getRelationId(song, "ministry");
-        const ministryRelation = song?.ministry && typeof song.ministry === "object"
-          ? song.ministry
-          : song?.ministry_details && typeof song.ministry_details === "object"
-            ? song.ministry_details
-            : {};
+        const ministryNameFromSong = getMinistry(song);
+        const ministryNameFromId = ministryId != null
+          ? lookups.ministry[String(ministryId).trim()]
+          : "";
+        const ministryNameFromText = ministryNameFromSong
+          ? ministryNameLookup[normalizeText(ministryNameFromSong)] || ministryNameFromSong
+          : "";
 
         const categoryId = song?.category_id ?? song?.categoryId;
 
@@ -545,9 +594,8 @@ function ManageSongs() {
 
             (albumId != null ? lookups.album[String(albumId)] : "") || "",
 
-          ministry_name_english: getMinistry(song) ||
-
-            (ministryId != null ? lookups.ministry[String(ministryId).trim()] : "") || "",
+          ministry_name_english:
+            ministryNameFromSong || ministryNameFromId || ministryNameFromText || "",
 
           category_name_english: getCategory(song) ||
 
