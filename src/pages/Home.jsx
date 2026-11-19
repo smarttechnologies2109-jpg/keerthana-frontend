@@ -1170,6 +1170,38 @@ export default function Home() {
  
 
 
+        {/* =================================================
+            5. RECENTLY ADDED
+        ================================================= */}
+
+        <HomeSection
+          title="Recently Added"
+          subtitle="Fresh additions to your music collection"
+          icon={<FaCompactDisc />}
+          onViewAll={() => navigate("/recently-added")}
+        >
+          {recentlyAdded.length > 0 ? (
+            <div className="home-square-song-grid">
+              {recentlyAdded.map((song, index) => (
+                <SongCard
+                  key={getId(song) ?? `added-${index}`}
+                  song={song}
+                  artists={artists}
+                  selectedLanguage={selectedLanguage}
+                  songs={newestSongs}
+                  onPlay={handlePlaySong}
+                  onOpen={openSong}
+                  currentSong={currentSong}
+                  isPlaying={isPlaying}
+                  clickToPlay
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptySection message="New songs will appear here when available." />
+          )}
+        </HomeSection>
+
 
         {/* =================================================
             1. RECENTLY PLAYED
@@ -1274,38 +1306,6 @@ export default function Home() {
         </HomeSection>
 
       
-
-        {/* =================================================
-            5. RECENTLY ADDED
-        ================================================= */}
-
-        <HomeSection
-          title="Recently Added"
-          subtitle="Fresh additions to your music collection"
-          icon={<FaCompactDisc />}
-          onViewAll={() => navigate("/recently-added")}
-        >
-          {recentlyAdded.length > 0 ? (
-            <div className="home-square-song-grid">
-              {recentlyAdded.map((song, index) => (
-                <SongCard
-                  key={getId(song) ?? `added-${index}`}
-                  song={song}
-                  artists={artists}
-                  selectedLanguage={selectedLanguage}
-                  songs={newestSongs}
-                  onPlay={handlePlaySong}
-                  onOpen={openSong}
-                  currentSong={currentSong}
-                  isPlaying={isPlaying}
-                  clickToPlay
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptySection message="New songs will appear here when available." />
-          )}
-        </HomeSection>
 
        
         {/* =================================================
