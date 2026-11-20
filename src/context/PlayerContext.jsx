@@ -18,6 +18,11 @@ import {
 import { getMediaUrl } from "../utils/media";
 import API from "../services/api";
 import { useAuth } from "./AuthContext";
+import { getAdFreeStatus } from "../services/rewardService";
+import {
+  preloadInterstitialAd,
+  showInterstitialAd,
+} from "../services/interstitialAds";
 export const PlayerContext = createContext(null);
 const PLAYER_STORAGE_KEY = "keerthana_player_state";
 const OFFLINE_DB_NAME = "keerthana_offline_music";
@@ -255,9 +260,15 @@ export const PlayerProvider = ({ children }) => {
   const objectUrlRef = useRef(null);
   const playRequestIdRef = useRef(0);
   const queueRef = useRef([]);
+  const currentSongRef = useRef(null);
+  const nativeCompletionSongIdRef = useRef(null);
   // Ignore stale native track notifications until the saved song has been restored
   // or the user explicitly starts a song in this app session.
   const nativeStatusReadyRef = useRef(false);
+  // Count only songs that finish naturally; manual skips never increment this.
+  const completedSongsSinceAdRef = useRef(0);
+  const completionInProgressRef = useRef(false);
+  const naturalCompletionHandlerRef = useRef(null);
   // Only one audio element is used for playback.
   if (!audioRef.current) {
     const element = new Audio();
@@ -267,9 +278,19 @@ export const PlayerProvider = ({ children }) => {
     audioRef.current = element;
   }
   const audio = audioRef.current;
+
+  // Keep one interstitial ready before the next eligible song boundary.
+  useEffect(() => {
+    if (!isNativeAndroid) return;
+    preloadInterstitialAd().catch((error) => {
+      console.warn("Initial interstitial preload failed:", error);
+    });
+  }, []);
+
   const [playerRestored, setPlayerRestored] = useState(false);
   const [currentSong, setCurrentSong] = useState(null);
   const [queue, setQueue] = useState([]);
+  currentSongRef.current = currentSong;
   queueRef.current = queue;
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -356,7 +377,7 @@ export const PlayerProvider = ({ children }) => {
             ? restoredQueue
             : [...restoredQueue, restoredSong];
           const selectedId = String(getSongId(restoredSong));
-          const nativeItems = await setNativePlaylist(activeQueue, async (song) => getSongAudioUrl(song));
+          const nativeItems = await setNativePlaylist([restoredSong], async (song) => getSongAudioUrl(song));
           if (cancelled || requestId !== playRequestIdRef.current) return;
 
           const nativeIndex = nativeItems.findIndex((item) => String(item.trackId) === selectedId);
@@ -458,6 +479,10 @@ export const PlayerProvider = ({ children }) => {
             if (cancelled || !status || !nativeStatusReadyRef.current) return;
             const value = status.value ?? {};
             const message = status.msgType;
+         console.log(
+  "[KEERTHANA_AD_DEBUG] Native player status event",
+  JSON.stringify(value)
+);
             // The plugin reports currentPosition, not position.
             if (
               value.currentPosition != null &&
@@ -467,14 +492,53 @@ export const PlayerProvider = ({ children }) => {
                 Math.max(0, Number(value.currentPosition))
               );
             }
-            // Duration is reported in seconds.
+            // Duration and position are reported in seconds by the native player.
+            const nativePosition = Number(value.currentPosition);
+            const nativeDuration = Number(value.duration);
             if (
               value.duration != null &&
-              Number.isFinite(Number(value.duration)) &&
-              Number(value.duration) > 0
+              Number.isFinite(nativeDuration) &&
+              nativeDuration > 0
             ) {
-              setDuration(Number(value.duration));
+              setDuration(nativeDuration);
             }
+
+            // Some Android plugin versions emit TRACK_CHANGED/position updates
+            // without delivering RMXSTATUS_COMPLETED. Detect the natural end
+            // from the final playback position as a fallback.
+            const activeSong = currentSongRef.current;
+            const activeSongId = getSongId(activeSong);
+            const completionKey =
+              activeSongId == null ? null : String(activeSongId);
+            const completedMessage =
+              message === RmxAudioStatusMessage.RMXSTATUS_COMPLETED ||
+              String(message).toUpperCase().includes("COMPLETED");
+            const reachedNaturalEnd =
+              Number.isFinite(nativePosition) &&
+              Number.isFinite(nativeDuration) &&
+              nativeDuration > 0 &&
+              nativePosition >= Math.max(0, nativeDuration - 1.25);
+
+            if (
+              completionKey &&
+              (completedMessage || reachedNaturalEnd) &&
+              nativeCompletionSongIdRef.current !== completionKey
+            ) {
+              nativeCompletionSongIdRef.current = completionKey;
+           console.log(
+  "[KEERTHANA_AD_DEBUG] Native natural completion detected",
+  JSON.stringify(details)
+);
+              setIsPlaying(false);
+              setIsLoading(false);
+              Promise.resolve().then(() => {
+                console.info(
+                  "[KEERTHANA_AD_DEBUG] Calling natural completion handler"
+                );
+                naturalCompletionHandlerRef.current?.();
+              });
+            }
+
             switch (message) {
               case RmxAudioStatusMessage.RMXSTATUS_PLAYING:
                 setIsPlaying(true);
@@ -497,6 +561,10 @@ export const PlayerProvider = ({ children }) => {
                 // Time and duration have already been updated above.
                 break;
               case RmxAudioStatusMessage.RMXSTATUS_TRACK_CHANGED: {
+                console.info("[KEERTHANA_AD_DEBUG] Native TRACK_CHANGED event", {
+                  nativeTrackId: value.currentItem?.trackId ?? status.trackId ?? null,
+                  nativeTitle: value.currentItem?.title ?? null,
+                });
                 // Sync React state when Android advances its native playlist.
                 // Match by track ID because native indices can differ if
                 // invalid audio URLs were skipped while creating the playlist.
@@ -539,7 +607,9 @@ export const PlayerProvider = ({ children }) => {
                 break;
               }
               case RmxAudioStatusMessage.RMXSTATUS_COMPLETED:
+                // Completion was handled once by the guarded detector above.
                 setIsPlaying(false);
+                setIsLoading(false);
                 break;
               case RmxAudioStatusMessage.RMXSTATUS_STOPPED:
                 setIsPlaying(false);
@@ -680,6 +750,7 @@ const playSong = useCallback(
   async (song, songs = [], index = 0) => {
     if (!song) return;
     const requestId = ++playRequestIdRef.current;
+    nativeCompletionSongIdRef.current = null;
     try {
       setIsLoading(true);
       setIsPlaying(false);
@@ -707,8 +778,10 @@ const playSong = useCallback(
       checkLikedSong(getSongId(song)).catch(() => {});
 if (isNativeAndroid) {
   await initializeNativeMusicPlayer();
+  // Android plays one track per native playlist so React can insert an ad
+  // before advancing to the next queued song.
   const nativeItems = await setNativePlaylist(
-    activeQueue,
+    [song],
     async (item) => getSongAudioUrl(item)
   );
   const selectedId = String(getSongId(song));
@@ -829,7 +902,7 @@ const resumeSong = useCallback(async () => {
       setCurrentIndex(selectedIndex);
       // Recreate native Android playlist and resolve every audio URL.
       const nativeItems = await setNativePlaylist(
-        activeQueue,
+        [currentSong],
         async (song) => getSongAudioUrl(song)
       );
       const nativeIndex = nativeItems.findIndex(
@@ -915,6 +988,132 @@ if (isShuffle && queue.length > 1) {
   playSong,
   pauseSong,
 ]);
+
+/* NATURAL COMPLETION + INTERSTITIAL AD BREAK */
+const handleNaturalSongCompletion = useCallback(async () => {
+  console.info("[KEERTHANA_AD_DEBUG] Natural completion handler entered", {
+    songId: getSongId(currentSong),
+    title: currentSong?.title,
+    currentIndex,
+    queueLength: queue.length,
+    completedSongsBefore: completedSongsSinceAdRef.current,
+    repeatMode,
+    isShuffle,
+    isNativeAndroid,
+  });
+
+  if (completionInProgressRef.current) {
+    console.warn("[KEERTHANA_AD_DEBUG] Completion ignored: handler already running");
+    return;
+  }
+  if (!currentSong) {
+    console.warn("[KEERTHANA_AD_DEBUG] Completion ignored: currentSong is empty");
+    return;
+  }
+  completionInProgressRef.current = true;
+
+  try {
+    // Repeat-one restarts the same track and does not count toward an ad.
+    if (repeatMode === "one") {
+      console.info("[KEERTHANA_AD_DEBUG] Repeat-one active; restarting current song without counting");
+      await playSong(currentSong, queue, currentIndex);
+      return;
+    }
+
+    const hasNextSong =
+      (isShuffle && queue.length > 1) ||
+      currentIndex < queue.length - 1 ||
+      repeatMode === "all";
+
+    // No next track means there is no break to insert.
+    if (!hasNextSong) {
+      console.info("[KEERTHANA_AD_DEBUG] No next song in queue; no ad break needed");
+      await nextSong();
+      return;
+    }
+
+    completedSongsSinceAdRef.current += 1;
+    console.info("[KEERTHANA_AD_DEBUG] Natural song count updated", {
+      completedSongsSinceAd: completedSongsSinceAdRef.current,
+      target: 2,
+      nextSongTitle: queue[currentIndex + 1]?.title ?? null,
+    });
+
+    if (completedSongsSinceAdRef.current >= 2) {
+      console.info("[KEERTHANA_AD_DEBUG] Two songs completed; starting ad-break flow");
+      completedSongsSinceAdRef.current = 0;
+
+      // Pause music before checking reward status or showing an ad.
+      try {
+        if (isNativeAndroid) {
+          await Playlist.pause();
+        } else {
+          audio.pause();
+        }
+      } catch (pauseError) {
+        console.warn("Could not pause music before ad:", pauseError);
+      }
+
+      let adFreeActive = false;
+      try {
+        console.info("[KEERTHANA_AD_DEBUG] Checking ad-free reward status...");
+        const status = await getAdFreeStatus();
+        adFreeActive = Boolean(
+          status?.adFreeActive ?? status?.data?.adFreeActive
+        );
+        console.info("[KEERTHANA_AD_DEBUG] Ad-free status received", {
+          adFreeActive,
+          remainingSeconds: status?.remainingSeconds ?? status?.data?.remainingSeconds ?? null,
+        });
+      } catch (statusError) {
+        // Fail closed: do not show an ad when reward status is unknown.
+        console.warn(
+          "Could not verify ad-free status; skipping this ad break:",
+          statusError
+        );
+        adFreeActive = true;
+      }
+
+      if (!adFreeActive && isNativeAndroid) {
+        console.info("[KEERTHANA_AD_DEBUG] Calling showInterstitialAd()");
+        const adShown = await showInterstitialAd();
+        console.info("[KEERTHANA_AD_DEBUG] Interstitial flow finished", { adShown });
+      } else {
+        console.info("[KEERTHANA_AD_DEBUG] Ad skipped", {
+          adFreeActive,
+          isNativeAndroid,
+        });
+      }
+    }
+
+    // Continue even if an ad was unavailable, skipped, or failed.
+    console.info("[KEERTHANA_AD_DEBUG] Starting next song after completion/ad flow");
+    await nextSong();
+  } catch (error) {
+    console.error("[KEERTHANA_AD_DEBUG] Natural completion handling failed:", error);
+    try {
+      await nextSong();
+    } catch (nextError) {
+      console.error("Could not advance after completion:", nextError);
+    }
+  } finally {
+    completionInProgressRef.current = false;
+    console.info("[KEERTHANA_AD_DEBUG] Natural completion handler finished");
+  }
+}, [
+  currentSong,
+  queue,
+  currentIndex,
+  repeatMode,
+  isShuffle,
+  nextSong,
+  playSong,
+  audio,
+]);
+
+// The native status listener reads the latest callback through this ref.
+naturalCompletionHandlerRef.current = handleNaturalSongCompletion;
+
 const previousSong = useCallback(async () => {
   if (!queue.length) return;
   if (currentTime > 3) {
@@ -959,6 +1158,12 @@ const seek = useCallback(
 useEffect(() => {
   if (isNativeAndroid) return;
   const handleEnded = async () => {
+    console.info("[KEERTHANA_AD_DEBUG] Web audio ended event", {
+      songId: getSongId(currentSong),
+      title: currentSong?.title,
+      currentIndex,
+      queueLength: queue.length,
+    });
     if (!currentSong) return;
     if (repeatMode === "one") {
       try {
@@ -970,7 +1175,7 @@ useEffect(() => {
       }
       return;
     }
-    await nextSong();
+    await naturalCompletionHandlerRef.current?.();
   };
   audio.addEventListener("ended", handleEnded);
   return () => {
@@ -1314,6 +1519,9 @@ const clearPlayer = useCallback(async () => {
   setIsPlaying(false);
   setIsLiked(false);
   setIsLoading(false);
+  completedSongsSinceAdRef.current = 0;
+  completionInProgressRef.current = false;
+  nativeCompletionSongIdRef.current = null;
   localStorage.removeItem(PLAYER_STORAGE_KEY);
 }, [audio, releaseObjectUrl]);
   const closePlayer = clearPlayer;

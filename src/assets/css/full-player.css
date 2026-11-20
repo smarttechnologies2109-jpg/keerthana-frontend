@@ -2281,3 +2281,72 @@
     flex-basis: 58px;
   }
 }
+
+
+/* =========================================================
+   ANDROID WEBVIEW — reliable full-player seek touch target
+   Keep this at the END so it overrides older range rules.
+========================================================= */
+
+.keerthana-full-player .full-player-progress {
+  position: relative;
+  z-index: 20;
+  isolation: isolate;
+}
+
+.keerthana-full-player .full-player-progress input.full-player-seek-range {
+  position: relative;
+  z-index: 21;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0;
+  min-height: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  opacity: 1;
+  cursor: pointer;
+  pointer-events: auto !important;
+  touch-action: pan-y !important;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  accent-color: #e9c477;
+}
+
+.keerthana-full-player .full-player-progress input.full-player-seek-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.keerthana-full-player .full-player-progress input.full-player-seek-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(190, 199, 211, 0.58);
+}
+
+.keerthana-full-player .full-player-progress input.full-player-seek-range::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 50%;
+  background: #e9c477;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.keerthana-full-player .full-player-progress input.full-player-seek-range::-moz-range-track {
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(190, 199, 211, 0.58);
+}
+
+.keerthana-full-player .full-player-progress input.full-player-seek-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: #e9c477;
+}

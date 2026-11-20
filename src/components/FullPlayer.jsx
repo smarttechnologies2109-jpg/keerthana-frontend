@@ -1098,47 +1098,26 @@ aria-label="Repeat"
 <span>{formatTime(displayedTime)}</span>
 
 <input
+  className="full-player-seek-range"
+  type="range"
+  min="0"
+  max={safeDuration}
+  step="0.1"
+  value={Math.min(displayedTime, safeDuration)}
+  disabled={safeDuration <= 0}
+  onChange={(event) => {
+    const nextTime = Number(event.target.value);
+    setSeekValue(nextTime);
 
-type="range"
-
-min="0"
-
-max={safeDuration}
-
-step="0.1"
-
-value={Math.min(displayedTime, safeDuration)}
-
-disabled={safeDuration <= 0}
-
-onChange={(event) => setSeekValue(Number(event.target.value))}
-
-onPointerUp={() => {
-
-if (seekValue !== null) {
-
-seek(seekValue);
-
-setSeekValue(null);
-
-}
-
-}}
-
-onKeyUp={() => {
-
-if (seekValue !== null) {
-
-seek(seekValue);
-
-setSeekValue(null);
-
-}
-
-}}
-
-aria-label="Song progress"
-
+    // Seek while the thumb moves. This is more reliable in Android
+    // WebView than waiting only for pointer-up to commit the seek.
+    seek(nextTime);
+  }}
+  onPointerUp={() => setSeekValue(null)}
+  onTouchEnd={() => setSeekValue(null)}
+  onMouseUp={() => setSeekValue(null)}
+  onKeyUp={() => setSeekValue(null)}
+  aria-label="Song progress"
 />
 
 <span>{formatTime(safeDuration)}</span>

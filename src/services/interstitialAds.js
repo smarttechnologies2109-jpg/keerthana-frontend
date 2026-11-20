@@ -1,123 +1,142 @@
 
 import { Capacitor } from "@capacitor/core";
-
 import {
   AdMob,
   InterstitialAdPluginEvents,
 } from "@capacitor-community/admob";
 
-// =============================================
-// KEERTHANA MUSIC - PRODUCTION INTERSTITIAL AD
-// =============================================
-
-const INTERSTITIAL_AD_ID =
-  "ca-app-pub-4269202427991524/2814621082";
+// KEERTHANA production interstitial ad unit.
+const INTERSTITIAL_AD_ID = "ca-app-pub-4269202427991524/2814621082";
 
 let isLoading = false;
 let isLoaded = false;
 let isShowing = false;
-let isPreparingAgain = false;
 
 let listenersInitialized = false;
 let listenersPromise = null;
 
-let loadedListener;
-let failedListener;
-let dismissedListener;
-let failedShowListener;
+let loadingPromise = null;
+let resolveLoadingPromise = null;
+let pendingShowResolve = null;
 
-// =============================================
-// CHECK ANDROID NATIVE PLATFORM
-// =============================================
+let loadTimeout = null;
+let showTimeout = null;
 
-function isAndroidNative() {
-  return (
-    Capacitor.isNativePlatform() &&
-    Capacitor.getPlatform() === "android"
-  );
+const DEBUG = "[KEERTHANA_AD_DEBUG]";
+
+const logInfo = (message, details) => {
+  if (details === undefined) {
+    console.info(`${DEBUG} ${message}`);
+    return;
+  }
+  console.info(`${DEBUG} ${message}: ${JSON.stringify(details)}`);
+};
+
+const logWarn = (message, details) => {
+  if (details === undefined) {
+    console.warn(`${DEBUG} ${message}`);
+    return;
+  }
+  console.warn(`${DEBUG} ${message}: ${JSON.stringify(details)}`);
+};
+
+const logError = (message, error) => {
+  console.error(`${DEBUG} ${message}:`, error);
+};
+
+const isAndroidNative = () =>
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
+
+function finishLoading(success) {
+  if (loadTimeout) {
+    clearTimeout(loadTimeout);
+    loadTimeout = null;
+  }
+
+  isLoading = false;
+  isLoaded = Boolean(success);
+
+  const resolve = resolveLoadingPromise;
+  resolveLoadingPromise = null;
+
+  logInfo("Interstitial load finished", {
+    success: Boolean(success),
+    isLoaded,
+  });
+
+  resolve?.(Boolean(success));
 }
 
-// =============================================
-// REGISTER AD EVENT LISTENERS
-// =============================================
+function finishShowing(success) {
+  if (showTimeout) {
+    clearTimeout(showTimeout);
+    showTimeout = null;
+  }
+
+  isShowing = false;
+  isLoaded = false;
+
+  const resolve = pendingShowResolve;
+  pendingShowResolve = null;
+
+  logInfo("Interstitial show finished", { success: Boolean(success) });
+  resolve?.(Boolean(success));
+
+  // Prepare the next ad after this ad has closed or failed.
+  // The shared loadingPromise prevents duplicate prepareInterstitial calls.
+  if (isAndroidNative()) {
+    preloadInterstitialAd().catch((error) => {
+      logError("Next interstitial preload failed", error);
+    });
+  }
+}
 
 async function registerInterstitialListeners() {
-  if (listenersInitialized) return;
-
-  if (listenersPromise) {
-    return listenersPromise;
-  }
+  if (listenersInitialized) return true;
+  if (listenersPromise) return listenersPromise;
 
   listenersPromise = (async () => {
     try {
-      loadedListener = await AdMob.addListener(
+      logInfo("Registering interstitial listeners");
+
+      await AdMob.addListener(
         InterstitialAdPluginEvents.Loaded,
         (info) => {
-          isLoaded = true;
-          isLoading = false;
-
-          console.info(
-            "[KEERTHANA Interstitial] Production ad loaded:",
-            info
-          );
+          logInfo("Interstitial LOADED event", info);
+          finishLoading(true);
         }
       );
 
-      failedListener = await AdMob.addListener(
+      await AdMob.addListener(
         InterstitialAdPluginEvents.FailedToLoad,
         (error) => {
-          isLoaded = false;
-          isLoading = false;
-
-          console.error(
-            "[KEERTHANA Interstitial] Production ad loading failed:",
-            error
-          );
+          logError("Interstitial FAILED_TO_LOAD event", error);
+          finishLoading(false);
         }
       );
 
-      dismissedListener = await AdMob.addListener(
+      await AdMob.addListener(
         InterstitialAdPluginEvents.Dismissed,
         () => {
-          isShowing = false;
-          isLoaded = false;
-
-          console.info(
-            "[KEERTHANA Interstitial] Production ad dismissed."
-          );
-
-          prepareNextInterstitial();
+          logInfo("Interstitial DISMISSED event received");
+          finishShowing(true);
         }
       );
 
-      failedShowListener = await AdMob.addListener(
+      await AdMob.addListener(
         InterstitialAdPluginEvents.FailedToShow,
         (error) => {
-          isShowing = false;
-          isLoaded = false;
-
-          console.error(
-            "[KEERTHANA Interstitial] Production ad display failed:",
-            error
-          );
-
-          prepareNextInterstitial();
+          logError("Interstitial FAILED_TO_SHOW event", error);
+          finishShowing(false);
         }
       );
 
       listenersInitialized = true;
-
-      console.info(
-        "[KEERTHANA Interstitial] Production listeners registered."
-      );
+      logInfo("Interstitial listeners registered");
+      return true;
     } catch (error) {
       listenersPromise = null;
-
-      console.error(
-        "[KEERTHANA Interstitial] Listener registration failed:",
-        error
-      );
-
+      logError("Could not register interstitial listeners", error);
       throw error;
     }
   })();
@@ -125,128 +144,152 @@ async function registerInterstitialListeners() {
   return listenersPromise;
 }
 
-// =============================================
-// PRELOAD PRODUCTION INTERSTITIAL
-// =============================================
+export function preloadInterstitialAd() {
+  logInfo("preloadInterstitialAd called", {
+    isAndroidNative: isAndroidNative(),
+    isLoading,
+    isLoaded,
+    isShowing,
+    hasLoadingPromise: Boolean(loadingPromise),
+  });
 
-export async function preloadInterstitialAd() {
   if (!isAndroidNative()) {
-    console.info(
-      "[KEERTHANA Interstitial] Android native platform not detected."
-    );
-
-    return false;
+    logWarn("Interstitial preload skipped: not Android native");
+    return Promise.resolve(false);
   }
 
-  if (isLoaded || isLoading) {
-    return isLoaded;
+  if (isLoaded) {
+    logInfo("Interstitial already loaded");
+    return Promise.resolve(true);
   }
 
-  isLoading = true;
-
-  try {
-    await registerInterstitialListeners();
-
-    console.info(
-      "[KEERTHANA Interstitial] Loading production ad..."
-    );
-
-    await AdMob.prepareInterstitial({
-      adId: INTERSTITIAL_AD_ID,
-      isTesting: false,
-    });
-
-    isLoaded = true;
-    isLoading = false;
-
-    console.info(
-      "[KEERTHANA Interstitial] Production ad prepared successfully."
-    );
-
-    return true;
-  } catch (error) {
-    isLoaded = false;
-    isLoading = false;
-
-    console.error(
-      "[KEERTHANA Interstitial] Production prepare error:",
-      error
-    );
-
-    return false;
+  // Every caller shares the exact same in-flight promise.
+  // This prevents two simultaneous calls from preparing two ads and
+  // overwriting each other's timeout/resolver.
+  if (loadingPromise) {
+    logInfo("Interstitial load already in progress; reusing existing promise");
+    return loadingPromise;
   }
+
+  let task;
+
+  task = (async () => {
+    try {
+      await registerInterstitialListeners();
+
+      if (isLoaded) return true;
+
+      isLoading = true;
+      logInfo("Preparing interstitial with AdMob", {
+        adUnitId: INTERSTITIAL_AD_ID,
+        isTesting: false,
+      });
+
+      const eventResult = new Promise((resolve) => {
+        resolveLoadingPromise = resolve;
+
+        loadTimeout = setTimeout(() => {
+          logError("Interstitial load timed out", {
+            timeoutMs: 20000,
+          });
+          finishLoading(false);
+        }, 20000);
+      });
+
+      await AdMob.prepareInterstitial({
+        adId: INTERSTITIAL_AD_ID,
+        isTesting: false,
+      });
+
+      logInfo(
+        "prepareInterstitial request accepted; waiting for Loaded/FailedToLoad event"
+      );
+
+      const loaded = await eventResult;
+      logInfo("Interstitial preload result", { loaded, isLoaded });
+      return loaded;
+    } catch (error) {
+      logError("Interstitial prepare failed", error);
+      finishLoading(false);
+      return false;
+    } finally {
+      isLoading = false;
+      if (loadingPromise === task) {
+        loadingPromise = null;
+      }
+    }
+  })();
+
+  loadingPromise = task;
+  return task;
 }
-
-// =============================================
-// PREPARE NEXT AD AFTER DISMISSAL
-// =============================================
-
-async function prepareNextInterstitial() {
-  if (isPreparingAgain) return;
-
-  isPreparingAgain = true;
-
-  try {
-    await preloadInterstitialAd();
-  } finally {
-    isPreparingAgain = false;
-  }
-}
-
-// =============================================
-// SHOW PRODUCTION INTERSTITIAL
-// =============================================
 
 export async function showInterstitialAd() {
+  logInfo("showInterstitialAd called", {
+    isAndroidNative: isAndroidNative(),
+    isLoaded,
+    isLoading,
+    isShowing,
+  });
+
   if (!isAndroidNative()) {
+    logWarn("Show skipped: not Android native");
     return false;
   }
 
   if (isShowing) {
-    console.info(
-      "[KEERTHANA Interstitial] Another ad is already showing."
-    );
-
+    logWarn("Show skipped: an interstitial is already showing");
     return false;
   }
 
   if (!isLoaded) {
+    logInfo("No preloaded ad; trying to preload now");
     const loaded = await preloadInterstitialAd();
 
-    if (!loaded) {
-      console.warn(
-        "[KEERTHANA Interstitial] No production ad available."
-      );
-
+    if (!loaded || !isLoaded) {
+      logWarn("No interstitial available; continuing without ad", {
+        loaded,
+        isLoaded,
+      });
       return false;
     }
   }
 
+  await registerInterstitialListeners();
+
   isShowing = true;
   isLoaded = false;
 
-  try {
-    console.info(
-      "[KEERTHANA Interstitial] Showing production ad..."
-    );
+  const dismissedPromise = new Promise((resolve) => {
+    pendingShowResolve = resolve;
 
+    // Never block music indefinitely if the SDK does not send a callback.
+    showTimeout = setTimeout(() => {
+      logError("Interstitial show timed out; playback will resume", {
+        timeoutMs: 60000,
+      });
+      finishShowing(false);
+    }, 60000);
+  });
+
+  try {
+    logInfo("Calling AdMob.showInterstitial");
     await AdMob.showInterstitial();
 
-    console.info(
-      "[KEERTHANA Interstitial] Production show request completed."
+    logInfo(
+      "AdMob show request returned; waiting for Dismissed/FailedToShow event"
     );
 
-    return true;
+    const shown = await dismissedPromise;
+    logInfo("Interstitial show flow resolved", { shown });
+    return shown;
   } catch (error) {
-    isShowing = false;
-
-    console.error(
-      "[KEERTHANA Interstitial] Production show error:",
-      error
-    );
-
-    prepareNextInterstitial();
-
+    logError("Interstitial show failed", error);
+    finishShowing(false);
     return false;
   }
+}
+
+export function isInterstitialShowing() {
+  return isShowing;
 }

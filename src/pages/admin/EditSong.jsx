@@ -283,12 +283,120 @@ function SearchableDropdown({
   );
 }
 
+
+function MultiArtistDropdown({ options = [], value = [], onChange, disabled = false }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const rootRef = useRef(null);
+  const searchRef = useRef(null);
+  const selectedIds = (Array.isArray(value) ? value : []).map(String);
+  const selectedArtists = selectedIds.map((id) => options.find((a) => String(a.id) === id)).filter(Boolean);
+
+  useEffect(() => {
+    const outside = (event) => {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+    const escape = (event) => {
+      if (event.key === "Escape") { setOpen(false); setQuery(""); }
+    };
+    document.addEventListener("mousedown", outside);
+    document.addEventListener("touchstart", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("mousedown", outside);
+      document.removeEventListener("touchstart", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      const frame = requestAnimationFrame(() => searchRef.current?.focus());
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [open]);
+
+  const filtered = options.filter((artist) =>
+    normalizeText(`${artist.name_english || ""} ${artist.name_telugu || ""} ${artist.name || ""}`)
+      .includes(normalizeText(query))
+  );
+  const toggle = (artistId) => {
+    const id = String(artistId);
+    onChange(selectedIds.includes(id) ? selectedIds.filter((item) => item !== id) : [...selectedIds, id]);
+  };
+
+  return (
+    <div className={`admin-searchable-dropdown admin-multi-artist ${open ? "is-open" : ""}`} ref={rootRef}>
+      <button type="button" className={`admin-searchable-trigger${open ? " is-open" : ""}`}
+        onClick={() => setOpen((previous) => !previous)} aria-haspopup="listbox"
+        aria-expanded={open} disabled={disabled}>
+        <span className={selectedIds.length ? "has-value" : "is-placeholder"}>
+          {selectedIds.length ? `${selectedIds.length} artist${selectedIds.length === 1 ? "" : "s"} selected` : "Select one or more artists"}
+        </span>
+        <span className="admin-searchable-chevron" aria-hidden="true">▾</span>
+      </button>
+
+      {selectedArtists.length > 0 && (
+        <div className="admin-multi-artist-selected" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+          {selectedArtists.map((artist) => (
+            <span className="admin-multi-artist-chip" key={artist.id}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "6px 10px", borderRadius: 20, background: "rgba(30, 64, 120, 0.12)" }}>
+              {getEntityLabel(artist, "artist")}
+              <button type="button" disabled={disabled}
+                aria-label={`Remove ${getEntityLabel(artist, "artist")}`}
+                onClick={() => toggle(artist.id)} style={{ border: 0, background: "transparent", cursor: "pointer" }}>
+                <FaTimes />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <div className="admin-searchable-menu">
+          <div className="admin-searchable-input-wrap">
+            <FaSearch aria-hidden="true" />
+            <input ref={searchRef} type="search" value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search artist in English or Telugu..." aria-label="Search artists" />
+            {query && <button type="button" className="admin-searchable-clear"
+              onClick={() => setQuery("")} aria-label="Clear search"><FaTimes /></button>}
+          </div>
+          <div className="admin-searchable-options" role="listbox" aria-multiselectable="true">
+            {filtered.length ? filtered.map((artist) => {
+              const checked = selectedIds.includes(String(artist.id));
+              return (
+                <button type="button" role="option" aria-selected={checked}
+                  className={`admin-searchable-option${checked ? " is-selected" : ""}`}
+                  key={artist.id} onClick={() => toggle(artist.id)}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <input type="checkbox" checked={checked} readOnly tabIndex={-1} />
+                    {getEntityLabel(artist, "artist")}
+                  </span>
+                  {checked && <span className="admin-searchable-check">✓</span>}
+                </button>
+              );
+            }) : <div className="admin-searchable-empty">No artists found.</div>}
+          </div>
+          <div style={{ padding: "10px 12px", fontSize: 12, opacity: 0.75 }}>
+            Select multiple artists. Click a selected artist again to remove it.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function EditSong() {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [originalForm, setOriginalForm] = useState(EMPTY_FORM);
+  const [selectedArtistIds, setSelectedArtistIds] = useState([]);
 
   const [existingAudio, setExistingAudio] = useState("");
   const [existingCover, setExistingCover] = useState("");
@@ -378,8 +486,17 @@ useEffect(() => {
               : "",
         };
 
+        const songArtistIds = Array.isArray(song.artist_ids)
+          ? song.artist_ids.map((artist) => String(typeof artist === "object" ? artist.id : artist))
+          : Array.isArray(song.artists)
+          ? song.artists.map((artist) => String(typeof artist === "object" ? artist.id : artist))
+          : song.artist_id !== null && song.artist_id !== undefined
+          ? [String(song.artist_id)]
+          : [];
+
+        setSelectedArtistIds(songArtistIds);
         setForm(loadedForm);
-        setOriginalForm(loadedForm);
+        setOriginalForm({ ...loadedForm, artist_ids: [...songArtistIds] });
         setExistingAudio(song.audio_url || "");
         setExistingCover(song.cover_url || "");
 
@@ -513,12 +630,16 @@ useEffect(() => {
       return;
     }
 
+    if (selectedArtistIds.length === 0) {
+      setError("Please select at least one artist.");
+      return;
+    }
+
     const changedFields = [
       "title",
       "title_english",
       "language",
       "lyrics",
-      "artist_id",
       "album_id",
       "category_id",
       "ministry_id",
@@ -535,6 +656,19 @@ useEffect(() => {
         hasChanges = true;
       }
     });
+
+    const originalArtistIds = Array.isArray(originalForm.artist_ids)
+      ? originalForm.artist_ids.map(String)
+      : [];
+    const artistSelectionChanged =
+      selectedArtistIds.length !== originalArtistIds.length ||
+      selectedArtistIds.some((artistId, index) => artistId !== originalArtistIds[index]);
+
+    if (artistSelectionChanged) {
+      formData.append("artist_ids", JSON.stringify(selectedArtistIds));
+      formData.append("artist_id", selectedArtistIds[0] || "");
+      hasChanges = true;
+    }
 
     if (audioFile) {
       formData.append("audio", audioFile);
@@ -560,7 +694,7 @@ useEffect(() => {
       }
 
       setSuccess("Song updated successfully!");
-      setOriginalForm({ ...form });
+      setOriginalForm({ ...form, artist_ids: [...selectedArtistIds] });
 
       setTimeout(() => navigate("/admin/songs"), 900);
     } catch (err) {
@@ -659,18 +793,18 @@ useEffect(() => {
             </div>
 
             <div className="admin-field">
-              <label>Artist *</label>
-              <SearchableDropdown
+              <label>Artists *</label>
+              <MultiArtistDropdown
                 options={artists}
-                value={form.artist_id}
-                onChange={(value) => handleRelationshipChange("artist_id", value)}
-                placeholder="Select Artist"
-                searchPlaceholder="Search artist in English or Telugu..."
-                emptyText="No artists found."
-                getLabel={(artist) => getEntityLabel(artist, "artist")}
-                getSearchText={(artist) => `${artist.name_english || ""} ${artist.name_telugu || ""} ${artist.name || ""}`}
+                value={selectedArtistIds}
+                onChange={(value) => {
+                  setSelectedArtistIds(value);
+                  setError("");
+                  setSuccess("");
+                }}
                 disabled={saving}
               />
+              <small>Select all artists who performed this song.</small>
             </div>
 
             <div className="admin-field">

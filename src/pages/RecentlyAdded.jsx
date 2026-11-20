@@ -17,6 +17,8 @@ import {
   FaMusic,
   FaSearch,
   FaExclamationCircle,
+  FaEllipsisV,
+  FaPlus,
 } from "react-icons/fa";
 
 import API from "../services/api";
@@ -152,6 +154,10 @@ export default function RecentlyAdded() {
   const touchStartYRef = useRef(null);
   const pullTriggeredRef = useRef(false);
 
+  // Three-dot song actions menu.
+  const [openMenuSongId, setOpenMenuSongId] = useState(null);
+  const songMenuRef = useRef(null);
+
   /* =====================================================
      LOAD SONGS
   ===================================================== */
@@ -226,6 +232,55 @@ export default function RecentlyAdded() {
       );
     };
   }, [loadSongs]);
+
+  /* =====================================================
+     CLOSE SONG MENU ON OUTSIDE TAP / ESCAPE
+  ===================================================== */
+
+  useEffect(() => {
+    if (openMenuSongId === null) return undefined;
+
+    const handleOutsidePointer = (event) => {
+      if (
+        songMenuRef.current &&
+        !songMenuRef.current.contains(event.target)
+      ) {
+        setOpenMenuSongId(null);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setOpenMenuSongId(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsidePointer);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsidePointer);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [openMenuSongId]);
+
+  /* =====================================================
+     ADD SONG TO PLAYLIST
+  ===================================================== */
+
+  const handleAddToPlaylist = useCallback(
+    (song) => {
+      setOpenMenuSongId(null);
+
+      navigate("/playlists", {
+        state: {
+          selectedSong: song,
+          action: "add-song",
+        },
+      });
+    },
+    [navigate]
+  );
 
   /* =====================================================
      PULL DOWN TO REFRESH
@@ -550,6 +605,7 @@ export default function RecentlyAdded() {
               const title = getSongTitle(song);
               const teluguTitle = getTeluguSongTitle(song);
               const artist = getArtistName(song);
+              const menuKey = String(id ?? `${title}-${artist}`);
 
               const currentId = getSongId(currentSong);
 
@@ -648,6 +704,73 @@ export default function RecentlyAdded() {
 
                     </button>
 
+                  </div>
+
+                  {/* THREE-DOT SONG ACTIONS */}
+
+                  <div
+                    className="recently-added-song-menu-wrap"
+                    ref={openMenuSongId === menuKey ? songMenuRef : null}
+                  >
+                    <button
+                      type="button"
+                      className="recently-added-menu-trigger"
+                      aria-label={`More options for ${title}`}
+                      aria-haspopup="menu"
+                      aria-expanded={openMenuSongId === menuKey}
+                      title="More options"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setOpenMenuSongId((current) =>
+                          current === menuKey ? null : menuKey
+                        );
+                      }}
+                    >
+                      <FaEllipsisV />
+                    </button>
+
+                    {openMenuSongId === menuKey && (
+                      <div
+                        className="recently-added-song-menu"
+                        role="menu"
+                        aria-label={`${title} song actions`}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setOpenMenuSongId(null);
+                            handlePlay(song);
+                          }}
+                        >
+                          <FaPlay />
+                          <span>Play Now</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => handleAddToPlaylist(song)}
+                        >
+                          <FaPlus />
+                          <span>Add to Playlist</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setOpenMenuSongId(null);
+                            navigate(`/songs/${id}`);
+                          }}
+                          disabled={id == null}
+                        >
+                          <FaCompactDisc />
+                          <span>View Song Details</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                 </article>

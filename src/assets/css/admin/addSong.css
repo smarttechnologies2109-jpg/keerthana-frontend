@@ -1904,3 +1904,132 @@
   outline: 2px solid rgba(252, 165, 165, 0.35);
   outline-offset: 4px;
 }
+
+/* =====================================================
+   MULTIPLE ARTIST SELECTION
+===================================================== */
+
+.admin-multi-artist {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-multi-artist-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 10px;
+  border: 1px solid var(--border-color, #d5dbe5);
+  border-radius: 10px;
+  background: var(--input-bg, #fff);
+}
+
+.admin-artist-placeholder {
+  color: #8993a4;
+  font-size: 13px;
+}
+
+.admin-artist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 7px 9px 7px 12px;
+  border-radius: 30px;
+  background: rgba(39, 100, 180, 0.12);
+  color: var(--text-primary, #23334a);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-artist-chip-name {
+  overflow-wrap: anywhere;
+}
+
+.admin-primary-artist-label {
+  padding: 3px 6px;
+  border-radius: 20px;
+  background: rgba(212, 165, 76, 0.2);
+  color: #a47724;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.admin-artist-chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 21px;
+  height: 21px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.07);
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-artist-chip button:hover {
+  background: #dc4545;
+  color: white;
+}
+
+.admin-multi-artist-trigger {
+  width: 100%;
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-multi-artist-help {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-secondary, #7d8797);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.admin-multiple-artists-field {
+  min-width: 0;
+}
+
+.admin-multi-artist .admin-searchable-menu {
+  z-index: 100;
+}
+
+.admin-multi-artist .admin-searchable-options {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.admin-multi-artist .admin-searchable-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-multi-artist .admin-searchable-option.is-selected {
+  background: rgba(39, 100, 180, 0.1);
+}
+
+.admin-multi-artist .admin-searchable-check {
+  color: #23865a;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+@media (max-width: 600px) {
+  .admin-artist-chip {
+    font-size: 11px;
+  }
+
+  .admin-multi-artist-selected {
+    gap: 7px;
+  }
+}

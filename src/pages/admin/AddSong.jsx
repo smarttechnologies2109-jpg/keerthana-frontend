@@ -15,6 +15,10 @@ import {
 import API from "../../services/api";
 import "../../assets/css/admin/addSong.css";
 
+/* =====================================================
+   LANGUAGES
+===================================================== */
+
 const LANGUAGES = [
   { value: "Telugu", nativeName: "తెలుగు" },
   { value: "Hindi", nativeName: "हिन्दी" },
@@ -105,25 +109,49 @@ Enter the second verse...`,
   },
 };
 
-
+/* =====================================================
+   HELPERS
+===================================================== */
 
 const normalizeDuplicateValue = (value) =>
-  String(value || "").normalize("NFKC").trim().replace(/\\s+/g, " ").toLocaleLowerCase();
+  String(value || "")
+    .normalize("NFKC")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase();
 
-const getBilingualLabel = (english, telugu, fallback = "") => {
+const getBilingualLabel = (
+  english,
+  telugu,
+  fallback = ""
+) => {
   const en = String(english || "").trim();
   const te = String(telugu || "").trim();
-  return en && te && normalizeDuplicateValue(en) !== normalizeDuplicateValue(te)
-    ? `${en} / ${te}` : en || te || fallback;
+
+  return en && te &&
+    normalizeDuplicateValue(en) !== normalizeDuplicateValue(te)
+    ? `${en} / ${te}`
+    : en || te || fallback;
 };
 
-const hasDuplicateBilingualName = (items, englishValue, teluguValue, getEnglish, getTelugu) => {
+const hasDuplicateBilingualName = (
+  items,
+  englishValue,
+  teluguValue,
+  getEnglish,
+  getTelugu
+) => {
   const en = normalizeDuplicateValue(englishValue);
   const te = normalizeDuplicateValue(teluguValue);
+
   return items.some((item) => {
     const existingEn = normalizeDuplicateValue(getEnglish(item));
     const existingTe = normalizeDuplicateValue(getTelugu(item));
-    return Boolean((en && existingEn === en) || (te && existingTe === te));
+
+    return Boolean(
+      (en && existingEn === en) ||
+      (te && existingTe === te)
+    );
   });
 };
 
@@ -135,8 +163,7 @@ const initialForm = {
   artist_id: "",
   album_id: "",
   category_id: "",
-  ministry_id: "", 
-
+  ministry_id: "",
 };
 
 const extractList = (data, key) => {
@@ -145,10 +172,10 @@ const extractList = (data, key) => {
   return [];
 };
 
-
 /* =====================================================
-   SEARCHABLE DROPDOWN
-   Search is built into the opened dropdown menu.
+   SEARCHABLE SINGLE DROPDOWN
+
+   Used for albums, categories and ministries.
 ===================================================== */
 
 function SearchableDropdown({
@@ -163,12 +190,16 @@ function SearchableDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+
   const rootRef = useRef(null);
   const searchRef = useRef(null);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (rootRef.current && !rootRef.current.contains(event.target)) {
+      if (
+        rootRef.current &&
+        !rootRef.current.contains(event.target)
+      ) {
         setOpen(false);
         setQuery("");
       }
@@ -202,7 +233,9 @@ function SearchableDropdown({
     (option) => String(option.id) === String(value)
   );
 
-  const selectedLabel = selectedOption ? getLabel(selectedOption) : "";
+  const selectedLabel = selectedOption
+    ? getLabel(selectedOption)
+    : "";
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
 
@@ -225,21 +258,30 @@ function SearchableDropdown({
   };
 
   return (
-   <div
-  className={`admin-searchable-dropdown ${open ? "is-open" : ""}`}
-  ref={rootRef}
->
+    <div
+      className={`admin-searchable-dropdown ${
+        open ? "is-open" : ""
+      }`}
+      ref={rootRef}
+    >
       <button
         type="button"
-        className={`admin-searchable-trigger${open ? " is-open" : ""}`}
+        className={`admin-searchable-trigger ${
+          open ? "is-open" : ""
+        }`}
         onClick={() => setOpen((previous) => !previous)}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className={selectedLabel ? "has-value" : "is-placeholder"}>
+        <span
+          className={
+            selectedLabel ? "has-value" : "is-placeholder"
+          }
+        >
           {selectedLabel || placeholder}
         </span>
-        <span className="admin-searchable-chevron" aria-hidden="true">
+
+        <span className="admin-searchable-chevron">
           ▾
         </span>
       </button>
@@ -247,7 +289,8 @@ function SearchableDropdown({
       {open && (
         <div className="admin-searchable-menu">
           <div className="admin-searchable-input-wrap">
-            <FaSearch aria-hidden="true" />
+            <FaSearch />
+
             <input
               ref={searchRef}
               type="search"
@@ -256,12 +299,16 @@ function SearchableDropdown({
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && visibleOptions.length > 0) {
+                if (
+                  event.key === "Enter" &&
+                  visibleOptions.length > 0
+                ) {
                   event.preventDefault();
                   chooseOption(visibleOptions[0]);
                 }
               }}
             />
+
             {query && (
               <button
                 type="button"
@@ -274,27 +321,39 @@ function SearchableDropdown({
             )}
           </div>
 
-          <div className="admin-searchable-options" role="listbox">
+          <div
+            className="admin-searchable-options"
+            role="listbox"
+          >
             {visibleOptions.length > 0 ? (
               visibleOptions.map((option) => (
                 <button
                   type="button"
                   role="option"
-                  aria-selected={String(option.id) === String(value)}
-                  className={`admin-searchable-option${
-                    String(option.id) === String(value) ? " is-selected" : ""
+                  aria-selected={
+                    String(option.id) === String(value)
+                  }
+                  className={`admin-searchable-option ${
+                    String(option.id) === String(value)
+                      ? "is-selected"
+                      : ""
                   }`}
                   key={option.id}
                   onClick={() => chooseOption(option)}
                 >
                   <span>{getLabel(option)}</span>
+
                   {String(option.id) === String(value) && (
-                    <span className="admin-searchable-check">✓</span>
+                    <span className="admin-searchable-check">
+                      ✓
+                    </span>
                   )}
                 </button>
               ))
             ) : (
-              <div className="admin-searchable-empty">{emptyText}</div>
+              <div className="admin-searchable-empty">
+                {emptyText}
+              </div>
             )}
           </div>
         </div>
@@ -303,10 +362,247 @@ function SearchableDropdown({
   );
 }
 
+/* =====================================================
+   MULTIPLE ARTIST DROPDOWN
+
+   Features:
+   - Search by English or Telugu name
+   - Select multiple artists
+   - Remove individual artists
+   - Preserve selection order
+   - First selected artist is primary artist
+===================================================== */
+
+function MultiArtistDropdown({
+  options = [],
+  selectedIds = [],
+  onChange,
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const rootRef = useRef(null);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        rootRef.current &&
+        !rootRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => searchRef.current?.focus());
+    }
+  }, [open]);
+
+  const selectedArtists = selectedIds
+    .map((id) =>
+      options.find(
+        (artist) => String(artist.id) === String(id)
+      )
+    )
+    .filter(Boolean);
+
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+
+  const filteredOptions = options.filter((artist) => {
+    const searchable = [
+      artist.name_english,
+      artist.name_telugu,
+      artist.name,
+      artist.bio,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase();
+
+    return searchable.includes(normalizedQuery);
+  });
+
+  const toggleArtist = (artistId) => {
+    const id = String(artistId);
+
+    if (selectedIds.includes(id)) {
+      onChange(
+        selectedIds.filter((selectedId) => selectedId !== id)
+      );
+    } else {
+      onChange([...selectedIds, id]);
+    }
+  };
+
+  return (
+    <div
+      className={`admin-multi-artist ${
+        open ? "is-open" : ""
+      }`}
+      ref={rootRef}
+    >
+      {/* SELECTED ARTISTS */}
+
+      <div className="admin-multi-artist-selected">
+        {selectedArtists.length > 0 ? (
+          selectedArtists.map((artist, index) => (
+            <span
+              className="admin-artist-chip"
+              key={artist.id}
+            >
+              <span className="admin-artist-chip-name">
+                {getBilingualLabel(
+                  artist.name_english,
+                  artist.name_telugu || artist.name,
+                  "Unnamed Artist"
+                )}
+              </span>
+
+              {index === 0 && (
+                <span className="admin-primary-artist-label">
+                  Primary
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => toggleArtist(artist.id)}
+                aria-label={`Remove ${
+                  artist.name_english || artist.name
+                }`}
+              >
+                <FaTimes />
+              </button>
+            </span>
+          ))
+        ) : (
+          <span className="admin-artist-placeholder">
+            Select one or more artists
+          </span>
+        )}
+      </div>
+
+      {/* DROPDOWN TRIGGER */}
+
+      <button
+        type="button"
+        className="admin-searchable-trigger admin-multi-artist-trigger"
+        onClick={() => setOpen((previous) => !previous)}
+        aria-expanded={open}
+      >
+        <span>
+          {open ? "Close artist list" : "Search and add artists"}
+        </span>
+
+        <FaSearch />
+      </button>
+
+      {/* DROPDOWN MENU */}
+
+      {open && (
+        <div className="admin-searchable-menu">
+          <div className="admin-searchable-input-wrap">
+            <FaSearch />
+
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search English or Telugu artist names..."
+              aria-label="Search artists"
+            />
+
+            {query && (
+              <button
+                type="button"
+                className="admin-searchable-clear"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="admin-searchable-options">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((artist) => {
+                const id = String(artist.id);
+                const selected = selectedIds.includes(id);
+
+                return (
+                  <button
+                    type="button"
+                    key={artist.id}
+                    className={`admin-searchable-option ${
+                      selected ? "is-selected" : ""
+                    }`}
+                    onClick={() => toggleArtist(id)}
+                  >
+                    <span>
+                      {getBilingualLabel(
+                        artist.name_english,
+                        artist.name_telugu || artist.name,
+                        "Unnamed Artist"
+                      )}
+                    </span>
+
+                    <span className="admin-searchable-check">
+                      {selected ? "✓" : "+"}
+                    </span>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="admin-searchable-empty">
+                No matching artists found.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <small className="admin-multi-artist-help">
+        {selectedIds.length} artist(s) selected.
+        The first selected artist is the primary artist.
+      </small>
+    </div>
+  );
+}
+
+/* =====================================================
+   ADD SONG COMPONENT
+===================================================== */
+
 function AddSong() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState(initialForm);
+
+  // MULTIPLE ARTISTS
+  const [selectedArtistIds, setSelectedArtistIds] = useState([]);
 
   const [audioFile, setAudioFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
@@ -317,8 +613,6 @@ function AddSong() {
   const [categories, setCategories] = useState([]);
   const [ministries, setMinistries] = useState([]);
 
-  // Search text for each independent dropdown
-
   const [artistsLoading, setArtistsLoading] = useState(true);
   const [albumsLoading, setAlbumsLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -328,46 +622,74 @@ function AddSong() {
   const [showAlbumForm, setShowAlbumForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
 
-  const [newArtist, setNewArtist] = useState({ name_english: "", name_telugu: "", bio: "" });
-  const [newAlbum, setNewAlbum] = useState({ title_english: "", title_telugu: "", release_year: "" });
-  const [newCategory, setNewCategory] = useState({ name_english: "", name_telugu: "" });
+  const [newArtist, setNewArtist] = useState({
+    name_english: "",
+    name_telugu: "",
+    bio: "",
+  });
+
+  const [newAlbum, setNewAlbum] = useState({
+    title_english: "",
+    title_telugu: "",
+    release_year: "",
+  });
+
+  const [newCategory, setNewCategory] = useState({
+    name_english: "",
+    name_telugu: "",
+  });
 
   const [pageLoading, setPageLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [quickSaving, setQuickSaving] = useState(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-
   const errorRef = useRef(null);
 
+  /* =====================================================
+     ERROR AUTO SCROLL
+  ===================================================== */
 
-useEffect(() => {
-  if (!error) return;
+  useEffect(() => {
+    if (!error) return;
 
-  const timer = requestAnimationFrame(() => {
-    errorRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
+    const timer = requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      errorRef.current?.focus({
+        preventScroll: true,
+      });
     });
 
-    errorRef.current?.focus({ preventScroll: true });
-  });
-
-  return () => cancelAnimationFrame(timer);
-}, [error]);
-
+    return () => cancelAnimationFrame(timer);
+  }, [error]);
 
   const selectedLanguage =
     LANGUAGE_CONFIG[form.language] || LANGUAGE_CONFIG.Telugu;
 
-  
+  /* =====================================================
+     UPDATE MULTIPLE ARTISTS
+
+     Keep the first selected artist in form.artist_id
+     for compatibility with existing backend code.
+  ===================================================== */
+
+  const handleArtistIdsChange = (artistIds) => {
+    setSelectedArtistIds(artistIds);
+
+    setForm((previous) => ({
+      ...previous,
+      artist_id: artistIds[0] || "",
+    }));
+  };
 
   /* =====================================================
-     LOAD EACH ENTITY INDEPENDENTLY
-
-     A failed endpoint does not prevent other dropdowns
-     from loading.
+     LOAD ENTITY DATA INDEPENDENTLY
   ===================================================== */
 
   useEffect(() => {
@@ -413,6 +735,7 @@ useEffect(() => {
         setArtistsLoading,
         "Artists"
       ),
+
       loadOne(
         "/albums",
         "albums",
@@ -420,6 +743,7 @@ useEffect(() => {
         setAlbumsLoading,
         "Albums"
       ),
+
       loadOne(
         "/categories",
         "categories",
@@ -427,6 +751,7 @@ useEffect(() => {
         setCategoriesLoading,
         "Categories"
       ),
+
       loadOne(
         "/ministries",
         "ministries",
@@ -448,11 +773,7 @@ useEffect(() => {
   }, []);
 
   /* =====================================================
-     INDEPENDENT DROPDOWN LISTS
-
-     No language filtering.
-     No artist-to-album dependency.
-     No category-to-ministry dependency.
+     SORT DROPDOWN OPTIONS
   ===================================================== */
 
   const sortAndSearch = (items, searchText, getLabel) => {
@@ -468,7 +789,10 @@ useEffect(() => {
         String(getLabel(a) || "").localeCompare(
           String(getLabel(b) || ""),
           undefined,
-          { sensitivity: "base", numeric: true }
+          {
+            sensitivity: "base",
+            numeric: true,
+          }
         )
       );
   };
@@ -476,35 +800,47 @@ useEffect(() => {
   const filteredArtists = sortAndSearch(
     artists,
     "",
-    (artist) => getBilingualLabel(artist.name_english, artist.name_telugu || artist.name, "Unnamed Artist")
+    (artist) =>
+      getBilingualLabel(
+        artist.name_english,
+        artist.name_telugu || artist.name,
+        "Unnamed Artist"
+      )
   );
 
   const filteredAlbums = sortAndSearch(
     albums,
     "",
-    (album) => getBilingualLabel(album.title_english, album.title_telugu || album.title, "Untitled Album")
+    (album) =>
+      getBilingualLabel(
+        album.title_english,
+        album.title_telugu || album.title,
+        "Untitled Album"
+      )
   );
 
   const filteredCategories = sortAndSearch(
     categories,
     "",
     (category) =>
-      category.name_english || category.name || category.name_telugu || ""
+      category.name_english ||
+      category.name ||
+      category.name_telugu ||
+      ""
   );
 
   const filteredMinistries = sortAndSearch(
     ministries,
     "",
     (ministry) =>
-      ministry.name_english || ministry.name || ministry.name_telugu || ""
+      ministry.name_english ||
+      ministry.name ||
+      ministry.name_telugu ||
+      ""
   );
 
   /* =====================================================
      LANGUAGE CHANGE
-
-     Keep the selected artist, album, category and ministry.
-     Changing language only changes the song language and
-     language-specific labels/placeholders.
   ===================================================== */
 
   const handleLanguageChange = (event) => {
@@ -536,194 +872,359 @@ useEffect(() => {
   }, [coverPreview]);
 
   /* =====================================================
-     NORMAL FIELD CHANGE
+     MINISTRY CHANGE
   ===================================================== */
 
-const handleMinistryChangeValue = (ministryId) => {
-  console.log("[AddSong] Ministry selected:", ministryId);
-
-  setForm((previous) => ({
-    ...previous,
-    ministry_id: ministryId,
-  }));
-};
-
-
-  /* =====================================================
-     ARTIST CHANGE
-
-     Selecting an artist does not change the album.
-  ===================================================== */
-
-  const handleArtistChange = (event) => {
+  const handleMinistryChangeValue = (ministryId) => {
     setForm((previous) => ({
       ...previous,
-      artist_id: event.target.value,
+      ministry_id: ministryId,
     }));
   };
 
   /* =====================================================
-     QUICK CREATE ARTIST
+     CREATE ARTIST
+
+     Automatically select the new artist.
+     Preserve all previously selected artists.
   ===================================================== */
 
   const createArtist = async () => {
     const nameEnglish = newArtist.name_english.trim();
     const nameTelugu = newArtist.name_telugu.trim();
-    if (!nameEnglish || !nameTelugu) return setError("Please enter both English and Telugu artist names.");
-    if (hasDuplicateBilingualName(artists, nameEnglish, nameTelugu, x => x.name_english, x => x.name_telugu || x.name))
-      return setError("This English or Telugu artist name already exists. Please choose a unique name.");
+
+    if (!nameEnglish || !nameTelugu) {
+      setError(
+        "Please enter both English and Telugu artist names."
+      );
+      return;
+    }
+
+    if (
+      hasDuplicateBilingualName(
+        artists,
+        nameEnglish,
+        nameTelugu,
+        (x) => x.name_english,
+        (x) => x.name_telugu || x.name
+      )
+    ) {
+      setError(
+        "This English or Telugu artist name already exists. Please choose a unique name."
+      );
+      return;
+    }
+
     try {
-      setQuickSaving(true); setError(""); setSuccess("");
+      setQuickSaving(true);
+      setError("");
+      setSuccess("");
+
       const response = await API.post("/admin/artists", {
-        name: nameTelugu, name_english: nameEnglish, name_telugu: nameTelugu,
-        bio: newArtist.bio.trim(), language: form.language,
+        name: nameTelugu,
+        name_english: nameEnglish,
+        name_telugu: nameTelugu,
+        bio: newArtist.bio.trim(),
+        language: form.language,
       });
+
       const artist = response.data?.artist;
-      if (!artist?.id) throw new Error("Artist was not returned by server.");
-      setArtists(previous => [...previous, artist]);
-      setForm(previous => ({ ...previous, artist_id: String(artist.id) }));
-      setNewArtist({ name_english: "", name_telugu: "", bio: "" });
+
+      if (!artist?.id) {
+        throw new Error(
+          "Artist was not returned by server."
+        );
+      }
+
+      setArtists((previous) => [...previous, artist]);
+
+      // Automatically select the new artist
+      setSelectedArtistIds((previous) => {
+        const updated = [
+          ...previous,
+          String(artist.id),
+        ];
+
+        setForm((current) => ({
+          ...current,
+          artist_id: updated[0] || "",
+        }));
+
+        return updated;
+      });
+
+      setNewArtist({
+        name_english: "",
+        name_telugu: "",
+        bio: "",
+      });
+
       setShowArtistForm(false);
-      setSuccess(`Artist "${nameEnglish} / ${nameTelugu}" added successfully.`);
+
+      setSuccess(
+        `Artist "${nameEnglish} / ${nameTelugu}" added and selected successfully.`
+      );
     } catch (err) {
       console.error("Create artist error:", err);
-      setError(err.response?.data?.message || err.message || "Unable to create artist.");
-    } finally { setQuickSaving(false); }
+
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to create artist."
+      );
+    } finally {
+      setQuickSaving(false);
+    }
   };
+
+  /* =====================================================
+     CREATE ALBUM
+  ===================================================== */
 
   const createAlbum = async () => {
     const titleEnglish = newAlbum.title_english.trim();
     const titleTelugu = newAlbum.title_telugu.trim();
-    if (!titleEnglish || !titleTelugu) return setError("Please enter both English and Telugu album titles.");
-    if (hasDuplicateBilingualName(albums, titleEnglish, titleTelugu, x => x.title_english, x => x.title_telugu || x.title))
-      return setError("This English or Telugu album title already exists. Please choose a unique title.");
+
+    if (!titleEnglish || !titleTelugu) {
+      setError(
+        "Please enter both English and Telugu album titles."
+      );
+      return;
+    }
+
+    if (
+      hasDuplicateBilingualName(
+        albums,
+        titleEnglish,
+        titleTelugu,
+        (x) => x.title_english,
+        (x) => x.title_telugu || x.title
+      )
+    ) {
+      setError(
+        "This English or Telugu album title already exists. Please choose a unique title."
+      );
+      return;
+    }
+
     try {
-      setQuickSaving(true); setError(""); setSuccess("");
+      setQuickSaving(true);
+      setError("");
+      setSuccess("");
+
       const response = await API.post("/admin/albums", {
-        title: titleTelugu, title_english: titleEnglish, title_telugu: titleTelugu,
+        title: titleTelugu,
+        title_english: titleEnglish,
+        title_telugu: titleTelugu,
         artist_id: null,
-        release_year: newAlbum.release_year ? Number(newAlbum.release_year) : null,
+        release_year: newAlbum.release_year
+          ? Number(newAlbum.release_year)
+          : null,
         language: form.language,
       });
+
       const album = response.data?.album;
-      if (!album?.id) throw new Error("Album was not returned by server. Check the album API response.");
-      setAlbums(previous => [...previous, album]);
-      setForm(previous => ({ ...previous, album_id: String(album.id) }));
-      setNewAlbum({ title_english: "", title_telugu: "", release_year: "" });
+
+      if (!album?.id) {
+        throw new Error(
+          "Album was not returned by server. Check the album API response."
+        );
+      }
+
+      setAlbums((previous) => [...previous, album]);
+
+      setForm((previous) => ({
+        ...previous,
+        album_id: String(album.id),
+      }));
+
+      setNewAlbum({
+        title_english: "",
+        title_telugu: "",
+        release_year: "",
+      });
+
       setShowAlbumForm(false);
-      setSuccess(`Album "${titleEnglish} / ${titleTelugu}" added successfully.`);
+
+      setSuccess(
+        `Album "${titleEnglish} / ${titleTelugu}" added successfully.`
+      );
     } catch (err) {
       console.error("Create album error:", err);
-      setError(err.response?.data?.message || err.message || "Unable to create album.");
-    } finally { setQuickSaving(false); }
+
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to create album."
+      );
+    } finally {
+      setQuickSaving(false);
+    }
   };
+
+  /* =====================================================
+     CREATE CATEGORY
+  ===================================================== */
 
   const createCategory = async () => {
     const nameEnglish = newCategory.name_english.trim();
     const nameTelugu = newCategory.name_telugu.trim();
-    if (!nameEnglish || !nameTelugu) return setError("Please enter both English and Telugu category names.");
-    if (hasDuplicateBilingualName(categories, nameEnglish, nameTelugu, x => x.name_english, x => x.name_telugu || x.name))
-      return setError("This English or Telugu category name already exists. Please choose a unique name.");
+
+    if (!nameEnglish || !nameTelugu) {
+      setError(
+        "Please enter both English and Telugu category names."
+      );
+      return;
+    }
+
+    if (
+      hasDuplicateBilingualName(
+        categories,
+        nameEnglish,
+        nameTelugu,
+        (x) => x.name_english,
+        (x) => x.name_telugu || x.name
+      )
+    ) {
+      setError(
+        "This English or Telugu category name already exists. Please choose a unique name."
+      );
+      return;
+    }
+
     try {
-      setQuickSaving(true); setError(""); setSuccess("");
+      setQuickSaving(true);
+      setError("");
+      setSuccess("");
+
       const response = await API.post("/admin/categories", {
-        name: nameTelugu, name_english: nameEnglish, name_telugu: nameTelugu,
+        name: nameTelugu,
+        name_english: nameEnglish,
+        name_telugu: nameTelugu,
         language: form.language,
       });
+
       const category = response.data?.category;
-      if (!category?.id) throw new Error("Category was not returned by server.");
-      setCategories(previous => [...previous, category]);
-      setForm(previous => ({ ...previous, category_id: String(category.id) }));
-      setNewCategory({ name_english: "", name_telugu: "" });
+
+      if (!category?.id) {
+        throw new Error(
+          "Category was not returned by server."
+        );
+      }
+
+      setCategories((previous) => [
+        ...previous,
+        category,
+      ]);
+
+      setForm((previous) => ({
+        ...previous,
+        category_id: String(category.id),
+      }));
+
+      setNewCategory({
+        name_english: "",
+        name_telugu: "",
+      });
+
       setShowCategoryForm(false);
-      setSuccess(`Category "${nameEnglish} / ${nameTelugu}" added successfully.`);
+
+      setSuccess(
+        `Category "${nameEnglish} / ${nameTelugu}" added successfully.`
+      );
     } catch (err) {
       console.error("Create category error:", err);
-      setError(err.response?.data?.message || err.message || "Unable to create category.");
-    } finally { setQuickSaving(false); }
+
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to create category."
+      );
+    } finally {
+      setQuickSaving(false);
+    }
   };
 
- 
-const handleAudioChange = (event) => {
-  const file = event.target.files?.[0];
+  /* =====================================================
+     AUDIO FILE
+  ===================================================== */
 
-  if (!file) {
-    setAudioFile(null);
-    return;
-  }
+  const handleAudioChange = (event) => {
+    const file = event.target.files?.[0];
 
-  const fileName = file.name.toLowerCase();
+    if (!file) {
+      setAudioFile(null);
+      return;
+    }
 
-  // Supported audio extensions
-  const validExtension = /\.(mp3|m4a|mp4)$/i.test(fileName);
+    const fileName = file.name.toLowerCase();
 
-  const allowedTypes = [
-    "audio/mpeg",
-    "audio/mp3",
-    "audio/mp4",
-    "audio/x-m4a",
-    "application/octet-stream",
-  ];
+    const validExtension = /\.(mp3|m4a|mp4)$/i.test(
+      fileName
+    );
 
-  if (!validExtension || !allowedTypes.includes(file.type)) {
-    setError("Please select a valid MP3, M4A or audio MP4 file.");
-    setAudioFile(null);
-    event.target.value = "";
-    return;
-  }
+    const allowedTypes = [
+      "audio/mpeg",
+      "audio/mp3",
+      "audio/mp4",
+      "audio/x-m4a",
+      "application/octet-stream",
+    ];
 
-  if (file.size === 0) {
-    setError("The selected audio file is empty.");
-    setAudioFile(null);
-    event.target.value = "";
-    return;
-  }
+    if (!validExtension || !allowedTypes.includes(file.type)) {
+      setError(
+        "Please select a valid MP3, M4A or audio MP4 file."
+      );
 
-  if (file.size > 30 * 1024 * 1024) {
-    setError("Audio file must be smaller than 30 MB.");
-    setAudioFile(null);
-    event.target.value = "";
-    return;
-  }
+      setAudioFile(null);
+      event.target.value = "";
+      return;
+    }
 
-  setAudioFile(file);
-  setError("");
-};
+    if (file.size === 0) {
+      setError("The selected audio file is empty.");
+      setAudioFile(null);
+      event.target.value = "";
+      return;
+    }
 
+    if (file.size > 30 * 1024 * 1024) {
+      setError(
+        "Audio file must be smaller than 30 MB."
+      );
+
+      setAudioFile(null);
+      event.target.value = "";
+      return;
+    }
+
+    setAudioFile(file);
+    setError("");
+  };
 
   const removeAudio = () => {
     setAudioFile(null);
 
-    const input = document.getElementById("song-audio-input");
+    const input = document.getElementById(
+      "song-audio-input"
+    );
 
     if (input) input.value = "";
   };
 
-
+  /* =====================================================
+     NORMAL FIELD CHANGE
+  ===================================================== */
 
   const handleChange = (event) => {
-  const { name, value, type, checked } = event.target;
+    const { name, value, type, checked } = event.target;
 
-  console.log("========== FORM CHANGE ==========");
-  console.log("Field name:", name);
-  console.log("New value:", value);
-  console.log("Input type:", type);
-  console.log("Checked:", checked);
-  console.log("Form before change:", form);
-
-  setForm((previous) => {
-    const updatedForm = {
+    setForm((previous) => ({
       ...previous,
       [name]: type === "checkbox" ? checked : value,
-    };
+    }));
+  };
 
-    console.log("Form after change:", updatedForm);
-   
-    console.log("Ministry after change:", updatedForm.ministry_id);
-
-    return updatedForm;
-  });
-};
   /* =====================================================
      COVER FILE
   ===================================================== */
@@ -740,19 +1241,28 @@ const handleAudioChange = (event) => {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      setError("Cover image must be JPG, PNG or WebP.");
+      setError(
+        "Cover image must be JPG, PNG or WebP."
+      );
+
       event.target.value = "";
       return;
     }
 
     if (file.size === 0) {
-      setError("The selected cover image is empty.");
+      setError(
+        "The selected cover image is empty."
+      );
+
       event.target.value = "";
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setError("Cover image must be smaller than 10 MB.");
+      setError(
+        "Cover image must be smaller than 10 MB."
+      );
+
       event.target.value = "";
       return;
     }
@@ -766,7 +1276,9 @@ const handleAudioChange = (event) => {
     setCoverFile(null);
     setCoverPreview("");
 
-    const input = document.getElementById("song-cover-input");
+    const input = document.getElementById(
+      "song-cover-input"
+    );
 
     if (input) input.value = "";
   };
@@ -784,44 +1296,51 @@ const handleAudioChange = (event) => {
   /* =====================================================
      SUBMIT SONG
 
-     Artist and category remain required.
-     Album and ministry are optional.
-     No language-matching validation is performed.
+     Multiple artists are submitted as artist_ids.
+     First artist is also sent as artist_id.
   ===================================================== */
 
- const handleSubmit = async (event) => {
-  event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  setError("");
-  setSuccess("");
+    setError("");
+    setSuccess("");
 
-if (!LANGUAGES.some((language) => language.value === form.language)) {
-  setError("Please select a valid song language.");
-  return;
-}
+    if (
+      !LANGUAGES.some(
+        (language) => language.value === form.language
+      )
+    ) {
+      setError("Please select a valid song language.");
+      return;
+    }
 
-if (!form.title.trim()) {
-  setError(`${selectedLanguage.titleLabel} is required.`);
-  return;
-}
+    if (!form.title.trim()) {
+      setError(
+        `${selectedLanguage.titleLabel} is required.`
+      );
+      return;
+    }
 
-if (!form.artist_id) {
-  setError("Artist name is required. Please select or create an artist.");
-  return;
-}
+    // MULTIPLE ARTIST VALIDATION
+    if (selectedArtistIds.length === 0) {
+      setError(
+        "Please select at least one artist."
+      );
+      return;
+    }
 
-if (!form.category_id) {
-  setError("Category is required. Please select or create a category.");
-  return;
-}
+    if (!form.category_id) {
+      setError("Category is required. Please select or create a category.");
+      return;
+    }
 
-if (!audioFile) {
-  setError("Audio file is required. Please select an audio file.");
-  return;
-}
-
-
-  // Keep all your existing upload logic below this point unchanged.
+    if (!audioFile) {
+      setError(
+        "Audio file is required. Please select an audio file."
+      );
+      return;
+    }
 
     try {
       setSaving(true);
@@ -829,39 +1348,60 @@ if (!audioFile) {
       const formData = new FormData();
 
       formData.append("title", form.title.trim());
-      formData.append("title_english", form.title_english.trim());
+      formData.append(
+        "title_english",
+        form.title_english.trim()
+      );
+
       formData.append("language", form.language);
       formData.append("lyrics", form.lyrics);
 
-      formData.append("artist_id", form.artist_id);
-      formData.append("category_id", form.category_id);
+      // Primary artist: first selected artist
+      formData.append(
+        "artist_id",
+        selectedArtistIds[0]
+      );
+
+      // All selected artists
+      formData.append(
+        "artist_ids",
+        JSON.stringify(selectedArtistIds)
+      );
+
+      formData.append(
+        "category_id",
+        form.category_id
+      );
 
       if (form.album_id) {
-        formData.append("album_id", form.album_id);
+        formData.append(
+          "album_id",
+          form.album_id
+        );
       }
 
+      if (form.ministry_id) {
+        formData.append(
+          "ministry_id",
+          form.ministry_id
+        );
+      }
 
-if (form.ministry_id) {
-  formData.append("ministry_id", form.ministry_id);
-}
-
-
-
-
-
-   
-     
       formData.append("audio", audioFile);
 
       if (coverFile) {
         formData.append("cover", coverFile);
       }
 
-      const response = await API.post("/admin/songs", formData);
+      const response = await API.post(
+        "/admin/songs",
+        formData
+      );
 
       if (response.data?.success === false) {
         throw new Error(
-          response.data?.message || "Song upload failed."
+          response.data?.message ||
+          "Song upload failed."
         );
       }
 
@@ -870,13 +1410,14 @@ if (form.ministry_id) {
       setTimeout(() => {
         navigate("/admin/songs");
       }, 1000);
+
     } catch (err) {
       console.error("Song upload error:", err);
 
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Unable to upload song."
+        err.message ||
+        "Unable to upload song."
       );
     } finally {
       setSaving(false);
@@ -890,7 +1431,9 @@ if (form.ministry_id) {
   if (pageLoading) {
     return (
       <div className="admin-page">
-        <div className="admin-loading">Loading Add Song...</div>
+        <div className="admin-loading">
+          Loading Add Song...
+        </div>
       </div>
     );
   }
@@ -901,6 +1444,9 @@ if (form.ministry_id) {
 
   return (
     <div className="admin-page">
+
+      {/* HEADER */}
+
       <div className="admin-form-header">
         <button
           type="button"
@@ -913,37 +1459,56 @@ if (form.ministry_id) {
 
         <div>
           <span>KEERTHANA ADMIN</span>
+
           <h1>Add New Song</h1>
+
           <p>
-            Add the song, artist, album, category, ministry,
-             audio and lyrics from one page.
+            Add the song, multiple artists, album, category,
+            ministry, audio and lyrics from one page.
           </p>
         </div>
       </div>
 
-     {error && (
-  <div
-    ref={errorRef}
-    className="admin-error"
-    role="alert"
-    aria-live="assertive"
-    tabIndex={-1}
-  >
-    {error}
-  </div>
-)}
-      {success && <div className="admin-success">{success}</div>}
+      {/* ERROR */}
 
-      <form className="admin-song-form" onSubmit={handleSubmit}>
-        {/* SONG INFORMATION */}
+      {error && (
+        <div
+          ref={errorRef}
+          className="admin-error"
+          role="alert"
+          aria-live="assertive"
+          tabIndex={-1}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* SUCCESS */}
+
+      {success && (
+        <div className="admin-success">
+          {success}
+        </div>
+      )}
+
+      <form
+        className="admin-song-form"
+        onSubmit={handleSubmit}
+      >
+
+        {/* =================================================
+            SONG INFORMATION
+        ================================================= */}
 
         <div className="admin-form-section">
+
           <div className="admin-form-section-title">
             <h2>Song Information</h2>
             <p>Enter the basic details of the song.</p>
           </div>
 
           <div className="admin-form-grid">
+
             {/* LANGUAGE */}
 
             <div className="admin-field">
@@ -956,7 +1521,10 @@ if (form.ministry_id) {
                 required
               >
                 {LANGUAGES.map((language) => (
-                  <option key={language.value} value={language.value}>
+                  <option
+                    key={language.value}
+                    value={language.value}
+                  >
                     {language.nativeName}
                   </option>
                 ))}
@@ -967,23 +1535,23 @@ if (form.ministry_id) {
               </small>
             </div>
 
-           
+            {/* SONG TITLE */}
 
-       {/* SONG TITLE */}
+            <div className="admin-field">
+              <label>
+                {selectedLanguage.titleLabel} *
+              </label>
 
-<div className="admin-field">
-  <label>{selectedLanguage.titleLabel} *</label>
-
-  <input
-    type="text"
-    name="title"
-    value={form.title}
-    onChange={handleChange}
-    placeholder={selectedLanguage.titlePlaceholder}
-    maxLength={255}
-    required
-  />
-</div>
+              <input
+                type="text"
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                placeholder={selectedLanguage.titlePlaceholder}
+                maxLength={255}
+                required
+              />
+            </div>
 
             {/* ENGLISH TITLE */}
 
@@ -1000,11 +1568,14 @@ if (form.ministry_id) {
               />
             </div>
 
-            {/* ARTIST */}
+            {/* MULTIPLE ARTISTS */}
 
-            <div className="admin-field">
+            <div className="admin-field admin-multiple-artists-field">
+
               <div className="admin-field-label-row">
-                <label>Artist *</label>
+                <label>
+                  Artists *
+                </label>
 
                 <button
                   type="button"
@@ -1012,53 +1583,64 @@ if (form.ministry_id) {
                   onClick={() => {
                     setError("");
                     setSuccess("");
+
                     setShowArtistForm((previous) => !previous);
                     setShowAlbumForm(false);
                     setShowCategoryForm(false);
                   }}
                 >
-                  <FaPlus /> New Artist
+                  <FaPlus />
+                  New Artist
                 </button>
               </div>
 
-              <SearchableDropdown
+              <MultiArtistDropdown
                 options={filteredArtists}
-                value={form.artist_id}
-                onChange={(value) =>
-                  setForm((previous) => ({ ...previous, artist_id: value }))
-                }
-                placeholder="Select Artist"
-                searchPlaceholder="Search artists..."
-                emptyText="No artists found. Please create an artist."
-                getLabel={(artist) =>
-                  getBilingualLabel(artist.name_english, artist.name_telugu || artist.name, "Unnamed Artist")
-                }
-                getSearchText={(artist) =>
-                  [
-                    artist.name_english,
-                    artist.name,
-                    artist.name_telugu,
-                    artist.bio,
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
-                }
+                selectedIds={selectedArtistIds}
+                onChange={handleArtistIdsChange}
               />
 
-              {artistsLoading && <small>Loading artists...</small>}
-
-              {!artistsLoading && filteredArtists.length === 0 && (
-                <small>No artists available. Please create an artist.</small>
+              {artistsLoading && (
+                <small>Loading artists...</small>
               )}
+
+              {!artistsLoading &&
+                filteredArtists.length === 0 && (
+                  <small>
+                    No artists available. Please create an artist.
+                  </small>
+                )}
+
+              {/* QUICK CREATE ARTIST */}
 
               {showArtistForm && (
                 <div className="admin-quick-create">
+
                   <h4>Add New Artist</h4>
 
-                  <input type="text" placeholder="Artist name (English) *" value={newArtist.name_english}
-                    onChange={(event) => setNewArtist(previous => ({ ...previous, name_english: event.target.value }))} />
-                  <input type="text" placeholder="కళాకారుడి పేరు (తెలుగు) *" value={newArtist.name_telugu}
-                    onChange={(event) => setNewArtist(previous => ({ ...previous, name_telugu: event.target.value }))} />
+                  <input
+                    type="text"
+                    placeholder="Artist name (English) *"
+                    value={newArtist.name_english}
+                    onChange={(event) =>
+                      setNewArtist((previous) => ({
+                        ...previous,
+                        name_english: event.target.value,
+                      }))
+                    }
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="కళాకారుడి పేరు (తెలుగు) *"
+                    value={newArtist.name_telugu}
+                    onChange={(event) =>
+                      setNewArtist((previous) => ({
+                        ...previous,
+                        name_telugu: event.target.value,
+                      }))
+                    }
+                  />
 
                   <textarea
                     rows="3"
@@ -1073,6 +1655,7 @@ if (form.ministry_id) {
                   />
 
                   <div className="admin-quick-actions">
+
                     <button
                       type="button"
                       disabled={quickSaving}
@@ -1088,16 +1671,22 @@ if (form.ministry_id) {
                       onClick={createArtist}
                     >
                       <FaPlus />
-                      {quickSaving ? "Adding..." : "Add Artist"}
+
+                      {quickSaving
+                        ? "Adding..."
+                        : "Add Artist"}
                     </button>
+
                   </div>
                 </div>
               )}
+
             </div>
 
             {/* ALBUM */}
 
             <div className="admin-field">
+
               <div className="admin-field-label-row">
                 <label>Album</label>
 
@@ -1107,12 +1696,14 @@ if (form.ministry_id) {
                   onClick={() => {
                     setError("");
                     setSuccess("");
+
                     setShowAlbumForm((previous) => !previous);
                     setShowArtistForm(false);
                     setShowCategoryForm(false);
                   }}
                 >
-                  <FaPlus /> New Album
+                  <FaPlus />
+                  New Album
                 </button>
               </div>
 
@@ -1120,13 +1711,20 @@ if (form.ministry_id) {
                 options={filteredAlbums}
                 value={form.album_id}
                 onChange={(value) =>
-                  setForm((previous) => ({ ...previous, album_id: value }))
+                  setForm((previous) => ({
+                    ...previous,
+                    album_id: value,
+                  }))
                 }
                 placeholder="No Album / Single"
                 searchPlaceholder="Search albums..."
                 emptyText="No matching albums found."
                 getLabel={(album) =>
-                  getBilingualLabel(album.title_english, album.title_telugu || album.title, "Untitled Album")
+                  getBilingualLabel(
+                    album.title_english,
+                    album.title_telugu || album.title,
+                    "Untitled Album"
+                  )
                 }
                 getSearchText={(album) =>
                   [
@@ -1142,7 +1740,9 @@ if (form.ministry_id) {
                 }
               />
 
-              {albumsLoading && <small>Loading albums...</small>}
+              {albumsLoading && (
+                <small>Loading albums...</small>
+              )}
 
               <small>
                 Album is optional. Select any album or leave this as
@@ -1151,12 +1751,32 @@ if (form.ministry_id) {
 
               {showAlbumForm && (
                 <div className="admin-quick-create">
+
                   <h4>Add New Album</h4>
 
-                  <input type="text" placeholder="Album title (English) *" value={newAlbum.title_english}
-                    onChange={(event) => setNewAlbum(previous => ({ ...previous, title_english: event.target.value }))} />
-                  <input type="text" placeholder="ఆల్బమ్ పేరు (తెలుగు) *" value={newAlbum.title_telugu}
-                    onChange={(event) => setNewAlbum(previous => ({ ...previous, title_telugu: event.target.value }))} />
+                  <input
+                    type="text"
+                    placeholder="Album title (English) *"
+                    value={newAlbum.title_english}
+                    onChange={(event) =>
+                      setNewAlbum((previous) => ({
+                        ...previous,
+                        title_english: event.target.value,
+                      }))
+                    }
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="ఆల్బమ్ పేరు (తెలుగు) *"
+                    value={newAlbum.title_telugu}
+                    onChange={(event) =>
+                      setNewAlbum((previous) => ({
+                        ...previous,
+                        title_telugu: event.target.value,
+                      }))
+                    }
+                  />
 
                   <input
                     type="number"
@@ -1173,11 +1793,12 @@ if (form.ministry_id) {
                   />
 
                   <small>
-                    Creating an album without an artist requires backend
-                    and database support for a NULL artist_id.
+                    Creating an album without an artist requires
+                    backend and database support for a NULL artist_id.
                   </small>
 
                   <div className="admin-quick-actions">
+
                     <button
                       type="button"
                       disabled={quickSaving}
@@ -1193,16 +1814,22 @@ if (form.ministry_id) {
                       onClick={createAlbum}
                     >
                       <FaPlus />
-                      {quickSaving ? "Adding..." : "Add Album"}
+
+                      {quickSaving
+                        ? "Adding..."
+                        : "Add Album"}
                     </button>
+
                   </div>
                 </div>
               )}
+
             </div>
 
             {/* CATEGORY */}
 
             <div className="admin-field">
+
               <div className="admin-field-label-row">
                 <label>Category *</label>
 
@@ -1212,12 +1839,14 @@ if (form.ministry_id) {
                   onClick={() => {
                     setError("");
                     setSuccess("");
+
                     setShowCategoryForm((previous) => !previous);
                     setShowArtistForm(false);
                     setShowAlbumForm(false);
                   }}
                 >
-                  <FaPlus /> New Category
+                  <FaPlus />
+                  New Category
                 </button>
               </div>
 
@@ -1225,13 +1854,20 @@ if (form.ministry_id) {
                 options={filteredCategories}
                 value={form.category_id}
                 onChange={(value) =>
-                  setForm((previous) => ({ ...previous, category_id: value }))
+                  setForm((previous) => ({
+                    ...previous,
+                    category_id: value,
+                  }))
                 }
                 placeholder="Select Category"
                 searchPlaceholder="Search categories..."
                 emptyText="No categories found. Please create a category."
                 getLabel={(category) =>
-                  getBilingualLabel(category.name_english, category.name_telugu || category.name, "Unnamed Category")
+                  getBilingualLabel(
+                    category.name_english,
+                    category.name_telugu || category.name,
+                    "Unnamed Category"
+                  )
                 }
                 getSearchText={(category) =>
                   [
@@ -1244,24 +1880,48 @@ if (form.ministry_id) {
                 }
               />
 
-              {categoriesLoading && <small>Loading categories...</small>}
-
-              {!categoriesLoading && filteredCategories.length === 0 && (
-                <small>
-                  No categories available. Please create a category.
-                </small>
+              {categoriesLoading && (
+                <small>Loading categories...</small>
               )}
+
+              {!categoriesLoading &&
+                filteredCategories.length === 0 && (
+                  <small>
+                    No categories available. Please create a category.
+                  </small>
+                )}
 
               {showCategoryForm && (
                 <div className="admin-quick-create">
+
                   <h4>Add New Category</h4>
 
-                  <input type="text" placeholder="Category name (English) *" value={newCategory.name_english}
-                    onChange={(event) => setNewCategory(previous => ({ ...previous, name_english: event.target.value }))} />
-                  <input type="text" placeholder="వర్గం పేరు (తెలుగు) *" value={newCategory.name_telugu}
-                    onChange={(event) => setNewCategory(previous => ({ ...previous, name_telugu: event.target.value }))} />
+                  <input
+                    type="text"
+                    placeholder="Category name (English) *"
+                    value={newCategory.name_english}
+                    onChange={(event) =>
+                      setNewCategory((previous) => ({
+                        ...previous,
+                        name_english: event.target.value,
+                      }))
+                    }
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="వర్గం పేరు (తెలుగు) *"
+                    value={newCategory.name_telugu}
+                    onChange={(event) =>
+                      setNewCategory((previous) => ({
+                        ...previous,
+                        name_telugu: event.target.value,
+                      }))
+                    }
+                  />
 
                   <div className="admin-quick-actions">
+
                     <button
                       type="button"
                       disabled={quickSaving}
@@ -1277,70 +1937,88 @@ if (form.ministry_id) {
                       onClick={createCategory}
                     >
                       <FaPlus />
-                      {quickSaving ? "Adding..." : "Add Category"}
+
+                      {quickSaving
+                        ? "Adding..."
+                        : "Add Category"}
                     </button>
+
                   </div>
                 </div>
               )}
+
             </div>
 
             {/* MINISTRY */}
 
+            <div className="admin-field">
 
-{/* MINISTRY */}
+              <div className="admin-field-label-row">
+                <label>Ministry</label>
+              </div>
 
-<div className="admin-field">
-  <div className="admin-field-label-row">
-    <label htmlFor="ministry_id">Ministry</label>
-  </div>
+              <SearchableDropdown
+                options={filteredMinistries}
+                value={form.ministry_id}
+                onChange={handleMinistryChangeValue}
+                placeholder="Select Ministry (Optional)"
+                searchPlaceholder="Search ministries..."
+                emptyText="No matching ministries found."
+                getLabel={(ministry) =>
+                  getBilingualLabel(
+                    ministry.name_english,
+                    ministry.name_telugu || ministry.name,
+                    "Unnamed Ministry"
+                  )
+                }
+                getSearchText={(ministry) =>
+                  [
+                    ministry.name_english,
+                    ministry.name,
+                    ministry.name_telugu,
+                    ministry.description,
+                    ministry.language,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                }
+              />
 
-  <SearchableDropdown
-    options={filteredMinistries}
-    value={form.ministry_id}
-    onChange={handleMinistryChangeValue}
-    placeholder="Select Ministry (Optional)"
-    searchPlaceholder="Search ministries..."
-    emptyText="No matching ministries found."
-    getLabel={(ministry) =>
-      getBilingualLabel(ministry.name_english, ministry.name_telugu || ministry.name, "Unnamed Ministry")
-    }
-    getSearchText={(ministry) =>
-      [
-        ministry.name_english,
-        ministry.name,
-        ministry.name_telugu,
-        ministry.description,
-        ministry.language,
-      ]
-        .filter(Boolean)
-        .join(" ")
-    }
-  />
+              {ministriesLoading && (
+                <small>Loading ministries...</small>
+              )}
 
+            </div>
 
-</div>     
+          </div>
+        </div>
 
-          </div> {/* CLOSE admin-form-grid */}
-        </div>   {/* CLOSE admin-form-section */}
-
-        {/* MEDIA */}
+        {/* =================================================
+            MEDIA
+        ================================================= */}
 
         <div className="admin-form-section">
+
           <div className="admin-form-section-title">
             <h2>Media</h2>
             <p>Upload the song audio and cover artwork.</p>
           </div>
 
           <div className="admin-upload-grid">
+
             {/* AUDIO */}
 
             <div className="admin-upload-box">
+
               <div className="admin-upload-icon">
                 <FaMusic />
               </div>
 
               <h3>Audio File *</h3>
-              <p>MP3, M4A or MP4 Audio, maximum 30 MB</p>
+
+              <p>
+                MP3, M4A or MP4 Audio, maximum 30 MB
+              </p>
 
               {!audioFile ? (
                 <>
@@ -1348,7 +2026,7 @@ if (form.ministry_id) {
                     id="song-audio-input"
                     className="admin-file-input"
                     type="file"
-                   accept=".mp3,.m4a,.mp4,audio/mpeg,audio/mp4"
+                    accept=".mp3,.m4a,.mp4,audio/mpeg,audio/mp4"
                     onChange={handleAudioChange}
                   />
 
@@ -1356,14 +2034,19 @@ if (form.ministry_id) {
                     htmlFor="song-audio-input"
                     className="admin-upload-button"
                   >
-                    <FaCloudUploadAlt /> Choose Audio
+                    <FaCloudUploadAlt />
+                    Choose Audio
                   </label>
                 </>
               ) : (
                 <div className="admin-selected-file">
+
                   <div>
                     <strong>{audioFile.name}</strong>
-                    <span>{formatFileSize(audioFile.size)}</span>
+
+                    <span>
+                      {formatFileSize(audioFile.size)}
+                    </span>
                   </div>
 
                   <button
@@ -1373,13 +2056,16 @@ if (form.ministry_id) {
                   >
                     <FaTimes />
                   </button>
+
                 </div>
               )}
+
             </div>
 
             {/* COVER */}
 
             <div className="admin-upload-box">
+
               {!coverPreview ? (
                 <div className="admin-upload-icon">
                   <FaImage />
@@ -1393,7 +2079,10 @@ if (form.ministry_id) {
               )}
 
               <h3>Cover Image</h3>
-              <p>JPG, PNG or WebP, maximum 10 MB</p>
+
+              <p>
+                JPG, PNG or WebP, maximum 10 MB
+              </p>
 
               {!coverFile ? (
                 <>
@@ -1409,14 +2098,19 @@ if (form.ministry_id) {
                     htmlFor="song-cover-input"
                     className="admin-upload-button"
                   >
-                    <FaCloudUploadAlt /> Choose Cover
+                    <FaCloudUploadAlt />
+                    Choose Cover
                   </label>
                 </>
               ) : (
                 <div className="admin-selected-file">
+
                   <div>
                     <strong>{coverFile.name}</strong>
-                    <span>{formatFileSize(coverFile.size)}</span>
+
+                    <span>
+                      {formatFileSize(coverFile.size)}
+                    </span>
                   </div>
 
                   <button
@@ -1426,21 +2120,33 @@ if (form.ministry_id) {
                   >
                     <FaTimes />
                   </button>
+
                 </div>
               )}
+
             </div>
+
           </div>
         </div>
 
-        {/* LYRICS */}
+        {/* =================================================
+            LYRICS
+        ================================================= */}
 
         <div className="admin-form-section">
+
           <div className="admin-form-section-title">
-            <h2>Lyrics — {selectedLanguage.nativeName}</h2>
-            <p>Enter the lyrics in the selected song language.</p>
+            <h2>
+              Lyrics — {selectedLanguage.nativeName}
+            </h2>
+
+            <p>
+              Enter the lyrics in the selected song language.
+            </p>
           </div>
 
           <div className="admin-field">
+
             <textarea
               name="lyrics"
               value={form.lyrics}
@@ -1448,14 +2154,16 @@ if (form.ministry_id) {
               rows="16"
               placeholder={selectedLanguage.lyricsPlaceholder}
             />
+
           </div>
         </div>
 
-     
-
-        {/* ACTIONS */}
+        {/* =================================================
+            ACTIONS
+        ================================================= */}
 
         <div className="admin-form-actions">
+
           <button
             type="button"
             className="admin-cancel-button"
@@ -1471,9 +2179,12 @@ if (form.ministry_id) {
             disabled={saving || quickSaving}
           >
             <FaSave />
+
             {saving ? "Uploading..." : "Save Song"}
           </button>
+
         </div>
+
       </form>
     </div>
   );
