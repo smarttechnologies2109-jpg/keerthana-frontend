@@ -1,18 +1,11 @@
 
 import { useState } from "react";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
 import "../assets/css/login.css";
 
 function Login() {
   const navigate = useNavigate();
-
   const { login } = useAuth();
 
   const [contact, setContact] = useState("");
@@ -26,41 +19,80 @@ function Login() {
   const getFriendlyError = (error) => {
     const status = error.response?.status;
 
-    // No internet / Network connection issue
+    const serverMessage =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "";
+
+    const message = String(serverMessage).toLowerCase();
+
+    // Account does not exist
+    if (
+      status === 404 ||
+      message.includes("user not found") ||
+      message.includes("account not found") ||
+      message.includes("no account") ||
+      message.includes("user does not exist") ||
+      message.includes("not registered")
+    ) {
+      return "Account not found. Please create a KEERTHANA account first to continue.";
+    }
+
+    // Incorrect password
+    if (
+      message.includes("incorrect password") ||
+      message.includes("invalid password") ||
+      message.includes("wrong password")
+    ) {
+      return "The password you entered is incorrect. Please try again.";
+    }
+
+    // Account already exists
+    if (
+      message.includes("already exists") ||
+      message.includes("already registered")
+    ) {
+      return "An account with these details already exists. Please log in instead.";
+    }
+
+    // Network issue
     if (
       !navigator.onLine ||
       error.code === "ERR_NETWORK" ||
-      error.message === "Network Error" ||
-      error.code === "ECONNABORTED"
+      error.message === "Network Error"
     ) {
-      return "Your internet connection seems to be unavailable. Please check your Wi-Fi or mobile data and try again.";
+      return "Your internet connection seems unavailable. Please check your connection and try again.";
     }
 
-    // Request timeout
+    // Timeout
     if (
       error.code === "ETIMEDOUT" ||
-      error.message?.toLowerCase().includes("timeout")
+      error.code === "ECONNABORTED" ||
+      message.includes("timeout")
     ) {
-      return "The connection is taking too long. Please check your internet and try again.";
+      return "The connection is taking too long. Please try again.";
     }
 
-    // Invalid login details
-    if (status === 401 || status === 400) {
-      return "We couldn't sign you in. Please check your email or mobile number and try again.";
+    // Invalid login
+    if (status === 401) {
+      return "Your login details could not be verified. Please check your details and try again.";
     }
 
-    // Too many requests
+    if (status === 400) {
+      return "Please check your email or mobile number and try again.";
+    }
+
+    // Too many attempts
     if (status === 429) {
-      return "You've tried too many times. Please wait a little and try again.";
+      return "You've tried too many times. Please wait a moment and try again.";
     }
 
     // Server error
     if (status >= 500) {
-      return "We're having a little trouble right now. Please try again in a few minutes.";
+      return "We're temporarily unable to process your request. Please try again in a few minutes.";
     }
 
-    // Other errors
-    return "Something went wrong. Please try again. If the problem continues, contact our support team.";
+    return "We couldn't complete your login. Please try again. If the problem continues, contact KEERTHANA support.";
   };
 
   /* =====================================================
@@ -79,11 +111,9 @@ function Login() {
       return;
     }
 
-    // Email validation
     const isEmail =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanContact);
 
-    // Mobile number validation
     if (!isEmail) {
       const digitsOnly = cleanContact.replace(/\D/g, "");
 
@@ -91,14 +121,11 @@ function Login() {
         !/^\d+$/.test(cleanContact) ||
         digitsOnly.length !== 10
       ) {
-        setError(
-          "Please enter a valid 10-digit mobile number."
-        );
+        setError("Please enter a valid 10-digit mobile number.");
         return;
       }
     }
 
-    // Check internet before login
     if (!navigator.onLine) {
       setError(
         "You're currently offline. Please connect to the internet and try again."
@@ -111,9 +138,7 @@ function Login() {
     try {
       await login(cleanContact);
 
-      navigate("/", {
-        replace: true,
-      });
+      navigate("/", { replace: true });
 
     } catch (error) {
       console.error("LOGIN ERROR:", error);
@@ -133,7 +158,6 @@ function Login() {
     <div className="auth-page">
       <div className="auth-card">
 
-        {/* LOGO */}
         <div className="auth-logo">♪</div>
 
         <h1>KEERTHANA</h1>

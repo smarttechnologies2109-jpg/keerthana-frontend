@@ -1,5 +1,5 @@
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   FaBell,
   FaMusic,
@@ -14,8 +14,6 @@ import { useNavigate } from "react-router-dom";
 
 import { useNotifications } from "../context/NotificationsContext";
 import "../assets/css/notifications.css";
-
-import { useEffect } from "react";
 
 function Notifications() {
   const navigate = useNavigate();
@@ -32,8 +30,30 @@ function Notifications() {
   } = useNotifications();
 
   const [clearing, setClearing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Get the notification type from supported fields.
+  const NOTIFICATIONS_PER_PAGE = 10;
+
+  const totalPages = Math.ceil(
+    notifications.length / NOTIFICATIONS_PER_PAGE
+  );
+
+  const startIndex =
+    (currentPage - 1) * NOTIFICATIONS_PER_PAGE;
+
+  const paginatedNotifications = notifications.slice(
+    startIndex,
+    startIndex + NOTIFICATIONS_PER_PAGE
+  );
+
+  // Keep current page valid when notifications are removed.
+  useEffect(() => {
+    if (currentPage > Math.max(1, totalPages)) {
+      setCurrentPage(Math.max(1, totalPages));
+    }
+  }, [currentPage, totalPages]);
+
+  // Get notification type.
   const getNotificationType = useCallback((notification) => {
     return String(
       notification?.entity_type ||
@@ -84,7 +104,7 @@ function Notifications() {
     }).format(date);
   };
 
-  // Check whether the notification has been read.
+  // Check whether notification is read.
   const isNotificationRead = (notification) => {
     return (
       notification?.is_read === true ||
@@ -92,7 +112,7 @@ function Notifications() {
     );
   };
 
-  // Get the destination entity ID.
+  // Get destination entity ID.
   const getEntityId = (notification) => {
     return (
       notification?.entity_id ??
@@ -100,6 +120,33 @@ function Notifications() {
       notification?.song_id ??
       notification?.album_id ??
       notification?.ministry_id
+    );
+  };
+
+  // Get English song title.
+  const getEnglishSongTitle = (notification) => {
+    return (
+      notification?.title_english ||
+      notification?.song_title_english ||
+      notification?.name_english ||
+      notification?.english_title ||
+      notification?.song?.title_english ||
+      notification?.title ||
+      notification?.name ||
+      "New Update"
+    );
+  };
+
+  // Get Telugu song title.
+  const getTeluguSongTitle = (notification) => {
+    return (
+      notification?.title_telugu ||
+      notification?.song_title_telugu ||
+      notification?.name_telugu ||
+      notification?.telugu_title ||
+      notification?.song?.title ||
+      notification?.title_telugu ||
+      ""
     );
   };
 
@@ -157,7 +204,7 @@ function Notifications() {
     }
   };
 
-  // Mark every notification as read.
+  // Mark all notifications as read.
   const handleMarkAllRead = async () => {
     try {
       if (typeof markAllAsRead === "function") {
@@ -179,9 +226,11 @@ function Notifications() {
       window.alert(
         "The clear notifications function is not configured yet. Please update NotificationsContext and the backend."
       );
+
       console.error(
         "clearNotifications is missing from NotificationsContext."
       );
+
       return;
     }
 
@@ -225,30 +274,9 @@ function Notifications() {
     );
   }
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-const NOTIFICATIONS_PER_PAGE = 10;
-
-const totalPages = Math.ceil(
-  notifications.length / NOTIFICATIONS_PER_PAGE
-);
-
-const startIndex =
-  (currentPage - 1) * NOTIFICATIONS_PER_PAGE;
-
-const paginatedNotifications = notifications.slice(
-  startIndex,
-  startIndex + NOTIFICATIONS_PER_PAGE
-);
-
-useEffect(() => {
-  if (currentPage > Math.max(1, totalPages)) {
-    setCurrentPage(Math.max(1, totalPages));
-  }
-}, [currentPage, totalPages]);
-
   return (
     <main className="notifications-page">
+
       {/* Header */}
       <header className="notifications-header">
         <div className="notifications-header-title">
@@ -306,7 +334,8 @@ useEffect(() => {
             </button>
           )}
 
-          {/* {notifications.length > 0 && (
+          {/*
+          {notifications.length > 0 && (
             <button
               type="button"
               className="notifications-clear-button"
@@ -314,14 +343,15 @@ useEffect(() => {
               disabled={clearing || syncing}
               title="Clear all notifications"
               aria-label="Clear all notifications"
-             >
+            >
               <FaTrashAlt />
 
               <span>
                 {clearing ? "Clearing..." : "Clear all"}
               </span>
-             </button>
-            )} */}
+            </button>
+          )}
+          */}
         </div>
       </header>
 
@@ -372,6 +402,7 @@ useEffect(() => {
         </section>
       ) : (
         <section className="notifications-section">
+
           <div className="notifications-list-heading">
             <h2>Recent activity</h2>
 
@@ -384,14 +415,28 @@ useEffect(() => {
           </div>
 
           <div className="notifications-list">
+
             {paginatedNotifications.map((notification, index) => {
               const isRead =
                 isNotificationRead(notification);
 
-              const title =
-                notification?.title ||
-                notification?.name ||
-                "New Update";
+              const type =
+                getNotificationType(notification);
+
+              const isSong =
+                type.includes("song");
+
+              const title = isSong
+                ? getEnglishSongTitle(notification)
+                : (
+                    notification?.title ||
+                    notification?.name ||
+                    "New Update"
+                  );
+
+              const teluguTitle = isSong
+                ? getTeluguSongTitle(notification)
+                : "";
 
               const message =
                 notification?.message ||
@@ -401,9 +446,6 @@ useEffect(() => {
               const createdAt =
                 notification?.created_at ||
                 notification?.createdAt;
-
-              const type =
-                getNotificationType(notification);
 
               const entityId =
                 getEntityId(notification);
@@ -445,8 +487,20 @@ useEffect(() => {
                   </div>
 
                   <div className="notification-content">
+
+                    {/* English title first, Telugu underneath */}
                     <div className="notification-title-row">
-                      <strong>{title}</strong>
+
+                      <div className="notification-song-titles">
+                        <strong>{title}</strong>
+
+                        {teluguTitle &&
+                          teluguTitle !== title && (
+                            <span className="notification-telugu-title">
+                              {teluguTitle}
+                            </span>
+                          )}
+                      </div>
 
                       {!isRead && (
                         <span className="notification-new-label">
@@ -475,33 +529,43 @@ useEffect(() => {
                 </button>
               );
             })}
+
           </div>
 
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="notifications-pagination">
 
-          
-{totalPages > 1 && (
-  <div className="notifications-pagination">
-    <button
-      type="button"
-      onClick={() => setCurrentPage((page) => page - 1)}
-      disabled={currentPage === 1}
-    >
-      Previous
-    </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) =>
+                    Math.max(1, page - 1)
+                  )
+                }
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
 
-    <span>
-      Page {currentPage} of {totalPages}
-    </span>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
 
-    <button
-      type="button"
-      onClick={() => setCurrentPage((page) => page + 1)}
-      disabled={currentPage === totalPages}
-    >
-      Next
-    </button>
-  </div>
-)}
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) =>
+                    Math.min(totalPages, page + 1)
+                  )
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+
+            </div>
+          )}
 
         </section>
       )}

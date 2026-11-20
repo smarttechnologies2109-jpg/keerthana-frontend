@@ -486,24 +486,19 @@ const Statistics = () => {
 
                   {/* SONG INFO */}
 
-                  <div className="statistics-song-info">
-
+              {/* SONG INFO */}
+<div className="statistics-song-info">
                     <strong>
-                      {song.title ||
-                        "Unknown Song"}
+                      {song.title_english || song.title || "Unknown Song"}
                     </strong>
 
-                    {song.title_english && (
-                      <span>
-                        {song.title_english}
-                      </span>
+                    {song.title && song.title_english && song.title !== song.title_english && (
+                      <span>{song.title}</span>
                     )}
 
                     <small>
-                      {song.artist ||
-                        "Unknown Artist"}
+                      {song.artist_english || "Unknown Artist"}
                     </small>
-
                   </div>
 
                   {/* PLAY COUNT */}
@@ -601,21 +596,15 @@ const Statistics = () => {
 
                     {/* ARTIST */}
 
-                    <div className="statistics-small-info">
-
+                   {/* ARTIST */}
+<div className="statistics-small-info">
                       <strong>
-                        {artist.artist ||
-                          "Unknown Artist"}
+                        {artist.artist_english || "Unknown Artist"}
                       </strong>
 
                       <span>
-                        {Number(
-                          artist.unique_songs ||
-                            0
-                        )}{" "}
-                        songs
+                        {Number(artist.unique_songs || 0)} songs
                       </span>
-
                     </div>
 
                     {/* PLAYS */}

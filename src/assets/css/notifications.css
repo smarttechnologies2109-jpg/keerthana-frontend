@@ -1641,3 +1641,26 @@ button:not(.notifications-clear-button) {
     animation-iteration-count: 1;
   }
 }
+/* English and Telugu song titles */
+.notification-song-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.notification-song-titles strong {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.notification-telugu-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-secondary, #888);
+  overflow-wrap: anywhere;
+}
