@@ -20,6 +20,7 @@ import {
   FaListUl,
   FaExclamationCircle,
   FaBookOpen,
+  FaGift,
 } from "react-icons/fa";
 
 import API from "../services/api";
@@ -34,6 +35,8 @@ import {
 } from "../utils/media";
 
 import "../assets/css/home.css";
+
+import { getAdFreeStatus } from "../services/rewardService";
 
 /* =========================================================
    KEERTHANA MUSIC — PREMIUM HOME
@@ -565,6 +568,34 @@ export default function Home() {
   const navigate = useNavigate();
   const player = usePlayer();
   const [selectedLanguage, setSelectedLanguage] = useState(getSelectedLanguage);
+  const [adFreeActive, setAdFreeActive] = useState(false);
+
+useEffect(() => {
+  let isMounted = true;
+
+  const loadRewardStatus = async () => {
+    try {
+      const response = await getAdFreeStatus();
+
+      if (isMounted) {
+        setAdFreeActive(response?.adFreeActive === true);
+      }
+    } catch (error) {
+      console.warn("Unable to load ad-free reward status:", error);
+    }
+  };
+
+  loadRewardStatus();
+
+  const handleResume = () => loadRewardStatus();
+
+  window.addEventListener("keerthana:app-resume", handleResume);
+
+  return () => {
+    isMounted = false;
+    window.removeEventListener("keerthana:app-resume", handleResume);
+  };
+}, []);
 
   // Re-read the preference when the app returns to the foreground or another
   // tab updates the saved user profile.
@@ -1508,6 +1539,80 @@ export default function Home() {
         </HomeSection>
 
       </div>
+      {/* =================================================
+    AD-FREE REWARD PROMOTION
+================================================= */}
+
+{!adFreeActive && (
+  <section
+    onClick={() => navigate("/ad-free-reward")}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        navigate("/ad-free-reward");
+      }
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "16px",
+      padding: "22px",
+      margin: "12px 0 28px",
+      borderRadius: "18px",
+      cursor: "pointer",
+      background:
+        "linear-gradient(120deg, #101d3b 0%, #173b70 65%, #263e66 100%)",
+      border: "1px solid rgba(212,175,101,0.45)",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div
+        style={{
+          width: "52px",
+          height: "52px",
+          minWidth: "52px",
+          borderRadius: "14px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(212,175,101,0.16)",
+          color: "#e4c27b",
+          fontSize: "25px",
+        }}
+      >
+        <FaGift />
+      </div>
+
+      <div>
+        <h2 style={{ color: "#f5d994", margin: "0 0 6px", fontSize: "18px" }}>
+          Enjoy 30 Minutes Ad-Free!
+        </h2>
+
+        <p style={{ color: "#e0e7f3", margin: 0, fontSize: "13px" }}>
+          Watch one short video and enjoy uninterrupted worship music.
+        </p>
+
+        <span
+          style={{
+            display: "inline-block",
+            marginTop: "10px",
+            color: "#f5d994",
+            fontWeight: 700,
+            fontSize: "13px",
+          }}
+        >
+          Watch & Enjoy <FaChevronRight />
+        </span>
+      </div>
+    </div>
+
+    <FaChevronRight style={{ color: "#e4c27b", flexShrink: 0 }} />
+  </section>
+)}
     </main>
   );
 }
