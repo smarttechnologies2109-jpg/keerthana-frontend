@@ -43,22 +43,48 @@ function getSongId(song) {
   return song?.id ?? song?.song_id;
 }
 
+/* ENGLISH SONG TITLE */
+
 function getSongTitle(song) {
   return (
-    song?.title ||
     song?.title_english ||
+    song?.title ||
     "Untitled Song"
   );
 }
 
+/* TELUGU SONG TITLE */
+
+function getTeluguSongTitle(song) {
+  return (
+    song?.title_telugu ||
+    song?.title_native ||
+    song?.title_te ||
+    (
+      String(song?.language || "").toLowerCase() === "telugu"
+        ? song?.title
+        : ""
+    ) ||
+    ""
+  );
+}
+
+/* ARTIST NAME - ALWAYS ENGLISH */
+
 function getArtistName(song) {
   return (
+    song?.artist_name_english ||
+    song?.artist_english ||
+    song?.artist?.name_english ||
+    song?.artist?.name_english ||
+    song?.artist?.english_name ||
     song?.artist_name ||
     song?.artist?.name ||
     (typeof song?.artist === "string" ? song.artist : "") ||
     "Unknown Artist"
   );
 }
+/* SORT NEWEST FIRST */
 
 function sortNewestFirst(songs) {
   return [...songs].sort((a, b) => {
@@ -102,12 +128,14 @@ export default function RecentlyAdded() {
     isPlaying,
   } = player;
 
-  // Accommodate common toggle-function names if provided
-  // by the existing PlayerContext.
+  /* PLAYER TOGGLE SUPPORT */
+
   const togglePlayback =
     player.togglePlayPause ||
     player.togglePlay ||
     player.togglePlayback;
+
+  /* STATES */
 
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,6 +146,7 @@ export default function RecentlyAdded() {
 
   const requestInProgressRef = useRef(false);
   const songsRef = useRef(songs);
+
   songsRef.current = songs;
 
   const touchStartYRef = useRef(null);
@@ -125,52 +154,52 @@ export default function RecentlyAdded() {
 
   /* =====================================================
      LOAD SONGS
-
-     Initial load shows the page loader.
-     Background / pull refresh keeps existing songs visible.
   ===================================================== */
 
-  const loadSongs = useCallback(async ({ silent = false } = {}) => {
-    if (requestInProgressRef.current) {
-      return;
-    }
-
-    requestInProgressRef.current = true;
-
-    if (silent) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-
-    setError("");
-
-    try {
-      const response = await API.get("/songs");
-
-      setSongs(
-        sortNewestFirst(getArray(response))
-      );
-    } catch (err) {
-      console.error(
-        "Failed to load recently added songs:",
-        err
-      );
-
-      // Keep the already-loaded list visible during a
-      // background refresh if the network is unavailable.
-      if (!silent || songsRef.current.length === 0) {
-        setError(
-          "Unable to load new songs. Please try again."
-        );
+  const loadSongs = useCallback(
+    async ({ silent = false } = {}) => {
+      if (requestInProgressRef.current) {
+        return;
       }
-    } finally {
-      requestInProgressRef.current = false;
-      setLoading(false);
-      setRefreshing(false);
-      setPullDistance(0);
-    }
-  }, []);
+
+      requestInProgressRef.current = true;
+
+      if (silent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      setError("");
+
+      try {
+        const response = await API.get("/songs");
+
+        setSongs(
+          sortNewestFirst(getArray(response))
+        );
+      } catch (err) {
+        console.error(
+          "Failed to load recently added songs:",
+          err
+        );
+
+        if (!silent || songsRef.current.length === 0) {
+          setError(
+            "Unable to load new songs. Please try again."
+          );
+        }
+      } finally {
+        requestInProgressRef.current = false;
+        setLoading(false);
+        setRefreshing(false);
+        setPullDistance(0);
+      }
+    },
+    []
+  );
+
+  /* INITIAL LOAD */
 
   useEffect(() => {
     loadSongs();
@@ -178,7 +207,6 @@ export default function RecentlyAdded() {
 
   /* =====================================================
      REFRESH WHEN APP RETURNS TO FOREGROUND
-     App.jsx dispatches "keerthana:app-resume".
   ===================================================== */
 
   useEffect(() => {
@@ -201,37 +229,47 @@ export default function RecentlyAdded() {
 
   /* =====================================================
      PULL DOWN TO REFRESH
-     Only activates when the page is already at the top.
   ===================================================== */
 
   const handleTouchStart = useCallback((event) => {
-    if (window.scrollY > 0 || event.touches.length !== 1) {
+    if (
+      window.scrollY > 0 ||
+      event.touches.length !== 1
+    ) {
       touchStartYRef.current = null;
       return;
     }
 
-    touchStartYRef.current = event.touches[0].clientY;
+    touchStartYRef.current =
+      event.touches[0].clientY;
+
     pullTriggeredRef.current = false;
   }, []);
 
-  const handleTouchMove = useCallback((event) => {
-    if (
-      touchStartYRef.current === null ||
-      refreshing ||
-      loading ||
-      window.scrollY > 0 ||
-      event.touches.length !== 1
-    ) {
-      return;
-    }
+  const handleTouchMove = useCallback(
+    (event) => {
+      if (
+        touchStartYRef.current === null ||
+        refreshing ||
+        loading ||
+        window.scrollY > 0 ||
+        event.touches.length !== 1
+      ) {
+        return;
+      }
 
-    const distance =
-      event.touches[0].clientY - touchStartYRef.current;
+      const distance =
+        event.touches[0].clientY -
+        touchStartYRef.current;
 
-    if (distance > 0) {
-      setPullDistance(Math.min(distance * 0.55, 90));
-    }
-  }, [refreshing, loading]);
+      if (distance > 0) {
+        setPullDistance(
+          Math.min(distance * 0.55, 90)
+        );
+      }
+    },
+    [refreshing, loading]
+  );
 
   const handleTouchEnd = useCallback(() => {
     const shouldRefresh =
@@ -248,10 +286,16 @@ export default function RecentlyAdded() {
     } else {
       setPullDistance(0);
     }
-  }, [pullDistance, refreshing, loading, loadSongs]);
+  }, [
+    pullDistance,
+    refreshing,
+    loading,
+    loadSongs,
+  ]);
 
   /* =====================================================
      SEARCH
+     English title + Telugu title + Artist + Language
   ===================================================== */
 
   const filteredSongs = useMemo(() => {
@@ -260,14 +304,21 @@ export default function RecentlyAdded() {
     if (!query) return songs;
 
     return songs.filter((song) => {
-      const title = getSongTitle(song).toLowerCase();
-      const artist = getArtistName(song).toLowerCase();
-      const language = String(
-        song?.language || ""
-      ).toLowerCase();
+      const englishTitle =
+        getSongTitle(song).toLowerCase();
+
+      const teluguTitle =
+        getTeluguSongTitle(song).toLowerCase();
+
+      const artist =
+        getArtistName(song).toLowerCase();
+
+      const language =
+        String(song?.language || "").toLowerCase();
 
       return (
-        title.includes(query) ||
+        englishTitle.includes(query) ||
+        teluguTitle.includes(query) ||
         artist.includes(query) ||
         language.includes(query)
       );
@@ -295,24 +346,21 @@ export default function RecentlyAdded() {
         currentId != null &&
         String(selectedId) === String(currentId);
 
-      // Clicking the currently playing song toggles playback
-      // only when PlayerContext provides a toggle function.
-      if (isSameSong && typeof togglePlayback === "function") {
+      if (
+        isSameSong &&
+        typeof togglePlayback === "function"
+      ) {
         togglePlayback();
         return;
       }
 
-      // Clicking a different song starts that song.
-      // Pass the currently displayed list as the queue.
       if (!isSameSong) {
         playSong(song, filteredSongs);
         return;
       }
 
-      // Same song, but no toggle function is exposed.
-      // Avoid calling playSong again because that could restart it.
       console.warn(
-        "Add or expose your PlayerContext pause/resume toggle function to enable same-song toggling."
+        "PlayerContext does not expose a playback toggle function."
       );
     },
     [
@@ -321,21 +369,6 @@ export default function RecentlyAdded() {
       togglePlayback,
       filteredSongs,
     ]
-  );
-
-  /* =====================================================
-     SONG DETAILS
-  ===================================================== */
-
-  const openSong = useCallback(
-    (song) => {
-      const id = getSongId(song);
-
-      if (id != null) {
-        navigate(`/songs/${id}`);
-      }
-    },
-    [navigate]
   );
 
   /* =====================================================
@@ -350,6 +383,9 @@ export default function RecentlyAdded() {
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
     >
+
+      {/* PULL REFRESH INDICATOR */}
+
       {(pullDistance > 0 || refreshing) && (
         <div
           className="recently-added-refresh-indicator"
@@ -373,12 +409,19 @@ export default function RecentlyAdded() {
             fontSize: "13px",
             fontWeight: 600,
             whiteSpace: "nowrap",
-            opacity: refreshing ? 1 : Math.min(pullDistance / 65, 1),
-            transform: `translate(-50%, ${refreshing ? 0 : Math.min(pullDistance - 42, 12)}px)`,
+            opacity: refreshing
+              ? 1
+              : Math.min(pullDistance / 65, 1),
+            transform: `translate(-50%, ${
+              refreshing
+                ? 0
+                : Math.min(pullDistance - 42, 12)
+            }px)`,
             pointerEvents: "none",
           }}
         >
           <span className="recently-added-spinner" />
+
           <span>
             {refreshing
               ? "Refreshing songs..."
@@ -405,11 +448,13 @@ export default function RecentlyAdded() {
         {/* HEADER */}
 
         <header className="recently-added-header">
+
           <div className="recently-added-heading-icon">
             <FaCompactDisc />
           </div>
 
           <div className="recently-added-heading-copy">
+
             <p className="recently-added-eyebrow">
               FRESH FROM KEERTHANA
             </p>
@@ -420,13 +465,17 @@ export default function RecentlyAdded() {
               Discover the latest Christian songs added
               to your music library.
             </p>
+
           </div>
+
         </header>
 
         {/* SEARCH */}
 
         <div className="recently-added-toolbar">
+
           <div className="recently-added-search">
+
             <FaSearch />
 
             <input
@@ -438,6 +487,7 @@ export default function RecentlyAdded() {
               placeholder="Find a song, artist or language..."
               aria-label="Search recently added songs"
             />
+
           </div>
 
           {!loading && (
@@ -448,6 +498,7 @@ export default function RecentlyAdded() {
                 : "songs"}
             </span>
           )}
+
         </div>
 
         {/* ERROR */}
@@ -457,35 +508,47 @@ export default function RecentlyAdded() {
             className="recently-added-error"
             role="alert"
           >
+
             <FaExclamationCircle />
 
             <span>{error}</span>
 
             <button
               type="button"
-              onClick={loadSongs}
+              onClick={() => loadSongs()}
             >
               Retry
             </button>
+
           </div>
         )}
 
         {/* LOADING */}
 
         {loading ? (
+
           <div className="recently-added-status">
+
             <span className="recently-added-spinner" />
 
             <p>Loading the latest songs...</p>
+
           </div>
+
         ) : filteredSongs.length > 0 ? (
+
+          /* SONG LIST */
+
           <section
             className="recently-added-grid"
             aria-label="Recently added songs"
           >
+
             {filteredSongs.map((song) => {
               const id = getSongId(song);
+
               const title = getSongTitle(song);
+              const teluguTitle = getTeluguSongTitle(song);
               const artist = getArtistName(song);
 
               const currentId = getSongId(currentSong);
@@ -508,7 +571,8 @@ export default function RecentlyAdded() {
                     .filter(Boolean)
                     .join(" ")}
                 >
-                  {/* ARTWORK: CLICK TO PLAY / PAUSE */}
+
+                  {/* ARTWORK */}
 
                   <button
                     type="button"
@@ -520,6 +584,7 @@ export default function RecentlyAdded() {
                         : `Play ${title}`
                     }
                   >
+
                     <img
                       src={getSongCover(song)}
                       alt={title}
@@ -547,43 +612,56 @@ export default function RecentlyAdded() {
                         <FaPlay />
                       )}
                     </span>
+
                   </button>
 
-                  {/* TITLE AND ARTIST: CLICK TO PLAY */}
+                  {/* SONG INFORMATION */}
 
                   <div className="recently-added-song-info">
+
                     <button
                       type="button"
                       className="recently-added-song-details"
                       onClick={() => handlePlay(song)}
                       title={`Play ${title}`}
                     >
+
+                      {/* ENGLISH TITLE */}
+
                       <span className="recently-added-song-title">
                         {title}
                       </span>
 
+                      {/* TELUGU TITLE */}
+
+                      {teluguTitle && (
+                        <span className="recently-added-telugu-title">
+                          {teluguTitle}
+                        </span>
+                      )}
+
+                      {/* ENGLISH ARTIST NAME */}
+
                       <span className="recently-added-artist">
                         {artist}
                       </span>
+
                     </button>
 
-                    {song?.language && (
-                      <span className="recently-added-language">
-                        {song.language}
-                      </span>
-                    )}
-
-                    {/* SEPARATE DETAILS ACTION */}
-
                   </div>
+
                 </article>
               );
             })}
+
           </section>
+
         ) : (
+
           /* EMPTY STATE */
 
           <div className="recently-added-empty">
+
             <span className="recently-added-empty-icon">
               <FaCompactDisc />
             </span>
@@ -608,9 +686,13 @@ export default function RecentlyAdded() {
                 Clear search
               </button>
             )}
+
           </div>
+
         )}
+
       </div>
+
     </main>
   );
 }

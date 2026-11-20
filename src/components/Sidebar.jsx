@@ -12,7 +12,7 @@ import {
   FaCrown,
   FaDownload,
   FaHeart,
- FaHandsHelping,
+  FaHandsHelping,
   FaHistory,
   FaHome,
   FaListUl,
@@ -23,6 +23,7 @@ import {
   FaMicrophone,
   FaBookmark,
   FaThLarge,
+  FaGift,
 } from "react-icons/fa";
 
 import "../assets/css/sidebar.css";
@@ -73,7 +74,6 @@ const EXPLORE_LINKS = [
     label: "Categories",
     Icon: FaThLarge,
   },
-
 ];
 
 /* =========================================================
@@ -118,11 +118,6 @@ const MUSIC_LINKS = [
     label: "Notifications",
     Icon: FaBell,
   },
-  // {
-  //   to: "/keerthana-ai",
-  //   label: "Keerthana AI",
-  //   Icon: FaRobot,
-  // },
 ];
 
 /* =========================================================
@@ -130,18 +125,18 @@ const MUSIC_LINKS = [
 ========================================================= */
 
 const MEMBERSHIP_LINKS = [
-  // {
-  //   to: "/premium",
-  //   label: "KEERTHANA Premium",
-  //   Icon: FaCrown,
-  //   iconClass: "sidebar-premium-icon",
-  // },
- {
-  to: "/donations",
-  label: "Support Our Ministry",
-  Icon: FaHandsHelping,
-  iconClass: "sidebar-support-icon",
-},
+  {
+    to: "/ad-free-reward",
+    label: "Ad-Free Reward",
+    Icon: FaGift,
+    iconClass: "sidebar-reward-icon",
+  },
+  {
+    to: "/donations",
+    label: "Support Our Ministry",
+    Icon: FaHandsHelping,
+    iconClass: "sidebar-support-icon",
+  },
 ];
 
 /* =========================================================
@@ -217,9 +212,6 @@ function SidebarSection({
 
 /* =========================================================
    KEERTHANA MUSIC — MAIN SIDEBAR
-
-   Profile and Logout are handled in Header.jsx.
-   Premium and Donations are handled here.
 ========================================================= */
 
 function Sidebar({ isOpen, onToggle }) {
@@ -253,7 +245,6 @@ function Sidebar({ isOpen, onToggle }) {
         }`}
         aria-label="Main sidebar"
       >
-
         {/* MOBILE CLOSE BUTTON */}
         <button
           type="button"
@@ -290,21 +281,18 @@ function Sidebar({ isOpen, onToggle }) {
         {/* NAVIGATION */}
         <div className="sidebar-content">
 
-          {/* EXPLORE */}
           <SidebarSection
             title="EXPLORE"
             links={EXPLORE_LINKS}
             onNavigate={handleNavigation}
           />
 
-          {/* YOUR MUSIC */}
           <SidebarSection
             title="YOUR MUSIC"
             links={MUSIC_LINKS}
             onNavigate={handleNavigation}
           />
 
-          {/* MEMBERSHIP & SUPPORT */}
           <SidebarSection
             title="MEMBERSHIP & SUPPORT"
             links={MEMBERSHIP_LINKS}
@@ -321,7 +309,6 @@ function Sidebar({ isOpen, onToggle }) {
             </span>
           </footer>
         </div>
-
       </aside>
     </>
   );

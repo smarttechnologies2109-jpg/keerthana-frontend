@@ -118,6 +118,8 @@ import BusinessOwnerArtists from "./pages/businessOwner/BusinessOwnerArtists";
 import BusinessOwnerCategories from "./pages/businessOwner/BusinessOwnerCategories";
 import BusinessOwnerMinistries from "./pages/businessOwner/BusinessOwnerMinistries";
 
+import AdFreeReward from "./pages/AdFreeReward";
+
 /* =========================================================
    ANDROID BACK BUTTON
 ========================================================= */
@@ -600,7 +602,12 @@ function App() {
                 path="/"
                 element={<UserHomeRedirect />}
               />
+           {/* AD-FREE REWARD */}
 
+<Route
+  path="/ad-free-reward"
+  element={<AdFreeReward />}
+/>
               {/* HOME */}
 
               <Route
