@@ -1160,7 +1160,7 @@ aria-pressed={queueOpen}
 
 <span>Queue</span>
 
-<span className="full-player-queue-count">{upNext.length}</span>
+
 
 </button>
 

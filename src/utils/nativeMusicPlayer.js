@@ -1,24 +1,14 @@
 
 import { Capacitor } from "@capacitor/core";
+import { MediaSession } from "@capgo/capacitor-media-session";
+import { getMediaUrl } from "./media";
 
-import {
-  Playlist,
-  RmxAudioStatusMessage,
-} from "capacitor-plugin-playlist";
-
-// =========================================================
-// PLAYER STATE
-// =========================================================
+export const isNativeAndroid = Capacitor.getPlatform() === "android";
 
 let initialized = false;
 let initializationPromise = null;
-
-export const isNativeAndroid =
-  Capacitor.getPlatform() === "android";
-
-// =========================================================
-// SONG DISPLAY HELPERS
-// =========================================================
+let handlersRegistered = false;
+let actionCallbacks = {};
 
 const hasTeluguScript = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
@@ -70,10 +60,6 @@ export function getNativeSongTitles(song) {
   };
 }
 
-// =========================================================
-// ENGLISH ARTIST NAME
-// =========================================================
-
 export function getNativeArtistName(song) {
   const artist =
     song?.artist_name_english ||
@@ -98,45 +84,27 @@ export function getNativeArtistName(song) {
   );
 }
 
-// =========================================================
-// INITIALIZE NATIVE PLAYER
-// =========================================================
-
 export async function initializeNativeMusicPlayer() {
-  if (!isNativeAndroid) {
-    return false;
-  }
-
-  if (initialized) {
-    return true;
-  }
+  if (!isNativeAndroid) return false;
+  if (initialized) return true;
 
   if (!initializationPromise) {
     initializationPromise = (async () => {
       try {
-        await Playlist.setOptions({
-          verbose: import.meta.env.DEV,
-          resetStreamOnPause: true,
+        await MediaSession.setPlaybackState({
+          playbackState: "none",
         });
-
-        await Playlist.initialize();
 
         initialized = true;
 
-        console.log(
-          "KEERTHANA native music player initialized"
+        console.info(
+          "KEERTHANA Android media session initialized"
         );
 
         return true;
       } catch (error) {
-        initialized = false;
         initializationPromise = null;
-
-        console.error(
-          "Native music player initialization failed:",
-          error
-        );
-
+        initialized = false;
         throw error;
       }
     })();
@@ -145,40 +113,74 @@ export async function initializeNativeMusicPlayer() {
   return initializationPromise;
 }
 
-// =========================================================
-// VALIDATE AUDIO URL
-// =========================================================
+export async function registerNativeMediaSessionHandlers(
+  callbacks = {}
+) {
+  if (!isNativeAndroid) return;
 
-function isValidAudioUrl(value) {
-  if (typeof value !== "string" || !value.trim()) {
-    return false;
-  }
+  await initializeNativeMusicPlayer();
 
-  try {
-    const url = new URL(value.trim());
+  actionCallbacks = {
+    ...actionCallbacks,
+    ...callbacks,
+  };
 
-    return (
-      url.protocol === "https:" ||
-      url.protocol === "http:"
+  if (handlersRegistered) return;
+
+  const register = (
+    action,
+    callbackName,
+    fallbackValue
+  ) =>
+    MediaSession.setActionHandler(
+      { action },
+      (details) => {
+        const callback = actionCallbacks[callbackName];
+
+        if (typeof callback !== "function") return;
+
+        if (action === "seekto") {
+          if (details?.seekTime != null) {
+            callback(details.seekTime);
+          }
+          return;
+        }
+
+        if (
+          action === "seekforward" ||
+          action === "seekbackward"
+        ) {
+          callback(fallbackValue);
+          return;
+        }
+
+        callback();
+      }
     );
-  } catch {
-    return false;
-  }
+
+  await Promise.all([
+    register("play", "onPlay"),
+    register("pause", "onPause"),
+    register("previoustrack", "onPrevious"),
+    register("nexttrack", "onNext"),
+    register("seekto", "onSeekTo"),
+    register("seekforward", "onSeekForward", 10),
+    register("seekbackward", "onSeekBackward", 10),
+    register("stop", "onPause"),
+  ]);
+
+  handlersRegistered = true;
 }
 
-// =========================================================
-// CONVERT SONG TO NATIVE TRACK
-// =========================================================
+export async function setNativeSongMetadata(song) {
+  if (!isNativeAndroid || !song) return;
 
-export function toNativeTrack(song, audioUrl) {
-  const id = song?.id ?? song?.song_id;
+  await initializeNativeMusicPlayer();
 
-  const { englishTitle, teluguTitle } =
-    getNativeSongTitles(song);
-
+  const { englishTitle } = getNativeSongTitles(song);
   const artist = getNativeArtistName(song);
 
-  const albumArt =
+  const artworkSource =
     song?.cover_url ||
     song?.cover_image ||
     song?.coverImage ||
@@ -187,210 +189,106 @@ export function toNativeTrack(song, audioUrl) {
     song?.image_url ||
     "";
 
-  return {
-    trackId: String(id),
-    assetUrl: audioUrl,
+  let artwork = [];
 
+  if (
+    typeof artworkSource === "string" &&
+    artworkSource.trim()
+  ) {
+    const src = getMediaUrl(artworkSource.trim());
+
+    if (/^https?:\/\//i.test(String(src || ""))) {
+      artwork = [
+        {
+          src,
+          sizes: "512x512",
+          type: "image/*",
+        },
+      ];
+    }
+  }
+
+  await MediaSession.setMetadata({
     title: englishTitle,
     artist,
-
     album:
       song?.album_title ||
       song?.album?.title ||
-      "KEERTHANA",
-
-    ...(albumArt ? { albumArt } : {}),
-
-   isStream: true,
-
-    ...(teluguTitle
-      ? { subtitle: teluguTitle }
-      : {}),
-  };
+      "KEERTHANA MUSIC",
+    artwork,
+  });
 }
 
-// =========================================================
-// LOAD NATIVE PLAYLIST
-// =========================================================
-
-export async function setNativePlaylist(
-  songs,
-  resolveAudioUrl
+export async function setNativePlaybackState(
+  playbackState
 ) {
-  if (!isNativeAndroid) {
-    return [];
-  }
-
-  if (!Array.isArray(songs) || songs.length === 0) {
-    throw new Error(
-      "No songs were provided for Android playback."
-    );
-  }
-
-  if (typeof resolveAudioUrl !== "function") {
-    throw new Error(
-      "Audio URL resolver is missing."
-    );
-  }
+  if (!isNativeAndroid) return;
 
   await initializeNativeMusicPlayer();
 
-  const items = [];
+  await MediaSession.setPlaybackState({
+    playbackState,
+  });
+}
 
-  for (const song of songs) {
-    const id = song?.id ?? song?.song_id;
+export async function setNativePositionState({
+  duration,
+  position,
+  playbackRate = 1,
+}) {
+  if (!isNativeAndroid) return;
 
-    if (id == null) {
-      console.warn(
-        "Skipping native track without an ID:",
-        song
-      );
-      continue;
-    }
+  await initializeNativeMusicPlayer();
 
-    try {
-      const audioUrl = await resolveAudioUrl(song);
+  const safeDuration = Number(duration);
 
-      const normalizedUrl =
-        typeof audioUrl === "string"
-          ? audioUrl.trim()
-          : "";
-
-      // Correct HTTP/HTTPS URL validation
-      if (!isValidAudioUrl(normalizedUrl)) {
-        console.warn(
-          "Invalid native audio URL:",
-          {
-            id,
-            title: song?.title,
-            audioUrl,
-          }
-        );
-
-        continue;
-      }
-
-      items.push(
-        toNativeTrack(song, normalizedUrl)
-      );
-    } catch (error) {
-      console.error(
-        `Failed to resolve audio URL for song ${id}:`,
-        error
-      );
-    }
+  if (
+    !Number.isFinite(safeDuration) ||
+    safeDuration <= 0
+  ) {
+    return;
   }
 
-  if (items.length === 0) {
-    throw new Error(
-      "No songs with valid HTTP/HTTPS audio URLs are available for Android playback."
-    );
-  }
+  const safePosition = Math.min(
+    Math.max(Number(position) || 0, 0),
+    safeDuration
+  );
 
   try {
-    await Playlist.setPlaylistItems({
-      items,
-      options: {
-        startPaused: true,
-      },
+    await MediaSession.setPositionState({
+      duration: safeDuration,
+      position: safePosition,
+      playbackRate:
+        Number(playbackRate) > 0
+          ? Number(playbackRate)
+          : 1,
     });
-
-    console.log(
-      "KEERTHANA Android playlist loaded:",
-      items.map((item) => ({
-        trackId: item.trackId,
-        title: item.title,
-        artist: item.artist,
-        assetUrl: item.assetUrl,
-      }))
-    );
-
-    return items;
   } catch (error) {
-    console.error(
-      "Failed to load Android playlist:",
+    console.debug(
+      "Media session position update skipped:",
       error
     );
-
-    throw error;
   }
 }
 
-// =========================================================
-// PLAYBACK CONTROLS
-// =========================================================
-
-export async function playNativeMusic() {
+export async function clearNativeMediaSession() {
   if (!isNativeAndroid) return;
 
-  await initializeNativeMusicPlayer();
-  await Playlist.play();
+  try {
+    await MediaSession.setPlaybackState({
+      playbackState: "none",
+    });
+
+    await MediaSession.setMetadata({
+      title: "",
+      artist: "",
+      album: "",
+      artwork: [],
+    });
+  } catch (error) {
+    console.warn(
+      "Could not clear Android media session:",
+      error
+    );
+  }
 }
-
-export async function pauseNativeMusic() {
-  if (!isNativeAndroid) return;
-
-  await initializeNativeMusicPlayer();
-  await Playlist.pause();
-}
-
-export async function skipNativeNext() {
-  if (!isNativeAndroid) return;
-
-  await initializeNativeMusicPlayer();
-  await Playlist.skipForward();
-}
-
-export async function skipNativePrevious() {
-  if (!isNativeAndroid) return;
-
-  await initializeNativeMusicPlayer();
-  await Playlist.skipBack();
-}
-
-// =========================================================
-// SEEK CONTROL
-// =========================================================
-
-export async function seekNativeMusic(seconds) {
-  if (!isNativeAndroid) return;
-
-  await initializeNativeMusicPlayer();
-
-  const position = Math.max(
-    0,
-    Number(seconds) || 0
-  );
-
-  await Playlist.seekTo({
-    position,
-  });
-}
-
-// =========================================================
-// VOLUME CONTROL
-// =========================================================
-
-export async function setNativeMusicVolume(volume) {
-  if (!isNativeAndroid) return;
-
-  await initializeNativeMusicPlayer();
-
-  const safeVolume = Math.min(
-    Math.max(Number(volume) || 0, 0),
-    1
-  );
-
-  await Playlist.setPlaybackVolume({
-    volume: safeVolume,
-  });
-}
-
-// =========================================================
-// EXPORTS
-// =========================================================
-
-export {
-  Playlist,
-  RmxAudioStatusMessage,
-};

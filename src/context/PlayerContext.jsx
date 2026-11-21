@@ -1,3 +1,4 @@
+
 import {
   createContext,
   useContext,
@@ -6,40 +7,53 @@ import {
   useRef,
   useState,
 } from "react";
+
 import {
   isNativeAndroid,
   initializeNativeMusicPlayer,
-  setNativePlaylist,
-  setNativeMusicVolume,
-  Playlist,
-  RmxAudioStatusMessage,
-  seekNativeMusic,
+  setNativeSongMetadata,
+  setNativePlaybackState,
+  setNativePositionState,
+  registerNativeMediaSessionHandlers,
+  clearNativeMediaSession,
 } from "../utils/nativeMusicPlayer";
+
 import { getMediaUrl } from "../utils/media";
 import API from "../services/api";
 import { useAuth } from "./AuthContext";
 import { getAdFreeStatus } from "../services/rewardService";
+
 import {
   preloadInterstitialAd,
   showInterstitialAd,
 } from "../services/interstitialAds";
+
 export const PlayerContext = createContext(null);
+
 const PLAYER_STORAGE_KEY = "keerthana_player_state";
 const OFFLINE_DB_NAME = "keerthana_offline_music";
 const OFFLINE_DB_VERSION = 1;
 const OFFLINE_STORE_NAME = "songs";
+
 export const usePlayer = () => {
   const context = useContext(PlayerContext);
+
   if (!context) {
-    throw new Error("usePlayer must be used inside PlayerProvider");
+    throw new Error(
+      "usePlayer must be used inside PlayerProvider"
+    );
   }
+
   return context;
 };
+
 /* --------------------------------------------------
    AUDIO URL HELPERS
 -------------------------------------------------- */
+
 const getSongAudioUrl = (song) => {
   if (!song) return null;
+
   const possibleFields = [
     "audio_url",
     "audioUrl",
@@ -54,6 +68,7 @@ const getSongAudioUrl = (song) => {
     "audio",
     "url",
   ];
+
   const source = possibleFields
     .map((field) => song[field])
     .find(
@@ -63,6 +78,7 @@ const getSongAudioUrl = (song) => {
         value.trim().toLowerCase() !== "undefined" &&
         value.trim().toLowerCase() !== "null"
     );
+
   if (!source) {
     console.error("Song has no valid audio field:", {
       id: song.id,
@@ -70,9 +86,12 @@ const getSongAudioUrl = (song) => {
       availableFields: Object.keys(song),
       song,
     });
+
     return null;
   }
+
   const audioUrl = getMediaUrl(source.trim());
+
   if (
     typeof audioUrl !== "string" ||
     !audioUrl.trim() ||
@@ -85,57 +104,79 @@ const getSongAudioUrl = (song) => {
       source,
       audioUrl,
     });
+
     return null;
   }
+
   return audioUrl;
 };
-const getSongId = (song) => song?.id ?? song?.song_id ?? null;
+
+const getSongId = (song) =>
+  song?.id ?? song?.song_id ?? null;
+
 const sameSong = (a, b) =>
   Number(getSongId(a)) === Number(getSongId(b));
+
 /* --------------------------------------------------
    OFFLINE DATABASE
 -------------------------------------------------- */
+
 const openOfflineDB = () =>
   new Promise((resolve, reject) => {
     if (!window.indexedDB) {
       reject(new Error("IndexedDB is not supported"));
       return;
     }
+
     const request = window.indexedDB.open(
       OFFLINE_DB_NAME,
       OFFLINE_DB_VERSION
     );
+
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
+
       if (!db.objectStoreNames.contains(OFFLINE_STORE_NAME)) {
         db.createObjectStore(OFFLINE_STORE_NAME, {
           keyPath: "id",
         });
       }
     };
+
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+
 const getOfflineSong = async (id) => {
   if (id == null) return null;
+
   let db;
+
   try {
     db = await openOfflineDB();
+
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(
         OFFLINE_STORE_NAME,
         "readonly"
       );
+
       const request = transaction
         .objectStore(OFFLINE_STORE_NAME)
         .get(id);
-      request.onsuccess = () => resolve(request.result || null);
+
+      request.onsuccess = () =>
+        resolve(request.result || null);
+
       request.onerror = () => reject(request.error);
+
       transaction.oncomplete = () => db.close();
+
       transaction.onerror = () => {
         db.close();
         reject(transaction.error);
       };
+
       transaction.onabort = () => {
         db.close();
         reject(transaction.error);
@@ -147,28 +188,36 @@ const getOfflineSong = async (id) => {
         db.close();
       } catch {}
     }
+
     console.warn("Could not read offline song:", error);
     return null;
   }
 };
+
 const saveOfflineSong = async (song) => {
   let db;
+
   try {
     db = await openOfflineDB();
+
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(
         OFFLINE_STORE_NAME,
         "readwrite"
       );
+
       transaction.objectStore(OFFLINE_STORE_NAME).put(song);
+
       transaction.oncomplete = () => {
         db.close();
         resolve(true);
       };
+
       transaction.onerror = () => {
         db.close();
         reject(transaction.error);
       };
+
       transaction.onabort = () => {
         db.close();
         reject(transaction.error);
@@ -180,28 +229,36 @@ const saveOfflineSong = async (song) => {
         db.close();
       } catch {}
     }
+
     console.error("Save offline song error:", error);
     return false;
   }
 };
+
 const deleteOfflineSong = async (id) => {
   let db;
+
   try {
     db = await openOfflineDB();
+
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(
         OFFLINE_STORE_NAME,
         "readwrite"
       );
+
       transaction.objectStore(OFFLINE_STORE_NAME).delete(id);
+
       transaction.oncomplete = () => {
         db.close();
         resolve(true);
       };
+
       transaction.onerror = () => {
         db.close();
         reject(transaction.error);
       };
+
       transaction.onabort = () => {
         db.close();
         reject(transaction.error);
@@ -213,29 +270,40 @@ const deleteOfflineSong = async (id) => {
         db.close();
       } catch {}
     }
+
     console.error("Delete offline song error:", error);
     return false;
   }
 };
+
 const getAllOfflineSongs = async () => {
   let db;
+
   try {
     db = await openOfflineDB();
+
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(
         OFFLINE_STORE_NAME,
         "readonly"
       );
+
       const request = transaction
         .objectStore(OFFLINE_STORE_NAME)
         .getAll();
-      request.onsuccess = () => resolve(request.result || []);
+
+      request.onsuccess = () =>
+        resolve(request.result || []);
+
       request.onerror = () => reject(request.error);
+
       transaction.oncomplete = () => db.close();
+
       transaction.onerror = () => {
         db.close();
         reject(transaction.error);
       };
+
       transaction.onabort = () => {
         db.close();
         reject(transaction.error);
@@ -247,52 +315,75 @@ const getAllOfflineSongs = async () => {
         db.close();
       } catch {}
     }
+
     console.warn("Get offline songs error:", error);
     return [];
   }
 };
+
 /* --------------------------------------------------
    PLAYER PROVIDER
 -------------------------------------------------- */
+
 export const PlayerProvider = ({ children }) => {
   const { user } = useAuth();
+
   const audioRef = useRef(null);
   const objectUrlRef = useRef(null);
   const playRequestIdRef = useRef(0);
+
   const queueRef = useRef([]);
   const currentSongRef = useRef(null);
+  const currentIndexRef = useRef(-1);
+
   const nativeCompletionSongIdRef = useRef(null);
-  // Ignore stale native track notifications until the saved song has been restored
-  // or the user explicitly starts a song in this app session.
   const nativeStatusReadyRef = useRef(false);
-  // Count only songs that finish naturally; manual skips never increment this.
+
   const completedSongsSinceAdRef = useRef(0);
   const completionInProgressRef = useRef(false);
   const naturalCompletionHandlerRef = useRef(null);
-  // Only one audio element is used for playback.
+
+  const nextSongRef = useRef(null);
+  const previousSongRef = useRef(null);
+  const resumeSongRef = useRef(null);
+  const pauseSongRef = useRef(null);
+  const seekRef = useRef(null);
+  const seekForwardRef = useRef(null);
+  const seekBackwardRef = useRef(null);
+
   if (!audioRef.current) {
     const element = new Audio();
+
     element.preload = "auto";
     element.autoplay = false;
     element.setAttribute("playsinline", "true");
+
     audioRef.current = element;
   }
+
   const audio = audioRef.current;
 
-  // Keep one interstitial ready before the next eligible song boundary.
   useEffect(() => {
     if (!isNativeAndroid) return;
+
     preloadInterstitialAd().catch((error) => {
-      console.warn("Initial interstitial preload failed:", error);
+      console.warn(
+        "Initial interstitial preload failed:",
+        error
+      );
     });
   }, []);
 
   const [playerRestored, setPlayerRestored] = useState(false);
   const [currentSong, setCurrentSong] = useState(null);
   const [queue, setQueue] = useState([]);
+
   currentSongRef.current = currentSong;
   queueRef.current = queue;
+
   const [currentIndex, setCurrentIndex] = useState(-1);
+  currentIndexRef.current = currentIndex;
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -303,129 +394,188 @@ export const PlayerProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [offlineSongs, setOfflineSongs] = useState([]);
+
   /* RELEASE OLD BLOB URL */
+
   const releaseObjectUrl = useCallback(() => {
     if (objectUrlRef.current) {
       URL.revokeObjectURL(objectUrlRef.current);
       objectUrlRef.current = null;
     }
   }, []);
+
   /* LOAD SOURCE FOR A SONG */
+
   const resolveSongSource = useCallback(
-  async (song) => {
-    const onlineUrl = getSongAudioUrl(song);
-    if (!onlineUrl) {
-      return null;
-    }
-    // Try the offline cache without blocking playback for long.
-    try {
-      const offline = await Promise.race([
-        getOfflineSong(getSongId(song)),
-        new Promise((resolve) =>
-          setTimeout(() => resolve(null), 200)
-        ),
-      ]);
-      if (offline?.blob instanceof Blob) {
-        releaseObjectUrl();
-        const url = URL.createObjectURL(offline.blob);
-        objectUrlRef.current = url;
-        return url;
+    async (song) => {
+      const onlineUrl = getSongAudioUrl(song);
+
+      if (!onlineUrl) return null;
+
+      try {
+        const offline = await Promise.race([
+          getOfflineSong(getSongId(song)),
+          new Promise((resolve) =>
+            setTimeout(() => resolve(null), 200)
+          ),
+        ]);
+
+        if (offline?.blob instanceof Blob) {
+          releaseObjectUrl();
+
+          const url = URL.createObjectURL(offline.blob);
+          objectUrlRef.current = url;
+
+          return url;
+        }
+      } catch (error) {
+        console.warn("Offline lookup failed:", error);
       }
-    } catch (error) {
-      console.warn("Offline lookup failed:", error);
-    }
-    // Fall back to CloudFront immediately after the cache check.
-    return onlineUrl;
-  },
-  [releaseObjectUrl]
-);
+
+      return onlineUrl;
+    },
+    [releaseObjectUrl]
+  );
+
   /* RESTORE PLAYER WITHOUT AUTOMATICALLY PLAYING */
+
   useEffect(() => {
     let cancelled = false;
+
     const restorePlayer = async () => {
       const requestId = ++playRequestIdRef.current;
+
       try {
         const saved = localStorage.getItem(PLAYER_STORAGE_KEY);
+
         if (!saved) return;
+
         const data = JSON.parse(saved);
         const restoredSong = data.currentSong || null;
-        const restoredQueue = Array.isArray(data.queue) ? data.queue : [];
-        const restoredTime = Math.max(0, Number(data.currentTime) || 0);
+
+        const restoredQueue = Array.isArray(data.queue)
+          ? data.queue
+          : [];
+
+        const restoredTime = Math.max(
+          0,
+          Number(data.currentTime) || 0
+        );
 
         setQueue(restoredQueue);
         queueRef.current = restoredQueue;
+
         setCurrentSong(restoredSong);
         setCurrentTime(restoredTime);
         setIsPlaying(false);
         setIsLoading(false);
 
-        let index = typeof data.currentIndex === "number" ? data.currentIndex : -1;
+        let index =
+          typeof data.currentIndex === "number"
+            ? data.currentIndex
+            : -1;
+
         if (restoredSong) {
-          const matchingIndex = restoredQueue.findIndex((song) => sameSong(song, restoredSong));
+          const matchingIndex = restoredQueue.findIndex(
+            (song) => sameSong(song, restoredSong)
+          );
+
           if (matchingIndex >= 0) index = matchingIndex;
         }
+
         setCurrentIndex(index);
-        if (typeof data.volume === "number") setVolume(Math.min(Math.max(data.volume, 0), 1));
-        if (typeof data.isShuffle === "boolean") setIsShuffle(data.isShuffle);
-        if (["off", "one", "all"].includes(data.repeatMode)) setRepeatMode(data.repeatMode);
+
+        if (typeof data.volume === "number") {
+          setVolume(
+            Math.min(Math.max(data.volume, 0), 1)
+          );
+        }
+
+        if (typeof data.isShuffle === "boolean") {
+          setIsShuffle(data.isShuffle);
+        }
+
+        if (["off", "one", "all"].includes(data.repeatMode)) {
+          setRepeatMode(data.repeatMode);
+        }
+
         if (!restoredSong) return;
 
-        if (isNativeAndroid) {
-          // Restore Android's native playlist while keeping the song paused.
-          await initializeNativeMusicPlayer();
-          const activeQueue = restoredQueue.some((song) => sameSong(song, restoredSong))
-            ? restoredQueue
-            : [...restoredQueue, restoredSong];
-          const selectedId = String(getSongId(restoredSong));
-          const nativeItems = await setNativePlaylist([restoredSong], async (song) => getSongAudioUrl(song));
-          if (cancelled || requestId !== playRequestIdRef.current) return;
+        const source = await resolveSongSource(restoredSong);
 
-          const nativeIndex = nativeItems.findIndex((item) => String(item.trackId) === selectedId);
-          if (nativeIndex < 0) throw new Error(`Could not restore Android track ${selectedId}; no valid audio URL was loaded.`);
+        if (
+          cancelled ||
+          requestId !== playRequestIdRef.current
+        ) {
+          return;
+        }
 
-          const restoredQueueIndex = activeQueue.findIndex((song) => String(getSongId(song)) === selectedId);
-          setQueue(activeQueue);
-          queueRef.current = activeQueue;
-          setCurrentIndex(restoredQueueIndex);
-          setCurrentSong(restoredSong);
-          setCurrentTime(restoredTime);
-          await Playlist.selectTrackByIndex({ index: nativeIndex, position: restoredTime });
-          // The native plugin can emit the previous session's track event while
-          // its service is initializing. Only accept status events after the
-          // intended saved track has been selected.
-          nativeStatusReadyRef.current = true;
+        if (!source) return;
+
+        const onMetadata = () => {
+          if (
+            cancelled ||
+            requestId !== playRequestIdRef.current
+          ) {
+            return;
+          }
+
+          if (Number.isFinite(audio.duration)) {
+            audio.currentTime = Math.min(
+              restoredTime,
+              audio.duration
+            );
+          }
+
+          setCurrentTime(audio.currentTime || 0);
           setIsPlaying(false);
           setIsLoading(false);
-          console.log("KEERTHANA Android song restored paused:", { songId: selectedId, nativeIndex, position: restoredTime });
-        } else {
-          const source = await resolveSongSource(restoredSong);
-          if (cancelled || requestId !== playRequestIdRef.current) return;
-          if (!source) return;
-          const onMetadata = () => {
-            if (cancelled || requestId !== playRequestIdRef.current) return;
-            if (Number.isFinite(audio.duration)) audio.currentTime = Math.min(restoredTime, audio.duration);
-            setCurrentTime(audio.currentTime || 0);
-            setIsPlaying(false);
-            setIsLoading(false);
-          };
-          audio.addEventListener("loadedmetadata", onMetadata, { once: true });
-          audio.src = source;
-          audio.load();
-        }
+        };
+
+        audio.addEventListener(
+          "loadedmetadata",
+          onMetadata,
+          { once: true }
+        );
+
+        audio.src = source;
+        audio.load();
       } catch (error) {
-        console.error("Failed to restore player state:", error);
+        console.error(
+          "Failed to restore player state:",
+          error
+        );
+
         setIsPlaying(false);
         setIsLoading(false);
       } finally {
         if (!cancelled) setPlayerRestored(true);
       }
     };
+
     restorePlayer();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, [audio, resolveSongSource]);
+
+  useEffect(() => {
+    if (!isNativeAndroid || !currentSong) return;
+
+    setNativeSongMetadata(currentSong).catch((error) => {
+      console.warn(
+        "Could not update Android media metadata:",
+        error
+      );
+    });
+  }, [currentSong]);
+
   /* SAVE PLAYER STATE */
+
   useEffect(() => {
     if (!playerRestored) return;
+
     try {
       localStorage.setItem(
         PLAYER_STORAGE_KEY,
@@ -441,7 +591,10 @@ export const PlayerProvider = ({ children }) => {
         })
       );
     } catch (error) {
-      console.warn("Could not save player state:", error);
+      console.warn(
+        "Could not save player state:",
+        error
+      );
     }
   }, [
     playerRestored,
@@ -454,235 +607,141 @@ export const PlayerProvider = ({ children }) => {
     isShuffle,
     repeatMode,
   ]);
+
   /* LOAD OFFLINE SONG LIST */
+
   useEffect(() => {
     let cancelled = false;
+
     getAllOfflineSongs().then((songs) => {
       if (!cancelled) setOfflineSongs(songs);
     });
+
     return () => {
       cancelled = true;
     };
   }, []);
-  /* ANDROID NATIVE PLAYBACK STATUS */
+
+  /* ANDROID MEDIA SESSION ACTIONS */
+
   useEffect(() => {
     if (!isNativeAndroid) return;
+
     let cancelled = false;
-    let listenerHandle = null;
-    const setupNativePlayer = async () => {
+
+    const setupMediaSession = async () => {
       try {
         await initializeNativeMusicPlayer();
+
         if (cancelled) return;
-        listenerHandle = await Playlist.addListener(
-          "status",
-          ({ status }) => {
-            if (cancelled || !status || !nativeStatusReadyRef.current) return;
-            const value = status.value ?? {};
-            const message = status.msgType;
-         console.log(
-  "[KEERTHANA_AD_DEBUG] Native player status event",
-  JSON.stringify(value)
-);
-            // The plugin reports currentPosition, not position.
-            if (
-              value.currentPosition != null &&
-              Number.isFinite(Number(value.currentPosition))
-            ) {
-              setCurrentTime(
-                Math.max(0, Number(value.currentPosition))
-              );
-            }
-            // Duration and position are reported in seconds by the native player.
-            const nativePosition = Number(value.currentPosition);
-            const nativeDuration = Number(value.duration);
-            if (
-              value.duration != null &&
-              Number.isFinite(nativeDuration) &&
-              nativeDuration > 0
-            ) {
-              setDuration(nativeDuration);
-            }
 
-            // Some Android plugin versions emit TRACK_CHANGED/position updates
-            // without delivering RMXSTATUS_COMPLETED. Detect the natural end
-            // from the final playback position as a fallback.
-            const activeSong = currentSongRef.current;
-            const activeSongId = getSongId(activeSong);
-            const completionKey =
-              activeSongId == null ? null : String(activeSongId);
-            const completedMessage =
-              message === RmxAudioStatusMessage.RMXSTATUS_COMPLETED ||
-              String(message).toUpperCase().includes("COMPLETED");
-            const reachedNaturalEnd =
-              Number.isFinite(nativePosition) &&
-              Number.isFinite(nativeDuration) &&
-              nativeDuration > 0 &&
-              nativePosition >= Math.max(0, nativeDuration - 1.25);
-
-            if (
-              completionKey &&
-              (completedMessage || reachedNaturalEnd) &&
-              nativeCompletionSongIdRef.current !== completionKey
-            ) {
-              nativeCompletionSongIdRef.current = completionKey;
-           console.log(
-  "[KEERTHANA_AD_DEBUG] Native natural completion detected",
-  JSON.stringify(details)
-);
-              setIsPlaying(false);
-              setIsLoading(false);
-              Promise.resolve().then(() => {
-                console.info(
-                  "[KEERTHANA_AD_DEBUG] Calling natural completion handler"
-                );
-                naturalCompletionHandlerRef.current?.();
-              });
-            }
-
-            switch (message) {
-              case RmxAudioStatusMessage.RMXSTATUS_PLAYING:
-                setIsPlaying(true);
-                setIsLoading(false);
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_LOADING:
-                setIsLoading(true);
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_CANPLAY:
-              case RmxAudioStatusMessage.RMXSTATUS_LOADED:
-                setIsLoading(false);
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_PAUSE:
-                setIsPlaying(false);
-                setIsLoading(false);
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_PLAYBACK_POSITION:
-              case RmxAudioStatusMessage.RMXSTATUS_DURATION:
-              case RmxAudioStatusMessage.RMXSTATUS_SEEK:
-                // Time and duration have already been updated above.
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_TRACK_CHANGED: {
-                console.info("[KEERTHANA_AD_DEBUG] Native TRACK_CHANGED event", {
-                  nativeTrackId: value.currentItem?.trackId ?? status.trackId ?? null,
-                  nativeTitle: value.currentItem?.title ?? null,
-                });
-                // Sync React state when Android advances its native playlist.
-                // Match by track ID because native indices can differ if
-                // invalid audio URLs were skipped while creating the playlist.
-                const nativeItem = value.currentItem ?? null;
-                const nativeTrackId =
-                  nativeItem?.trackId ?? status.trackId ?? null;
-                const matchingQueueIndex =
-                  nativeTrackId == null
-                    ? -1
-                    : queueRef.current.findIndex(
-                        (song) =>
-                          String(getSongId(song)) === String(nativeTrackId)
-                      );
-                if (matchingQueueIndex >= 0) {
-                  const nextSong = queueRef.current[matchingQueueIndex];
-                  setCurrentSong(nextSong);
-                  setCurrentIndex(matchingQueueIndex);
-                } else if (nativeItem && nativeTrackId != null) {
-                  setCurrentSong({
-                    id: nativeTrackId,
-                    song_id: nativeTrackId,
-                    title: nativeItem.title ?? "Unknown Song",
-                    artist_name: nativeItem.artist ?? "KEERTHANA",
-                    artist: nativeItem.artist ?? "KEERTHANA",
-                    album_title: nativeItem.album ?? "KEERTHANA",
-                    cover_url: nativeItem.albumArt ?? "",
-                  });
-                }
-                setCurrentTime(
-                  Math.max(0, Number(value.currentPosition) || 0)
-                );
-                setDuration(
-                  Number.isFinite(Number(value.duration)) &&
-                    Number(value.duration) > 0
-                    ? Number(value.duration)
-                    : 0
-                );
-                setIsPlaying(true);
-                setIsLoading(false);
-                break;
-              }
-              case RmxAudioStatusMessage.RMXSTATUS_COMPLETED:
-                // Completion was handled once by the guarded detector above.
-                setIsPlaying(false);
-                setIsLoading(false);
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_STOPPED:
-                setIsPlaying(false);
-                setIsLoading(false);
-                break;
-              case RmxAudioStatusMessage.RMXSTATUS_ERROR:
-                console.error(
-                  "Android native playback error:",
-                  value
-                );
-                setIsPlaying(false);
-                setIsLoading(false);
-                break;
-              default:
-                break;
-            }
-          }
-        );
+        await registerNativeMediaSessionHandlers({
+          onPlay: () => resumeSongRef.current?.(),
+          onPause: () => pauseSongRef.current?.(),
+          onNext: () => nextSongRef.current?.(),
+          onPrevious: () => previousSongRef.current?.(),
+          onSeekTo: (position) => seekRef.current?.(position),
+          onSeekForward: (offset) =>
+            seekForwardRef.current?.(offset),
+          onSeekBackward: (offset) =>
+            seekBackwardRef.current?.(offset),
+        });
       } catch (error) {
-        if (!cancelled) {
-          console.error(
-            "Android native status listener failed:",
-            error
-          );
-        }
+        console.error(
+          "Android media session setup failed:",
+          error
+        );
       }
     };
-    setupNativePlayer();
+
+    setupMediaSession();
+
     return () => {
       cancelled = true;
-      if (listenerHandle) {
-        listenerHandle.remove().catch((error) => {
-          console.warn(
-            "Could not remove native status listener:",
-            error
-          );
+    };
+  }, []);
+
+  /* AUDIO EVENTS */
+
+  useEffect(() => {
+    const onTimeUpdate = () => {
+      const position = audio.currentTime || 0;
+
+      const total = Number.isFinite(audio.duration)
+        ? audio.duration
+        : 0;
+
+      setCurrentTime(position);
+
+      if (isNativeAndroid && total > 0) {
+        setNativePositionState({
+          duration: total,
+          position,
+          playbackRate: audio.playbackRate || 1,
         });
       }
     };
-  }, []);
-  /* AUDIO EVENTS */
-  useEffect(() => {
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime || 0);
-    };
+
     const onMetadata = () => {
       setDuration(
-        Number.isFinite(audio.duration) ? audio.duration : 0
+        Number.isFinite(audio.duration)
+          ? audio.duration
+          : 0
       );
+
       setIsLoading(false);
+
+      if (
+        isNativeAndroid &&
+        Number.isFinite(audio.duration) &&
+        audio.duration > 0
+      ) {
+        setNativePositionState({
+          duration: audio.duration,
+          position: audio.currentTime || 0,
+          playbackRate: audio.playbackRate || 1,
+        });
+      }
     };
+
     const onPlay = () => {
       setIsPlaying(true);
       setIsLoading(false);
+
+      if (isNativeAndroid) {
+        setNativePlaybackState("playing");
+      }
     };
-    const onPause = () => setIsPlaying(false);
+
+    const onPause = () => {
+      setIsPlaying(false);
+
+      if (isNativeAndroid) {
+        setNativePlaybackState("paused");
+      }
+    };
+
     const onWaiting = () => setIsLoading(true);
     const onCanPlay = () => setIsLoading(false);
-const onError = () => {
-  const mediaError = audio.error;
-  console.error("AUDIO DEBUG DETAILS", {
-    srcAttribute: audio.getAttribute("src"),
-    currentSrc: audio.currentSrc,
-    errorCode: mediaError?.code,
-    errorMessage: mediaError?.message,
-    networkState: audio.networkState,
-    readyState: audio.readyState,
-    songId: currentSong?.id,
-    songTitle: currentSong?.title,
-  });
-  setIsPlaying(false);
-  setIsLoading(false);
-};
+
+    const onError = () => {
+      const mediaError = audio.error;
+
+      console.error("AUDIO DEBUG DETAILS", {
+        srcAttribute: audio.getAttribute("src"),
+        currentSrc: audio.currentSrc,
+        errorCode: mediaError?.code,
+        errorMessage: mediaError?.message,
+        networkState: audio.networkState,
+        readyState: audio.readyState,
+        songId: currentSong?.id,
+        songTitle: currentSong?.title,
+      });
+
+      setIsPlaying(false);
+      setIsLoading(false);
+    };
+
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("loadedmetadata", onMetadata);
     audio.addEventListener("durationchange", onMetadata);
@@ -691,6 +750,7 @@ const onError = () => {
     audio.addEventListener("waiting", onWaiting);
     audio.addEventListener("canplay", onCanPlay);
     audio.addEventListener("error", onError);
+
     return () => {
       audio.removeEventListener("timeupdate", onTimeUpdate);
       audio.removeEventListener("loadedmetadata", onMetadata);
@@ -702,40 +762,62 @@ const onError = () => {
       audio.removeEventListener("error", onError);
     };
   }, [audio]);
+
   /* APPLY VOLUME */
+
   useEffect(() => {
-    audio.volume = Math.min(Math.max(Number(volume) || 0, 0), 1);
+    audio.volume = Math.min(
+      Math.max(Number(volume) || 0, 0),
+      1
+    );
+
     audio.muted = isMuted;
   }, [audio, volume, isMuted]);
+
   /* CHECK LIKED SONG */
+
   const checkLikedSong = useCallback(
     async (songId) => {
       if (!songId || !user) {
         setIsLiked(false);
         return;
       }
+
       try {
-        const response = await API.get(`/songs/${songId}/liked`);
-        setIsLiked(
-          Boolean(response?.data?.liked ?? response?.data?.isLiked)
+        const response = await API.get(
+          `/songs/${songId}/liked`
         );
+
+        setIsLiked(
+          Boolean(
+            response?.data?.liked ??
+            response?.data?.isLiked
+          )
+        );
+
         return;
       } catch {
         // Fall back to the liked-songs endpoint.
       }
+
       try {
         const response = await API.get("/liked-songs");
         const data = response?.data;
+
         const songs = Array.isArray(data)
           ? data
           : Array.isArray(data?.songs)
             ? data.songs
             : [];
+
         setIsLiked(
           songs.some(
             (item) =>
-              Number(item.song_id ?? item.songId ?? item.id) ===
-              Number(songId)
+              Number(
+                item.song_id ??
+                item.songId ??
+                item.id
+              ) === Number(songId)
           )
         );
       } catch (error) {
@@ -745,533 +827,840 @@ const onError = () => {
     },
     [user]
   );
+
   /* PLAY A SONG */
-const playSong = useCallback(
-  async (song, songs = [], index = 0) => {
-    if (!song) return;
-    const requestId = ++playRequestIdRef.current;
-    nativeCompletionSongIdRef.current = null;
-    try {
-      setIsLoading(true);
-      setIsPlaying(false);
-      let activeQueue = [song];
-      if (Array.isArray(songs) && songs.length > 0) {
-        activeQueue = [...songs];
+
+  const playSong = useCallback(
+    async (song, songs = [], index = 0) => {
+      if (!song) return;
+
+      const requestId = ++playRequestIdRef.current;
+
+      nativeCompletionSongIdRef.current = null;
+
+      if (isNativeAndroid) {
+        nativeStatusReadyRef.current = false;
       }
-      let activeIndex = activeQueue.findIndex(
-        (item) => sameSong(item, song)
-      );
-      if (activeIndex < 0) {
-        activeIndex = Math.max(
-          0,
-          Math.min(index, activeQueue.length - 1)
+
+      try {
+        setIsLoading(true);
+        setIsPlaying(false);
+
+        let activeQueue = [song];
+
+        if (Array.isArray(songs) && songs.length > 0) {
+          activeQueue = [...songs];
+        }
+
+        let activeIndex = activeQueue.findIndex(
+          (item) => sameSong(item, song)
         );
-        activeQueue[activeIndex] = song;
-      }
-      setQueue(activeQueue);
-      setCurrentIndex(activeIndex);
-      setCurrentSong(song);
-      // A deliberate song selection makes native status events authoritative.
-      if (isNativeAndroid) nativeStatusReadyRef.current = true;
-      setCurrentTime(0);
-      setDuration(0);
-      checkLikedSong(getSongId(song)).catch(() => {});
-if (isNativeAndroid) {
-  await initializeNativeMusicPlayer();
-  // Android plays one track per native playlist so React can insert an ad
-  // before advancing to the next queued song.
-  const nativeItems = await setNativePlaylist(
-    [song],
-    async (item) => getSongAudioUrl(item)
-  );
-  const selectedId = String(getSongId(song));
-  const nativeIndex = nativeItems.findIndex(
-    (item) => String(item.trackId) === selectedId
-  );
-  if (nativeIndex < 0) {
-    throw new Error(`Song not found in native playlist: ${selectedId}`);
-  }
-  const selectedTrack = nativeItems[nativeIndex];
-  if (
-    !selectedTrack.assetUrl ||
-    !/^https?:\/\//i.test(selectedTrack.assetUrl)
-  ) {
-    throw new Error(
-      `Invalid Android audio URL: ${selectedTrack.assetUrl}`
-    );
-  }
-  console.log("Playing Android song:", {
-    title: selectedTrack.title,
-    audioUrl: selectedTrack.assetUrl,
-    index: nativeIndex,
-  });
-  await Playlist.playTrackByIndex({
-    index: nativeIndex,
-    position: 0,
-  });
-  if (requestId !== playRequestIdRef.current) return;
-  setIsPlaying(true);
-  setIsLoading(false);
-} else {
+
+        if (activeIndex < 0) {
+          activeIndex = Math.max(
+            0,
+            Math.min(index, activeQueue.length - 1)
+          );
+
+          activeQueue[activeIndex] = song;
+        }
+
+        queueRef.current = activeQueue;
+        currentIndexRef.current = activeIndex;
+        currentSongRef.current = song;
+
+        setQueue(activeQueue);
+        setCurrentIndex(activeIndex);
+        setCurrentSong(song);
+        setCurrentTime(0);
+        setDuration(0);
+
+        checkLikedSong(getSongId(song)).catch(() => {});
+
         const audioUrl = await resolveSongSource(song);
+
         if (requestId !== playRequestIdRef.current) return;
+
         if (!audioUrl) {
           throw new Error(
             `No valid audio URL for song ${getSongId(song)}`
           );
         }
+
         audio.pause();
         audio.currentTime = 0;
         audio.src = audioUrl;
         audio.load();
+
         await audio.play();
+
         if (requestId !== playRequestIdRef.current) {
           audio.pause();
           return;
         }
+
         setIsPlaying(true);
         setIsLoading(false);
+
+        if (isNativeAndroid) {
+          await setNativeSongMetadata(song);
+          await setNativePlaybackState("playing");
+
+          if (
+            Number.isFinite(audio.duration) &&
+            audio.duration > 0
+          ) {
+            await setNativePositionState({
+              duration: audio.duration,
+              position: 0,
+              playbackRate: 1,
+            });
+          }
+        }
+
+        if (user && getSongId(song) != null) {
+          API.post("/history/play", {
+            song_id: getSongId(song),
+            progress_seconds: 0,
+            completed: false,
+          }).catch((error) => {
+            console.warn(
+              "Could not save listening history:",
+              error?.response?.status,
+              error?.response?.data
+            );
+          });
+        }
+      } catch (error) {
+        if (requestId === playRequestIdRef.current) {
+          console.error("KEERTHANA playback failed:", error);
+          setIsPlaying(false);
+          setIsLoading(false);
+        }
       }
-      if (user && getSongId(song) != null) {
-        API.post("/history/play", {
-          song_id: getSongId(song),
-          progress_seconds: 0,
-          completed: false,
-        }).catch((error) => {
-          console.warn(
-            "Could not save listening history:",
-            error?.response?.status,
-            error?.response?.data
-          );
-        });
-      }
-    } catch (error) {
-      if (requestId === playRequestIdRef.current) {
-        console.error("KEERTHANA playback failed:", error);
-        setIsPlaying(false);
-        setIsLoading(false);
-      }
-    }
-  },
-  [
-    audio,
-    checkLikedSong,
-    resolveSongSource,
-    user,
-  ]
-);
+    },
+    [
+      audio,
+      checkLikedSong,
+      resolveSongSource,
+      user,
+    ]
+  );
+
   /* PAUSE */
-const pauseSong = useCallback(async () => {
-  playRequestIdRef.current += 1;
-  try {
-    if (isNativeAndroid) {
-      await Playlist.pause();
-    } else {
+
+  const pauseSong = useCallback(async () => {
+    playRequestIdRef.current += 1;
+
+    try {
       audio.pause();
-    }
-    setIsPlaying(false);
-    setIsLoading(false);
-  } catch (error) {
-    console.error("Pause failed:", error);
-  }
-}, [audio]);
-const resumeSong = useCallback(async () => {
-  if (!currentSong) return;
-  try {
-    setIsLoading(true);
-    if (isNativeAndroid) {
-      await initializeNativeMusicPlayer();
-      // Rebuild the native playlist after Android app refresh/restart.
-      let activeQueue = Array.isArray(queueRef.current)
-        ? [...queueRef.current]
-        : [];
-      const selectedId = String(getSongId(currentSong));
-      let selectedIndex = activeQueue.findIndex(
-        (song) => String(getSongId(song)) === selectedId
-      );
-      // Make sure the current song exists in the queue.
-      if (selectedIndex < 0) {
-        activeQueue.push(currentSong);
-        selectedIndex = activeQueue.length - 1;
+
+      if (isNativeAndroid) {
+        await setNativePlaybackState("paused");
       }
-      if (activeQueue.length === 0) {
-        activeQueue = [currentSong];
-        selectedIndex = 0;
-      }
-      setQueue(activeQueue);
-      setCurrentIndex(selectedIndex);
-      // Recreate native Android playlist and resolve every audio URL.
-      const nativeItems = await setNativePlaylist(
-        [currentSong],
-        async (song) => getSongAudioUrl(song)
-      );
-      const nativeIndex = nativeItems.findIndex(
-        (item) => String(item.trackId) === selectedId
-      );
-      if (nativeIndex < 0) {
-        throw new Error(
-          `Restored song ${selectedId} was not found in the native playlist.`
+
+      setIsPlaying(false);
+      setIsLoading(false);
+
+      try {
+        const previous = JSON.parse(
+          localStorage.getItem(PLAYER_STORAGE_KEY) || "{}"
+        );
+
+        localStorage.setItem(
+          PLAYER_STORAGE_KEY,
+          JSON.stringify({
+            ...previous,
+            currentSong: currentSongRef.current,
+            queue: queueRef.current,
+            currentIndex: currentIndexRef.current,
+            currentTime: Math.max(
+              0,
+              Number(currentTime) || 0
+            ),
+            wasPlaying: false,
+          })
+        );
+      } catch (storageError) {
+        console.warn(
+          "Could not save paused player position:",
+          storageError
         );
       }
-      // Select the restored song and position without starting it first.
-      // The explicit Play action below starts the already-selected track.
-      await Playlist.selectTrackByIndex({
-        index: nativeIndex,
-        position: Math.max(0, Number(currentTime) || 0),
-      });
-      await Playlist.play();
-      console.log("Android playback restored successfully:", {
-        songId: selectedId,
-        nativeIndex,
-      });
-    } else {
+    } catch (error) {
+      console.error("Pause failed:", error);
+    }
+  }, [audio, currentTime]);
+
+  /* RESUME */
+
+  const resumeSong = useCallback(async () => {
+    const songToResume =
+      currentSongRef.current || currentSong;
+
+    if (!songToResume) return;
+
+    const requestId = ++playRequestIdRef.current;
+
+    try {
+      setIsLoading(true);
+
       if (!audio.getAttribute("src") || audio.error) {
-        const audioUrl = await resolveSongSource(currentSong);
+        const audioUrl = await resolveSongSource(songToResume);
+
         if (!audioUrl) {
           throw new Error("No playable audio URL.");
         }
+
         audio.src = audioUrl;
         audio.load();
+
+        await new Promise((resolve, reject) => {
+          const onReady = () => {
+            cleanup();
+            resolve();
+          };
+
+          const onError = () => {
+            cleanup();
+            reject(
+              new Error("Audio could not be loaded.")
+            );
+          };
+
+          const cleanup = () => {
+            audio.removeEventListener("canplay", onReady);
+            audio.removeEventListener("error", onError);
+          };
+
+          audio.addEventListener(
+            "canplay",
+            onReady,
+            { once: true }
+          );
+
+          audio.addEventListener(
+            "error",
+            onError,
+            { once: true }
+          );
+        });
+
+        audio.currentTime = Math.max(
+          0,
+          Number(currentTime) || 0
+        );
+      } else if (Number.isFinite(audio.duration)) {
+        audio.currentTime = Math.min(
+          Math.max(Number(currentTime) || 0, 0),
+          audio.duration
+        );
       }
+
+      if (requestId !== playRequestIdRef.current) return;
+
       await audio.play();
-    }
-    setIsPlaying(true);
-  } catch (error) {
-    console.error("Resume playback failed:", error);
-    setIsPlaying(false);
-    // Show the actual playback failure in the console.
-    console.error(
-      "KEERTHANA Android player could not restore the current song."
-    );
-  } finally {
-    setIsLoading(false);
-  }
-}, [
-  audio,
-  currentSong,
-  currentTime,
-  resolveSongSource,
-]);
-const togglePlay = useCallback(async () => {
-  if (!currentSong) return;
-  if (isPlaying) {
-    await pauseSong();
-  } else {
-    await resumeSong();
-  }
-}, [currentSong, isPlaying, pauseSong, resumeSong]);
-  /* NEXT SONG */
-const nextSong = useCallback(async () => {
-  if (!queue.length) return;
-  let nextIndex;
-if (isShuffle && queue.length > 1) {
-  do {
-    nextIndex = Math.floor(Math.random() * queue.length);
-  } while (nextIndex === currentIndex);
-} else {
-  nextIndex = currentIndex + 1;
-}
-  if (nextIndex >= queue.length) {
-    if (repeatMode === "all") {
-      nextIndex = 0;
-    } else {
-      await pauseSong();
-      return;
-    }
-  }
-  await playSong(queue[nextIndex], queue, nextIndex);
-}, [
-  queue,
-  isShuffle,
-  currentIndex,
-  repeatMode,
-  playSong,
-  pauseSong,
-]);
 
-/* NATURAL COMPLETION + INTERSTITIAL AD BREAK */
-const handleNaturalSongCompletion = useCallback(async () => {
-  console.info("[KEERTHANA_AD_DEBUG] Natural completion handler entered", {
-    songId: getSongId(currentSong),
-    title: currentSong?.title,
-    currentIndex,
-    queueLength: queue.length,
-    completedSongsBefore: completedSongsSinceAdRef.current,
-    repeatMode,
-    isShuffle,
-    isNativeAndroid,
-  });
+      if (requestId !== playRequestIdRef.current) return;
 
-  if (completionInProgressRef.current) {
-    console.warn("[KEERTHANA_AD_DEBUG] Completion ignored: handler already running");
-    return;
-  }
-  if (!currentSong) {
-    console.warn("[KEERTHANA_AD_DEBUG] Completion ignored: currentSong is empty");
-    return;
-  }
-  completionInProgressRef.current = true;
-
-  try {
-    // Repeat-one restarts the same track and does not count toward an ad.
-    if (repeatMode === "one") {
-      console.info("[KEERTHANA_AD_DEBUG] Repeat-one active; restarting current song without counting");
-      await playSong(currentSong, queue, currentIndex);
-      return;
-    }
-
-    const hasNextSong =
-      (isShuffle && queue.length > 1) ||
-      currentIndex < queue.length - 1 ||
-      repeatMode === "all";
-
-    // No next track means there is no break to insert.
-    if (!hasNextSong) {
-      console.info("[KEERTHANA_AD_DEBUG] No next song in queue; no ad break needed");
-      await nextSong();
-      return;
-    }
-
-    completedSongsSinceAdRef.current += 1;
-    console.info("[KEERTHANA_AD_DEBUG] Natural song count updated", {
-      completedSongsSinceAd: completedSongsSinceAdRef.current,
-      target: 2,
-      nextSongTitle: queue[currentIndex + 1]?.title ?? null,
-    });
-
-    if (completedSongsSinceAdRef.current >= 2) {
-      console.info("[KEERTHANA_AD_DEBUG] Two songs completed; starting ad-break flow");
-      completedSongsSinceAdRef.current = 0;
-
-      // Pause music before checking reward status or showing an ad.
-      try {
-        if (isNativeAndroid) {
-          await Playlist.pause();
-        } else {
-          audio.pause();
-        }
-      } catch (pauseError) {
-        console.warn("Could not pause music before ad:", pauseError);
+      if (isNativeAndroid) {
+        await setNativeSongMetadata(songToResume);
+        await setNativePlaybackState("playing");
       }
 
-      let adFreeActive = false;
-      try {
-        console.info("[KEERTHANA_AD_DEBUG] Checking ad-free reward status...");
-        const status = await getAdFreeStatus();
-        adFreeActive = Boolean(
-          status?.adFreeActive ?? status?.data?.adFreeActive
-        );
-        console.info("[KEERTHANA_AD_DEBUG] Ad-free status received", {
-          adFreeActive,
-          remainingSeconds: status?.remainingSeconds ?? status?.data?.remainingSeconds ?? null,
-        });
-      } catch (statusError) {
-        // Fail closed: do not show an ad when reward status is unknown.
-        console.warn(
-          "Could not verify ad-free status; skipping this ad break:",
-          statusError
-        );
-        adFreeActive = true;
-      }
+      setIsPlaying(true);
+    } catch (error) {
+      console.error("Resume playback failed:", error);
+      setIsPlaying(false);
 
-      if (!adFreeActive && isNativeAndroid) {
-        console.info("[KEERTHANA_AD_DEBUG] Calling showInterstitialAd()");
-        const adShown = await showInterstitialAd();
-        console.info("[KEERTHANA_AD_DEBUG] Interstitial flow finished", { adShown });
-      } else {
-        console.info("[KEERTHANA_AD_DEBUG] Ad skipped", {
-          adFreeActive,
-          isNativeAndroid,
-        });
-      }
-    }
-
-    // Continue even if an ad was unavailable, skipped, or failed.
-    console.info("[KEERTHANA_AD_DEBUG] Starting next song after completion/ad flow");
-    await nextSong();
-  } catch (error) {
-    console.error("[KEERTHANA_AD_DEBUG] Natural completion handling failed:", error);
-    try {
-      await nextSong();
-    } catch (nextError) {
-      console.error("Could not advance after completion:", nextError);
-    }
-  } finally {
-    completionInProgressRef.current = false;
-    console.info("[KEERTHANA_AD_DEBUG] Natural completion handler finished");
-  }
-}, [
-  currentSong,
-  queue,
-  currentIndex,
-  repeatMode,
-  isShuffle,
-  nextSong,
-  playSong,
-  audio,
-]);
-
-// The native status listener reads the latest callback through this ref.
-naturalCompletionHandlerRef.current = handleNaturalSongCompletion;
-
-const previousSong = useCallback(async () => {
-  if (!queue.length) return;
-  if (currentTime > 3) {
-    if (isNativeAndroid) {
-      await Playlist.seekTo({ position: 0 });
-    } else {
-      audio.currentTime = 0;
-    }
-    setCurrentTime(0);
-    return;
-  }
-  let previousIndex = currentIndex - 1;
-  if (previousIndex < 0) {
-    previousIndex =
-      repeatMode === "all" ? queue.length - 1 : 0;
-  }
-  await playSong(queue[previousIndex], queue, previousIndex);
-}, [
-  audio,
-  queue,
-  currentIndex,
-  currentTime,
-  repeatMode,
-  playSong,
-]);
-const seek = useCallback(
-  async (value) => {
-    const newTime = Number(value);
-    if (!Number.isFinite(newTime) || newTime < 0) return;
-    if (isNativeAndroid) {
-      await Playlist.seekTo({ position: newTime });
-      setCurrentTime(newTime);
-      return;
-    }
-    if (!Number.isFinite(audio.duration)) return;
-    audio.currentTime = Math.min(newTime, audio.duration);
-    setCurrentTime(audio.currentTime);
-  },
-  [audio]
-);
-  /* AUTO NEXT AND REPEAT */
-useEffect(() => {
-  if (isNativeAndroid) return;
-  const handleEnded = async () => {
-    console.info("[KEERTHANA_AD_DEBUG] Web audio ended event", {
-      songId: getSongId(currentSong),
-      title: currentSong?.title,
-      currentIndex,
-      queueLength: queue.length,
-    });
-    if (!currentSong) return;
-    if (repeatMode === "one") {
-      try {
-        audio.currentTime = 0;
-        await audio.play();
-      } catch (error) {
-        console.error("Repeat playback failed:", error);
-        setIsPlaying(false);
-      }
-      return;
-    }
-    await naturalCompletionHandlerRef.current?.();
-  };
-  audio.addEventListener("ended", handleEnded);
-  return () => {
-    audio.removeEventListener("ended", handleEnded);
-  };
-}, [
-  audio,
-  currentSong,
-  repeatMode,
-  nextSong,
-]);
-  /* SEEK */
-const seekForward = useCallback(
-  async (seconds = 10) => {
-    if (isNativeAndroid) {
-      const nextTime = Math.max(
-        0,
-        currentTime + seconds
+      console.error(
+        "KEERTHANA Android player could not restore the current song."
       );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    audio,
+    currentSong,
+    currentTime,
+    resolveSongSource,
+  ]);
+
+  const togglePlay = useCallback(async () => {
+    if (!currentSong) return;
+
+    if (isPlaying) {
+      await pauseSong();
+    } else {
+      await resumeSong();
+    }
+  }, [currentSong, isPlaying, pauseSong, resumeSong]);
+
+  /* NEXT SONG */
+
+  const nextSong = useCallback(async () => {
+    const activeQueue = Array.isArray(queueRef.current)
+      ? [...queueRef.current]
+      : [];
+
+    const activeSong = currentSongRef.current;
+
+    if (activeQueue.length === 0) {
+      console.warn(
+        "[KEERTHANA_AUTO_NEXT] Cannot advance: queue is empty"
+      );
+      return;
+    }
+
+    let activeIndex = activeSong
+      ? activeQueue.findIndex(
+          (song) => sameSong(song, activeSong)
+        )
+      : currentIndexRef.current;
+
+    if (activeIndex < 0) {
+      activeIndex = currentIndexRef.current;
+    }
+
+    let nextIndex;
+
+    if (isShuffle && activeQueue.length > 1) {
+      do {
+        nextIndex = Math.floor(
+          Math.random() * activeQueue.length
+        );
+      } while (nextIndex === activeIndex);
+    } else {
+      nextIndex = activeIndex + 1;
+    }
+
+    if (nextIndex >= activeQueue.length) {
+      if (repeatMode === "all") {
+        nextIndex = 0;
+      } else {
+        console.info(
+          "[KEERTHANA_AUTO_NEXT] Queue finished; no next song",
+          {
+            queueLength: activeQueue.length,
+            activeIndex,
+            repeatMode,
+            activeSongId: getSongId(activeSong),
+          }
+        );
+
+        await pauseSong();
+        return;
+      }
+    }
+
+    const nextTrack = activeQueue[nextIndex];
+
+    if (!nextTrack) {
+      console.error(
+        "[KEERTHANA_AUTO_NEXT] Next queue item is missing",
+        {
+          nextIndex,
+          queueLength: activeQueue.length,
+        }
+      );
+
+      return;
+    }
+
+    console.info(
+      "[KEERTHANA_AUTO_NEXT] Loading next queue item",
+      {
+        fromIndex: activeIndex,
+        toIndex: nextIndex,
+        songId: getSongId(nextTrack),
+        title: nextTrack?.title,
+      }
+    );
+
+    await playSong(nextTrack, activeQueue, nextIndex);
+  }, [
+    isShuffle,
+    repeatMode,
+    playSong,
+    pauseSong,
+  ]);
+
+  /* NATURAL COMPLETION + INTERSTITIAL AD BREAK */
+
+  const handleNaturalSongCompletion = useCallback(
+    async () => {
+      if (completionInProgressRef.current) {
+        console.warn(
+          "[KEERTHANA_AUTO_NEXT] Duplicate completion ignored"
+        );
+        return;
+      }
+
+      const completedSong = currentSongRef.current;
+
+      if (!completedSong) {
+        console.warn(
+          "[KEERTHANA_AUTO_NEXT] No current song at completion"
+        );
+        return;
+      }
+
+      completionInProgressRef.current = true;
+
       try {
-        await seekNativeMusic(nextTime);
-        setCurrentTime(nextTime);
+        let latestQueue = Array.isArray(queueRef.current)
+          ? [...queueRef.current]
+          : [];
+
+        let latestIndex = latestQueue.findIndex(
+          (song) => sameSong(song, completedSong)
+        );
+
+        if (latestIndex < 0) {
+          latestQueue = [
+            completedSong,
+            ...latestQueue.filter(
+              (song) => !sameSong(song, completedSong)
+            ),
+          ];
+
+          latestIndex = 0;
+        }
+
+        console.info(
+          "[KEERTHANA_AUTO_NEXT] Natural completion",
+          {
+            songId: getSongId(completedSong),
+            title: completedSong?.title,
+            queueLength: latestQueue.length,
+            currentIndex: latestIndex,
+            repeatMode,
+          }
+        );
+
+        if (repeatMode === "one") {
+          await playSong(
+            completedSong,
+            latestQueue,
+            latestIndex
+          );
+
+          return;
+        }
+
+        let nextIndex =
+          isShuffle && latestQueue.length > 1
+            ? -1
+            : latestIndex + 1;
+
+        if (isShuffle && latestQueue.length > 1) {
+          do {
+            nextIndex = Math.floor(
+              Math.random() * latestQueue.length
+            );
+          } while (nextIndex === latestIndex);
+        }
+
+        if (
+          nextIndex >= latestQueue.length &&
+          repeatMode !== "all"
+        ) {
+          console.warn(
+            "[KEERTHANA_AUTO_NEXT] Queue has no upcoming song; loading song catalogue"
+          );
+
+          try {
+            const response = await API.get("/songs");
+            const payload = response?.data;
+
+            const catalogue = Array.isArray(payload)
+              ? payload
+              : Array.isArray(payload?.songs)
+                ? payload.songs
+                : Array.isArray(payload?.data)
+                  ? payload.data
+                  : Array.isArray(payload?.items)
+                    ? payload.items
+                    : [];
+
+            const currentId = getSongId(completedSong);
+
+            const catalogueIndex = catalogue.findIndex(
+              (song) =>
+                String(getSongId(song)) === String(currentId)
+            );
+
+            if (
+              catalogueIndex >= 0 &&
+              catalogueIndex < catalogue.length - 1
+            ) {
+              latestQueue = catalogue;
+              latestIndex = catalogueIndex;
+              nextIndex = catalogueIndex + 1;
+
+              console.info(
+                "[KEERTHANA_AUTO_NEXT] Recovered next song from catalogue",
+                {
+                  catalogueLength: catalogue.length,
+                  currentIndex: catalogueIndex,
+                  nextSongId: getSongId(catalogue[nextIndex]),
+                  nextSongTitle: catalogue[nextIndex]?.title,
+                }
+              );
+            } else if (
+              repeatMode === "all" &&
+              catalogue.length > 1
+            ) {
+              latestQueue = catalogue;
+              latestIndex = Math.max(0, catalogueIndex);
+              nextIndex = 0;
+            } else {
+              console.warn(
+                "[KEERTHANA_AUTO_NEXT] No next song found in catalogue",
+                {
+                  currentId,
+                  catalogueLength: catalogue.length,
+                  catalogueIndex,
+                }
+              );
+            }
+          } catch (catalogueError) {
+            console.error(
+              "[KEERTHANA_AUTO_NEXT] Could not load catalogue for fallback",
+              catalogueError
+            );
+          }
+        }
+
+        if (nextIndex >= latestQueue.length) {
+          if (
+            repeatMode === "all" &&
+            latestQueue.length > 0
+          ) {
+            nextIndex = 0;
+          } else {
+            console.info(
+              "[KEERTHANA_AUTO_NEXT] Playback queue has finished"
+            );
+            return;
+          }
+        }
+
+        const nextTrack = latestQueue[nextIndex];
+
+        if (!nextTrack) {
+          console.error(
+            "[KEERTHANA_AUTO_NEXT] Next track is unavailable",
+            {
+              nextIndex,
+              queueLength: latestQueue.length,
+            }
+          );
+
+          return;
+        }
+
+        completedSongsSinceAdRef.current += 1;
+
+        console.info(
+          "[KEERTHANA_AD_DEBUG] Natural song count updated",
+          {
+            completedSongsSinceAd:
+              completedSongsSinceAdRef.current,
+            target: 2,
+            nextSongTitle: nextTrack?.title ?? null,
+          }
+        );
+
+        if (completedSongsSinceAdRef.current >= 2) {
+          completedSongsSinceAdRef.current = 0;
+
+          try {
+            audio.pause();
+
+            if (isNativeAndroid) {
+              await setNativePlaybackState("paused");
+            }
+          } catch (pauseError) {
+            console.warn(
+              "[KEERTHANA_AD_DEBUG] Pause before ad failed",
+              pauseError
+            );
+          }
+
+          let adFreeActive = false;
+
+          try {
+            const status = await getAdFreeStatus();
+
+            adFreeActive = Boolean(
+              status?.adFreeActive ??
+              status?.data?.adFreeActive
+            );
+          } catch (statusError) {
+            console.warn(
+              "[KEERTHANA_AD_DEBUG] Could not verify ad-free status; skipping ad",
+              statusError
+            );
+
+            adFreeActive = true;
+          }
+
+          if (!adFreeActive && isNativeAndroid) {
+            try {
+              await showInterstitialAd();
+            } catch (adError) {
+              console.warn(
+                "[KEERTHANA_AD_DEBUG] Interstitial failed; continuing playback",
+                adError
+              );
+            }
+          }
+        }
+
+        queueRef.current = latestQueue;
+        currentIndexRef.current = nextIndex;
+        currentSongRef.current = nextTrack;
+
+        setQueue(latestQueue);
+        setCurrentIndex(nextIndex);
+
+        console.info(
+          "[KEERTHANA_AUTO_NEXT] Starting next song",
+          {
+            songId: getSongId(nextTrack),
+            title: nextTrack?.title,
+            nextIndex,
+          }
+        );
+
+        await playSong(
+          nextTrack,
+          latestQueue,
+          nextIndex
+        );
       } catch (error) {
         console.error(
-          "Android seek forward failed:",
+          "[KEERTHANA_AUTO_NEXT] Completion flow failed",
           error
         );
+      } finally {
+        completionInProgressRef.current = false;
       }
+    },
+    [
+      repeatMode,
+      isShuffle,
+      playSong,
+      audio,
+    ]
+  );
+
+  naturalCompletionHandlerRef.current =
+    handleNaturalSongCompletion;
+
+  /* PREVIOUS SONG */
+
+  const previousSong = useCallback(async () => {
+    if (!queue.length) return;
+
+    if (currentTime > 3) {
+      audio.currentTime = 0;
+      setCurrentTime(0);
       return;
     }
-    if (Number.isFinite(audio.duration)) {
+
+    let previousIndex = currentIndex - 1;
+
+    if (previousIndex < 0) {
+      previousIndex =
+        repeatMode === "all"
+          ? queue.length - 1
+          : 0;
+    }
+
+    await playSong(
+      queue[previousIndex],
+      queue,
+      previousIndex
+    );
+  }, [
+    audio,
+    queue,
+    currentIndex,
+    currentTime,
+    repeatMode,
+    playSong,
+  ]);
+
+  /* KEEP NOTIFICATION HANDLERS UPDATED */
+
+  nextSongRef.current = nextSong;
+  previousSongRef.current = previousSong;
+  resumeSongRef.current = resumeSong;
+  pauseSongRef.current = pauseSong;
+
+  /* SEEK TO POSITION */
+
+  const seek = useCallback(
+    async (value) => {
+      const newTime = Number(value);
+
+      if (
+        !Number.isFinite(newTime) ||
+        newTime < 0
+      ) {
+        return;
+      }
+
+      if (!Number.isFinite(audio.duration)) return;
+
+      audio.currentTime = Math.min(
+        newTime,
+        audio.duration
+      );
+
+      setCurrentTime(audio.currentTime);
+
+      if (isNativeAndroid && audio.duration > 0) {
+        await setNativePositionState({
+          duration: audio.duration,
+          position: audio.currentTime,
+          playbackRate: audio.playbackRate || 1,
+        });
+      }
+    },
+    [audio]
+  );
+
+  seekRef.current = seek;
+
+  /* AUTO NEXT AND REPEAT */
+
+  useEffect(() => {
+    const handleEnded = async () => {
+      console.info(
+        "[KEERTHANA_AD_DEBUG] Web audio ended event",
+        {
+          songId: getSongId(currentSong),
+          title: currentSong?.title,
+          currentIndex,
+          queueLength: queue.length,
+        }
+      );
+
+      if (!currentSong) return;
+
+      if (repeatMode === "one") {
+        try {
+          audio.currentTime = 0;
+          await audio.play();
+        } catch (error) {
+          console.error(
+            "Repeat playback failed:",
+            error
+          );
+
+          setIsPlaying(false);
+        }
+
+        return;
+      }
+
+      await naturalCompletionHandlerRef.current?.();
+    };
+
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [
+    audio,
+    currentSong,
+    repeatMode,
+    nextSong,
+  ]);
+
+  /* SEEK FORWARD */
+
+  const seekForward = useCallback(
+    async (seconds = 10) => {
+      if (!Number.isFinite(audio.duration)) return;
+
       audio.currentTime = Math.min(
         audio.currentTime + seconds,
         audio.duration
       );
-    }
-  },
-  [audio, currentTime]
-);
-const seekBackward = useCallback(
-  async (seconds = 10) => {
-    if (isNativeAndroid) {
-      const previousTime = Math.max(
-        0,
-        currentTime - seconds
+
+      setCurrentTime(audio.currentTime);
+
+      if (isNativeAndroid && audio.duration > 0) {
+        await setNativePositionState({
+          duration: audio.duration,
+          position: audio.currentTime,
+          playbackRate: audio.playbackRate || 1,
+        });
+      }
+    },
+    [audio]
+  );
+
+  /* SEEK BACKWARD */
+
+  const seekBackward = useCallback(
+    async (seconds = 10) => {
+      if (!Number.isFinite(audio.duration)) return;
+
+      audio.currentTime = Math.max(
+        audio.currentTime - seconds,
+        0
       );
-      try {
-        await seekNativeMusic(previousTime);
-        setCurrentTime(previousTime);
-      } catch (error) {
-        console.error(
-          "Android seek backward failed:",
-          error
-        );
+
+      setCurrentTime(audio.currentTime);
+
+      if (isNativeAndroid && audio.duration > 0) {
+        await setNativePositionState({
+          duration: audio.duration,
+          position: audio.currentTime,
+          playbackRate: audio.playbackRate || 1,
+        });
       }
-      return;
-    }
-    audio.currentTime = Math.max(
-      audio.currentTime - seconds,
-      0
-    );
-  },
-  [audio, currentTime]
-);
+    },
+    [audio]
+  );
+
+  seekForwardRef.current = seekForward;
+  seekBackwardRef.current = seekBackward;
+
   /* VOLUME */
+
   const changeVolume = useCallback(
-  async (value) => {
-    const newVolume = Math.min(
-      Math.max(Number(value) || 0, 0),
-      1
-    );
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
-    if (isNativeAndroid) {
-      try {
-        await setNativeMusicVolume(newVolume);
-      } catch (error) {
-        console.error(
-          "Native music volume change failed:",
-          error
-        );
-      }
-      return;
-    }
-    audio.volume = newVolume;
-    audio.muted = newVolume === 0;
-  },
-  [audio]
-);
+    async (value) => {
+      const newVolume = Math.min(
+        Math.max(Number(value) || 0, 0),
+        1
+      );
+
+      setVolume(newVolume);
+      setIsMuted(newVolume === 0);
+
+      audio.volume = newVolume;
+      audio.muted = newVolume === 0;
+    },
+    [audio]
+  );
+
   const toggleMute = useCallback(() => {
     setIsMuted((previous) => !previous);
   }, []);
+
   /* SHUFFLE AND REPEAT */
+
   const toggleShuffle = useCallback(() => {
     setIsShuffle((previous) => !previous);
   }, []);
+
   const toggleRepeat = useCallback(() => {
     setRepeatMode((previous) => {
       if (previous === "off") return "all";
@@ -1279,11 +1668,15 @@ const seekBackward = useCallback(
       return "off";
     });
   }, []);
+
   /* LIKE / UNLIKE */
+
   const toggleLike = useCallback(
     async (song = currentSong) => {
       const songId = getSongId(song);
+
       if (songId == null || !user) return;
+
       try {
         if (isLiked && sameSong(song, currentSong)) {
           await API.delete(`/liked-songs/${songId}`);
@@ -1292,6 +1685,7 @@ const seekBackward = useCallback(
           await API.post("/liked-songs", {
             song_id: songId,
           });
+
           if (sameSong(song, currentSong)) {
             setIsLiked(true);
           }
@@ -1302,303 +1696,435 @@ const seekBackward = useCallback(
     },
     [currentSong, user, isLiked]
   );
+
   /* DOWNLOAD SONG FOR OFFLINE PLAYBACK */
+
   const downloadSong = useCallback(async (song) => {
     const songId = getSongId(song);
+
     if (songId == null) return false;
+
     try {
       const existing = await getOfflineSong(songId);
+
       if (existing?.blob) return true;
+
       const audioUrl = getSongAudioUrl(song);
+
       if (!audioUrl) {
         throw new Error("Song has no valid audio URL");
       }
+
       const response = await fetch(audioUrl);
+
       if (!response.ok) {
         throw new Error(
           `Audio download failed with status ${response.status}`
         );
       }
+
       const blob = await response.blob();
+
       if (!blob.size) {
         throw new Error("Downloaded audio file is empty");
       }
+
       const saved = await saveOfflineSong({
         ...song,
         id: songId,
         blob,
         downloadedAt: Date.now(),
       });
+
       if (saved) {
         setOfflineSongs(await getAllOfflineSongs());
       }
+
       return saved;
     } catch (error) {
       console.error("Offline download failed:", error);
       return false;
     }
   }, []);
+
   // Alias used by SongDetails.jsx
   const downloadSongOffline = downloadSong;
+
   // Track which song is currently downloading
-  const [offlineDownloadingId, setOfflineDownloadingId] = useState(null);
+  const [
+    offlineDownloadingId,
+    setOfflineDownloadingId,
+  ] = useState(null);
+
   /* REMOVE OFFLINE SONG */
-  const removeOfflineSong = useCallback(async (songId) => {
-    if (songId == null) return;
-    await deleteOfflineSong(songId);
-    setOfflineSongs(await getAllOfflineSongs());
-  }, []);
+
+  const removeOfflineSong = useCallback(
+    async (songId) => {
+      if (songId == null) return;
+
+      await deleteOfflineSong(songId);
+
+      setOfflineSongs(await getAllOfflineSongs());
+    },
+    []
+  );
+
   const isSongOffline = useCallback(
     (songId) =>
       offlineSongs.some(
-        (song) => Number(getSongId(song)) === Number(songId)
+        (song) =>
+          Number(getSongId(song)) === Number(songId)
       ),
     [offlineSongs]
   );
+
   /* QUEUE: ADD WITHOUT PLAYING */
-  /* QUEUE: ADD WITHOUT PLAYING */
+
   const addToQueue = useCallback(
     (song) => {
       if (getSongId(song) == null) return;
+
       setQueue((previous) => {
         const existingQueue = Array.isArray(previous)
           ? previous
           : [];
-        // Do not add the same song twice.
+
         if (
-          existingQueue.some((item) => sameSong(item, song))
+          existingQueue.some(
+            (item) => sameSong(item, song)
+          )
         ) {
           return existingQueue;
         }
-        // Preserve the currently playing song at the front
-        // when creating a queue for the first time.
+
         if (
           currentSong &&
           !existingQueue.some(
             (item) => sameSong(item, currentSong)
           )
         ) {
-          return [...existingQueue, currentSong, song];
+          return [
+            ...existingQueue,
+            currentSong,
+            song,
+          ];
         }
+
         return [...existingQueue, song];
       });
+
       setCurrentIndex((previousIndex) => {
         if (previousIndex >= 0) return previousIndex;
+
         return currentSong ? 0 : -1;
       });
     },
     [currentSong]
   );
+
   /* QUEUE: REMOVE */
+
   const removeFromQueue = useCallback(
     (songId) => {
       setQueue((previous) => {
         const removedIndex = previous.findIndex(
-          (song) => Number(getSongId(song)) === Number(songId)
+          (song) =>
+            Number(getSongId(song)) === Number(songId)
         );
+
         if (removedIndex < 0) return previous;
+
         const updated = previous.filter(
-          (song) => Number(getSongId(song)) !== Number(songId)
+          (song) =>
+            Number(getSongId(song)) !== Number(songId)
         );
+
         if (removedIndex < currentIndex) {
-          setCurrentIndex((index) => Math.max(0, index - 1));
+          setCurrentIndex((index) =>
+            Math.max(0, index - 1)
+          );
         } else if (removedIndex === currentIndex) {
           const newIndex = updated.findIndex(
             (song) => sameSong(song, currentSong)
           );
+
           setCurrentIndex(newIndex);
         }
+
         return updated;
       });
     },
     [currentIndex, currentSong]
   );
+
   /* QUEUE: CLEAR UPCOMING SONGS */
+
   const clearQueue = useCallback(() => {
     setQueue(currentSong ? [currentSong] : []);
+
     setCurrentIndex(currentSong ? 0 : -1);
   }, [currentSong]);
+
   /* QUEUE: MOVE UP */
+
   const moveQueueItemUp = useCallback(
     (songId) => {
       setQueue((previous) => {
         const index = previous.findIndex(
-          (song) => Number(getSongId(song)) === Number(songId)
+          (song) =>
+            Number(getSongId(song)) === Number(songId)
         );
+
         if (index <= 0) return previous;
+
         const updated = [...previous];
-        [updated[index - 1], updated[index]] = [
+
+        [
+          updated[index - 1],
+          updated[index],
+        ] = [
           updated[index],
           updated[index - 1],
         ];
+
         setCurrentIndex((current) => {
           if (current === index) return index - 1;
           if (current === index - 1) return index;
           return current;
         });
+
         return updated;
       });
     },
     []
   );
+
   /* QUEUE: MOVE DOWN */
+
   const moveQueueItemDown = useCallback(
     (songId) => {
       setQueue((previous) => {
         const index = previous.findIndex(
-          (song) => Number(getSongId(song)) === Number(songId)
+          (song) =>
+            Number(getSongId(song)) === Number(songId)
         );
-        if (index < 0 || index >= previous.length - 1) {
+
+        if (
+          index < 0 ||
+          index >= previous.length - 1
+        ) {
           return previous;
         }
+
         const updated = [...previous];
-        [updated[index], updated[index + 1]] = [
+
+        [
+          updated[index],
+          updated[index + 1],
+        ] = [
           updated[index + 1],
           updated[index],
         ];
+
         setCurrentIndex((current) => {
           if (current === index) return index + 1;
           if (current === index + 1) return index;
           return current;
         });
+
         return updated;
       });
     },
     []
   );
+
   /* PLAY A SONG SELECTED FROM THE QUEUE */
-  /* PLAY A SONG SELECTED FROM THE QUEUE */
+
   const playQueueSong = useCallback(
     async (song) => {
       if (!song || getSongId(song) == null) return;
-      const activeQueue = Array.isArray(queue) ? queue : [];
+
+      const activeQueue = Array.isArray(queue)
+        ? queue
+        : [];
+
       const index = activeQueue.findIndex(
         (item) => sameSong(item, song)
       );
+
       if (index >= 0) {
-        await playSong(activeQueue[index], activeQueue, index);
+        await playSong(
+          activeQueue[index],
+          activeQueue,
+          index
+        );
+
         return;
       }
-      // If the selected song is not currently in the queue,
-      // create a valid queue containing the current song and selection.
+
       const nextQueue =
         currentSong && !sameSong(currentSong, song)
           ? [currentSong, song]
           : [song];
+
       const nextIndex = nextQueue.findIndex(
         (item) => sameSong(item, song)
       );
-      await playSong(song, nextQueue, nextIndex);
+
+      await playSong(
+        song,
+        nextQueue,
+        nextIndex
+      );
     },
     [queue, currentSong, playSong]
   );
+
   /* CLOSE / CLEAR PLAYER */
-const clearPlayer = useCallback(async () => {
-  playRequestIdRef.current += 1;
-  try {
-    if (isNativeAndroid) {
-      await Playlist.pause();
-      await Playlist.clearAllItems();
-    } else {
+
+  const clearPlayer = useCallback(async () => {
+    playRequestIdRef.current += 1;
+
+    try {
       audio.pause();
+
       try {
         audio.currentTime = 0;
       } catch {}
+
       audio.removeAttribute("src");
       audio.load();
+
+      if (isNativeAndroid) {
+        await clearNativeMediaSession();
+      }
+    } catch (error) {
+      console.error(
+        "Failed to clear player:",
+        error
+      );
     }
-  } catch (error) {
-    console.error("Failed to clear player:", error);
-  }
-  releaseObjectUrl();
-  setCurrentSong(null);
-  setQueue([]);
-  setCurrentIndex(-1);
-  setCurrentTime(0);
-  setDuration(0);
-  setIsPlaying(false);
-  setIsLiked(false);
-  setIsLoading(false);
-  completedSongsSinceAdRef.current = 0;
-  completionInProgressRef.current = false;
-  nativeCompletionSongIdRef.current = null;
-  localStorage.removeItem(PLAYER_STORAGE_KEY);
-}, [audio, releaseObjectUrl]);
+
+    releaseObjectUrl();
+
+    setCurrentSong(null);
+    setQueue([]);
+    setCurrentIndex(-1);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setIsLiked(false);
+    setIsLoading(false);
+
+    completedSongsSinceAdRef.current = 0;
+    completionInProgressRef.current = false;
+    nativeCompletionSongIdRef.current = null;
+
+    localStorage.removeItem(PLAYER_STORAGE_KEY);
+  }, [audio, releaseObjectUrl]);
+
   const closePlayer = clearPlayer;
+
   /* CLEANUP */
+
   useEffect(() => {
     return () => {
       playRequestIdRef.current += 1;
+
       audio.pause();
       audio.removeAttribute("src");
       audio.load();
+
       releaseObjectUrl();
     };
   }, [audio, releaseObjectUrl]);
+
   /* FORMAT TIME */
+
   const formatTime = useCallback((seconds) => {
     if (!Number.isFinite(seconds) || seconds <= 0) {
       return "0:00";
     }
+
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
+
     return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
   }, []);
+
   /* CONTEXT VALUE */
+
   const value = {
     currentSong,
     setCurrentSong,
+
     queue,
     setQueue,
+
     currentIndex,
     setCurrentIndex,
+
     isPlaying,
     isLoading,
+
     playSong,
     pauseSong,
     resumeSong,
     togglePlay,
+
     nextSong,
     previousSong,
+
     currentTime,
     duration,
     seek,
     seekForward,
     seekBackward,
+
     volume,
     setVolume: changeVolume,
     changeVolume,
+
     isMuted,
     toggleMute,
+
     isShuffle,
     toggleShuffle,
+
     repeatMode,
     toggleRepeat,
+
     isLiked,
     setIsLiked,
     toggleLike,
+
     offlineSongs,
     downloadSong,
-       downloadSongOffline,
+    downloadSongOffline,
     offlineDownloadingId,
     removeOfflineSong,
     isSongOffline,
+
     addToQueue,
     removeFromQueue,
     clearQueue,
     moveQueueItemUp,
     moveQueueItemDown,
     playQueueSong,
+
     audioRef,
     audio,
+
     clearPlayer,
     closePlayer,
     formatTime,
   };
+
   return (
     <PlayerContext.Provider value={value}>
       {children}
     </PlayerContext.Provider>
   );
 };
+
 export default PlayerContext;
