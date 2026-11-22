@@ -1,126 +1,62 @@
+
 import {
   FaHome,
   FaSearch,
   FaBookOpen,
   FaUser,
+  FaGift,
 } from "react-icons/fa";
 
-import {
-  NavLink,
-} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import "../assets/css/bottomNav.css";
 
-
 function BottomNav() {
-
-
-  /* =====================================================
-     NAV CLASS
-  ===================================================== */
-
-  const navClass = ({
-    isActive,
-  }) => {
-
-    return isActive
+  const navClass = ({ isActive }) =>
+    isActive
       ? "bottom-nav-item active"
       : "bottom-nav-item";
 
-  };
-
-
   return (
-
     <nav className="bottom-nav">
 
-
-      {/* =================================================
-          HOME
-      ================================================= */}
-
-      <NavLink
-        to="/"
-        end
-        className={navClass}
-      >
-
+      <NavLink to="/home" className={navClass}>
         <div className="bottom-nav-icon">
           <FaHome />
         </div>
-
-        <span>
-          Home
-        </span>
-
+        <span>Home</span>
       </NavLink>
 
-
-      {/* =================================================
-          SEARCH
-      ================================================= */}
-
-      <NavLink
-        to="/search"
-        className={navClass}
-      >
-
+      <NavLink to="/search" className={navClass}>
         <div className="bottom-nav-icon">
           <FaSearch />
         </div>
-
-        <span>
-          Search
-        </span>
-
+        <span>Search</span>
       </NavLink>
 
-
-      {/* =================================================
-          LIBRARY
-      ================================================= */}
-
-      <NavLink
-        to="/library"
-        className={navClass}
-      >
-
+      <NavLink to="/library" className={navClass}>
         <div className="bottom-nav-icon">
           <FaBookOpen />
         </div>
-
-        <span>
-          Library
-        </span>
-
+        <span>Library</span>
       </NavLink>
 
+      <NavLink to="/ad-free-reward" className={navClass}>
+        <div className="bottom-nav-icon">
+          <FaGift />
+        </div>
+        <span>Ad-Free</span>
+      </NavLink>
 
-      {/* =================================================
-          PROFILE
-      ================================================= */}
-
-      <NavLink
-        to="/profile"
-        className={navClass}
-      >
-
+      <NavLink to="/profile" className={navClass}>
         <div className="bottom-nav-icon">
           <FaUser />
         </div>
-
-        <span>
-          Profile
-        </span>
-
+        <span>Profile</span>
       </NavLink>
 
-
     </nav>
-
   );
-
 }
-
 
 export default BottomNav;

@@ -142,7 +142,7 @@ function AndroidBackButtonHandler() {
 ========================================================= */
 
 const APP_OPEN_AD_UNIT_ID =
-  "ca-app-pub-3940256099942544/9257395921";
+  "ca-app-pub-4269202427991524/4146003724";
 
 const APP_OPEN_AD_COOLDOWN = 5 * 60 * 1000;
 
