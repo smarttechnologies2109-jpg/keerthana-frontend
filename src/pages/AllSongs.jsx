@@ -242,28 +242,35 @@ const containsTelugu = (value) =>
 const getArtistName = (song, artistsById = {}) => {
   const candidates = [];
 
-  // New multi-artist API shape: [{ id, name_english, ... }, ...]
+  // Preferred API response: [{ id, name_english, ... }, ...]
   if (Array.isArray(song?.artists)) {
     candidates.push(...song.artists);
-  } else if (Array.isArray(song?.artist)) {
-    candidates.push(...song.artist);
-  } else if (song?.artist && typeof song.artist === "object") {
-    candidates.push(song.artist);
   }
 
-  // Support artist_ids arrays while the API is being migrated.
-  if (!candidates.length && Array.isArray(song?.artist_ids)) {
+  // Support the join-table response shape: song_artists.
+  if (Array.isArray(song?.song_artists)) {
+    candidates.push(...song.song_artists);
+  }
+
+  // Some APIs return artist IDs separately.
+  if (Array.isArray(song?.artist_ids)) {
     candidates.push(...song.artist_ids);
   }
 
-  // Backward-compatible single-artist ID and response fields.
+  // Legacy single artist fields.
   if (!candidates.length) {
-    const legacyId = song?.artist_id ?? song?.artistId;
-    if (legacyId != null) candidates.push(legacyId);
+    if (Array.isArray(song?.artist)) {
+      candidates.push(...song.artist);
+    } else if (song?.artist && typeof song.artist === "object") {
+      candidates.push(song.artist);
+    } else if (song?.artist_id != null || song?.artistId != null) {
+      candidates.push(song.artist_id ?? song.artistId);
+    } else if (typeof song?.artist === "string" && song.artist.trim()) {
+      candidates.push(song.artist);
+    }
   }
 
   const names = [];
-
   const addName = (value) => {
     if (
       typeof value === "string" &&
@@ -277,13 +284,29 @@ const getArtistName = (song, artistsById = {}) => {
     }
   };
 
+  const getEnglishName = (artist) => {
+    if (!artist || typeof artist !== "object") return "";
+
+    return (
+      artist.name_english ||
+      artist.english_name ||
+      artist.nameEnglish ||
+      artist.englishName ||
+      artist.artist_name_english ||
+      artist.artist_english_name ||
+      // Some artist records store their English display name in `name`.
+      (!containsTelugu(artist.name) ? artist.name : "")
+    );
+  };
+
   candidates.forEach((candidate) => {
     if (candidate == null) return;
 
     const candidateId =
       typeof candidate === "object"
         ? candidate.id ?? candidate.artist_id
-        : typeof candidate === "number" || /^\d+$/.test(String(candidate).trim())
+        : typeof candidate === "number" ||
+            /^\d+$/.test(String(candidate).trim())
           ? candidate
           : null;
 
@@ -293,57 +316,29 @@ const getArtistName = (song, artistsById = {}) => {
         : {};
 
     if (typeof candidate === "object") {
-      addName(
-        candidate.name_english ||
-        candidate.english_name ||
-        candidate.nameEnglish ||
-        candidate.englishName ||
-        candidate.artist_name_english
-      );
-
-      // If the object has no English name, try the matching /artists record.
-      if (names.length === 0 || !(
-        candidate.name_english ||
-        candidate.english_name ||
-        candidate.nameEnglish ||
-        candidate.englishName ||
-        candidate.artist_name_english
-      )) {
-        addName(linkedArtist.name_english || linkedArtist.english_name);
-      }
+      addName(getEnglishName(candidate));
+      addName(getEnglishName(linkedArtist));
     } else if (candidateId != null) {
-      addName(linkedArtist.name_english || linkedArtist.english_name);
+      addName(getEnglishName(linkedArtist));
     } else {
-      // String-valued legacy artist names are accepted only when not Telugu.
       addName(candidate);
     }
   });
 
-  // Legacy APIs may provide an English artist name without an artist object.
-  if (!names.length) {
-    addName(
-      song?.artist_name_english ||
-      song?.artist_english ||
-      song?.artist_english_name ||
-      song?.artist_name_en ||
-      song?.artistEnglishName ||
-      song?.artistNameEnglish ||
-      song?.artistEnglish ||
-      (song?.artist && typeof song.artist === "object"
-        ? song.artist.name_english || song.artist.english_name
-        : "") ||
-      (typeof song?.artist === "string" ? song.artist : "") ||
-      song?.artist_name ||
-      song?.artistName
-    );
+  // Direct English fields from older /songs API responses.
+  [
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artist_english_name,
+    song?.artist_name_en,
+    song?.artistEnglishName,
+    song?.artistNameEnglish,
+    song?.artistEnglish,
+    song?.artist_name,
+    song?.artistName,
+  ].forEach(addName);
 
-    const legacyId = song?.artist_id ?? song?.artistId;
-    if (!names.length && legacyId != null) {
-      const linkedArtist = artistsById[String(legacyId)] || {};
-      addName(linkedArtist.name_english || linkedArtist.english_name);
-    }
-  }
-
+  // Keep a clear fallback if the API does not provide linked artist data.
   return names.length ? names.join(", ") : "Unknown Artist";
 };
 const getAlbumName = (song) =>
@@ -469,6 +464,7 @@ export default function AllSongs() {
             artist?.name_english ||
             artist?.english_name ||
             artist?.nameEnglish ||
+            (!containsTelugu(artist?.name) ? artist?.name : "") ||
             "";
 
           if (artistId != null && englishName && !containsTelugu(englishName)) {

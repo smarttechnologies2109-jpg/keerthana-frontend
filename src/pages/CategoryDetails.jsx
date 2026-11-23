@@ -117,95 +117,94 @@ const getSongEnglishArtistName = (song, artists = []) => {
 
   const artistDirectory = Array.isArray(artists) ? artists : [];
   const names = [];
+
   const addName = (value) => {
-    if (isEnglishName(value)) {
-      const name = value.trim();
-      if (!names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
-        names.push(name);
-      }
+    if (!isEnglishName(value)) return;
+
+    const name = value.trim();
+    if (!names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+      names.push(name);
     }
+  };
+
+  const findDirectoryArtist = (artistId) => {
+    if (artistId == null) return null;
+    return artistDirectory.find(
+      (item) =>
+        String(item?.id ?? item?.artist_id ?? "") === String(artistId)
+    ) || null;
   };
 
   const addArtist = (artist) => {
-    if (!artist) return;
+    if (artist == null) return;
 
-    if (typeof artist === "string") {
-      addName(artist);
+    if (typeof artist === "string" || typeof artist === "number") {
+      const directoryArtist = findDirectoryArtist(artist);
+      if (directoryArtist) {
+        addArtist(directoryArtist);
+      } else if (typeof artist === "string") {
+        addName(artist);
+      }
       return;
     }
 
-    if (typeof artist === "object") {
+    if (typeof artist !== "object") return;
+
+    // song_artists rows may wrap the actual artist object in `artist`.
+    const nestedArtist =
+      artist.artist && typeof artist.artist === "object"
+        ? artist.artist
+        : artist.artist_details && typeof artist.artist_details === "object"
+          ? artist.artist_details
+          : artist;
+
+    addName(
+      nestedArtist.name_english ||
+      nestedArtist.english_name ||
+      nestedArtist.nameEnglish ||
+      nestedArtist.englishName ||
+      nestedArtist.artist_name_english ||
+      nestedArtist.artist_english
+    );
+
+    const artistId =
+      nestedArtist.id ??
+      nestedArtist.artist_id ??
+      artist.artist_id ??
+      artist.artistId;
+
+    const directoryArtist = findDirectoryArtist(artistId);
+    if (directoryArtist) {
       addName(
-        artist.name_english ||
-        artist.english_name ||
-        artist.nameEnglish ||
-        artist.englishName ||
-        artist.artist_name_english ||
-        artist.artist_english
+        directoryArtist.name_english ||
+        directoryArtist.english_name ||
+        directoryArtist.nameEnglish ||
+        directoryArtist.englishName ||
+        directoryArtist.artist_name_english
       );
-
-      const artistId = artist.id ?? artist.artist_id;
-      if (artistId != null) {
-        const directoryArtist = artistDirectory.find(
-          (item) =>
-            String(item?.id ?? item?.artist_id ?? "") === String(artistId)
-        );
-
-        if (directoryArtist) {
-          addName(
-            directoryArtist.name_english ||
-            directoryArtist.english_name ||
-            directoryArtist.nameEnglish ||
-            directoryArtist.englishName ||
-            directoryArtist.artist_name_english
-          );
-        }
-      }
     }
   };
 
-  // Preferred many-to-many response from the API.
-  if (Array.isArray(song?.artists)) {
-    song.artists.forEach(addArtist);
-  }
+  // Support the common multi-artist response formats.
+  if (Array.isArray(song?.artists)) song.artists.forEach(addArtist);
+  if (Array.isArray(song?.song_artists)) song.song_artists.forEach(addArtist);
 
-  // Some APIs return the artist collection under artist.
   if (Array.isArray(song?.artist)) {
     song.artist.forEach(addArtist);
   } else {
     addArtist(song?.artist);
   }
 
-  // Resolve artist_ids when the API returns IDs without artist objects.
-  const artistIds = Array.isArray(song?.artist_ids)
-    ? song.artist_ids
-    : Array.isArray(song?.artistIds)
-      ? song.artistIds
-      : [];
+  // Resolve artist IDs returned separately from artist objects.
+  const artistIds = [
+    ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+    ...(Array.isArray(song?.artistIds) ? song.artistIds : []),
+  ];
+  artistIds.forEach(addArtist);
 
-  artistIds.forEach((id) => {
-    const directoryArtist = artistDirectory.find(
-      (item) => String(item?.id ?? item?.artist_id ?? "") === String(id)
-    );
-
-    if (directoryArtist) addArtist(directoryArtist);
-  });
-
-  // Keep compatibility with the legacy single-artist song fields.
-  const legacyArtistId =
-    song?.artist_id ??
-    song?.artistId ??
-    song?.artist?.id ??
-    song?.artist?.artist_id;
-
-  if (legacyArtistId != null) {
-    const linkedArtist = artistDirectory.find(
-      (artist) =>
-        String(artist?.id ?? artist?.artist_id ?? "") ===
-        String(legacyArtistId)
-    );
-    if (linkedArtist) addArtist(linkedArtist);
-  }
+  // Backward compatibility with the original single-artist fields.
+  const legacyArtistId = song?.artist_id ?? song?.artistId;
+  if (legacyArtistId != null) addArtist(legacyArtistId);
 
   [
     song?.artist_name_english,
@@ -221,6 +220,7 @@ const getSongEnglishArtistName = (song, artists = []) => {
 
   return names.length ? names.join(", ") : "Artist name unavailable";
 };
+
 
 const compareSongsAlphabetically = (a, b) => {
   const titleA = a?.title_english || a?.title || "";

@@ -196,21 +196,19 @@ const hasTeluguScript = (value) =>
 const getArtistName = (song, artistsById = {}) => {
   const candidates = [];
 
-  // New multi-artist API shape: [{ id, name_english, ... }, ...]
-  if (Array.isArray(song?.artists)) {
-    candidates.push(...song.artists);
-  } else if (Array.isArray(song?.artist)) {
+  // Support both direct artist arrays and the song_artists join-table response.
+  if (Array.isArray(song?.artists)) candidates.push(...song.artists);
+  if (Array.isArray(song?.song_artists)) candidates.push(...song.song_artists);
+
+  if (Array.isArray(song?.artist)) {
     candidates.push(...song.artist);
   } else if (song?.artist && typeof song.artist === "object") {
     candidates.push(song.artist);
   }
 
-  // Also support artist_ids while the API is being migrated.
-  if (!candidates.length && Array.isArray(song?.artist_ids)) {
-    candidates.push(...song.artist_ids);
-  }
+  if (Array.isArray(song?.artist_ids)) candidates.push(...song.artist_ids);
 
-  // Backward compatibility with the old single-artist response.
+  // Keep the legacy single-artist ID as a fallback.
   if (!candidates.length) {
     const legacyId = song?.artist_id ?? song?.artistId;
     if (legacyId != null) candidates.push(legacyId);
@@ -223,9 +221,7 @@ const getArtistName = (song, artistsById = {}) => {
       typeof value !== "string" ||
       !value.trim() ||
       hasTeluguScript(value)
-    ) {
-      return;
-    }
+    ) return;
 
     const cleanName = value.trim();
     if (!names.some((name) => name.toLowerCase() === cleanName.toLowerCase())) {
@@ -236,9 +232,20 @@ const getArtistName = (song, artistsById = {}) => {
   candidates.forEach((candidate) => {
     if (candidate == null) return;
 
+    // Join-table records may look like:
+    // { artist_id: 17, artist: { id: 17, name_english: "..." } }
+    const nested =
+      typeof candidate === "object" && candidate.artist &&
+      typeof candidate.artist === "object"
+        ? candidate.artist
+        : {};
+
     const candidateId =
       typeof candidate === "object"
-        ? candidate.id ?? candidate.artist_id
+        ? candidate.id ??
+          candidate.artist_id ??
+          nested.id ??
+          nested.artist_id
         : typeof candidate === "number" ||
             /^\d+$/.test(String(candidate).trim())
           ? candidate
@@ -247,43 +254,29 @@ const getArtistName = (song, artistsById = {}) => {
     const linkedArtist =
       candidateId != null ? artistsById[String(candidateId)] || {} : {};
 
-    if (typeof candidate === "object") {
-      addName(
-        candidate.name_english ||
-          candidate.english_name ||
-          candidate.artist_name_english ||
-          candidate.englishName ||
-          candidate.nameEnglish
-      );
+    const artistObjects = [
+      typeof candidate === "object" ? candidate : {},
+      nested,
+      linkedArtist,
+    ];
 
-      if (
-        !(
-          candidate.name_english ||
-          candidate.english_name ||
-          candidate.artist_name_english ||
-          candidate.englishName ||
-          candidate.nameEnglish
-        )
-      ) {
-        addName(
-          linkedArtist.name_english ||
-            linkedArtist.english_name ||
-            linkedArtist.nameEnglish
-        );
-      }
-    } else if (candidateId != null) {
+    artistObjects.forEach((artist) => {
       addName(
-        linkedArtist.name_english ||
-          linkedArtist.english_name ||
-          linkedArtist.nameEnglish
+        artist.name_english ||
+          artist.english_name ||
+          artist.artist_name_english ||
+          artist.englishName ||
+          artist.nameEnglish
       );
-    } else {
-      // Legacy string artist names are accepted only if not Telugu script.
+    });
+
+    if (typeof candidate === "string" && candidateId == null) {
+      // Legacy artist names are shown only when they are English.
       addName(candidate);
     }
   });
 
-  // Support legacy API responses that expose a single English artist field.
+  // Support older API responses that expose a single English artist field.
   if (!names.length) {
     const artistObject =
       song?.artist && typeof song.artist === "object" ? song.artist : {};
@@ -334,8 +327,7 @@ const getArtistName = (song, artistsById = {}) => {
   }
 
   return names.length ? names.join(", ") : "Unknown Artist";
-};
-/* =====================================================
+};/* =====================================================
 
    ALBUM
 

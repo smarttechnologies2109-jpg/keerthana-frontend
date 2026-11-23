@@ -234,6 +234,39 @@ function ManageSongs() {
     getRelationName(song, "artist");
 
 
+  // Display every artist returned by the admin songs endpoint.
+  // Keep English names first and fall back to the existing single-artist fields
+  // for older song records or API responses.
+  const getArtists = (song) => {
+    const artists = Array.isArray(song?.artists) ? song.artists : [];
+
+    const artistNames = artists
+      .map((artist) => {
+        if (typeof artist === "string") {
+          return pickEnglish(artist);
+        }
+
+        return pickEnglish(
+          artist?.name_english,
+          artist?.english_name,
+          artist?.nameEnglish,
+          artist?.artist_name_english,
+          artist?.name
+        );
+      })
+      .filter(Boolean);
+
+    // Remove duplicate names while preserving the API's artist order.
+    const uniqueArtistNames = [...new Set(artistNames)];
+
+    if (uniqueArtistNames.length > 0) {
+      return uniqueArtistNames.join(", ");
+    }
+
+    return getArtist(song);
+  };
+
+
 
   const getAlbum = (song) =>
 
@@ -464,7 +497,7 @@ function ManageSongs() {
         adminMinistriesResult,
         categoriesResult,
       ] = await Promise.allSettled([
-        API.get("/songs"),
+        API.get("/admin/songs"),
         API.get("/artists"),
         API.get("/albums"),
         API.get("/ministries"),
@@ -963,7 +996,7 @@ function ManageSongs() {
 
         song.title_english,
 
-        getArtist(song),
+        getArtists(song),
 
         getAlbum(song),
 
@@ -1945,11 +1978,11 @@ function ManageSongs() {
 
 
 
-                    <td>
+                    <td className="admin-song-artists-cell">
 
                       {displayValue(
 
-                        getArtist(song),
+                        getArtists(song),
 
                         "Unknown Artist"
 

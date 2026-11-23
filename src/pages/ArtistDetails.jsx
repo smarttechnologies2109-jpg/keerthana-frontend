@@ -40,6 +40,7 @@ function ArtistDetails() {
   } = usePlayer();
 
   const [artist, setArtist] = useState(null);
+  const [artistsById, setArtistsById] = useState({});
   const artistRef = useRef(null);
   artistRef.current = artist;
   const [loading, setLoading] = useState(true);
@@ -85,6 +86,51 @@ function ArtistDetails() {
       if (nextArtist) {
         setArtist(nextArtist);
         setError("");
+
+        // Load the artist directory so song_artists / artist_ids can
+        // resolve to English names when the detail API returns IDs only.
+        try {
+          const artistsResponse = await API.get("/artists");
+          const artistsPayload = artistsResponse?.data;
+          const artistList = Array.isArray(artistsPayload)
+            ? artistsPayload
+            : Array.isArray(artistsPayload?.artists)
+              ? artistsPayload.artists
+              : Array.isArray(artistsPayload?.data)
+                ? artistsPayload.data
+                : Array.isArray(artistsPayload?.data?.artists)
+                  ? artistsPayload.data.artists
+                  : [];
+
+          const lookup = {};
+          artistList.forEach((item) => {
+            const artistId = item?.id ?? item?.artist_id;
+            const englishName =
+              item?.name_english ||
+              item?.english_name ||
+              item?.artist_name_english ||
+              item?.englishName ||
+              item?.nameEnglish;
+
+            if (
+              artistId != null &&
+              typeof englishName === "string" &&
+              englishName.trim() &&
+              !/[\u0C00-\u0C7F]/.test(englishName)
+            ) {
+              lookup[String(artistId)] = {
+                ...item,
+                name_english: englishName.trim(),
+              };
+            }
+          });
+          if (requestId === requestIdRef.current) {
+            setArtistsById(lookup);
+          }
+        } catch (artistListError) {
+          console.warn("Could not load artist name lookup:", artistListError);
+          setArtistsById({});
+        }
       } else if (!artistRef.current) {
         setError("Artist details are not available.");
       }
@@ -232,23 +278,36 @@ function ArtistDetails() {
     artist?.english_name ||
     "Unknown Artist";
 
-  // A song can belong to several artists. Prefer the complete artists array
-  // returned by the API, while keeping compatibility with older song records.
+  // A song can belong to several artists. Support the common API
+  // relationship shapes and resolve ID-only relationships through /artists.
   const getSongArtistNames = (song) => {
-    const candidates = Array.isArray(song?.artists)
-      ? song.artists
-      : Array.isArray(song?.artist)
-        ? song.artist
-        : song?.artist && typeof song.artist === "object"
-          ? [song.artist]
-          : [];
+    const candidates = [];
+
+    if (Array.isArray(song?.artists)) candidates.push(...song.artists);
+    if (Array.isArray(song?.song_artists)) candidates.push(...song.song_artists);
+    if (!candidates.length && Array.isArray(song?.artist)) {
+      candidates.push(...song.artist);
+    } else if (
+      !candidates.length &&
+      song?.artist &&
+      typeof song.artist === "object"
+    ) {
+      candidates.push(song.artist);
+    }
+    if (!candidates.length && Array.isArray(song?.artist_ids)) {
+      candidates.push(...song.artist_ids);
+    }
+    if (!candidates.length) {
+      const legacyId = song?.artist_id ?? song?.artistId;
+      if (legacyId != null) candidates.push(legacyId);
+    }
 
     const names = [];
     const addEnglishName = (value) => {
       if (
         typeof value !== "string" ||
         !value.trim() ||
-        /[\\u0C00-\\u0C7F]/.test(value)
+        /[\u0C00-\u0C7F]/.test(value)
       ) return;
 
       const clean = value.trim();
@@ -258,19 +317,46 @@ function ArtistDetails() {
     };
 
     candidates.forEach((candidate) => {
-      if (typeof candidate === "string") {
-        addEnglishName(candidate);
-        return;
-      }
-      if (!candidate || typeof candidate !== "object") return;
+      if (candidate == null) return;
 
-      addEnglishName(
-        candidate.name_english ||
-        candidate.english_name ||
-        candidate.artist_name_english ||
-        candidate.englishName ||
-        candidate.nameEnglish
-      );
+      const relationArtist =
+        candidate && typeof candidate === "object"
+          ? candidate.artist && typeof candidate.artist === "object"
+            ? candidate.artist
+            : candidate
+          : null;
+
+      const candidateId =
+        relationArtist?.id ??
+        relationArtist?.artist_id ??
+        (typeof candidate === "number" ||
+        /^\d+$/.test(String(candidate).trim())
+          ? candidate
+          : null);
+
+      const linkedArtist =
+        candidateId != null ? artistsById[String(candidateId)] || {} : {};
+
+      if (relationArtist) {
+        addEnglishName(
+          relationArtist.name_english ||
+          relationArtist.english_name ||
+          relationArtist.artist_name_english ||
+          relationArtist.englishName ||
+          relationArtist.nameEnglish ||
+          linkedArtist.name_english ||
+          linkedArtist.english_name ||
+          linkedArtist.nameEnglish
+        );
+      } else if (candidateId != null) {
+        addEnglishName(
+          linkedArtist.name_english ||
+          linkedArtist.english_name ||
+          linkedArtist.nameEnglish
+        );
+      } else {
+        addEnglishName(candidate);
+      }
     });
 
     if (!names.length) {
@@ -283,8 +369,7 @@ function ArtistDetails() {
       );
     }
 
-    // Legacy records may not include artist data; use this profile's name
-    // only as a final fallback for songs listed on this artist's page.
+    // This profile is a safe fallback for songs listed on this artist page.
     if (!names.length && artistEnglishName !== "Unknown Artist") {
       names.push(artistEnglishName);
     }
@@ -317,6 +402,15 @@ function ArtistDetails() {
           ])
         : []),
       song?.artist,
+      getSongArtistNames(song),
+      ...(Array.isArray(song?.song_artists)
+        ? song.song_artists.flatMap((item) => [
+            item?.artist?.name_english,
+            item?.artist?.english_name,
+            item?.name_english,
+            item?.english_name,
+          ])
+        : []),
       song?.language,
       song?.category_name,
       song?.album_name,

@@ -479,12 +479,10 @@ function MultiArtistDropdown({
                 )}
               </span>
 
-              {index === 0 && (
-                <span className="admin-primary-artist-label">
-                  Primary
-                </span>
-              )}
-
+            <small className="admin-multi-artist-help">
+  {selectedIds.length} artist(s) selected.
+  This song will be associated with every selected artist.
+</small>
               <button
                 type="button"
                 onClick={() => toggleArtist(artist.id)}
@@ -585,9 +583,9 @@ function MultiArtistDropdown({
       )}
 
       <small className="admin-multi-artist-help">
-        {selectedIds.length} artist(s) selected.
-        The first selected artist is the primary artist.
-      </small>
+  {selectedIds.length} artist(s) selected.
+  This song will be associated with every selected artist.
+</small>
     </div>
   );
 }

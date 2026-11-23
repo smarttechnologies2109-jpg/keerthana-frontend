@@ -36,52 +36,88 @@ function isEnglishArtistName(value) {
   if (typeof value !== "string") return false;
   const name = value.trim();
   if (!name) return false;
-  return !/[\\u0C00-\\u0C7F]/.test(name);
+  return !/[\u0C00-\u0C7F]/.test(name);
 }
 
-function getArtistEntries(source) {
+function getArtistEntries(source, artistsById = {}) {
   const candidates = [
     ...(Array.isArray(source?.artists) ? source.artists : []),
+    ...(Array.isArray(source?.song_artists) ? source.song_artists : []),
     ...(Array.isArray(source?.artist) ? source.artist : []),
     ...(source?.artist && !Array.isArray(source.artist) && typeof source.artist === "object"
       ? [source.artist]
       : []),
   ];
 
-  const entries = candidates
-    .map((artist) => {
-      if (typeof artist === "string") {
-        return isEnglishArtistName(artist) ? { name: artist.trim() } : null;
-      }
-      if (!artist || typeof artist !== "object") return null;
+  if (!candidates.length && Array.isArray(source?.artist_ids)) {
+    candidates.push(...source.artist_ids);
+  }
 
-      const name =
-        artist.name_english ||
-        artist.artist_name_english ||
-        artist.nameEnglish ||
-        artist.artist_name ||
-        artist.name ||
-        artist.title_english;
+  if (!candidates.length) {
+    const legacyId = source?.artist_id ?? source?.artistId;
+    if (legacyId != null) candidates.push(legacyId);
+  }
 
-      if (!isEnglishArtistName(name)) return null;
-      return {
-        id: artist.id || artist.artist_id || null,
-        name: name.trim(),
-      };
-    })
-    .filter(Boolean);
+  const entries = [];
 
-  const fallbackName =
-    source?.artist_name_english ||
-    source?.artistNameEnglish ||
-    source?.artist_name ||
-    source?.artist;
+  const addEntry = (artist, fallbackId = null) => {
+    if (artist == null) return;
 
-  if (!entries.length && isEnglishArtistName(fallbackName)) {
+    const nestedArtist =
+      typeof artist === "object"
+        ? artist.artist || artist.artist_details || artist.artistDetails || artist
+        : null;
+
+    const artistId =
+      typeof artist === "object"
+        ? artist.artist_id ?? artist.id ?? nestedArtist?.artist_id ?? nestedArtist?.id ?? fallbackId
+        : /^\d+$/.test(String(artist).trim())
+          ? artist
+          : fallbackId;
+
+    const linkedArtist =
+      artistId != null ? artistsById[String(artistId)] || {} : {};
+
+    const name =
+      typeof artist === "string" && artistId == null
+        ? artist
+        : nestedArtist?.name_english ||
+          nestedArtist?.english_name ||
+          nestedArtist?.artist_name_english ||
+          nestedArtist?.nameEnglish ||
+          nestedArtist?.englishName ||
+          artist?.name_english ||
+          artist?.english_name ||
+          artist?.artist_name_english ||
+          artist?.nameEnglish ||
+          artist?.englishName ||
+          linkedArtist.name_english ||
+          linkedArtist.english_name ||
+          linkedArtist.artist_name_english ||
+          linkedArtist.nameEnglish ||
+          linkedArtist.englishName ||
+          artist?.artist_name ||
+          artist?.name;
+
+    if (!isEnglishArtistName(name)) return;
+
     entries.push({
-      id: source?.artist_id || null,
-      name: fallbackName.trim(),
+      id: artistId ?? linkedArtist.id ?? null,
+      name: name.trim(),
     });
+  };
+
+  candidates.forEach((candidate) => addEntry(candidate));
+
+  if (!entries.length) {
+    addEntry(
+      source?.artist_name_english ||
+        source?.artistNameEnglish ||
+        source?.artist_english ||
+        source?.artist_name ||
+        (typeof source?.artist === "string" ? source.artist : ""),
+      source?.artist_id ?? source?.artistId
+    );
   }
 
   const seen = new Set();
@@ -93,23 +129,19 @@ function getArtistEntries(source) {
   });
 }
 
-function getAlbumArtistEntries(album) {
-  const entries = getArtistEntries(album);
-  return entries.length ? entries : [{ id: album?.artist_id || null, name: "KEERTHANA" }];
+function getAlbumArtistEntries(album, artistsById = {}) {
+  const entries = getArtistEntries(album, artistsById);
+  return entries.length ? entries : [];
 }
 
-function getSongArtistNames(song, albumArtists) {
-  const entries = getArtistEntries(song);
+function getSongArtistNames(song, albumArtists, artistsById = {}) {
+  const entries = getArtistEntries(song, artistsById);
   if (entries.length) return entries.map((artist) => artist.name).join(", ");
 
-  const legacyName =
-    song?.artist_name_english ||
-    song?.artistNameEnglish ||
-    song?.artist_name;
-
-  if (isEnglishArtistName(legacyName)) return legacyName.trim();
-  return albumArtists.map((artist) => artist.name).join(", ") || "KEERTHANA";
+  const fallbackAlbumNames = (albumArtists || []).map((artist) => artist.name);
+  return fallbackAlbumNames.join(", ") || "Unknown Artist";
 }
+
 function getSongEnglishTitle(song) {
   return song?.title_english || song?.title || song?.title_telugu || "Untitled song";
 }
@@ -137,6 +169,7 @@ function AlbumDetails() {
   } = usePlayer();
 
   const [album, setAlbum] = useState(null);
+  const [artistsById, setArtistsById] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -181,9 +214,45 @@ function AlbumDetails() {
     try {
       const response = await API.get(`/albums/${id}`);
       if (requestVersion === requestVersionRef.current) {
-        const loadedAlbum = response?.data?.album || null;
+        const loadedAlbum = response?.data?.album || response?.data || null;
         setAlbum(loadedAlbum);
         if (!loadedAlbum) setError("Album not found");
+
+        // Resolve artist IDs when album/song payloads do not include English names.
+        try {
+          const artistsResponse = await API.get("/artists");
+          const payload = artistsResponse?.data;
+          const artistList = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload?.artists)
+              ? payload.artists
+              : Array.isArray(payload?.data)
+                ? payload.data
+                : Array.isArray(payload?.data?.artists)
+                  ? payload.data.artists
+                  : [];
+          const lookup = {};
+          artistList.forEach((item) => {
+            const artistId = item?.id ?? item?.artist_id;
+            const englishName =
+              item?.name_english ||
+              item?.english_name ||
+              item?.artist_name_english ||
+              item?.nameEnglish ||
+              item?.englishName;
+            if (artistId != null && isEnglishArtistName(englishName)) {
+              lookup[String(artistId)] = {
+                ...item,
+                name_english: englishName.trim(),
+              };
+            }
+          });
+          if (requestVersion === requestVersionRef.current) {
+            setArtistsById(lookup);
+          }
+        } catch (artistError) {
+          console.warn("Could not load artist lookup for album:", artistError);
+        }
       }
     } catch (err) {
       console.error("Album error:", err);
@@ -319,7 +388,7 @@ function AlbumDetails() {
 
   const albumEnglishTitle = getAlbumEnglishTitle(album);
   const albumTeluguTitle = getAlbumTeluguTitle(album);
-  const albumArtistEntries = getAlbumArtistEntries(album);
+  const albumArtistEntries = getAlbumArtistEntries(album, artistsById);
 
   const cover = getAlbumCover(album);
 
@@ -336,7 +405,7 @@ function AlbumDetails() {
         song?.artist_name,
         song?.artist_name_english,
         song?.artist_name_telugu,
-        ...getArtistEntries(song).map((artist) => artist.name),
+        ...getArtistEntries(song, artistsById).map((artist) => artist.name),
         ...albumArtistEntries.map((artist) => artist.name),
       ];
 
@@ -731,7 +800,7 @@ function AlbumDetails() {
                     )}
 
                     <span>
-                      {getSongArtistNames(song, albumArtistEntries)}
+                      {getSongArtistNames(song, albumArtistEntries, artistsById)}
                     </span>
                   </button>
 

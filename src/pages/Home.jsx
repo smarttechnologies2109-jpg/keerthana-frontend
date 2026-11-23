@@ -209,122 +209,159 @@ function getSongTitles(song, selectedLanguage = "Telugu") {
 // Resolve the English name from the song payload first, then from the
 // artists list loaded by the Home page using artist_id or the stored name.
 function getArtistNames(song, artists = []) {
-  const artistSources = Array.isArray(song?.artists)
-    ? song.artists
-    : Array.isArray(song?.artist)
-      ? song.artist
-      : null;
+  // Accept all supported multi-artist response shapes.
+  const candidates = [];
 
-  const legacyArtist = song?.artist;
-  const candidates = artistSources?.length
-    ? [...artistSources]
-    : legacyArtist != null
-      ? [legacyArtist]
-      : [];
+  const appendCandidates = (value) => {
+    if (Array.isArray(value)) {
+      candidates.push(...value);
+    } else if (value != null) {
+      candidates.push(value);
+    }
+  };
 
-  // Some APIs return artist_ids separately from the artist objects.
-  if (!candidates.length && Array.isArray(song?.artist_ids)) {
-    candidates.push(...song.artist_ids);
+  appendCandidates(song?.artists);
+  appendCandidates(song?.song_artists);
+  appendCandidates(song?.artist);
+
+  if (Array.isArray(song?.artist_ids)) {
+    appendCandidates(song.artist_ids);
+  }
+
+  if (Array.isArray(song?.artistIds)) {
+    appendCandidates(song.artistIds);
+  }
+
+  // Keep the legacy single-artist ID as a fallback/additional relationship.
+  const legacyId = song?.artist_id ?? song?.artistId;
+  if (legacyId != null) {
+    candidates.push(legacyId);
   }
 
   const resolvedNames = [];
+  const containsTelugu = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
 
-  const resolveArtistName = (candidate) => {
-    if (candidate == null) return "";
+  const addEnglishName = (value) => {
+    if (typeof value !== "string" || !value.trim() || containsTelugu(value)) return;
 
-    const candidateId =
-      typeof candidate === "object"
-        ? candidate.id ?? candidate.artist_id
-        : typeof candidate === "number" || /^\d+$/.test(String(candidate).trim())
-          ? candidate
-          : null;
-
-    let matchedArtist = candidateId != null
-      ? artists.find((item) => String(item?.id) === String(candidateId))
-      : null;
-
-    if (!matchedArtist && typeof candidate === "object") {
-      const candidateNames = [
-        candidate.name_english,
-        candidate.english_name,
-        candidate.name,
-      ]
-        .filter((value) => typeof value === "string" && value.trim())
-        .map((value) => value.trim().toLowerCase());
-
-      if (candidateNames.length) {
-        matchedArtist = artists.find((item) =>
-          [item?.name_english, item?.english_name, item?.name, item?.name_telugu]
-            .some((value) =>
-              typeof value === "string" &&
-              candidateNames.includes(value.trim().toLowerCase())
-            )
-        );
-      }
-
-      const directEnglish = candidate.name_english || candidate.english_name;
-      if (typeof directEnglish === "string" && directEnglish.trim()) {
-        return directEnglish.trim();
-      }
+    const clean = value.trim();
+    if (!resolvedNames.some((name) => name.toLowerCase() === clean.toLowerCase())) {
+      resolvedNames.push(clean);
     }
+  };
 
-    if (!matchedArtist && typeof candidate === "string") {
-      const normalized = candidate.trim().toLowerCase();
-      matchedArtist = artists.find((item) =>
-        [item?.name_english, item?.english_name, item?.name, item?.name_telugu]
-          .some((value) =>
-            typeof value === "string" && value.trim().toLowerCase() === normalized
+  const resolveCandidate = (candidate) => {
+    if (candidate == null) return;
+
+    const candidateObject =
+      typeof candidate === "object" ? candidate : null;
+
+    const nestedArtist =
+      candidateObject?.artist && typeof candidateObject.artist === "object"
+        ? candidateObject.artist
+        : candidateObject?.artist_details &&
+            typeof candidateObject.artist_details === "object"
+          ? candidateObject.artist_details
+          : candidateObject?.artistDetails &&
+              typeof candidateObject.artistDetails === "object"
+            ? candidateObject.artistDetails
+            : candidateObject;
+
+    const candidateId = candidateObject
+      ? candidateObject.id ??
+        candidateObject.artist_id ??
+        candidateObject.artistId ??
+        nestedArtist?.id ??
+        nestedArtist?.artist_id
+      : typeof candidate === "number" || /^\d+$/.test(String(candidate).trim())
+        ? candidate
+        : null;
+
+    const matchedArtist =
+      candidateId != null
+        ? artists.find(
+            (item) =>
+              String(item?.id ?? item?.artist_id) === String(candidateId)
           )
+        : null;
+
+    if (nestedArtist) {
+      addEnglishName(
+        nestedArtist.name_english ||
+        nestedArtist.english_name ||
+        nestedArtist.nameEnglish ||
+        nestedArtist.englishName ||
+        nestedArtist.artist_name_english ||
+        nestedArtist.artist_name ||
+        nestedArtist.name
       );
     }
 
-    const englishName =
-      matchedArtist?.name_english ||
-      matchedArtist?.english_name ||
-      "";
-
-    // Never display a localized/Telugu name as the English artist name.
-    return typeof englishName === "string" ? englishName.trim() : "";
-  };
-
-  candidates.forEach((candidate) => {
-    const name = resolveArtistName(candidate);
-    if (name && !resolvedNames.some(
-      (existing) => existing.toLowerCase() === name.toLowerCase()
-    )) {
-      resolvedNames.push(name);
+    if (candidateObject) {
+      addEnglishName(
+        candidateObject.name_english ||
+        candidateObject.english_name ||
+        candidateObject.artist_name_english ||
+        candidateObject.artist_name
+      );
     }
-  });
 
-  // Backward compatibility for APIs that still return only one artist.
-  if (!resolvedNames.length) {
-    const directEnglish =
-      (legacyArtist && typeof legacyArtist === "object"
-        ? legacyArtist.name_english || legacyArtist.english_name
-        : "") ||
-      song?.artist_name_english ||
-      song?.artist_english ||
-      song?.artistEnglish;
+    if (matchedArtist) {
+      addEnglishName(
+        matchedArtist.name_english ||
+        matchedArtist.english_name ||
+        matchedArtist.nameEnglish ||
+        matchedArtist.englishName ||
+        matchedArtist.name
+      );
+    }
 
-    if (typeof directEnglish === "string" && directEnglish.trim()) {
-      resolvedNames.push(directEnglish.trim());
-    } else {
-      const legacyId = song?.artist_id ?? song?.artistId;
-      if (legacyId != null) {
-        const matched = artists.find(
-          (item) => String(item?.id) === String(legacyId)
+    if (typeof candidate === "string" && candidateId == null) {
+      const normalized = candidate.trim().toLowerCase();
+      const matchedByName = artists.find((item) =>
+        [
+          item?.name_english,
+          item?.english_name,
+          item?.nameEnglish,
+          item?.englishName,
+          item?.name,
+          item?.name_telugu,
+        ].some(
+          (value) =>
+            typeof value === "string" &&
+            value.trim().toLowerCase() === normalized
+        )
+      );
+
+      if (matchedByName) {
+        addEnglishName(
+          matchedByName.name_english ||
+          matchedByName.english_name ||
+          matchedByName.name
         );
-        const englishName = matched?.name_english || matched?.english_name;
-        if (typeof englishName === "string" && englishName.trim()) {
-          resolvedNames.push(englishName.trim());
-        }
+      } else {
+        addEnglishName(candidate);
       }
     }
+  };
+
+  candidates.forEach(resolveCandidate);
+
+  // Legacy API fields remain supported.
+  if (!resolvedNames.length) {
+    addEnglishName(
+      song?.artist_name_english ||
+      song?.artist_english ||
+      song?.artist_english_name ||
+      song?.artistEnglish ||
+      song?.artistEnglishName ||
+      song?.artist_name ||
+      (typeof song?.artist === "string" ? song.artist : "")
+    );
   }
 
   return resolvedNames.length ? resolvedNames : ["Unknown Artist"];
 }
-
 function getArtistName(song, artists = []) {
   return getArtistNames(song, artists).join(", ");
 }
@@ -463,7 +500,8 @@ function uniqueSongs(items) {
 function buildRecommendations(
   allSongs,
   likedSongs,
-  recentlyPlayed
+  recentlyPlayed,
+  artists = []
 ) {
   const liked = likedSongs.map(unwrapSong);
   const history = recentlyPlayed.map(unwrapSong);
@@ -482,7 +520,7 @@ function buildRecommendations(
 
   const preferredArtists = new Set(
     preferenceSongs.map((song) =>
-      normalizeText(getArtistName(song))
+      normalizeText(getArtistName(song, artists))
     )
   );
 
@@ -516,7 +554,7 @@ function buildRecommendations(
 
       if (
         preferredArtists.has(
-          normalizeText(getArtistName(song))
+          normalizeText(getArtistName(song, artists))
         )
       ) {
         score += 2;
@@ -747,9 +785,40 @@ useEffect(() => {
       if (historyResult.status === "fulfilled") {
         const history = getArray(historyResult.value);
 
+        // History APIs sometimes return only the legacy primary artist.
+        // Merge each history item with the full /songs catalog response so
+        // multi-artist relationships are retained on Recently Played too.
+        const songCatalog = getArray(songsResult.status === "fulfilled" ? songsResult.value : null);
+        const catalogById = new Map(
+          songCatalog
+            .filter((song) => getId(song) != null)
+            .map((song) => [String(getId(song)), song])
+        );
+
         const historySongs = history
           .map(unwrapSong)
-          .filter((song) => getId(song));
+          .filter((song) => getId(song))
+          .map((historySong) => {
+            const catalogSong = catalogById.get(String(getId(historySong)));
+            if (!catalogSong) return historySong;
+
+            return {
+              ...catalogSong,
+              ...historySong,
+              artists:
+                Array.isArray(historySong?.artists) && historySong.artists.length
+                  ? historySong.artists
+                  : catalogSong?.artists || [],
+              song_artists:
+                Array.isArray(historySong?.song_artists) && historySong.song_artists.length
+                  ? historySong.song_artists
+                  : catalogSong?.song_artists || [],
+              artist_ids:
+                Array.isArray(historySong?.artist_ids) && historySong.artist_ids.length
+                  ? historySong.artist_ids
+                  : catalogSong?.artist_ids || [],
+            };
+          });
 
         setRecentlyPlayed(uniqueSongs(historySongs));
       } else {
@@ -918,9 +987,10 @@ useEffect(() => {
       buildRecommendations(
         newestSongs,
         likedSongList,
-        recentlyPlayed
+        recentlyPlayed,
+        artists
       ),
-    [newestSongs, likedSongList, recentlyPlayed]
+    [newestSongs, likedSongList, recentlyPlayed, artists]
   );
 
   const dailyWorshipSongs = useMemo(() => {

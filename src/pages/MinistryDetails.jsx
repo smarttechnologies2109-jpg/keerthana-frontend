@@ -65,8 +65,18 @@ const getArtistList = (data) => {
 };
 
 const getEnglishArtistNames = (song, artists = []) => {
+  const songArtistRows = Array.isArray(song?.song_artists)
+    ? song.song_artists
+    : [];
+
   const linkedIds = [
     ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+    ...(Array.isArray(song?.artistIds) ? song.artistIds : []),
+    ...songArtistRows.flatMap((row) => [
+      row?.artist_id,
+      row?.artistId,
+      row?.id,
+    ]),
     song?.artist_id,
     song?.artistId,
     song?.artist?.id,
@@ -80,6 +90,12 @@ const getEnglishArtistNames = (song, artists = []) => {
   );
 
   const rawArtists = [
+    ...songArtistRows.flatMap((row) => [
+      row?.artist,
+      row?.artist_details,
+      row?.artistDetails,
+      row,
+    ]),
     ...(Array.isArray(song?.artists) ? song.artists : []),
     ...(Array.isArray(song?.artist) ? song.artist : []),
     ...(song?.artist && !Array.isArray(song.artist) ? [song.artist] : []),
