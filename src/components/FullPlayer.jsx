@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
-import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 
 import {
 
@@ -261,10 +261,8 @@ function getArtistName(song, artistsById = {}, songsById = {}) {
 
 export default function FullPlayer({ onCollapse }) {
 const isAndroidNative =
-  typeof window !== "undefined" &&
-  /Android/i.test(window.navigator?.userAgent || "") &&
-  Boolean(window.Capacitor?.isNativePlatform?.()) &&
-  window.Capacitor?.getPlatform?.() === "android";
+  Capacitor.isNativePlatform() &&
+  Capacitor.getPlatform() === "android";
 
 const navigate = useNavigate();
 
@@ -629,45 +627,6 @@ window.addEventListener("keydown", onKeyDown);
 return () => window.removeEventListener("keydown", onKeyDown);
 
 }, [lyricsOpen, queueOpen, onCollapse]);
-
-// Handle Android's physical back button while Full Player is expanded.
-useEffect(() => {
-  if (!isAndroidNative) return undefined;
-
-  let backButtonListener;
-  let isMounted = true;
-
-  CapacitorApp.addListener("backButton", () => {
-    const current = backButtonStateRef.current;
-
-    if (current.lyricsOpen) {
-      setLyricsOpen(false);
-      return;
-    }
-
-    if (current.queueOpen) {
-      setQueueOpen(false);
-      return;
-    }
-
-    current.onCollapse?.();
-  })
-    .then((listener) => {
-      if (isMounted) {
-        backButtonListener = listener;
-      } else {
-        listener.remove();
-      }
-    })
-    .catch((error) => {
-      console.error("Android back-button listener failed:", error);
-    });
-
-  return () => {
-    isMounted = false;
-    backButtonListener?.remove();
-  };
-}, [isAndroidNative]);
 
 useEffect(() => {
 

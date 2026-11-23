@@ -1,15 +1,19 @@
-
 import { useEffect } from "react";
+
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+
 import { useLocation, useNavigate } from "react-router-dom";
+
+import {
+  collapseFullPlayerIfOpen,
+} from "../utils/playerBackHandler";
 
 export default function useAndroidBackButton() {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Only handle the Android hardware Back button.
     if (Capacitor.getPlatform() !== "android") {
       return;
     }
@@ -24,34 +28,43 @@ export default function useAndroidBackButton() {
           ({ canGoBack }) => {
             if (!isActive) return;
 
+            // 1. Full Player open అయితే ముందుగా Mini Player‌కు రావాలి.
+            const playerCollapsed = collapseFullPlayerIfOpen();
+
+            if (playerCollapsed) {
+              return;
+            }
+
             const currentPath = location.pathname;
 
-            // Navigate to the previous page when possible.
-            if (canGoBack && window.history.state?.idx > 0) {
+            // 2. Previous page‌కు navigate చేయాలి.
+            if (
+              canGoBack &&
+              window.history.state?.idx > 0
+            ) {
               navigate(-1);
               return;
             }
 
-            // Return to Home from other pages.
+            // 3. Home కాకపోతే Home‌కు వెళ్లాలి.
             if (currentPath !== "/home") {
               navigate("/home", { replace: true });
               return;
             }
 
-            // Exit only when already on Home.
+            // 4. Home‌లో కూడా Full Player లేకపోతే మాత్రమే exit.
             CapacitorApp.exitApp();
           }
         );
 
         listenerHandle = handle;
 
-        // Handles cleanup if the effect unmounts before registration finishes.
         if (!isActive) {
           await handle.remove();
         }
       } catch (error) {
         console.error(
-          "Failed to register Android Back button:",
+          "[KEERTHANA] Android Back button error:",
           error
         );
       }
