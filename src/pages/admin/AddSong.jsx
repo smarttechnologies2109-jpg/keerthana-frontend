@@ -919,7 +919,9 @@ function AddSong() {
       setQuickSaving(true);
       setError("");
       setSuccess("");
-
+       console.log("Selected Artist IDs:", selectedArtistIds);
+console.log("FormData artist_ids:", formData.get("artist_ids"));
+console.log("FormData artist_id:", formData.get("artist_id"));
       const response = await API.post("/admin/artists", {
         name: nameTelugu,
         name_english: nameEnglish,
