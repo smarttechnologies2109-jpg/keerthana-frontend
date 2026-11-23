@@ -86,6 +86,48 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 
 
+
+const containsTelugu = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
+const getArtistArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    return value.split(",").map((name) => name.trim()).filter(Boolean);
+  }
+  return [];
+};
+function getSongArtistNames(song, artistsById = {}) {
+  if (!song) return [];
+  const entries = [
+    ...getArtistArray(song.artists),
+    ...getArtistArray(song.song_artists),
+    ...getArtistArray(song.artist_ids ?? song.artistIds).map((id) => ({ artist_id: id })),
+  ];
+  const result = [];
+  const add = (value) => {
+    if (typeof value !== "string" || !value.trim() || containsTelugu(value)) return;
+    value.split(",").map((part) => part.trim()).filter(Boolean).forEach((name) => {
+      if (!containsTelugu(name) && !result.some((item) => item.toLowerCase() === name.toLowerCase())) result.push(name);
+    });
+  };
+  entries.forEach((entry) => {
+    if (typeof entry === "string") { add(entry); return; }
+    const id = entry?.artist_id ?? entry?.artistId ?? entry?.id;
+    const directoryArtist = id != null ? artistsById[String(id)] : null;
+    add(entry?.name_english || entry?.english_name || entry?.nameEnglish ||
+      entry?.artist_name_english || entry?.artist_english || entry?.englishName ||
+      directoryArtist?.name_english || directoryArtist?.english_name || directoryArtist?.nameEnglish || directoryArtist?.name);
+  });
+  const single = song.artist && typeof song.artist === "object" ? song.artist : {};
+  add(song.artist_name_english);
+  add(song.artist_english);
+  add(song.artist_english_name);
+  add(single.name_english || single.english_name || single.nameEnglish || single.name);
+  const legacyId = song.artist_id ?? song.artistId;
+  const legacy = legacyId != null ? artistsById[String(legacyId)] : null;
+  if (!result.length) add(legacy?.name_english || legacy?.english_name || legacy?.nameEnglish || legacy?.name || (typeof song.artist === "string" ? song.artist : song.artist_name));
+  return result;
+}
+
 function SongDetails() {
 
   const { id } = useParams();
@@ -173,6 +215,7 @@ const { isLiked, toggleLike } = useLikedSongs();
 
 
   const [song, setSong] = useState(null);
+  const [artistsById, setArtistsById] = useState({});
 
   const [loading, setLoading] = useState(true);
 
@@ -469,11 +512,37 @@ const [likeError, setLikeError] = useState("");
     }
 
     try {
-      const response = await API.get(`/songs/${id}`);
+      const [response, artistsResponse, catalogResponse] = await Promise.all([
+        API.get(`/songs/${id}`),
+        API.get("/artists").catch(() => null),
+        API.get("/songs").catch(() => null),
+      ]);
       const songData = response.data?.song || response.data;
+      const artistPayload = artistsResponse?.data;
+      const artistList = Array.isArray(artistPayload) ? artistPayload :
+        Array.isArray(artistPayload?.artists) ? artistPayload.artists :
+        Array.isArray(artistPayload?.data) ? artistPayload.data : [];
+      const lookup = {};
+      artistList.forEach((artist) => {
+        const artistId = artist?.id ?? artist?.artist_id;
+        if (artistId != null) lookup[String(artistId)] = artist;
+      });
+      setArtistsById(lookup);
+      const catalogPayload = catalogResponse?.data;
+      const catalogList = Array.isArray(catalogPayload) ? catalogPayload :
+        Array.isArray(catalogPayload?.songs) ? catalogPayload.songs :
+        Array.isArray(catalogPayload?.data) ? catalogPayload.data : [];
+      const catalogSong = catalogList.find((item) => String(item?.id ?? item?.song_id) === String(id));
+      const enrichedSong = catalogSong ? {
+        ...catalogSong, ...songData,
+        artists: Array.isArray(songData?.artists) && songData.artists.length ? songData.artists : catalogSong.artists,
+        song_artists: Array.isArray(songData?.song_artists) && songData.song_artists.length ? songData.song_artists : catalogSong.song_artists,
+        artist_ids: Array.isArray(songData?.artist_ids) && songData.artist_ids.length ? songData.artist_ids : catalogSong.artist_ids,
+        artistIds: Array.isArray(songData?.artistIds) && songData.artistIds.length ? songData.artistIds : catalogSong.artistIds,
+      } : songData;
 
-      if (songData) {
-        setSong(songData);
+      if (enrichedSong) {
+        setSong(enrichedSong);
         setError("");
       } else if (!silent || !songRef.current) {
         setSong(null);
@@ -2500,15 +2569,8 @@ const handleLike = async () => {
       ? song.title
       : song.title_telugu || song.title_native || "";
 
-  const artistDisplayName =
-    song.artist_name_english ||
-    song.artist_english ||
-    song.artist_name ||
-    song.artist?.name_english ||
-    song.artist?.english_name ||
-    song.artist?.name ||
-    song.artist ||
-    "KEERTHANA";
+  const artistNames = getSongArtistNames(song, artistsById);
+  const artistDisplayName = artistNames.join(", ") || "KEERTHANA";
 
   // Prefer explicitly English fields. The common *_name / title fields are
   // included for APIs where those columns already store English values.
@@ -3576,16 +3638,30 @@ const handleLike = async () => {
 
 
           <div className="song-meta song-meta-details">
-            <div className="song-meta-item">
-              <button
-                type="button"
-                aria-label={`View artist ${artistDisplayName}`}
-                onClick={() => {
-                  if (song.artist_id) navigate(`/artists/${song.artist_id}`);
-                }}
-              >
-                {artistDisplayName}
-              </button>
+            <div className="song-meta-item song-meta-artists">
+              {artistNames.length ? artistNames.map((artistName, index) => {
+                const artistEntry = [
+                  ...getArtistArray(song.artists),
+                  ...getArtistArray(song.song_artists),
+                ].find((entry) => {
+                  if (!entry || typeof entry !== "object") return false;
+                  const entryName = entry.name_english || entry.english_name || entry.nameEnglish || entry.artist_name_english;
+                  return String(entryName || "").trim().toLowerCase() === artistName.toLowerCase();
+                });
+                const artistId = artistEntry?.artist_id ?? artistEntry?.artistId ?? artistEntry?.id ??
+                  Object.keys(artistsById).find((artistIdKey) => {
+                    const artist = artistsById[artistIdKey];
+                    return String(artist?.name_english || artist?.english_name || artist?.nameEnglish || artist?.name || "").trim().toLowerCase() === artistName.toLowerCase();
+                  });
+                return (
+                  <span key={`${artistName}-${index}`}>
+                    {index > 0 ? ", " : ""}
+                    {artistId ? (
+                      <button type="button" aria-label={`View artist ${artistName}`} onClick={() => navigate(`/artists/${artistId}`)}>{artistName}</button>
+                    ) : artistName}
+                  </span>
+                );
+              }) : <span>KEERTHANA</span>}
             </div>
 
             {albumDisplayName && (

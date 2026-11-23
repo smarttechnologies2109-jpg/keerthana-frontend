@@ -100,55 +100,81 @@ function getTeluguTitle(song) {
 }
 const containsTelugu = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
-function getEnglishArtist(song, artistsById = {}) {
-  const artistObject =
-    song?.artist && typeof song.artist === "object"
-      ? song.artist
-      : {};
-  const nestedArtist =
-    song?.artist_details && typeof song.artist_details === "object"
-      ? song.artist_details
-      : song?.artistDetails && typeof song.artistDetails === "object"
-        ? song.artistDetails
-        : {};
-  const linkedArtist =
-    artistsById[String(song?.artist_id ?? song?.artistId ?? "")] || {};
-  const candidates = [
-    song?.artist_name_english,
-    linkedArtist?.name_english,
-    linkedArtist?.english_name,
-    linkedArtist?.nameEnglish,
-    song?.artist_english,
-    song?.artist_english_name,
-    song?.artist_name_en,
-    song?.artistEnglishName,
-    song?.artistNameEnglish,
-    song?.artistEnglish,
-    artistObject?.name_english,
-    artistObject?.english_name,
-    artistObject?.artist_name_english,
-    artistObject?.artist_english,
-    artistObject?.englishName,
-    artistObject?.nameEnglish,
-    artistObject?.artistEnglishName,
-    artistObject?.artist_name_en,
-    artistObject?.name,
-    nestedArtist?.name_english,
-    nestedArtist?.english_name,
-    nestedArtist?.nameEnglish,
-    nestedArtist?.englishName,
-    nestedArtist?.artist_name_english,
-    song?.artist_name,
-    song?.artistName,
-    typeof song?.artist === "string" ? song.artist : "",
+function getEnglishArtists(song, artistsById = {}, songsById = {}) {
+  const referenceSong =
+    song?.id != null ? songsById[String(song.id)] || {} :
+    song?.song_id != null ? songsById[String(song.song_id)] || {} : {};
+  const source = { ...referenceSong, ...song };
+  const names = [];
+  const addName = (value) => {
+    if (typeof value !== "string") return;
+    // API fields sometimes contain a comma-separated list of singers.
+    value.split(",").forEach((part) => {
+      const name = part.trim();
+      if (
+        !name ||
+        containsTelugu(name) ||
+        /^(unknown artist|null|undefined|n\/a)$/i.test(name)
+      ) return;
+      if (!names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+        names.push(name);
+      }
+    });
+  };
+  const addArtist = (artist) => {
+    if (artist == null) return;
+    if (typeof artist === "string" || typeof artist === "number") {
+      const linked = artistsById[String(artist)];
+      if (linked) addArtist(linked);
+      else if (typeof artist === "string" && !/^\d+$/.test(artist.trim())) addName(artist);
+      return;
+    }
+    if (typeof artist !== "object") return;
+    const id = artist.id ?? artist.artist_id ?? artist.artistId;
+    const linked = id != null ? artistsById[String(id)] || {} : {};
+    [
+      artist.name_english, artist.english_name, artist.nameEnglish,
+      artist.englishName, artist.artist_name_english, artist.artist_english,
+      artist.artist_name_en, artist.name_en, linked.name_english,
+      linked.english_name, linked.nameEnglish, linked.englishName,
+      linked.artist_name_english, linked.name,
+      artist.name,
+    ].forEach(addName);
+  };
+
+  const artistEntries = [
+    ...(Array.isArray(source.artists) ? source.artists : source.artists ? [source.artists] : []),
+    ...(Array.isArray(source.song_artists) ? source.song_artists : source.song_artists ? [source.song_artists] : []),
+    ...(Array.isArray(source.artist) ? source.artist : []),
   ];
-  const englishName = candidates.find(
-    (value) =>
-      typeof value === "string" &&
-      value.trim() &&
-      !containsTelugu(value)
-  );
-  return englishName?.trim() || "Unknown Artist";
+  artistEntries.forEach(addArtist);
+
+  const ids = [
+    ...(Array.isArray(source.artist_ids) ? source.artist_ids : []),
+    ...(Array.isArray(source.artistIds) ? source.artistIds : []),
+  ];
+  ids.forEach(addArtist);
+
+  if (names.length === 0) {
+    const legacyId =
+      source.artist_id ?? source.artistId ??
+      (source.artist && !Array.isArray(source.artist)
+        ? source.artist.id ?? source.artist.artist_id : null);
+    if (legacyId != null) addArtist(artistsById[String(legacyId)] || { id: legacyId });
+    const artistObject = source.artist && typeof source.artist === "object" && !Array.isArray(source.artist)
+      ? source.artist : {};
+    const nested = source.artist_details || source.artistDetails || {};
+    [
+      source.artist_name_english, source.artist_english, source.artist_english_name,
+      source.artist_name_en, source.artistEnglishName, source.artistNameEnglish,
+      source.artistEnglish, artistObject.name_english, artistObject.english_name,
+      artistObject.nameEnglish, artistObject.name, nested.name_english,
+      nested.english_name, nested.nameEnglish, nested.name,
+      source.artist_name, source.artistName,
+      typeof source.artist === "string" ? source.artist : "",
+    ].forEach(addName);
+  }
+  return names.join(", ") || "Unknown Artist";
 }
 function SongTitleLines({ song, className = "" }) {
   return (
@@ -203,6 +229,7 @@ const isAndroidNative =
   const queuePanelRef = useRef(null);
   const queueButtonRef = useRef(null);
   const [artistsById, setArtistsById] = useState({});
+  const [songsById, setSongsById] = useState({});
   const [fetchedLyrics, setFetchedLyrics] = useState({ songId: null, text: "" });
   const [lyricsLoading, setLyricsLoading] = useState(false);
   /* =======================================================
@@ -263,45 +290,49 @@ const isAndroidNative =
   ======================================================= */
   useEffect(() => {
     let active = true;
-    const loadArtists = async () => {
-      try {
-        const response = await API.get("/artists");
-        const payload = response?.data;
-        const artistList = Array.isArray(payload)
-          ? payload
-          : Array.isArray(payload?.artists)
-            ? payload.artists
-            : Array.isArray(payload?.data)
-              ? payload.data
-              : [];
+    const loadMetadata = async () => {
+      const [artistsResult, songsResult] = await Promise.allSettled([
+        API.get("/artists"),
+        API.get("/songs"),
+      ]);
+      if (!active) return;
+
+      if (artistsResult.status === "fulfilled") {
+        const payload = artistsResult.value?.data;
+        const list = Array.isArray(payload) ? payload :
+          Array.isArray(payload?.artists) ? payload.artists :
+          Array.isArray(payload?.data) ? payload.data : [];
         const lookup = {};
-        artistList.forEach((artist) => {
-          const artistId = artist?.id ?? artist?.artist_id;
-          const englishName =
-            artist?.name_english ||
-            artist?.english_name ||
-            artist?.nameEnglish ||
-            "";
-          if (
-            artistId != null &&
-            englishName &&
-            !containsTelugu(englishName)
-          ) {
-            lookup[String(artistId)] = {
-              ...artist,
-              name_english: String(englishName).trim(),
-            };
+        list.forEach((artist) => {
+          const id = artist?.id ?? artist?.artist_id ?? artist?.artistId;
+          const englishName = artist?.name_english || artist?.english_name ||
+            artist?.nameEnglish || artist?.englishName || artist?.name || "";
+          if (id != null && englishName && !containsTelugu(englishName)) {
+            lookup[String(id)] = { ...artist, name_english: String(englishName).trim() };
           }
         });
-        if (active) setArtistsById(lookup);
-      } catch (error) {
-        console.warn("Unable to load English artist names:", error);
+        setArtistsById(lookup);
+      } else {
+        console.warn("Unable to load artist directory:", artistsResult.reason);
+      }
+
+      if (songsResult.status === "fulfilled") {
+        const payload = songsResult.value?.data;
+        const list = Array.isArray(payload) ? payload :
+          Array.isArray(payload?.songs) ? payload.songs :
+          Array.isArray(payload?.data) ? payload.data : [];
+        const lookup = {};
+        list.forEach((song) => {
+          const id = song?.id ?? song?.song_id;
+          if (id != null) lookup[String(id)] = song;
+        });
+        setSongsById(lookup);
+      } else {
+        console.warn("Unable to load song artist relationships:", songsResult.reason);
       }
     };
-    loadArtists();
-    return () => {
-      active = false;
-    };
+    loadMetadata();
+    return () => { active = false; };
   }, []);
   /* =======================================================
      LOAD FULL SONG LYRICS
@@ -497,7 +528,7 @@ const isAndroidNative =
             <h2>Song Lyrics</h2>
             <p>
               {getEnglishTitle(currentSong)} ·{" "}
-              {getEnglishArtist(currentSong, artistsById)}
+              {getEnglishArtists(currentSong, artistsById, songsById)}
             </p>
           </div>
           <button
@@ -614,7 +645,7 @@ const isAndroidNative =
           <div className="mini-queue-current-info">
             <span>NOW PLAYING</span>
             <SongTitleLines song={currentSong} className="mini-queue-current-title" />
-            <small>{getEnglishArtist(currentSong, artistsById)}</small>
+            <small>{getEnglishArtists(currentSong, artistsById, songsById)}</small>
           </div>
           <span
             className={
@@ -654,7 +685,7 @@ const isAndroidNative =
                 )}
                 <span className="mini-queue-song-info">
                   <SongTitleLines song={song} />
-                  <small>{getEnglishArtist(song, artistsById)}</small>
+                  <small>{getEnglishArtists(song, artistsById, songsById)}</small>
                 </span>
                 <FaPlay className="mini-queue-play-icon" />
               </button>
@@ -761,7 +792,7 @@ const isAndroidNative =
                   <SongTitleLines song={currentSong} />
                 </button>
                 <span>
-                  {getEnglishArtist(currentSong, artistsById)}
+                  {getEnglishArtists(currentSong, artistsById, songsById)}
                 </span>
               </div>
               <button

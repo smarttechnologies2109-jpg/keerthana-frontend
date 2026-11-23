@@ -63,19 +63,32 @@ const getSongDisplayNames = (song, artistById = new Map()) => {
 
   const artistNames = [];
   const addArtistName = (value) => {
-    if (
-      typeof value !== "string" ||
-      !value.trim() ||
-      hasTeluguScript(value) ||
-      /^unknown artist$/i.test(value.trim())
-    ) {
-      return;
-    }
+    if (typeof value !== "string" || !value.trim()) return;
 
-    const name = value.trim();
-    if (!artistNames.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
-      artistNames.push(name);
-    }
+    // Some API fields (for example artist_name_english) already contain
+    // the complete comma-separated singer list. Split those values before
+    // combining them with the artists[] relationship to avoid repeating
+    // the same singers.
+    const candidates = value.split(/[,;|]/);
+
+    candidates.forEach((candidate) => {
+      const name = candidate.trim().replace(/\\s+/g, " ");
+      if (
+        !name ||
+        hasTeluguScript(name) ||
+        /^unknown artist$/i.test(name)
+      ) {
+        return;
+      }
+
+      const normalized = name.normalize("NFKC").toLocaleLowerCase();
+      const alreadyAdded = artistNames.some(
+        (existing) =>
+          existing.normalize("NFKC").replace(/\\s+/g, " ").toLocaleLowerCase() === normalized
+      );
+
+      if (!alreadyAdded) artistNames.push(name);
+    });
   };
 
   const addArtistRecord = (artist) => {
@@ -320,7 +333,22 @@ function DownloadManager() {
       ].filter((id) => id != null);
 
       const resolvedArtists = [];
-      const seenArtistIds = new Set();
+      const seenArtistKeys = new Set();
+
+      const getArtistLabel = (artist) => {
+        if (typeof artist === "string") return artist.trim();
+        if (!artist || typeof artist !== "object") return "";
+
+        return String(
+          artist.name_english ??
+          artist.english_name ??
+          artist.nameEnglish ??
+          artist.artist_name_english ??
+          artist.display_name ??
+          artist.name ??
+          ""
+        ).trim();
+      };
 
       const addResolvedArtist = (artist) => {
         if (artist == null) return;
@@ -330,7 +358,12 @@ function DownloadManager() {
           if (linked) {
             addResolvedArtist(linked);
           } else if (typeof artist === "string") {
-            resolvedArtists.push(artist);
+            const label = artist.trim();
+            const key = label.toLocaleLowerCase();
+            if (label && !seenArtistKeys.has(key)) {
+              seenArtistKeys.add(key);
+              resolvedArtists.push(label);
+            }
           }
           return;
         }
@@ -343,10 +376,18 @@ function DownloadManager() {
           : {};
 
         const record = { ...canonical, ...artist };
-        const key = id != null ? String(id) : JSON.stringify(record);
+        const label = getArtistLabel(record);
+        // Prefer the English artist name as the de-duplication key. This
+        // prevents the same singer being added twice when offline and API
+        // records contain the same artist in different object shapes/IDs.
+        const key = label
+          ? label.toLocaleLowerCase()
+          : id != null
+            ? `id:${String(id)}`
+            : `record:${JSON.stringify(record)}`;
 
-        if (!seenArtistIds.has(key)) {
-          seenArtistIds.add(key);
+        if (!seenArtistKeys.has(key)) {
+          seenArtistKeys.add(key);
           resolvedArtists.push(record);
         }
       };

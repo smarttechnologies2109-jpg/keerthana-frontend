@@ -75,13 +75,29 @@ const getEnglishArtistNames = (song, artists = []) => {
     ...songArtistRows.flatMap((row) => [
       row?.artist_id,
       row?.artistId,
-      row?.id,
+      row?.artist?.id,
+      row?.artist?.artist_id,
+      row?.artist_details?.id,
+      row?.artistDetails?.id,
     ]),
-    song?.artist_id,
-    song?.artistId,
-    song?.artist?.id,
-    song?.artist?.artist_id,
+    ...(Array.isArray(song?.artists)
+      ? song.artists.map((artist) =>
+          typeof artist === "object"
+            ? artist?.id ?? artist?.artist_id
+            : null
+        )
+      : []),
   ].filter((id) => id != null && id !== "");
+
+  // Use the legacy single artist only when no multi-artist links exist.
+  if (!linkedIds.length) {
+    const legacyId =
+      song?.artist_id ??
+      song?.artistId ??
+      song?.artist?.id ??
+      song?.artist?.artist_id;
+    if (legacyId != null && legacyId !== "") linkedIds.push(legacyId);
+  }
 
   const linkedArtists = artists.filter((artist) =>
     linkedIds.some((id) =>
@@ -202,18 +218,31 @@ const MinistryDetails = () => {
     }
 
     try {
-      const [ministryResponse, songsResponse, artistsResult] =
-        await Promise.all([
-          API.get(`/ministries/${id}`),
-          API.get(`/ministries/${id}/songs`),
-          API.get("/artists").catch((artistError) => {
-            console.warn(
-              "Unable to load artist directory; using song response artist fields:",
-              artistError
-            );
-            return null;
-          }),
-        ]);
+      const [
+        ministryResponse,
+        songsResponse,
+        artistsResult,
+        allSongsResult,
+      ] = await Promise.all([
+        API.get(`/ministries/${id}`),
+        API.get(`/ministries/${id}/songs`),
+        API.get("/artists").catch((artistError) => {
+          console.warn(
+            "Unable to load artist directory; using song response artist fields:",
+            artistError
+          );
+          return null;
+        }),
+        // The ministry endpoint may return only the legacy single artist.
+        // The public songs endpoint supplies the complete song_artists links.
+        API.get("/songs").catch((songsError) => {
+          console.warn(
+            "Unable to load full song artist relationships:",
+            songsError
+          );
+          return null;
+        }),
+      ]);
 
       const ministryData = ministryResponse.data;
       const nextMinistry = ministryData?.ministry || ministryData || null;
@@ -226,8 +255,55 @@ const MinistryDetails = () => {
         : [];
 
       const nextArtists = getArtistList(artistsResult?.data);
+      const allSongsPayload = allSongsResult?.data;
+      const allSongs = Array.isArray(allSongsPayload)
+        ? allSongsPayload
+        : Array.isArray(allSongsPayload?.songs)
+        ? allSongsPayload.songs
+        : Array.isArray(allSongsPayload?.data)
+        ? allSongsPayload.data
+        : [];
+
+      const catalogById = new Map(
+        allSongs.map((song) => [
+          String(song?.id ?? song?.song_id),
+          song,
+        ])
+      );
+
+      // Enrich each ministry track with the full artist list from /songs.
+      const enrichedSongs = nextSongs.map((ministrySong) => {
+        const songId = ministrySong?.id ?? ministrySong?.song_id;
+        const catalogSong = catalogById.get(String(songId));
+        if (!catalogSong) return ministrySong;
+
+        const chooseCompleteArray = (field) => {
+          const ministryValue = ministrySong?.[field];
+          const catalogValue = catalogSong?.[field];
+          if (Array.isArray(catalogValue) && catalogValue.length) {
+            if (!Array.isArray(ministryValue) ||
+                catalogValue.length >= ministryValue.length) {
+              return catalogValue;
+            }
+          }
+          return ministryValue;
+        };
+
+        return {
+          ...catalogSong,
+          ...ministrySong,
+          artists: chooseCompleteArray("artists") || catalogSong.artists,
+          song_artists:
+            chooseCompleteArray("song_artists") || catalogSong.song_artists,
+          artist_ids:
+            chooseCompleteArray("artist_ids") || catalogSong.artist_ids,
+          artistIds:
+            chooseCompleteArray("artistIds") || catalogSong.artistIds,
+        };
+      });
+
       setMinistry(nextMinistry);
-      setSongs(nextSongs);
+      setSongs(enrichedSongs);
       setArtists(nextArtists);
       setError("");
     } catch (err) {

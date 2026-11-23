@@ -51,7 +51,6 @@ import { useLikedSongs } from "../context/LikedSongsContext";
 
 import { useAuth } from "../context/AuthContext";
 
-import SleepTimer from "../components/SleepTimer";
 
 import {
 
@@ -144,119 +143,107 @@ function getSongReference(song, songsById = {}) {
 }
 
 function getArtistName(song, artistsById = {}, songsById = {}) {
-
   const referenceSong = getSongReference(song, songsById);
+  const sources = [referenceSong, song].filter(Boolean);
+  const names = [];
+  const seen = new Set();
 
-  const sourceSong = { ...referenceSong, ...song };
+  const addName = (value) => {
+    if (typeof value !== "string") return;
+    // Some API fields already contain a comma-separated list of singers.
+    value.split(",").forEach((part) => {
+      const name = part.trim();
+      if (!name || containsTelugu(name) || /^(unknown artist|null|undefined|n\/a)$/i.test(name)) return;
+      const key = name.toLocaleLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        names.push(name);
+      }
+    });
+  };
 
-  const artistObject =
+  const addArtist = (artist) => {
+    if (artist == null) return;
+    if (typeof artist === "string" || typeof artist === "number") {
+      const linked = artistsById[String(artist)];
+      if (linked) addArtist(linked);
+      else if (typeof artist === "string" && !/^\\d+$/.test(artist.trim())) addName(artist);
+      return;
+    }
+    if (typeof artist !== "object") return;
 
-    sourceSong?.artist && typeof sourceSong.artist === "object"
+    // song_artists rows may wrap the actual artist in an `artist` property.
+    if (artist.artist && typeof artist.artist === "object") addArtist(artist.artist);
 
-      ? sourceSong.artist
+    const id = artist.id ?? artist.artist_id ?? artist.artistId;
+    const linked = id != null ? artistsById[String(id)] : null;
+    if (linked && linked !== artist) {
+      [
+        linked.name_english, linked.english_name, linked.nameEnglish,
+        linked.englishName, linked.artist_name_english, linked.name,
+      ].forEach(addName);
+    }
 
-      : {};
+    [
+      artist.name_english, artist.english_name, artist.nameEnglish,
+      artist.englishName, artist.artist_name_english, artist.artist_english,
+      artist.artist_name_en, artist.name_en, artist.display_name, artist.name,
+    ].forEach(addName);
+  };
 
-  const nestedArtist =
+  // Prefer explicit many-to-many relationship data from both the active
+  // player song and the full catalogue record.
+  sources.forEach((source) => {
+    [
+      ...(Array.isArray(source?.artists) ? source.artists : source?.artists ? [source.artists] : []),
+      ...(Array.isArray(source?.song_artists) ? source.song_artists : []),
+      ...(Array.isArray(source?.artist) ? source.artist : []),
+    ].forEach(addArtist);
 
-    sourceSong?.artist_details && typeof sourceSong.artist_details === "object"
+    [
+      ...(Array.isArray(source?.artist_ids) ? source.artist_ids : []),
+      ...(Array.isArray(source?.artistIds) ? source.artistIds : []),
+    ].forEach(addArtist);
+  });
 
-      ? sourceSong.artist_details
+  // Legacy single-artist fields are a fallback, not an extra singer when
+  // the many-to-many relationship already supplied artists.
+  if (names.length === 0) {
+    sources.forEach((source) => {
+      const artistObject =
+        source?.artist && typeof source.artist === "object" && !Array.isArray(source.artist)
+          ? source.artist : {};
+      const nestedArtist =
+        source?.artist_details && typeof source.artist_details === "object"
+          ? source.artist_details
+          : source?.artistDetails && typeof source.artistDetails === "object"
+            ? source.artistDetails : {};
 
-      : sourceSong?.artistDetails && typeof sourceSong.artistDetails === "object"
+      const ids = [
+        source?.artist_id, source?.artistId,
+        artistObject?.id, artistObject?.artist_id,
+        nestedArtist?.id, nestedArtist?.artist_id,
+      ].filter((id) => id != null);
 
-        ? sourceSong.artistDetails
+      ids.forEach((id) => addArtist(artistsById[String(id)] || { id }));
 
-        : {};
+      [
+        source?.artist_name_english, source?.artist_english,
+        source?.artist_english_name, source?.artist_name_en,
+        source?.artistEnglishName, source?.artistNameEnglish,
+        source?.artistEnglish, artistObject?.name_english,
+        artistObject?.english_name, artistObject?.nameEnglish,
+        artistObject?.englishName, artistObject?.name,
+        nestedArtist?.name_english, nestedArtist?.english_name,
+        nestedArtist?.nameEnglish, nestedArtist?.englishName,
+        nestedArtist?.artist_name_english, nestedArtist?.name,
+        source?.artist_name, source?.artistName,
+        typeof source?.artist === "string" ? source.artist : "",
+      ].forEach(addName);
+    });
+  }
 
-  const artistId =
-
-    sourceSong?.artist_id ??
-
-    sourceSong?.artistId ??
-
-    artistObject?.id ??
-
-    artistObject?.artist_id ??
-
-    nestedArtist?.id ??
-
-    nestedArtist?.artist_id;
-
-  const linkedArtist = artistsById[String(artistId ?? "")] || {};
-
-  const candidates = [
-
-    sourceSong?.artist_name_english,
-
-    linkedArtist?.name_english,
-
-    linkedArtist?.english_name,
-
-    linkedArtist?.nameEnglish,
-
-    sourceSong?.artist_english,
-
-    sourceSong?.artist_english_name,
-
-    sourceSong?.artist_name_en,
-
-    sourceSong?.artistEnglishName,
-
-    sourceSong?.artistNameEnglish,
-
-    sourceSong?.artistEnglish,
-
-    artistObject?.name_english,
-
-    artistObject?.english_name,
-
-    artistObject?.artist_name_english,
-
-    artistObject?.artist_english,
-
-    artistObject?.englishName,
-
-    artistObject?.nameEnglish,
-
-    artistObject?.artistEnglishName,
-
-    artistObject?.artist_name_en,
-
-    artistObject?.name,
-
-    nestedArtist?.name_english,
-
-    nestedArtist?.english_name,
-
-    nestedArtist?.nameEnglish,
-
-    nestedArtist?.englishName,
-
-    nestedArtist?.artist_name_english,
-
-    sourceSong?.artist_name,
-
-    sourceSong?.artistName,
-
-    typeof sourceSong?.artist === "string" ? sourceSong.artist : "",
-
-  ];
-
-  const artistName = candidates.find(
-
-    (value) =>
-
-      typeof value === "string" &&
-
-      value.trim() &&
-
-      !containsTelugu(value)
-
-  );
-
-  return artistName?.trim() || "Unknown Artist";
-
+  return names.join(", ") || "Unknown Artist";
 }
 
 export default function FullPlayer({ onCollapse }) {
@@ -330,13 +317,10 @@ const [artistsById, setArtistsById] = useState({});
 
 const [songsById, setSongsById] = useState({});
 
-const [queuePosition, setQueuePosition] = useState({ top: 80, left: 20 });
 
 const lyricsButtonRef = useRef(null);
 
-const queueButtonRef = useRef(null);
 
-const queuePanelRef = useRef(null);
 
 const activeLyricRef = useRef(null);
 const backButtonStateRef = useRef({ lyricsOpen, queueOpen, onCollapse });
@@ -596,20 +580,6 @@ setSeekValue(null);
 
 useEffect(() => {
 
-const onPointerDown = (event) => {
-
-if (queueOpen && queuePanelRef.current && !queuePanelRef.current.contains(event.target) && !queueButtonRef.current?.contains(event.target)) setQueueOpen(false);
-
-};
-
-document.addEventListener("pointerdown", onPointerDown);
-
-return () => document.removeEventListener("pointerdown", onPointerDown);
-
-}, [queueOpen]);
-
-useEffect(() => {
-
 const onKeyDown = (event) => {
 
 if (event.key !== "Escape") return;
@@ -627,72 +597,6 @@ window.addEventListener("keydown", onKeyDown);
 return () => window.removeEventListener("keydown", onKeyDown);
 
 }, [lyricsOpen, queueOpen, onCollapse]);
-
-useEffect(() => {
-
-if (!queueOpen) return undefined;
-
-const updatePosition = () => {
-
-const button = queueButtonRef.current;
-
-const panel = queuePanelRef.current;
-
-if (!button || !panel) return;
-
-const margin = 16;
-
-const buttonRect = button.getBoundingClientRect();
-
-const panelRect = panel.getBoundingClientRect();
-
-const width = Math.min(panelRect.width || 380, window.innerWidth - margin * 2);
-
-const height = Math.min(panelRect.height || 480, window.innerHeight - margin * 2);
-
-const left = Math.max(
-
-margin,
-
-Math.min(buttonRect.right - width, window.innerWidth - width - margin)
-
-);
-
-let top = buttonRect.top - height - 12;
-
-if (top < margin) {
-
-top = Math.min(
-
-buttonRect.bottom + 12,
-
-window.innerHeight - height - margin
-
-);
-
-}
-
-setQueuePosition({ top: Math.max(margin, top), left });
-
-};
-
-const frame = requestAnimationFrame(updatePosition);
-
-window.addEventListener("resize", updatePosition);
-
-window.addEventListener("scroll", updatePosition, true);
-
-return () => {
-
-cancelAnimationFrame(frame);
-
-window.removeEventListener("resize", updatePosition);
-
-window.removeEventListener("scroll", updatePosition, true);
-
-};
-
-}, [queueOpen, queue?.length]);
 
 if (!currentSong) return null;
 
@@ -938,19 +842,7 @@ aria-label={liked ? "Unlike song" : "Like song"}
 
 </button>
 
-<button
-type="button"
-className={`full-player-like full-player-lyrics-trigger ${lyricsOpen ? "is-liked" : ""}`}
-onClick={() => {
-  setQueueOpen(false);
-  setLyricsOpen((value) => !value);
-}}
-aria-label="Open song lyrics"
-aria-pressed={lyricsOpen}
->
-<FaMicrophone />
-<span>Lyrics</span>
-</button>
+
 
 </div>
 
@@ -1134,42 +1026,28 @@ aria-label="Repeat"
 <div className="full-player-toolbar-group">
 
 <button
-
-ref={queueButtonRef}
-
-type="button"
-
-className={queueOpen ? "is-active" : ""}
-
-onClick={() => {
-
-setLyricsOpen(false);
-
-setQueueOpen((value) => !value);
-
-}}
-
-title="Open queue"
-
-aria-label="Open queue"
-
-aria-pressed={queueOpen}
-
+  type="button"
+  className={queueOpen ? "is-active" : ""}
+  onClick={() => setQueueOpen((value) => !value)}
+  title="Open queue"
+  aria-label="Open queue"
+  aria-pressed={queueOpen}
 >
-
-<FaListUl />
-
-<span>Queue</span>
-
-
-
+  <FaListUl />
+  <span>Queue</span>
 </button>
 
-<div className="full-player-sleep">
-
-<SleepTimer />
-
-</div>
+<button
+  type="button"
+  className={lyricsOpen ? "is-active" : ""}
+  onClick={() => setLyricsOpen((value) => !value)}
+  title="Open song lyrics"
+  aria-label="Open song lyrics"
+  aria-pressed={lyricsOpen}
+>
+  <FaMicrophone />
+  <span>Lyrics</span>
+</button>
 
 </div>
 
@@ -1193,16 +1071,31 @@ aria-label="Adjust volume" />
 
 </footer>
 
-{lyricsOpen && (
-
-<div
-
-className="full-player-overlay"
-
-onClick={() => setLyricsOpen(false)}
-
->
-
+{(lyricsOpen || queueOpen) && (
+  <div
+    className="full-player-overlay full-player-panels-overlay"
+    onClick={() => {
+      setLyricsOpen(false);
+      setQueueOpen(false);
+    }}
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 1200,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "18px",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      padding: "24px",
+      boxSizing: "border-box",
+      background: "rgba(0, 0, 0, 0.72)",
+      overflowY: "auto",
+    }}
+  >
+    {lyricsOpen && (
+      <div style={{ flex: "1 1 420px", maxWidth: "560px", minWidth: "min(100%, 320px)" }} onClick={(event) => event.stopPropagation()}>
 <section
 
 className="full-player-panel full-player-lyrics-panel"
@@ -1314,36 +1207,15 @@ onClick={() => seek(line.time)}
 </div>
 
 </section>
-
-</div>
-
-)}
-
-{queueOpen && (
-
-<div
-
-className="full-player-overlay full-player-queue-overlay"
-
-onClick={() => setQueueOpen(false)}
-
->
-
+      </div>
+    )}
+    {queueOpen && (
+      <div style={{ flex: "1 1 380px", maxWidth: "480px", minWidth: "min(100%, 320px)" }} onClick={(event) => event.stopPropagation()}>
 <section
-
-ref={queuePanelRef}
 
 className="full-player-panel full-player-queue-panel"
 
-style={{
 
-position: "fixed",
-
-top: queuePosition.top,
-
-left: queuePosition.left,
-
-}}
 
 onClick={(event) => event.stopPropagation()}
 
@@ -1532,9 +1404,9 @@ event.currentTarget.style.display = "none";
 </div>
 
 </section>
-
-</div>
-
+      </div>
+    )}
+  </div>
 )}
 
 </main>,

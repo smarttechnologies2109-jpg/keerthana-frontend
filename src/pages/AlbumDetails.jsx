@@ -39,6 +39,52 @@ function isEnglishArtistName(value) {
   return !/[\u0C00-\u0C7F]/.test(name);
 }
 
+function getSongsArray(response) {
+  const payload = response?.data;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.songs)) return payload.songs;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.songs)) return payload.data.songs;
+  return [];
+}
+
+function mergeSongArtistRelationships(album, catalogSongs) {
+  if (!album || !Array.isArray(album.songs)) return album;
+
+  const catalogById = new Map(
+    catalogSongs.map((song) => [
+      String(song?.id ?? song?.song_id),
+      song,
+    ])
+  );
+
+  return {
+    ...album,
+    songs: album.songs.map((song) => {
+      const catalogSong = catalogById.get(
+        String(song?.id ?? song?.song_id)
+      );
+
+      if (!catalogSong) return song;
+
+      return {
+        ...catalogSong,
+        ...song,
+        // Prefer the complete many-to-many relationships from /songs.
+        artists: Array.isArray(catalogSong.artists) && catalogSong.artists.length
+          ? catalogSong.artists
+          : song.artists,
+        song_artists: Array.isArray(catalogSong.song_artists) && catalogSong.song_artists.length
+          ? catalogSong.song_artists
+          : song.song_artists,
+        artist_ids: Array.isArray(catalogSong.artist_ids) && catalogSong.artist_ids.length
+          ? catalogSong.artist_ids
+          : song.artist_ids,
+      };
+    }),
+  };
+}
+
 function getArtistEntries(source, artistsById = {}) {
   const candidates = [
     ...(Array.isArray(source?.artists) ? source.artists : []),
@@ -134,12 +180,11 @@ function getAlbumArtistEntries(album, artistsById = {}) {
   return entries.length ? entries : [];
 }
 
-function getSongArtistNames(song, albumArtists, artistsById = {}) {
+function getSongArtistNames(song, artistsById = {}) {
   const entries = getArtistEntries(song, artistsById);
-  if (entries.length) return entries.map((artist) => artist.name).join(", ");
-
-  const fallbackAlbumNames = (albumArtists || []).map((artist) => artist.name);
-  return fallbackAlbumNames.join(", ") || "Unknown Artist";
+  return entries.length
+    ? entries.map((artist) => artist.name).join(", ")
+    : "Unknown Artist";
 }
 
 function getSongEnglishTitle(song) {
@@ -214,9 +259,31 @@ function AlbumDetails() {
     try {
       const response = await API.get(`/albums/${id}`);
       if (requestVersion === requestVersionRef.current) {
-        const loadedAlbum = response?.data?.album || response?.data || null;
-        setAlbum(loadedAlbum);
-        if (!loadedAlbum) setError("Album not found");
+        let loadedAlbum = response?.data?.album || response?.data || null;
+
+        if (!loadedAlbum) {
+          setAlbum(null);
+          setError("Album not found");
+        } else {
+          // Album endpoints may return only the legacy single artist.
+          // Merge song-level many-to-many artist links from the full songs API.
+          try {
+            const songsResponse = await API.get("/songs");
+            loadedAlbum = mergeSongArtistRelationships(
+              loadedAlbum,
+              getSongsArray(songsResponse)
+            );
+          } catch (songsError) {
+            console.warn(
+              "Could not load complete song artist relationships:",
+              songsError
+            );
+          }
+
+          if (requestVersion === requestVersionRef.current) {
+            setAlbum(loadedAlbum);
+          }
+        }
 
         // Resolve artist IDs when album/song payloads do not include English names.
         try {
@@ -406,7 +473,6 @@ function AlbumDetails() {
         song?.artist_name_english,
         song?.artist_name_telugu,
         ...getArtistEntries(song, artistsById).map((artist) => artist.name),
-        ...albumArtistEntries.map((artist) => artist.name),
       ];
 
       return searchableFields.some((field) =>
@@ -800,7 +866,7 @@ function AlbumDetails() {
                     )}
 
                     <span>
-                      {getSongArtistNames(song, albumArtistEntries, artistsById)}
+                      {getSongArtistNames(song, artistsById)}
                     </span>
                   </button>
 

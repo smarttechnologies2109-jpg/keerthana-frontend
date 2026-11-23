@@ -83,10 +83,17 @@ const firstEnglishName = (...values) => {
 const getArtistNames = (song, artistsById = {}) => {
   const names = [];
   const addName = (value) => {
-    const name = firstEnglishName(value);
-    if (name && !names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
-      names.push(name);
-    }
+    if (typeof value !== "string") return;
+    // Some APIs return all singers in one comma-separated field.
+    value.split(",").forEach((part) => {
+      const name = firstEnglishName(part);
+      if (
+        name &&
+        !names.some((existing) => existing.toLowerCase() === name.toLowerCase())
+      ) {
+        names.push(name);
+      }
+    });
   };
 
   const addArtist = (artist) => {
@@ -128,7 +135,8 @@ const getArtistNames = (song, artistsById = {}) => {
   };
 
   const artistEntries = [
-    ...(Array.isArray(song?.artists) ? song.artists : []),
+    ...(Array.isArray(song?.artists) ? song.artists : song?.artists ? [song.artists] : []),
+    ...(Array.isArray(song?.song_artists) ? song.song_artists : []),
     ...(Array.isArray(song?.artist) ? song.artist : []),
   ];
   artistEntries.forEach(addArtist);
@@ -136,6 +144,9 @@ const getArtistNames = (song, artistsById = {}) => {
   const ids = [
     ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
     ...(Array.isArray(song?.artistIds) ? song.artistIds : []),
+    ...(Array.isArray(song?.song_artists)
+      ? song.song_artists.map((entry) => entry?.artist_id ?? entry?.artistId ?? entry?.id).filter(Boolean)
+      : []),
   ];
   ids.forEach((id) => {
     const linked = id != null ? artistsById[String(id)] : null;
@@ -374,9 +385,10 @@ export default function History() {
     try {
       // Load history and the artist directory independently. Some history
       // responses contain only artist_id, so /artists supplies the English name.
-      const [historyResult, artistsResult] = await Promise.allSettled([
+      const [historyResult, artistsResult, songsResult] = await Promise.allSettled([
         API.get("/history"),
         API.get("/artists"),
+        API.get("/songs"),
       ]);
 
       if (historyResult.status === "rejected") {
@@ -430,7 +442,48 @@ export default function History() {
         setArtistsById({});
       }
 
-      setHistory(normalizeHistory(historyResult.value?.data));
+      const historySongs = normalizeHistory(historyResult.value?.data);
+
+      // History records can contain only the legacy primary artist. Merge the
+      // complete song-level multi-artist relation from the main song catalogue.
+      const songsPayload = songsResult.status === "fulfilled"
+        ? songsResult.value?.data
+        : [];
+      const catalogueSongs = Array.isArray(songsPayload)
+        ? songsPayload
+        : songsPayload?.songs ||
+          songsPayload?.data?.songs ||
+          songsPayload?.data ||
+          songsPayload?.items ||
+          songsPayload?.results ||
+          [];
+      const catalogueById = new Map(
+        (Array.isArray(catalogueSongs) ? catalogueSongs : [])
+          .filter((song) => getSongId(song) != null)
+          .map((song) => [String(getSongId(song)), song])
+      );
+
+      const enrichedHistory = historySongs.map((historySong) => {
+        const catalogueSong = catalogueById.get(String(getSongId(historySong)));
+        if (!catalogueSong) return historySong;
+
+        const mergeArray = (key) => {
+          const historyValue = Array.isArray(historySong?.[key]) ? historySong[key] : [];
+          const catalogueValue = Array.isArray(catalogueSong?.[key]) ? catalogueSong[key] : [];
+          return [...catalogueValue, ...historyValue];
+        };
+
+        return {
+          ...catalogueSong,
+          ...historySong,
+          artists: mergeArray("artists"),
+          song_artists: mergeArray("song_artists"),
+          artist_ids: mergeArray("artist_ids"),
+          artistIds: mergeArray("artistIds"),
+        };
+      });
+
+      setHistory(enrichedHistory);
     } catch (err) {
       console.error(
         "Failed to load listening history:",

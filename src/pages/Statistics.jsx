@@ -69,6 +69,92 @@ const formatHour = (hour) => {
     h % 12 || 12;
 
   return `${formattedHour} ${suffix}`;
+}; 
+
+const getList = (payload, keys = []) => {
+  if (Array.isArray(payload)) return payload;
+  for (const key of keys) {
+    if (Array.isArray(payload?.[key])) return payload[key];
+  }
+  return Array.isArray(payload?.data) ? payload.data : [];
+};
+
+const containsTelugu = (value) => /[\u0C00-\u0C7F]/.test(String(value || ""));
+
+const getSongArtistsForStatistics = (song, songsById = {}, artistsById = {}) => {
+  const id = song?.song_id ?? song?.id;
+  const reference = id == null ? {} : songsById[String(id)] || {};
+  const sources = [reference, song];
+  const names = [];
+  const seen = new Set();
+
+  const addName = (value) => {
+    if (typeof value !== "string") return;
+    value.split(",").forEach((part) => {
+      const name = part.trim();
+      if (!name || containsTelugu(name) || /^(unknown artist|null|undefined|n\/a)$/i.test(name)) return;
+      const key = name.toLocaleLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        names.push(name);
+      }
+    });
+  };
+
+  const addArtist = (artist) => {
+    if (artist == null) return;
+    if (typeof artist === "string" || typeof artist === "number") {
+      const linked = artistsById[String(artist)];
+      if (linked) addArtist(linked);
+      else if (typeof artist === "string" && !/^\d+$/.test(artist.trim())) addName(artist);
+      return;
+    }
+    if (typeof artist !== "object") return;
+    if (artist.artist && typeof artist.artist === "object") addArtist(artist.artist);
+    const artistId = artist.id ?? artist.artist_id ?? artist.artistId;
+    const linked = artistId != null ? artistsById[String(artistId)] : null;
+    if (linked && linked !== artist) {
+      addName(linked.name_english || linked.english_name || linked.nameEnglish || linked.name);
+    }
+    [
+      artist.name_english, artist.english_name, artist.nameEnglish,
+      artist.englishName, artist.artist_name_english, artist.artist_english,
+      artist.artist_name_en, artist.name_en, artist.display_name, artist.name,
+    ].forEach(addName);
+  };
+
+  sources.forEach((source) => {
+    [
+      ...(Array.isArray(source?.artists) ? source.artists : source?.artists ? [source.artists] : []),
+      ...(Array.isArray(source?.song_artists) ? source.song_artists : []),
+      ...(Array.isArray(source?.artist) ? source.artist : []),
+    ].forEach(addArtist);
+    [
+      ...(Array.isArray(source?.artist_ids) ? source.artist_ids : []),
+      ...(Array.isArray(source?.artistIds) ? source.artistIds : []),
+    ].forEach(addArtist);
+  });
+
+  if (names.length === 0) {
+    sources.forEach((source) => {
+      const artistObject =
+        source?.artist && typeof source.artist === "object" && !Array.isArray(source.artist)
+          ? source.artist : {};
+      [
+        source?.artist_id, source?.artistId, artistObject?.id, artistObject?.artist_id,
+      ].filter((value) => value != null).forEach((artistId) => {
+        addArtist(artistsById[String(artistId)] || { id: artistId });
+      });
+      [
+        source?.artist_english, source?.artist_name_english,
+        source?.artist_english_name, source?.artist_name_en,
+        artistObject?.name_english, artistObject?.english_name,
+        artistObject?.nameEnglish, artistObject?.name,
+      ].forEach(addName);
+    });
+  }
+
+  return names.join(", ") || "Unknown Artist";
 };
 
 /* =========================================================
@@ -90,6 +176,9 @@ const Statistics = () => {
     error,
     setError,
   ] = useState("");
+
+  const [artistsById, setArtistsById] = useState({});
+  const [songsById, setSongsById] = useState({});
 
   /* =======================================================
      LOAD STATISTICS
@@ -131,14 +220,38 @@ const Statistics = () => {
            Bearer <token>
         =============================================== */
 
-        const response =
-          await API.get(
-            "/statistics"
-          );
+        const [response, songsResult, artistsResult] = await Promise.all([
+          API.get("/statistics"),
+          API.get("/songs").catch(() => null),
+          API.get("/artists").catch(() => null),
+        ]);
 
-        if (!active) {
-          return;
-        }
+        if (!active) return;
+
+        const songList = getList(songsResult?.data, ["songs"]);
+        const artistList = getList(artistsResult?.data, ["artists"]);
+        const songLookup = {};
+        const artistLookup = {};
+
+        songList.forEach((song) => {
+          const id = song?.id ?? song?.song_id;
+          if (id != null) songLookup[String(id)] = song;
+        });
+
+        artistList.forEach((artist) => {
+          const id = artist?.id ?? artist?.artist_id;
+          const englishName =
+            artist?.name_english || artist?.english_name ||
+            artist?.nameEnglish || artist?.englishName ||
+            artist?.artist_name_english || "";
+          if (id != null && typeof englishName === "string" &&
+              englishName.trim() && !containsTelugu(englishName)) {
+            artistLookup[String(id)] = { ...artist, name_english: englishName.trim() };
+          }
+        });
+
+        setSongsById(songLookup);
+        setArtistsById(artistLookup);
 
         /* ===============================================
            SUCCESS
@@ -497,7 +610,7 @@ const Statistics = () => {
                     )}
 
                     <small>
-                      {song.artist_english || "Unknown Artist"}
+                      {getSongArtistsForStatistics(song, songsById, artistsById)}
                     </small>
                   </div>
 

@@ -71,21 +71,80 @@ function getTeluguSongTitle(song) {
   );
 }
 
-/* ARTIST NAME - ALWAYS ENGLISH */
+/* MULTIPLE ARTIST NAMES - ALWAYS ENGLISH */
 
-function getArtistName(song) {
-  return (
-    song?.artist_name_english ||
-    song?.artist_english ||
-    song?.artist?.name_english ||
-    song?.artist?.name_english ||
-    song?.artist?.english_name ||
-    song?.artist_name ||
-    song?.artist?.name ||
-    (typeof song?.artist === "string" ? song.artist : "") ||
-    "Unknown Artist"
+function getArtistNames(song) {
+  const candidates = [];
+
+  const addArtist = (value) => {
+    if (!value) return;
+
+    if (typeof value === "string") {
+      candidates.push(value);
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(addArtist);
+      return;
+    }
+
+    if (typeof value === "object") {
+      // song_artists may contain either the artist directly or
+      // a relationship object with a nested artist property.
+      if (value.artist) addArtist(value.artist);
+      if (value.artist_details) addArtist(value.artist_details);
+      if (value.artistDetails) addArtist(value.artistDetails);
+
+      candidates.push(
+        value.name_english ||
+        value.english_name ||
+        value.nameEnglish ||
+        value.englishName ||
+        value.artist_name_english ||
+        value.artist_english ||
+        value.artist_name ||
+        value.name ||
+        ""
+      );
+    }
+  };
+
+  addArtist(song?.artists);
+  addArtist(song?.song_artists);
+  addArtist(song?.artist);
+
+  // Keep the legacy single-artist fields as a compatibility fallback.
+  candidates.push(
+    song?.artist_name_english,
+    song?.artist_english,
+    song?.artist_name
   );
+
+  const teluguScript = /[\\u0C00-\\u0C7F]/;
+  const uniqueNames = [];
+
+  candidates.forEach((candidate) => {
+    const name = String(candidate || "").trim();
+
+    if (
+      !name ||
+      name.toLowerCase() === "unknown artist" ||
+      teluguScript.test(name)
+    ) {
+      return;
+    }
+
+    if (!uniqueNames.some(
+      (existing) => existing.toLowerCase() === name.toLowerCase()
+    )) {
+      uniqueNames.push(name);
+    }
+  });
+
+  return uniqueNames.length ? uniqueNames : ["Unknown Artist"];
 }
+
 /* SORT NEWEST FIRST */
 
 function sortNewestFirst(songs) {
@@ -365,8 +424,8 @@ export default function RecentlyAdded() {
       const teluguTitle =
         getTeluguSongTitle(song).toLowerCase();
 
-      const artist =
-        getArtistName(song).toLowerCase();
+      const artists =
+        getArtistNames(song).join(", ").toLowerCase();
 
       const language =
         String(song?.language || "").toLowerCase();
@@ -374,7 +433,7 @@ export default function RecentlyAdded() {
       return (
         englishTitle.includes(query) ||
         teluguTitle.includes(query) ||
-        artist.includes(query) ||
+        artists.includes(query) ||
         language.includes(query)
       );
     });
@@ -604,8 +663,9 @@ export default function RecentlyAdded() {
 
               const title = getSongTitle(song);
               const teluguTitle = getTeluguSongTitle(song);
-              const artist = getArtistName(song);
-              const menuKey = String(id ?? `${title}-${artist}`);
+              const artists = getArtistNames(song);
+              const artistText = artists.join(", ");
+              const menuKey = String(id ?? `${title}-${artistText}`);
 
               const currentId = getSongId(currentSong);
 
@@ -619,7 +679,7 @@ export default function RecentlyAdded() {
 
               return (
                 <article
-                  key={id ?? `${title}-${artist}`}
+                  key={id ?? `${title}-${artistText}`}
                   className={[
                     "recently-added-card",
                     isCurrent ? "is-current" : "",
@@ -699,7 +759,7 @@ export default function RecentlyAdded() {
                       {/* ENGLISH ARTIST NAME */}
 
                       <span className="recently-added-artist">
-                        {artist}
+                        {artistText}
                       </span>
 
                     </button>
