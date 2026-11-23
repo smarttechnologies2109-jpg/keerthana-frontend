@@ -2033,3 +2033,250 @@
     gap: 7px;
   }
 }
+
+/* =========================================
+   MULTIPLE ARTISTS — ADD SONG
+========================================= */
+
+.admin-multiple-artists-field {
+  min-width: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.admin-multi-artist {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Selected artists container */
+.admin-multi-artist-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 10px;
+  background: #f8faff;
+  border: 1px solid #dce4f0;
+  border-radius: 10px;
+}
+
+/* Individual artist chip */
+.admin-artist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 7px 10px;
+  background: #eaf0ff;
+  border: 1px solid #cbd8ff;
+  border-radius: 8px;
+  color: #172554;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-artist-chip-name {
+  overflow-wrap: anywhere;
+}
+
+/* Primary artist badge */
+.admin-primary-artist-label {
+  padding: 3px 7px;
+  background: #f5e7bd;
+  color: #795515;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Remove artist button */
+.admin-artist-chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #dce5fa;
+  color: #334155;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.admin-artist-chip button:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.admin-artist-placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* Search and add button */
+.admin-multi-artist-trigger {
+  width: 100%;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-multi-artist-trigger:hover,
+.admin-multi-artist.is-open .admin-multi-artist-trigger {
+  border-color: #3155a6;
+  box-shadow: 0 0 0 3px rgba(49, 85, 166, 0.09);
+}
+
+/* Dropdown menu */
+.admin-multi-artist .admin-searchable-menu {
+  position: absolute;
+  top: calc(100% - 35px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  margin-top: 40px;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.16);
+}
+
+/* Search input */
+.admin-multi-artist .admin-searchable-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  min-height: 43px;
+  border: 1px solid #dce4f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.admin-multi-artist .admin-searchable-input-wrap input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 13px;
+  box-shadow: none;
+}
+
+.admin-multi-artist .admin-searchable-input-wrap input:focus {
+  border: none;
+  box-shadow: none;
+}
+
+/* Search results */
+.admin-multi-artist .admin-searchable-options {
+  max-height: 230px;
+  overflow-y: auto;
+  margin-top: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-multi-artist .admin-searchable-option {
+  width: 100%;
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.admin-multi-artist .admin-searchable-option:hover {
+  background: #f1f5ff;
+  border-color: #dbe5ff;
+}
+
+.admin-multi-artist .admin-searchable-option.is-selected {
+  background: #edf2ff;
+  border-color: #c7d5ff;
+  color: #23458e;
+  font-weight: 600;
+}
+
+/* Selected check mark */
+.admin-multi-artist .admin-searchable-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 23px;
+  height: 23px;
+  border-radius: 6px;
+  background: #3155a6;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Empty results */
+.admin-multi-artist .admin-searchable-empty {
+  padding: 18px 10px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* Helper text */
+.admin-multi-artist-help {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .admin-multi-artist-selected {
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .admin-artist-chip {
+    max-width: 100%;
+    font-size: 12px;
+  }
+
+  .admin-multi-artist .admin-searchable-menu {
+    max-height: 300px;
+  }
+
+  .admin-multi-artist .admin-searchable-options {
+    max-height: 190px;
+  }
+}
