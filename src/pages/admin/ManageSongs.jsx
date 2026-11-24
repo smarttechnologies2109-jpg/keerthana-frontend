@@ -43,6 +43,7 @@ import { getMediaUrl } from "../../utils/media";
 
 
 import "../../assets/css/admin/manageSongs.css";
+import "../../assets/css/admin/manageSongs.pagination.css";
 
 
 
@@ -87,6 +88,10 @@ function ManageSongs() {
 
 
   const [deletingId, setDeletingId] = useState(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
 
 
@@ -1064,6 +1069,31 @@ function ManageSongs() {
 
 
 
+  // Reset to the first page whenever the search or filters change.
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedLanguage, selectedAdvancedFilter, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredSongs.length / pageSize));
+
+  // Keep the current page valid after deleting a song or changing filters.
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  const paginatedSongs = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredSongs.slice(startIndex, startIndex + pageSize);
+  }, [filteredSongs, currentPage, pageSize]);
+
+  const pageNumbers = useMemo(() => {
+    const visibleCount = 5;
+    let start = Math.max(1, currentPage - Math.floor(visibleCount / 2));
+    let end = Math.min(totalPages, start + visibleCount - 1);
+    start = Math.max(1, end - visibleCount + 1);
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [currentPage, totalPages]);
+
   /* =====================================================
 
      CLEAR FILTERS
@@ -1826,11 +1856,8 @@ function ManageSongs() {
 
       ) : (
 
-
-
-        /* SONGS TABLE */
-
-
+        <>
+        {/* SONGS TABLE */}
 
         <div className="admin-table-wrapper">
 
@@ -1876,7 +1903,7 @@ function ManageSongs() {
 
 
 
-              {filteredSongs.map((song, index) => {
+              {paginatedSongs.map((song, index) => {
 
 
 
@@ -1896,7 +1923,7 @@ function ManageSongs() {
 
                     <td className="admin-song-number">
 
-                      {String(index + 1).padStart(2, "0")}
+                      {String((currentPage - 1) * pageSize + index + 1).padStart(2, "0")}
 
                     </td>
 
@@ -2146,7 +2173,109 @@ function ManageSongs() {
 
         </div>
 
+        {/* PAGINATION */}
+        <div className="admin-song-pagination">
+          <div className="admin-song-pagination-info">
+            <span>
+              Showing{" "}
+              <strong>
+                {filteredSongs.length === 0
+                  ? 0
+                  : (currentPage - 1) * pageSize + 1}
+                {"–"}
+                {Math.min(currentPage * pageSize, filteredSongs.length)}
+              </strong>{" "}
+              of <strong>{filteredSongs.length}</strong> songs
+            </span>
 
+            <label className="admin-song-page-size">
+              Rows per page
+              <select
+                value={pageSize}
+                onChange={(event) => setPageSize(Number(event.target.value))}
+                aria-label="Rows per page"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="admin-song-pagination-actions">
+            <button
+              type="button"
+              className="admin-song-page-button"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              aria-label="First page"
+            >
+              First
+            </button>
+            <button
+              type="button"
+              className="admin-song-page-button"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+            >
+              Previous
+            </button>
+
+            {pageNumbers[0] > 1 && (
+              <>
+                <button type="button" className="admin-song-page-button" onClick={() => setCurrentPage(1)}>
+                  1
+                </button>
+                {pageNumbers[0] > 2 && <span className="admin-song-page-ellipsis">…</span>}
+              </>
+            )}
+
+            {pageNumbers.map((page) => (
+              <button
+                type="button"
+                key={page}
+                className={`admin-song-page-button ${currentPage === page ? "active" : ""}`}
+                onClick={() => setCurrentPage(page)}
+                aria-current={currentPage === page ? "page" : undefined}
+              >
+                {page}
+              </button>
+            ))}
+
+            {pageNumbers[pageNumbers.length - 1] < totalPages && (
+              <>
+                {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+                  <span className="admin-song-page-ellipsis">…</span>
+                )}
+                <button type="button" className="admin-song-page-button" onClick={() => setCurrentPage(totalPages)}>
+                  {totalPages}
+                </button>
+              </>
+            )}
+
+            <button
+              type="button"
+              className="admin-song-page-button"
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              aria-label="Next page"
+            >
+              Next
+            </button>
+            <button
+              type="button"
+              className="admin-song-page-button"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              aria-label="Last page"
+            >
+              Last
+            </button>
+          </div>
+        </div>
+
+        </>
 
       )}
 

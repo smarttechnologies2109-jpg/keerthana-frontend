@@ -6,6 +6,7 @@ import React, {
   useState,
   useMemo,
 } from "react";
+import Cropper from "react-easy-crop";
 
 import {
   FaChurch,
@@ -22,6 +23,8 @@ import {
 
 import API from "../../services/api";
 import "../../assets/css/admin/manageMinistries.css";
+import "../../assets/css/admin/addSong.cropper.css";
+import "../../assets/css/admin/manageMinistries.pagination.css";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
 // =========================================================
@@ -65,6 +68,53 @@ const normalizeMinistryName = (value) =>
     .replace(/\s+/g, " ")
     .toLocaleLowerCase();
 
+
+// Create a cropped image file from the selected crop area.
+const createCroppedImage = (imageSrc, pixelCrop, rotation = 0) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      try {
+        const radians = (rotation * Math.PI) / 180;
+        const sin = Math.abs(Math.sin(radians));
+        const cos = Math.abs(Math.cos(radians));
+        const rotatedWidth = image.width * cos + image.height * sin;
+        const rotatedHeight = image.width * sin + image.height * cos;
+
+        const rotatedCanvas = document.createElement("canvas");
+        const rotatedContext = rotatedCanvas.getContext("2d");
+        if (!rotatedContext) throw new Error("Unable to create image canvas.");
+        rotatedCanvas.width = Math.round(rotatedWidth);
+        rotatedCanvas.height = Math.round(rotatedHeight);
+        rotatedContext.translate(rotatedWidth / 2, rotatedHeight / 2);
+        rotatedContext.rotate(radians);
+        rotatedContext.drawImage(image, -image.width / 2, -image.height / 2);
+
+        const outputCanvas = document.createElement("canvas");
+        const outputContext = outputCanvas.getContext("2d");
+        if (!outputContext) throw new Error("Unable to create cropped image canvas.");
+        outputCanvas.width = Math.max(1, Math.round(pixelCrop.width));
+        outputCanvas.height = Math.max(1, Math.round(pixelCrop.height));
+        outputContext.drawImage(
+          rotatedCanvas,
+          pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+          0, 0, outputCanvas.width, outputCanvas.height
+        );
+        outputCanvas.toBlob(
+          (blob) => blob
+            ? resolve(blob)
+            : reject(new Error("Could not create the cropped image.")),
+          "image/jpeg",
+          0.92
+        );
+      } catch (error) {
+        reject(error);
+      }
+    };
+    image.onerror = () => reject(new Error("Could not load the selected image."));
+    image.src = imageSrc;
+  });
+
 // =========================================================
 // COMPONENT
 // =========================================================
@@ -86,6 +136,20 @@ function ManageMinistries() {
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+
+  // COVER IMAGE CROPPER
+  const [cropSource, setCropSource] = useState("");
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [aspect, setAspect] = useState(1);
+  const [cropPixels, setCropPixels] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropSaving, setCropSaving] = useState(false);
+
+  // PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const imageInputRef = useRef(null);
   const previewUrlRef = useRef("");
@@ -164,10 +228,64 @@ function ManageMinistries() {
   }, []);
 
   // =======================================================
+  // COVER IMAGE CROPPER
+  // =======================================================
+
+  const closeCropper = () => {
+    setShowCropper(false);
+    if (cropSource) URL.revokeObjectURL(cropSource);
+    setCropSource("");
+    setCropPixels(null);
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  };
+
+  const handleCropComplete = (_croppedArea, croppedAreaPixels) => {
+    setCropPixels(croppedAreaPixels);
+  };
+
+  const applyCrop = async () => {
+    if (!cropSource || !cropPixels) {
+      setError("Please adjust the crop area before applying.");
+      return;
+    }
+
+    try {
+      setCropSaving(true);
+      const croppedBlob = await createCroppedImage(
+        cropSource,
+        cropPixels,
+        rotation
+      );
+      const croppedFile = new File(
+        [croppedBlob],
+        `keerthana-ministry-${Date.now()}.jpg`,
+        { type: "image/jpeg", lastModified: Date.now() }
+      );
+
+      clearImagePreview();
+      const previewUrl = URL.createObjectURL(croppedFile);
+      previewUrlRef.current = previewUrl;
+      setImageFile(croppedFile);
+      setImagePreview(previewUrl);
+      closeCropper();
+      setError("");
+    } catch (err) {
+      console.error("Ministry image crop error:", err);
+      setError(err.message || "Unable to crop this image.");
+    } finally {
+      setCropSaving(false);
+    }
+  };
+
+  // =======================================================
   // RESET FORM
   // =======================================================
 
   const resetForm = useCallback(() => {
+    if (cropSource) URL.revokeObjectURL(cropSource);
+    setCropSource("");
+    setShowCropper(false);
+    setCropPixels(null);
     clearImagePreview();
 
     setForm({
@@ -188,7 +306,7 @@ function ManageMinistries() {
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
     }
-  }, []);
+  }, [cropSource]);
 
   // =======================================================
   // CLOSE POPUP WITH ESCAPE KEY
@@ -249,7 +367,6 @@ function ManageMinistries() {
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     setError("");
@@ -259,26 +376,24 @@ function ManageMinistries() {
       setError(
         "Invalid image format. Please select a JPG, PNG or WEBP image."
       );
-
       event.target.value = "";
       return;
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
       setError("Image size must be less than 5 MB.");
-
       event.target.value = "";
       return;
     }
 
-    clearImagePreview();
-
-    const previewUrl = URL.createObjectURL(file);
-
-    previewUrlRef.current = previewUrl;
-
-    setImageFile(file);
-    setImagePreview(previewUrl);
+    const sourceUrl = URL.createObjectURL(file);
+    setCropSource(sourceUrl);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setAspect(1);
+    setCropPixels(null);
+    setShowCropper(true);
   };
 
   // =======================================================
@@ -656,6 +771,25 @@ function ManageMinistries() {
       });
   }, [ministries, search, selectedLanguage]);
 
+  // =======================================================
+  // PAGINATION
+  // =======================================================
+
+  const totalPages = Math.max(1, Math.ceil(filteredMinistries.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedLanguage, pageSize]);
+
+  const paginatedMinistries = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredMinistries.slice(startIndex, startIndex + pageSize);
+  }, [filteredMinistries, currentPage, pageSize]);
+
   // MINISTRY IMAGE DISPLAY - NO DEFAULT IMAGE
   // =======================================================
 
@@ -927,7 +1061,7 @@ function ManageMinistries() {
                 </thead>
 
                 <tbody>
-                  {filteredMinistries.map((ministry, index) => {
+                  {paginatedMinistries.map((ministry, index) => {
                     const ministryId =
                       ministry.id || ministry.ministry_id || `ministry-${index}`;
 
@@ -940,7 +1074,7 @@ function ManageMinistries() {
                     return (
                       <tr key={ministryId}>
                         <td className="admin-ministry-number">
-                          {String(index + 1).padStart(2, "0")}
+                          {String((currentPage - 1) * pageSize + index + 1).padStart(2, "0")}
                         </td>
 
                         <td>
@@ -1003,6 +1137,42 @@ function ManageMinistries() {
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* PAGINATION */}
+          {filteredMinistries.length > 0 && (
+            <div className="admin-pagination">
+              <div className="admin-pagination-info">
+                Showing <strong>{(currentPage - 1) * pageSize + 1}</strong>–
+                <strong>{Math.min(currentPage * pageSize, filteredMinistries.length)}</strong>
+                {" "}of <strong>{filteredMinistries.length}</strong> ministries
+              </div>
+
+              <div className="admin-pagination-controls">
+                <label className="admin-pagination-size">
+                  Rows
+                  <select
+                    value={pageSize}
+                    onChange={(event) => {
+                      setPageSize(Number(event.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Ministries per page"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                  per page
+                </label>
+
+                <button type="button" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>First</button>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1}>Previous</button>
+                <span className="admin-pagination-current">{currentPage} / {totalPages}</span>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>Next</button>
+                <button type="button" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>Last</button>
+              </div>
             </div>
           )}
 
@@ -1246,7 +1416,7 @@ function ManageMinistries() {
 
                   {imageFile && (
                     <small>
-                      Selected: {imageFile.name}
+                      Cropped image ready: {imageFile.name}
                     </small>
                   )}
 
@@ -1299,6 +1469,81 @@ function ManageMinistries() {
 
           </div>
 
+        </div>
+      )}
+
+      {/* COVER IMAGE CROPPER MODAL */}
+      {showCropper && (
+        <div className="admin-cropper-backdrop">
+          <div className="admin-cropper-modal">
+            <div className="admin-cropper-header">
+              <div>
+                <h2>Crop Ministry Cover</h2>
+                <p>Adjust the image before saving. Square crop is recommended.</p>
+              </div>
+              <button type="button" onClick={closeCropper} disabled={cropSaving} aria-label="Close cropper">
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="admin-cropper-area">
+              <Cropper
+                image={cropSource}
+                crop={crop}
+                zoom={zoom}
+                rotation={rotation}
+                aspect={aspect}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onRotationChange={setRotation}
+                onCropComplete={handleCropComplete}
+                restrictPosition
+              />
+            </div>
+
+            <div className="admin-cropper-controls">
+              <div className="admin-cropper-control-group">
+                <label htmlFor="ministry-crop-zoom">Zoom</label>
+                <div className="admin-cropper-zoom-row">
+                  <span>−</span>
+                  <input
+                    id="ministry-crop-zoom"
+                    type="range"
+                    min="1"
+                    max="3"
+                    step="0.1"
+                    value={zoom}
+                    onChange={(event) => setZoom(Number(event.target.value))}
+                  />
+                  <span>+</span>
+                </div>
+              </div>
+
+              <div className="admin-cropper-control-group">
+                <label>Aspect ratio</label>
+                <div className="admin-cropper-ratios">
+                  <button type="button" className={aspect === 1 ? "active" : ""} onClick={() => setAspect(1)}>Square</button>
+                  <button type="button" className={aspect === 4 / 5 ? "active" : ""} onClick={() => setAspect(4 / 5)}>Portrait</button>
+                  <button type="button" className={aspect === 16 / 9 ? "active" : ""} onClick={() => setAspect(16 / 9)}>Landscape</button>
+                </div>
+              </div>
+
+              <div className="admin-cropper-control-group">
+                <label>Rotate</label>
+                <div className="admin-cropper-rotate-row">
+                  <button type="button" onClick={() => setRotation((value) => value - 90)}>Rotate left</button>
+                  <button type="button" onClick={() => setRotation((value) => value + 90)}>Rotate right</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-cropper-footer">
+              <button type="button" className="admin-cropper-cancel" onClick={closeCropper} disabled={cropSaving}>Cancel</button>
+              <button type="button" className="admin-cropper-apply" onClick={applyCrop} disabled={cropSaving || !cropPixels}>
+                {cropSaving ? "Applying..." : "Apply Crop"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -1496,3 +1496,85 @@
     font-size: 0.7rem;
   }
 }
+/* KEERTHANA Manage Albums pagination */
+.admin-album-pagination-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin-album-pagination-size select {
+  min-width: 66px;
+  min-height: 38px;
+  border: 1px solid #d9e0ea;
+  border-radius: 9px;
+  padding: 7px 10px;
+  color: inherit;
+  background: #fff;
+  font: inherit;
+}
+.admin-album-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 8px;
+}
+.admin-album-pagination > button,
+.admin-album-page-item > button {
+  display: inline-flex;
+  min-width: 38px;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce3ec;
+  border-radius: 9px;
+  padding: 7px 11px;
+  color: #344256;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.admin-album-pagination > button:hover:not(:disabled),
+.admin-album-page-item > button:hover {
+  border-color: #c5a45c;
+  color: #17243a;
+}
+.admin-album-pagination button:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+.admin-album-page-item > button.active {
+  border-color: #c5a45c;
+  color: #17243a;
+  background: #ead9ad;
+}
+.admin-album-page-numbers,
+.admin-album-page-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.admin-album-page-ellipsis {
+  padding: 0 2px;
+  color: #8491a3;
+}
+.admin-album-page-summary {
+  margin-left: 8px;
+  color: #64748b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .admin-album-pagination { gap: 6px; }
+  .admin-album-pagination > button,
+  .admin-album-page-item > button { min-width: 34px; min-height: 34px; padding: 6px 8px; }
+  .admin-album-page-summary { width: 100%; margin: 5px 0 0; text-align: center; }
+  .admin-album-pagination-size { width: 100%; justify-content: flex-end; }
+}

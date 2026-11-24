@@ -2680,3 +2680,116 @@
     margin-left: 0;
   }
 }
+/* KEERTHANA Manage Songs - Pagination */
+
+.admin-song-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 18px 0 8px;
+  padding: 14px 16px;
+  border: 1px solid rgba(205, 170, 105, 0.2);
+  border-radius: 12px;
+  background: rgba(12, 25, 48, 0.72);
+  color: #d8deea;
+}
+
+.admin-song-pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.admin-song-pagination-info strong {
+  color: #f3d69a;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-song-page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #aebbd0;
+}
+
+.admin-song-page-size select {
+  min-width: 66px;
+  padding: 7px 28px 7px 10px;
+  border: 1px solid rgba(205, 170, 105, 0.35);
+  border-radius: 8px;
+  outline: none;
+  background: #101f38;
+  color: #f4f6fb;
+  cursor: pointer;
+}
+
+.admin-song-pagination-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.admin-song-page-button {
+  min-width: 36px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid rgba(205, 170, 105, 0.25);
+  border-radius: 8px;
+  background: #142642;
+  color: #dce5f3;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.admin-song-page-button:hover:not(:disabled) {
+  border-color: #d5b477;
+  background: #20395d;
+  color: #fff;
+}
+
+.admin-song-page-button.active {
+  border-color: #d9bd83;
+  background: linear-gradient(135deg, #d9bd83, #b58b4d);
+  color: #17243a;
+  box-shadow: 0 3px 10px rgba(181, 139, 77, 0.2);
+}
+
+.admin-song-page-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.admin-song-page-ellipsis {
+  padding: 0 3px;
+  color: #9ba9bd;
+}
+
+@media (max-width: 640px) {
+  .admin-song-pagination {
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .admin-song-pagination-info {
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .admin-song-pagination-actions {
+    justify-content: center;
+  }
+
+  .admin-song-page-button {
+    min-width: 32px;
+    padding: 7px 8px;
+  }
+}

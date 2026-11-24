@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import Cropper from "react-easy-crop";
 
 import {
   FaCompactDisc,
@@ -14,6 +15,8 @@ import API from "../../services/api";
 import { getMediaUrl } from "../../utils/media";
 
 import "../../assets/css/admin/manageAlbums.css";
+import "../../assets/css/admin/addSong.cropper.css";
+import "../../assets/css/admin/manageAlbums.pagination.css";
 
 // =====================================================
 // LANGUAGES
@@ -29,6 +32,44 @@ const LANGUAGES = [
 ];
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+const createCroppedImage = (imageSrc, pixelCrop, rotation = 0) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      try {
+        const radians = (rotation * Math.PI) / 180;
+        const sin = Math.abs(Math.sin(radians));
+        const cos = Math.abs(Math.cos(radians));
+        const rotatedWidth = image.width * cos + image.height * sin;
+        const rotatedHeight = image.width * sin + image.height * cos;
+        const rotatedCanvas = document.createElement("canvas");
+        const rotatedContext = rotatedCanvas.getContext("2d");
+        if (!rotatedContext) throw new Error("Unable to create image canvas.");
+        rotatedCanvas.width = Math.round(rotatedWidth);
+        rotatedCanvas.height = Math.round(rotatedHeight);
+        rotatedContext.translate(rotatedWidth / 2, rotatedHeight / 2);
+        rotatedContext.rotate(radians);
+        rotatedContext.drawImage(image, -image.width / 2, -image.height / 2);
+
+        const outputCanvas = document.createElement("canvas");
+        const outputContext = outputCanvas.getContext("2d");
+        if (!outputContext) throw new Error("Unable to create cropped image canvas.");
+        outputCanvas.width = Math.max(1, Math.round(pixelCrop.width));
+        outputCanvas.height = Math.max(1, Math.round(pixelCrop.height));
+        outputContext.drawImage(
+          rotatedCanvas, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+          0, 0, outputCanvas.width, outputCanvas.height
+        );
+        outputCanvas.toBlob(
+          (blob) => blob ? resolve(blob) : reject(new Error("Could not create the cropped image.")),
+          "image/jpeg", 0.92
+        );
+      } catch (error) { reject(error); }
+    };
+    image.onerror = () => reject(new Error("Could not load the selected image."));
+    image.src = imageSrc;
+  });
 
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
@@ -97,6 +138,9 @@ function ManageAlbums() {
 
   const [search, setSearch] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
 
   // ===================================================
   // MODAL
@@ -125,6 +169,14 @@ function ManageAlbums() {
 
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
+  const [cropSource, setCropSource] = useState("");
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [aspect, setAspect] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropSaving, setCropSaving] = useState(false);
   const errorMessageRef = useRef(null);
 
   // Automatically bring validation/API errors into view inside the modal.
@@ -212,6 +264,17 @@ function ManageAlbums() {
     loadData();
   }, []);
 
+  const resetCropState = () => {
+    setShowCropper(false);
+    setCropSource("");
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setAspect(1);
+    setCroppedAreaPixels(null);
+    setCropSaving(false);
+  };
+
   // ===================================================
   // OPEN ADD
   // ===================================================
@@ -221,6 +284,7 @@ function ManageAlbums() {
 
     setCoverFile(null);
     clearCoverPreview();
+    resetCropState();
 
     setForm({ ...initialForm });
 
@@ -238,6 +302,7 @@ function ManageAlbums() {
 
     setCoverFile(null);
     clearCoverPreview();
+    resetCropState();
 
     setCoverPreview(
       getCover(album.cover_url)
@@ -270,6 +335,7 @@ function ManageAlbums() {
 
     setCoverFile(null);
     clearCoverPreview();
+    resetCropState();
 
     setForm({ ...initialForm });
 
@@ -304,41 +370,65 @@ function ManageAlbums() {
 
   const handleCoverChange = (event) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
-
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError(
-        "Only JPG, PNG or WebP images are allowed."
-      );
-
+      setError("Only JPG, PNG or WebP images are allowed.");
       event.target.value = "";
       return;
     }
-
     if (file.size > MAX_IMAGE_SIZE) {
-      setError(
-        "Cover image must be smaller than 5 MB."
-      );
-
+      setError("Cover image must be smaller than 5 MB.");
       event.target.value = "";
       return;
     }
-
     setError("");
-
-    clearCoverPreview();
-
-    setCoverFile(file);
-
-    const previewUrl = URL.createObjectURL(file);
-
-    setCoverPreview(previewUrl);
+    const sourceUrl = URL.createObjectURL(file);
+    setCropSource(sourceUrl);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setAspect(1);
+    setCroppedAreaPixels(null);
+    setShowCropper(true);
+    event.target.value = "";
   };
 
-  // ===================================================
-  // SAVE ALBUM
-  // ===================================================
+  const handleCropComplete = (_area, areaPixels) => {
+    setCroppedAreaPixels(areaPixels);
+  };
+
+  const closeCropper = () => {
+    if (cropSaving) return;
+    setShowCropper(false);
+    setCropSource("");
+    setCroppedAreaPixels(null);
+  };
+
+  const applyCrop = async () => {
+    if (!cropSource || !croppedAreaPixels) {
+      setError("Please adjust the crop area before applying.");
+      return;
+    }
+    try {
+      setCropSaving(true);
+      const blob = await createCroppedImage(cropSource, croppedAreaPixels, rotation);
+      const croppedFile = new File(
+        [blob], `keerthana-album-cover-${Date.now()}.jpg`, { type: "image/jpeg" }
+      );
+      clearCoverPreview();
+      setCoverFile(croppedFile);
+      setCoverPreview(URL.createObjectURL(croppedFile));
+      setShowCropper(false);
+      setCropSource("");
+      setCroppedAreaPixels(null);
+      setError("");
+    } catch (error) {
+      console.error("Album cover crop error:", error);
+      setError(error.message || "Unable to crop this image. Please try another image.");
+    } finally {
+      setCropSaving(false);
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -487,6 +577,7 @@ function ManageAlbums() {
       setEditingAlbum(null);
       setCoverFile(null);
       clearCoverPreview();
+      resetCropState();
 
       setForm({ ...initialForm });
     } catch (error) {
@@ -577,6 +668,21 @@ function ManageAlbums() {
         });
       });
   }, [albums, search, selectedLanguage]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredAlbums.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedAlbums = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return filteredAlbums.slice(startIndex, startIndex + pageSize);
+  }, [filteredAlbums, safeCurrentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedLanguage, pageSize]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   // ===================================================
   // LANGUAGE-WISE ALBUM COUNTS
@@ -767,14 +873,24 @@ function ManageAlbums() {
           </select>
         </div>
 
+        <div className="admin-album-pagination-size">
+          <label htmlFor="album-page-size">Rows per page</label>
+          <select
+            id="album-page-size"
+            value={pageSize}
+            onChange={(event) => setPageSize(Number(event.target.value))}
+          >
+            {[10, 25, 50].map((size) => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="admin-song-count">
           <FaCompactDisc />
-
           <span>
-            {filteredAlbums.length}{" "}
-            {filteredAlbums.length === 1
-              ? "Album"
-              : "Albums"}
+            {filteredAlbums.length ? (safeCurrentPage - 1) * pageSize + 1 : 0}–
+            {Math.min(safeCurrentPage * pageSize, filteredAlbums.length)} of {filteredAlbums.length} Albums
           </span>
         </div>
       </div>
@@ -824,14 +940,14 @@ function ManageAlbums() {
             </thead>
 
             <tbody>
-              {filteredAlbums.map((album, index) => {
+              {paginatedAlbums.map((album, index) => {
                 const albumNames = getAlbumDisplay(album);
                 const coverSrc = getCover(album.cover_url);
 
                 return (
                   <tr key={album.id}>
                     <td className="admin-album-number">
-                      {String(index + 1).padStart(2, "0")}
+                      {String((safeCurrentPage - 1) * pageSize + index + 1).padStart(2, "0")}
                     </td>
 
                     {/* ALBUM */}
@@ -916,6 +1032,31 @@ function ManageAlbums() {
             </tbody>
 
           </table>
+        </div>
+      )}
+
+      {filteredAlbums.length > 0 && (
+        <div className="admin-album-pagination" aria-label="Album table pagination">
+          <button type="button" onClick={() => setCurrentPage(1)} disabled={safeCurrentPage === 1}>First</button>
+          <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={safeCurrentPage === 1}>Previous</button>
+          <div className="admin-album-page-numbers">
+            {Array.from({ length: totalPages }, (_, index) => index + 1)
+              .filter((page) => page === 1 || page === totalPages || Math.abs(page - safeCurrentPage) <= 2)
+              .map((page, index, pages) => (
+                <span className="admin-album-page-item" key={page}>
+                  {index > 0 && page - pages[index - 1] > 1 && <span className="admin-album-page-ellipsis">…</span>}
+                  <button
+                    type="button"
+                    className={page === safeCurrentPage ? "active" : ""}
+                    aria-current={page === safeCurrentPage ? "page" : undefined}
+                    onClick={() => setCurrentPage(page)}
+                  >{page}</button>
+                </span>
+              ))}
+          </div>
+          <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={safeCurrentPage === totalPages}>Next</button>
+          <button type="button" onClick={() => setCurrentPage(totalPages)} disabled={safeCurrentPage === totalPages}>Last</button>
+          <span className="admin-album-page-summary">Page {safeCurrentPage} of {totalPages}</span>
         </div>
       )}
 
@@ -1082,7 +1223,7 @@ function ManageAlbums() {
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
                         onChange={handleCoverChange}
-                        disabled={saving}
+                        disabled={saving || showCropper}
                         hidden
                       />
                     </label>
@@ -1119,7 +1260,7 @@ function ManageAlbums() {
                 <button
                   type="submit"
                   className="admin-primary-button"
-                  disabled={saving}
+                  disabled={saving || showCropper || cropSaving}
                 >
                   {saving
                     ? "Saving..."
@@ -1136,6 +1277,59 @@ function ManageAlbums() {
         </div>
       )}
 
+      {showCropper && cropSource && (
+        <div className="admin-cropper-backdrop" role="dialog" aria-modal="true" aria-label="Crop album cover">
+          <div className="admin-cropper-modal">
+            <div className="admin-cropper-header">
+              <div><h2>Crop Album Cover</h2><p>Adjust the image before saving your album.</p></div>
+              <button type="button" onClick={closeCropper} disabled={cropSaving} aria-label="Close cropper"><FaTimes /></button>
+            </div>
+            <div className="admin-cropper-area">
+              <Cropper
+                image={cropSource}
+                crop={crop}
+                zoom={zoom}
+                rotation={rotation}
+                aspect={aspect}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onRotationChange={setRotation}
+                onCropComplete={handleCropComplete}
+              />
+            </div>
+            <div className="admin-cropper-controls">
+              <div className="admin-cropper-control-group">
+                <label htmlFor="album-cover-zoom">Zoom</label>
+                <div className="admin-cropper-zoom-row">
+                  <span>−</span>
+                  <input id="album-cover-zoom" type="range" min="1" max="3" step="0.1" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} />
+                  <span>+</span>
+                </div>
+              </div>
+              <div className="admin-cropper-control-group">
+                <label>Aspect ratio</label>
+                <div className="admin-cropper-ratios">
+                  {[{ label: "1:1", value: 1 }, { label: "4:5", value: 4 / 5 }, { label: "16:9", value: 16 / 9 }].map((ratio) => (
+                    <button type="button" key={ratio.label} className={aspect === ratio.value ? "active" : ""} onClick={() => setAspect(ratio.value)}>{ratio.label}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="admin-cropper-control-group">
+                <label>Rotate</label>
+                <div className="admin-cropper-rotate-row">
+                  <button type="button" onClick={() => setRotation((value) => value - 90)}>Rotate left</button>
+                  <button type="button" onClick={() => setRotation((value) => value + 90)}>Rotate right</button>
+                  <button type="button" onClick={() => { setCrop({ x: 0, y: 0 }); setZoom(1); setRotation(0); }}>Reset</button>
+                </div>
+              </div>
+            </div>
+            <div className="admin-cropper-footer">
+              <button type="button" className="admin-cropper-cancel" onClick={closeCropper} disabled={cropSaving}>Cancel</button>
+              <button type="button" className="admin-cropper-apply" onClick={applyCrop} disabled={cropSaving || !croppedAreaPixels}>{cropSaving ? "Cropping..." : "Apply Crop"}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

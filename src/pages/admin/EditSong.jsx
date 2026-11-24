@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Cropper from "react-easy-crop";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -13,6 +14,7 @@ import {
 import API from "../../services/api";
 import { getMediaUrl } from "../../utils/media";
 import "../../assets/css/admin/editSong.css";
+import "../../assets/css/admin/addSong.cropper.css";
 
 const LANGUAGES = [
   { value: "Telugu", label: "తెలుగు" },
@@ -390,6 +392,56 @@ function MultiArtistDropdown({ options = [], value = [], onChange, disabled = fa
   );
 }
 
+/* =====================================================
+   IMAGE CROPPER HELPER
+===================================================== */
+
+const createCroppedImage = (imageSrc, pixelCrop, rotation = 0) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      try {
+        const radians = (rotation * Math.PI) / 180;
+        const sin = Math.abs(Math.sin(radians));
+        const cos = Math.abs(Math.cos(radians));
+        const rotatedWidth = image.width * cos + image.height * sin;
+        const rotatedHeight = image.width * sin + image.height * cos;
+
+        const rotatedCanvas = document.createElement("canvas");
+        const rotatedContext = rotatedCanvas.getContext("2d");
+        if (!rotatedContext) throw new Error("Unable to create image canvas.");
+        rotatedCanvas.width = Math.round(rotatedWidth);
+        rotatedCanvas.height = Math.round(rotatedHeight);
+        rotatedContext.translate(rotatedWidth / 2, rotatedHeight / 2);
+        rotatedContext.rotate(radians);
+        rotatedContext.drawImage(image, -image.width / 2, -image.height / 2);
+
+        const outputCanvas = document.createElement("canvas");
+        const outputContext = outputCanvas.getContext("2d");
+        if (!outputContext) throw new Error("Unable to create cropped image canvas.");
+        outputCanvas.width = Math.max(1, Math.round(pixelCrop.width));
+        outputCanvas.height = Math.max(1, Math.round(pixelCrop.height));
+        outputContext.drawImage(
+          rotatedCanvas,
+          pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+          0, 0, outputCanvas.width, outputCanvas.height
+        );
+
+        outputCanvas.toBlob(
+          (blob) => blob
+            ? resolve(blob)
+            : reject(new Error("Could not create the cropped image.")),
+          "image/jpeg",
+          0.92
+        );
+      } catch (error) {
+        reject(error);
+      }
+    };
+    image.onerror = () => reject(new Error("Could not load the selected image."));
+    image.src = imageSrc;
+  });
+
 function EditSong() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -403,6 +455,16 @@ function EditSong() {
   const [audioFile, setAudioFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState("");
+
+  // COVER CROPPER (shared with Add Song)
+  const [cropSource, setCropSource] = useState("");
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [aspect, setAspect] = useState(1);
+  const [cropPixels, setCropPixels] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropSaving, setCropSaving] = useState(false);
 
   const [artists, setArtists] = useState([]);
   const [albums, setAlbums] = useState([]);
@@ -530,6 +592,12 @@ useEffect(() => {
     };
   }, [coverPreview]);
 
+  useEffect(() => {
+    return () => {
+      if (cropSource) URL.revokeObjectURL(cropSource);
+    };
+  }, [cropSource]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((previous) => ({ ...previous, [name]: value }));
@@ -590,10 +658,59 @@ useEffect(() => {
       return;
     }
 
-    setCoverFile(file);
-    setCoverPreview(URL.createObjectURL(file));
+    const sourceUrl = URL.createObjectURL(file);
+    setCropSource(sourceUrl);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setAspect(1);
+    setCropPixels(null);
+    setShowCropper(true);
     setError("");
     setSuccess("");
+  };
+
+  const handleCropComplete = (_croppedArea, croppedAreaPixels) => {
+    setCropPixels(croppedAreaPixels);
+  };
+
+  const closeCropper = () => {
+    setShowCropper(false);
+    if (cropSource) URL.revokeObjectURL(cropSource);
+    setCropSource("");
+    const input = document.getElementById("edit-song-cover");
+    if (input) input.value = "";
+  };
+
+  const applyCrop = async () => {
+    if (!cropSource || !cropPixels) {
+      setError("Please adjust the crop area before applying.");
+      return;
+    }
+
+    try {
+      setCropSaving(true);
+      const croppedBlob = await createCroppedImage(cropSource, cropPixels, rotation);
+      const croppedFile = new File(
+        [croppedBlob],
+        `keerthana-cover-${Date.now()}.jpg`,
+        { type: "image/jpeg", lastModified: Date.now() }
+      );
+
+      setCoverFile(croppedFile);
+      setCoverPreview((previous) => {
+        if (previous) URL.revokeObjectURL(previous);
+        return URL.createObjectURL(croppedFile);
+      });
+      closeCropper();
+      setError("");
+      setSuccess("");
+    } catch (err) {
+      console.error("Cover crop error:", err);
+      setError(err.message || "Unable to crop the cover image.");
+    } finally {
+      setCropSaving(false);
+    }
   };
 
   const removeNewAudio = () => {
@@ -904,31 +1021,25 @@ useEffect(() => {
               )}
               <h3>Cover Image</h3>
               <p>{coverFile ? "New cover selected" : existingCover ? "Current cover" : "No current cover"}</p>
-              {!coverFile ? (
-                <>
-                  <input
-                    id="edit-song-cover"
-                    className="admin-file-input"
-                    type="file"
-                    accept=".jpg,.jpeg,.png,.webp"
-                    onChange={handleCoverChange}
-                    disabled={saving}
-                  />
-                  <label htmlFor="edit-song-cover" className="admin-upload-button">
-                    <FaCloudUploadAlt /> {existingCover ? "Replace Cover" : "Add Cover"}
-                  </label>
-                </>
-              ) : (
-                <div className="admin-selected-file">
-                  <div>
-                    <strong>{coverFile.name}</strong>
-                    <span>{formatFileSize(coverFile.size)}</span>
-                  </div>
-                  <button type="button" onClick={removeNewCover} disabled={saving} aria-label="Remove selected cover">
-                    <FaTimes />
+              <input
+                id="edit-song-cover"
+                className="admin-file-input"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                onChange={handleCoverChange}
+                disabled={saving || cropSaving}
+              />
+              <div className="admin-cover-actions">
+                <label htmlFor="edit-song-cover" className="admin-upload-button">
+                  <FaCloudUploadAlt /> {coverFile ? "Change / Crop Cover" : existingCover ? "Replace / Crop Cover" : "Add / Crop Cover"}
+                </label>
+                {coverFile && (
+                  <button type="button" className="admin-cover-remove-button" onClick={removeNewCover} disabled={saving || cropSaving}>
+                    <FaTimes /> Discard New Cover
                   </button>
-                </div>
-              )}
+                )}
+              </div>
+              {coverFile && <small>Cropped image: {formatFileSize(coverFile.size)}</small>}
             </div>
           </div>
         </div>
@@ -951,13 +1062,81 @@ useEffect(() => {
         </div>
 
         <div className="admin-form-actions">
-          <button type="button" className="admin-cancel-button" disabled={saving} onClick={() => navigate("/admin/songs")}>
+          <button type="button" className="admin-cancel-button" disabled={saving || cropSaving} onClick={() => navigate("/admin/songs")}>
             Cancel
           </button>
-          <button type="submit" className="admin-primary-button" disabled={saving}>
+          <button type="submit" className="admin-primary-button" disabled={saving || cropSaving || showCropper}>
             <FaSave /> {saving ? "Saving..." : "Update Song"}
           </button>
         </div>
+
+        {showCropper && cropSource && (
+          <div className="admin-cropper-backdrop" role="presentation">
+            <section className="admin-cropper-modal" role="dialog" aria-modal="true" aria-labelledby="edit-admin-cropper-title">
+              <header className="admin-cropper-header">
+                <div>
+                  <h2 id="edit-admin-cropper-title">Edit Cover Image</h2>
+                  <p>Move, zoom or rotate your image to frame the artwork.</p>
+                </div>
+                <button type="button" onClick={closeCropper} aria-label="Close cropper" disabled={cropSaving}>
+                  <FaTimes />
+                </button>
+              </header>
+
+              <div className="admin-cropper-area">
+                <Cropper
+                  image={cropSource}
+                  crop={crop}
+                  zoom={zoom}
+                  rotation={rotation}
+                  aspect={aspect || undefined}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onRotationChange={setRotation}
+                  onCropComplete={handleCropComplete}
+                  restrictPosition={false}
+                  showGrid
+                />
+              </div>
+
+              <div className="admin-cropper-controls">
+                <div className="admin-cropper-control-group">
+                  <label htmlFor="edit-cover-zoom">Zoom</label>
+                  <div className="admin-cropper-zoom-row">
+                    <span>−</span>
+                    <input id="edit-cover-zoom" type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} />
+                    <span>+</span>
+                  </div>
+                </div>
+
+                <div className="admin-cropper-control-group">
+                  <label>Aspect ratio</label>
+                  <div className="admin-cropper-ratios">
+                    <button type="button" className={aspect === 1 ? "active" : ""} onClick={() => setAspect(1)}>1:1</button>
+                    <button type="button" className={aspect === 4 / 5 ? "active" : ""} onClick={() => setAspect(4 / 5)}>4:5</button>
+                    <button type="button" className={aspect === 16 / 9 ? "active" : ""} onClick={() => setAspect(16 / 9)}>16:9</button>
+                  </div>
+                </div>
+
+                <div className="admin-cropper-control-group">
+                  <label>Rotate</label>
+                  <div className="admin-cropper-rotate-row">
+                    <button type="button" onClick={() => setRotation((value) => (value - 90 + 360) % 360)}>↶ Rotate left</button>
+                    <button type="button" onClick={() => setRotation((value) => (value + 90) % 360)}>↷ Rotate right</button>
+                    <button type="button" onClick={() => { setCrop({ x: 0, y: 0 }); setZoom(1); setRotation(0); setAspect(1); }}>Reset</button>
+                  </div>
+                </div>
+              </div>
+
+              <footer className="admin-cropper-footer">
+                <button type="button" className="admin-cropper-cancel" onClick={closeCropper} disabled={cropSaving}>Cancel</button>
+                <button type="button" className="admin-cropper-apply" onClick={applyCrop} disabled={cropSaving || !cropPixels}>
+                  {cropSaving ? "Applying..." : "Apply Crop"}
+                </button>
+              </footer>
+            </section>
+          </div>
+        )}
       </form>
     </div>
   );
