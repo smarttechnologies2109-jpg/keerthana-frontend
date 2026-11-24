@@ -2350,3 +2350,41 @@
   border-radius: 50%;
   background: #e9c477;
 }
+
+/* KEERTHANA ANDROID FIX — show Queue and Lyrics side by side */
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  pointer-events: none;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group > button {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  flex: 1 1 0 !important;
+  width: 50% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  pointer-events: auto !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar {
+  display: block !important;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group > button:first-child {
+  order: 1;
+}
+
+.keerthana-full-player.keerthana-android-native .full-player-toolbar-group > button:last-child {
+  order: 2;
+}
