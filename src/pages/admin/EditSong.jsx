@@ -14,7 +14,7 @@ import {
 import API from "../../services/api";
 import { getMediaUrl } from "../../utils/media";
 import "../../assets/css/admin/editSong.css";
-import "../../assets/css/admin/addSong.cropper.css";
+
 
 const LANGUAGES = [
   { value: "Telugu", label: "తెలుగు" },

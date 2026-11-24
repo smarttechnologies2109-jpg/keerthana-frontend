@@ -23,8 +23,7 @@ import {
 
 import API from "../../services/api";
 import "../../assets/css/admin/manageMinistries.css";
-import "../../assets/css/admin/addSong.cropper.css";
-import "../../assets/css/admin/manageMinistries.pagination.css";
+
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
 // =========================================================
