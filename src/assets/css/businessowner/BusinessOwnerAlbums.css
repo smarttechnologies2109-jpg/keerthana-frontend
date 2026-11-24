@@ -1322,3 +1322,69 @@
     font-size: 11px;
   }
 }
+/* KEERTHANA Business Owner Albums - Pagination */
+
+.owner-albums-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 18px;
+  border-top: 1px solid rgba(130, 157, 194, 0.16);
+  color: #aebed7;
+  font-size: 0.84rem;
+}
+
+.owner-albums-pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.owner-albums-pagination button,
+.owner-albums-pagination select {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid rgba(104, 153, 220, 0.3);
+  border-radius: 8px;
+  background: rgba(25, 48, 79, 0.8);
+  color: #e8eef9;
+  font: inherit;
+}
+
+.owner-albums-pagination button {
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+}
+
+.owner-albums-pagination button:hover:not(:disabled) {
+  border-color: #d8b86a;
+  color: #f0d49b;
+}
+
+.owner-albums-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.owner-albums-pagination-current {
+  min-width: 66px;
+  text-align: center;
+  color: #f0d49b;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .owner-albums-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .owner-albums-pagination-controls {
+    justify-content: flex-start;
+  }
+}

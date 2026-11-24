@@ -22,6 +22,7 @@ import API from "../../services/api";
 import "../../assets/css/businessowner/BusinessOwnerSongs.css";
 
 
+
 /* =========================================================
    LANGUAGES
 ========================================================= */
@@ -193,6 +194,9 @@ const BusinessOwnerSongs = () => {
   const [search, setSearch] = useState("");
 
   const [language, setLanguage] = useState("");
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
 
   /* =======================================================
@@ -387,6 +391,22 @@ const BusinessOwnerSongs = () => {
     artistsById,
     albumsById,
   ]);
+
+  // Pagination is applied after search and language filtering.
+  const totalPages = Math.max(1, Math.ceil(filteredSongs.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, language, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const paginatedSongs = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredSongs.slice(startIndex, startIndex + pageSize);
+  }, [filteredSongs, currentPage, pageSize]);
 
 
   /* =======================================================
@@ -1018,7 +1038,7 @@ const BusinessOwnerSongs = () => {
 
                 <tbody>
 
-                  {filteredSongs.map(
+                  {paginatedSongs.map(
                     (song, index) => {
 
 
@@ -1085,7 +1105,7 @@ const BusinessOwnerSongs = () => {
                             className="owner-songs-number"
                           >
 
-                            {index + 1}
+                            {(currentPage - 1) * pageSize + index + 1}
 
                           </td>
 
@@ -1211,6 +1231,51 @@ const BusinessOwnerSongs = () => {
 
               </table>
 
+            </div>
+
+            <div className="owner-songs-pagination">
+              <div className="owner-songs-pagination-info">
+                Showing <strong>{(currentPage - 1) * pageSize + 1}</strong>
+                –<strong>{Math.min(currentPage * pageSize, filteredSongs.length)}</strong>
+                of <strong>{filteredSongs.length}</strong> songs
+              </div>
+
+              <div className="owner-songs-pagination-controls">
+                <label className="owner-songs-page-size">
+                  Rows per page
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    aria-label="Rows per page"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </label>
+
+                <button type="button" onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1} aria-label="First page">
+                  First
+                </button>
+                <button type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1} aria-label="Previous page">
+                  Previous
+                </button>
+                <span className="owner-songs-page-indicator">
+                  Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                </span>
+                <button type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage >= totalPages} aria-label="Next page">
+                  Next
+                </button>
+                <button type="button" onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage >= totalPages} aria-label="Last page">
+                  Last
+                </button>
+              </div>
             </div>
 
           </section>

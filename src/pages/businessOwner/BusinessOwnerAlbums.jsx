@@ -548,6 +548,8 @@ const BusinessOwnerAlbums = () => {
   const [search, setSearch] = useState("");
 
   const [language, setLanguage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
 
 
@@ -683,6 +685,21 @@ const BusinessOwnerAlbums = () => {
 
   }, [albums, search, language]);
 
+  // PAGINATION: reset to the first page whenever filters or page size change.
+  const totalPages = Math.max(1, Math.ceil(filteredAlbums.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, language, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const paginatedAlbums = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredAlbums.slice(startIndex, startIndex + pageSize);
+  }, [filteredAlbums, currentPage, pageSize]);
 
 
   const albumLanguageCounts = useMemo(() => {
@@ -1119,6 +1136,70 @@ const BusinessOwnerAlbums = () => {
           }
         }
 
+        .owner-albums-pagination {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 14px;
+          padding: 16px 18px;
+          border-top: 1px solid rgba(130, 157, 194, .16);
+          color: #aebed7;
+          font-size: .84rem;
+        }
+
+        .owner-albums-pagination-controls {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          flex-wrap: wrap;
+          gap: 7px;
+        }
+
+        .owner-albums-pagination button,
+        .owner-albums-pagination select {
+          min-height: 34px;
+          padding: 6px 10px;
+          border: 1px solid rgba(104, 153, 220, .3);
+          border-radius: 8px;
+          background: rgba(25, 48, 79, .8);
+          color: #e8eef9;
+          font: inherit;
+        }
+
+        .owner-albums-pagination button {
+          cursor: pointer;
+        }
+
+        .owner-albums-pagination button:hover:not(:disabled) {
+          border-color: #d8b86a;
+          color: #f0d49b;
+        }
+
+        .owner-albums-pagination button:disabled {
+          opacity: .4;
+          cursor: not-allowed;
+        }
+
+        .owner-albums-pagination-current {
+          min-width: 66px;
+          text-align: center;
+          color: #f0d49b;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
+
+        @media (max-width: 640px) {
+          .owner-albums-pagination {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .owner-albums-pagination-controls {
+            justify-content: flex-start;
+          }
+        }
+
       `}</style>
 
 
@@ -1495,7 +1576,7 @@ const BusinessOwnerAlbums = () => {
                 </thead>
 
                 <tbody>
-                  {filteredAlbums.map((album, index) => {
+                  {paginatedAlbums.map((album, index) => {
                     const names = getAlbumNames(album);
                     const title = names.english;
                     const year = getAlbumYear(album) || "—";
@@ -1511,7 +1592,7 @@ const BusinessOwnerAlbums = () => {
                         }
                       >
                         <td className="owner-albums-row-number">
-                          {index + 1}
+                          {(currentPage - 1) * pageSize + index + 1}
                         </td>
 
                         <td>
@@ -1565,6 +1646,36 @@ const BusinessOwnerAlbums = () => {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            <div className="owner-albums-pagination">
+              <div>
+                Showing{" "}
+                <strong>{(currentPage - 1) * pageSize + 1}</strong>–
+                <strong>{Math.min(currentPage * pageSize, filteredAlbums.length)}</strong>
+                {" "}of <strong>{filteredAlbums.length}</strong> albums
+              </div>
+
+              <div className="owner-albums-pagination-controls">
+                <label>
+                  Rows{" "}
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    aria-label="Albums per page"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                  {" "}per page
+                </label>
+                <button type="button" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>First</button>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1}>Previous</button>
+                <span className="owner-albums-pagination-current">{currentPage} / {totalPages}</span>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>Next</button>
+                <button type="button" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>Last</button>
+              </div>
             </div>
 
           </section>

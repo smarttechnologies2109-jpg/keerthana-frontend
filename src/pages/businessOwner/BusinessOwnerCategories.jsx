@@ -25,6 +25,7 @@ import API from "../../services/api";
 import "../../assets/css/businessowner/BusinessOwnerCategories.css";
 
 
+
 /* =========================================================
    LANGUAGES
 ========================================================= */
@@ -190,6 +191,10 @@ const BusinessOwnerCategories = () => {
 
   const [language, setLanguage] = useState("");
 
+  // PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
 
   /* =======================================================
      READ LANGUAGE FROM URL
@@ -316,6 +321,22 @@ const response = await API.get("/owner/music/categories");
     search,
     language,
   ]);
+
+  // Keep pagination in sync with the filtered collection.
+  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, language, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const paginatedCategories = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredCategories.slice(startIndex, startIndex + pageSize);
+  }, [filteredCategories, currentPage, pageSize]);
 
 
   /* =======================================================
@@ -970,7 +991,7 @@ const response = await API.get("/owner/music/categories");
                 </thead>
 
                 <tbody>
-                  {filteredCategories.map((category, index) => {
+                  {paginatedCategories.map((category, index) => {
                     const image = getCategoryImage(category);
                     const name = getCategoryNames(category).english || "Category";
                     const categoryLanguage =
@@ -993,7 +1014,7 @@ const response = await API.get("/owner/music/categories");
                         }
                       >
                         <td className="owner-categories-row-number">
-                          {index + 1}
+                          {(currentPage - 1) * pageSize + index + 1}
                         </td>
 
                         <td>
@@ -1038,6 +1059,38 @@ const response = await API.get("/owner/music/categories");
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* PAGINATION */}
+            <div className="owner-categories-pagination">
+              <div className="owner-categories-pagination-info">
+                Showing <strong>{filteredCategories.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}</strong>
+                –<strong>{Math.min(currentPage * pageSize, filteredCategories.length)}</strong>
+                of <strong>{filteredCategories.length}</strong> categories
+              </div>
+
+              <div className="owner-categories-pagination-controls">
+                <label className="owner-categories-page-size">
+                  Rows per page
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    aria-label="Rows per page"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </label>
+
+                <div className="owner-categories-page-buttons">
+                  <button type="button" onClick={() => setCurrentPage(1)} disabled={currentPage === 1} aria-label="First page">First</button>
+                  <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1} aria-label="Previous page">Previous</button>
+                  <span className="owner-categories-page-indicator">Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></span>
+                  <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} aria-label="Next page">Next</button>
+                  <button type="button" onClick={() => setCurrentPage(totalPages)} disabled={currentPage >= totalPages} aria-label="Last page">Last</button>
+                </div>
+              </div>
             </div>
 
           </section>

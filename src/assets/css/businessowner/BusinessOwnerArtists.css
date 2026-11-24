@@ -674,7 +674,7 @@
   font-size: 12px;
   line-height: 1.65;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+ 
   -webkit-box-orient: vertical;
   overflow: hidden;
   overflow-wrap: anywhere;
@@ -946,5 +946,99 @@
   .owner-artist-card:hover,
   .owner-artists-summary-card:hover {
     transform: none;
+  }
+}
+/* KEERTHANA — Business Owner Artists Pagination */
+.owner-artists-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 20px;
+  border-top: 1px solid rgba(130, 157, 194, .16);
+  color: #aebed7;
+  font-size: .84rem;
+}
+
+.owner-artists-pagination-info {
+  color: #aebed7;
+  font-variant-numeric: tabular-nums;
+}
+
+.owner-artists-pagination-info strong {
+  color: #f0d49b;
+  font-weight: 750;
+}
+
+.owner-artists-pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.owner-artists-pagination-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #b8c7dd;
+  white-space: nowrap;
+}
+
+.owner-artists-pagination-size select,
+.owner-artists-pagination-controls button {
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid rgba(104, 153, 220, .30);
+  border-radius: 9px;
+  background: rgba(19, 39, 68, .88);
+  color: #e8eef9;
+  font: inherit;
+}
+
+.owner-artists-pagination-controls button {
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, opacity .18s ease;
+}
+
+.owner-artists-pagination-controls button:hover:not(:disabled) {
+  border-color: rgba(216, 184, 106, .75);
+  background: rgba(39, 66, 105, .95);
+}
+
+.owner-artists-pagination-controls button:disabled {
+  cursor: not-allowed;
+  opacity: .38;
+}
+
+.owner-artists-pagination-current {
+  min-width: 58px;
+  text-align: center;
+  color: #f0d49b;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .owner-artists-pagination {
+    align-items: stretch;
+    padding: 15px 12px;
+  }
+
+  .owner-artists-pagination-info {
+    width: 100%;
+  }
+
+  .owner-artists-pagination-controls {
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .owner-artists-pagination-controls button {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: .76rem;
   }
 }

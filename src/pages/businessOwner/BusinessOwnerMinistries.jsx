@@ -48,6 +48,7 @@ import "../../assets/css/businessowner/BusinessOwnerMinistries.css";
 
 
 
+
 /* =========================================================
 
    SUPPORTED LANGUAGES
@@ -528,6 +529,10 @@ const BusinessOwnerMinistries = () => {
 
     useState("");
 
+  // PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
 
 
 
@@ -834,6 +839,21 @@ const BusinessOwnerMinistries = () => {
     ]);
 
 
+
+  const totalPages = Math.max(1, Math.ceil(filteredMinistries.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, language, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const paginatedMinistries = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredMinistries.slice(startIndex, startIndex + pageSize);
+  }, [filteredMinistries, currentPage, pageSize]);
 
   /* =======================================================
 
@@ -2079,6 +2099,7 @@ const BusinessOwnerMinistries = () => {
 
 
 
+            <>
             <div className="owner-ministries-table-wrapper">
               <table className="owner-ministries-table">
                 <thead>
@@ -2091,7 +2112,7 @@ const BusinessOwnerMinistries = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMinistries.map((ministry, index) => {
+                  {paginatedMinistries.map((ministry, index) => {
                     const names = getMinistryNames(ministry);
                     const name =
                       names.english || "English name not provided by API";
@@ -2111,7 +2132,7 @@ const BusinessOwnerMinistries = () => {
                         }
                       >
                         <td className="owner-ministries-row-number">
-                          {index + 1}
+                          {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td>
                           <div className="owner-ministries-table-ministry">
@@ -2154,6 +2175,36 @@ const BusinessOwnerMinistries = () => {
                 </tbody>
               </table>
             </div>
+
+            <div className="owner-ministries-pagination">
+              <div className="owner-ministries-pagination-info">
+                Showing <strong>{filteredMinistries.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}</strong>
+                –<strong>{Math.min(currentPage * pageSize, filteredMinistries.length)}</strong>
+                of <strong>{filteredMinistries.length}</strong> ministries
+              </div>
+
+              <div className="owner-ministries-pagination-controls">
+                <label className="owner-ministries-page-size">
+                  Rows per page
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    aria-label="Rows per page"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </label>
+
+                <button type="button" onClick={() => setCurrentPage(1)} disabled={currentPage === 1} aria-label="First page">First</button>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1} aria-label="Previous page">Previous</button>
+                <span className="owner-ministries-page-indicator">Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></span>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage >= totalPages} aria-label="Next page">Next</button>
+                <button type="button" onClick={() => setCurrentPage(totalPages)} disabled={currentPage >= totalPages} aria-label="Last page">Last</button>
+              </div>
+            </div>
+            </>
 
           )}
 

@@ -23,6 +23,7 @@ import API from "../../services/api";
 import "../../assets/css/businessowner/BusinessOwnerArtists.css";
 
 
+
 /* =========================================================
    LANGUAGES
 ========================================================= */
@@ -240,6 +241,10 @@ const BusinessOwnerArtists = () => {
 
   const [language, setLanguage] = useState("");
 
+  // PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
 
   /* =======================================================
      READ LANGUAGE FROM URL
@@ -372,6 +377,26 @@ const BusinessOwnerArtists = () => {
     search,
     language,
   ]);
+
+
+  /* =======================================================
+     PAGINATION
+  ======================================================= */
+
+  const totalPages = Math.max(1, Math.ceil(filteredArtists.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, language, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const paginatedArtists = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredArtists.slice(startIndex, startIndex + pageSize);
+  }, [filteredArtists, currentPage, pageSize]);
 
 
   /* =======================================================
@@ -1022,7 +1047,7 @@ const BusinessOwnerArtists = () => {
                 </thead>
 
                 <tbody>
-                  {filteredArtists.map((artist, index) => {
+                  {paginatedArtists.map((artist, index) => {
                     const image = getArtistImage(artist);
                     const name = getArtistNames(artist).english;
                     const artistLanguage =
@@ -1038,7 +1063,7 @@ const BusinessOwnerArtists = () => {
                         }
                       >
                         <td className="owner-artists-row-number">
-                          {index + 1}
+                          {(currentPage - 1) * pageSize + index + 1}
                         </td>
 
                         <td>
@@ -1081,6 +1106,37 @@ const BusinessOwnerArtists = () => {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* PAGINATION CONTROLS */}
+            <div className="owner-artists-pagination">
+              <div className="owner-artists-pagination-info">
+                Showing <strong>{filteredArtists.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}</strong>–
+                <strong>{Math.min(currentPage * pageSize, filteredArtists.length)}</strong>
+                {" "}of <strong>{filteredArtists.length}</strong> artists
+              </div>
+
+              <div className="owner-artists-pagination-controls">
+                <label className="owner-artists-pagination-size">
+                  Rows
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    aria-label="Artists per page"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                  per page
+                </label>
+
+                <button type="button" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>First</button>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1}>Previous</button>
+                <span className="owner-artists-pagination-current">{currentPage} / {totalPages}</span>
+                <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>Next</button>
+                <button type="button" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>Last</button>
+              </div>
             </div>
 
           </section>
