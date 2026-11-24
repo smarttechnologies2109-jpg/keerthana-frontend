@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import Cropper from "react-easy-crop";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -14,6 +13,7 @@ import {
 import API from "../../services/api";
 import { getMediaUrl } from "../../utils/media";
 import "../../assets/css/admin/editSong.css";
+import "../../assets/css/admin/addSong.dragCrop.css";
 
 
 const LANGUAGES = [
@@ -396,51 +396,101 @@ function MultiArtistDropdown({ options = [], value = [], onChange, disabled = fa
    IMAGE CROPPER HELPER
 ===================================================== */
 
-const createCroppedImage = (imageSrc, pixelCrop, rotation = 0) =>
+const createCroppedImage = (imageSrc, pixelCrop) =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => {
       try {
-        const radians = (rotation * Math.PI) / 180;
-        const sin = Math.abs(Math.sin(radians));
-        const cos = Math.abs(Math.cos(radians));
-        const rotatedWidth = image.width * cos + image.height * sin;
-        const rotatedHeight = image.width * sin + image.height * cos;
-
-        const rotatedCanvas = document.createElement("canvas");
-        const rotatedContext = rotatedCanvas.getContext("2d");
-        if (!rotatedContext) throw new Error("Unable to create image canvas.");
-        rotatedCanvas.width = Math.round(rotatedWidth);
-        rotatedCanvas.height = Math.round(rotatedHeight);
-        rotatedContext.translate(rotatedWidth / 2, rotatedHeight / 2);
-        rotatedContext.rotate(radians);
-        rotatedContext.drawImage(image, -image.width / 2, -image.height / 2);
-
-        const outputCanvas = document.createElement("canvas");
-        const outputContext = outputCanvas.getContext("2d");
-        if (!outputContext) throw new Error("Unable to create cropped image canvas.");
-        outputCanvas.width = Math.max(1, Math.round(pixelCrop.width));
-        outputCanvas.height = Math.max(1, Math.round(pixelCrop.height));
-        outputContext.drawImage(
-          rotatedCanvas,
-          pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
-          0, 0, outputCanvas.width, outputCanvas.height
-        );
-
-        outputCanvas.toBlob(
-          (blob) => blob
-            ? resolve(blob)
-            : reject(new Error("Could not create the cropped image.")),
-          "image/jpeg",
-          0.92
-        );
-      } catch (error) {
-        reject(error);
-      }
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Unable to create image canvas.");
+        canvas.width = Math.max(1, Math.round(pixelCrop.width));
+        canvas.height = Math.max(1, Math.round(pixelCrop.height));
+        context.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Could not create the cropped image.")), "image/jpeg", 0.92);
+      } catch (error) { reject(error); }
     };
     image.onerror = () => reject(new Error("Could not load the selected image."));
     image.src = imageSrc;
   });
+
+function DragCropSelector({ imageSrc, onCropComplete }) {
+  const frameRef = useRef(null);
+  const dragRef = useRef(null);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [selection, setSelection] = useState({ x: 10, y: 10, width: 80, height: 80 });
+
+  const getPoint = (event) => {
+    const bounds = frameRef.current.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100)),
+      y: Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100)),
+    };
+  };
+  const startDrag = (event, mode) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragRef.current = { mode, start: getPoint(event), original: selection };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+  const moveDrag = (event) => {
+    if (!dragRef.current) return;
+    const point = getPoint(event);
+    const { mode, start, original } = dragRef.current;
+    const dx = point.x - start.x;
+    const dy = point.y - start.y;
+    const minSize = 8;
+    let next = { ...original };
+    if (mode === "move") {
+      next.x = Math.max(0, Math.min(100 - original.width, original.x + dx));
+      next.y = Math.max(0, Math.min(100 - original.height, original.y + dy));
+    } else {
+      if (mode.includes("e")) next.width = Math.max(minSize, Math.min(100 - original.x, original.width + dx));
+      if (mode.includes("s")) next.height = Math.max(minSize, Math.min(100 - original.y, original.height + dy));
+      if (mode.includes("w")) {
+        const right = original.x + original.width;
+        next.x = Math.max(0, Math.min(right - minSize, original.x + dx));
+        next.width = right - next.x;
+      }
+      if (mode.includes("n")) {
+        const bottom = original.y + original.height;
+        next.y = Math.max(0, Math.min(bottom - minSize, original.y + dy));
+        next.height = bottom - next.y;
+      }
+    }
+    setSelection(next);
+  };
+  const endDrag = () => { dragRef.current = null; };
+  const handleImageLoad = (event) => {
+    setImageSize({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight });
+    setSelection({ x: 10, y: 10, width: 80, height: 80 });
+  };
+  useEffect(() => {
+    if (!imageSize.width || !imageSize.height) return;
+    onCropComplete({
+      x: (selection.x / 100) * imageSize.width,
+      y: (selection.y / 100) * imageSize.height,
+      width: (selection.width / 100) * imageSize.width,
+      height: (selection.height / 100) * imageSize.height,
+    });
+  }, [selection, imageSize]);
+
+  return (
+    <div className="admin-drag-crop-stage">
+      <div className="admin-drag-crop-frame" ref={frameRef} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
+        <img src={imageSrc} alt="Crop source" onLoad={handleImageLoad} draggable="false" />
+        {imageSize.width > 0 && <div className="admin-drag-crop-selection"
+          style={{ left: `${selection.x}%`, top: `${selection.y}%`, width: `${selection.width}%`, height: `${selection.height}%` }}
+          onPointerDown={(event) => startDrag(event, "move")}>
+          {["nw", "n", "ne", "e", "se", "s", "sw", "w"].map((handle) => (
+            <span key={handle} className={`admin-drag-crop-handle handle-${handle}`} onPointerDown={(event) => startDrag(event, handle)} />
+          ))}
+        </div>}
+      </div>
+      <p className="admin-drag-crop-hint">Drag the box to move it. Drag its corners or edges to resize.</p>
+    </div>
+  );
+}
 
 function EditSong() {
   const navigate = useNavigate();
@@ -458,10 +508,6 @@ function EditSong() {
 
   // COVER CROPPER (shared with Add Song)
   const [cropSource, setCropSource] = useState("");
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(0);
-  const [aspect, setAspect] = useState(1);
   const [cropPixels, setCropPixels] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [cropSaving, setCropSaving] = useState(false);
@@ -660,17 +706,13 @@ useEffect(() => {
 
     const sourceUrl = URL.createObjectURL(file);
     setCropSource(sourceUrl);
-    setCrop({ x: 0, y: 0 });
-    setZoom(1);
-    setRotation(0);
-    setAspect(1);
     setCropPixels(null);
     setShowCropper(true);
     setError("");
     setSuccess("");
   };
 
-  const handleCropComplete = (_croppedArea, croppedAreaPixels) => {
+  const handleCropComplete = (croppedAreaPixels) => {
     setCropPixels(croppedAreaPixels);
   };
 
@@ -690,7 +732,7 @@ useEffect(() => {
 
     try {
       setCropSaving(true);
-      const croppedBlob = await createCroppedImage(cropSource, cropPixels, rotation);
+      const croppedBlob = await createCroppedImage(cropSource, cropPixels);
       const croppedFile = new File(
         [croppedBlob],
         `keerthana-cover-${Date.now()}.jpg`,
@@ -1076,56 +1118,15 @@ useEffect(() => {
               <header className="admin-cropper-header">
                 <div>
                   <h2 id="edit-admin-cropper-title">Edit Cover Image</h2>
-                  <p>Move, zoom or rotate your image to frame the artwork.</p>
+                  <p>Drag the crop box and resize it around the cover artwork.</p>
                 </div>
                 <button type="button" onClick={closeCropper} aria-label="Close cropper" disabled={cropSaving}>
                   <FaTimes />
                 </button>
               </header>
 
-              <div className="admin-cropper-area">
-                <Cropper
-                  image={cropSource}
-                  crop={crop}
-                  zoom={zoom}
-                  rotation={rotation}
-                  aspect={aspect || undefined}
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onRotationChange={setRotation}
-                  onCropComplete={handleCropComplete}
-                  restrictPosition={false}
-                  showGrid
-                />
-              </div>
-
-              <div className="admin-cropper-controls">
-                <div className="admin-cropper-control-group">
-                  <label htmlFor="edit-cover-zoom">Zoom</label>
-                  <div className="admin-cropper-zoom-row">
-                    <span>−</span>
-                    <input id="edit-cover-zoom" type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} />
-                    <span>+</span>
-                  </div>
-                </div>
-
-                <div className="admin-cropper-control-group">
-                  <label>Aspect ratio</label>
-                  <div className="admin-cropper-ratios">
-                    <button type="button" className={aspect === 1 ? "active" : ""} onClick={() => setAspect(1)}>1:1</button>
-                    <button type="button" className={aspect === 4 / 5 ? "active" : ""} onClick={() => setAspect(4 / 5)}>4:5</button>
-                    <button type="button" className={aspect === 16 / 9 ? "active" : ""} onClick={() => setAspect(16 / 9)}>16:9</button>
-                  </div>
-                </div>
-
-                <div className="admin-cropper-control-group">
-                  <label>Rotate</label>
-                  <div className="admin-cropper-rotate-row">
-                    <button type="button" onClick={() => setRotation((value) => (value - 90 + 360) % 360)}>↶ Rotate left</button>
-                    <button type="button" onClick={() => setRotation((value) => (value + 90) % 360)}>↷ Rotate right</button>
-                    <button type="button" onClick={() => { setCrop({ x: 0, y: 0 }); setZoom(1); setRotation(0); setAspect(1); }}>Reset</button>
-                  </div>
-                </div>
+              <div className="admin-cropper-area admin-cropper-area-selection">
+                <DragCropSelector imageSrc={cropSource} onCropComplete={handleCropComplete} />
               </div>
 
               <footer className="admin-cropper-footer">

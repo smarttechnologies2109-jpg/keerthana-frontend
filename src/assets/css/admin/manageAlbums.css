@@ -1578,3 +1578,77 @@
   .admin-album-page-summary { width: 100%; margin: 5px 0 0; text-align: center; }
   .admin-album-pagination-size { width: 100%; justify-content: flex-end; }
 }
+
+/* Drag-to-crop selection: cover image only */
+.admin-drag-crop-stage {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.admin-drag-crop-frame {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  max-height: 420px;
+  line-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  background: #111827;
+}
+.admin-drag-crop-frame > img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.admin-drag-crop-selection {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid #ffffff;
+  outline: 1px dashed rgba(15, 23, 42, .9);
+  cursor: move;
+  touch-action: none;
+  background: rgba(255,255,255,.04);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.48);
+}
+.admin-drag-crop-handle {
+  position: absolute;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #1e293b;
+  border-radius: 3px;
+  background: #fff;
+  box-sizing: border-box;
+  z-index: 2;
+  touch-action: none;
+}
+.admin-drag-crop-handle.handle-nw { left: -7px; top: -7px; cursor: nwse-resize; }
+.admin-drag-crop-handle.handle-n { left: 50%; top: -7px; transform: translateX(-50%); cursor: ns-resize; }
+.admin-drag-crop-handle.handle-ne { right: -7px; top: -7px; cursor: nesw-resize; }
+.admin-drag-crop-handle.handle-e { right: -7px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+.admin-drag-crop-handle.handle-se { right: -7px; bottom: -7px; cursor: nwse-resize; }
+.admin-drag-crop-handle.handle-s { left: 50%; bottom: -7px; transform: translateX(-50%); cursor: ns-resize; }
+.admin-drag-crop-handle.handle-sw { left: -7px; bottom: -7px; cursor: nesw-resize; }
+.admin-drag-crop-handle.handle-w { left: -7px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+.admin-drag-crop-hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+.admin-cropper-area-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 16px;
+}
