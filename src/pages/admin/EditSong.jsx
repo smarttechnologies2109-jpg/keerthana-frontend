@@ -13,7 +13,7 @@ import {
 import API from "../../services/api";
 import { getMediaUrl } from "../../utils/media";
 import "../../assets/css/admin/editSong.css";
-import "../../assets/css/admin/addSong.dragCrop.css";
+
 
 
 const LANGUAGES = [

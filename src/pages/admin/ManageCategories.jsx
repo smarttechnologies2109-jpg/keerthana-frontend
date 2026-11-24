@@ -13,7 +13,7 @@ import {
 
 import API from "../../services/api";
 import "../../assets/css/admin/manageCategories.css";
-import "../../assets/css/admin/addSong.dragCrop.css";
+
 
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
