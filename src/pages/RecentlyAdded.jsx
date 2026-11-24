@@ -45,6 +45,10 @@ function getSongId(song) {
   return song?.id ?? song?.song_id;
 }
 
+function containsTelugu(value) {
+  return /[\u0C00-\u0C7F]/.test(String(value || ""));
+}
+
 /* ENGLISH SONG TITLE */
 
 function getSongTitle(song) {
@@ -71,78 +75,121 @@ function getTeluguSongTitle(song) {
   );
 }
 
-/* MULTIPLE ARTIST NAMES - ALWAYS ENGLISH */
+/* =========================================================
+   ENGLISH ARTIST NAME LOOKUP
+========================================================= */
 
-function getArtistNames(song) {
-  const candidates = [];
+function getArtistNames(song, artistsById = {}) {
+  const names = [];
+  const seen = new Set();
 
-  const addArtist = (value) => {
-    if (!value) return;
+  const addName = (value) => {
+    if (typeof value !== "string") return;
 
-    if (typeof value === "string") {
-      candidates.push(value);
+    value.split(",").forEach((part) => {
+      const name = part.trim();
+
+      if (
+        !name ||
+        containsTelugu(name) ||
+        /^(unknown artist|null|undefined|n\/a)$/i.test(name)
+      ) {
+        return;
+      }
+
+      const key = name.toLowerCase();
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        names.push(name);
+      }
+    });
+  };
+
+  const addArtist = (artist) => {
+    if (artist == null) return;
+
+    if (Array.isArray(artist)) {
+      artist.forEach(addArtist);
       return;
     }
 
-    if (Array.isArray(value)) {
-      value.forEach(addArtist);
+    if (typeof artist === "string" || typeof artist === "number") {
+      const value = String(artist).trim();
+      const linked = artistsById[value];
+
+      if (linked) {
+        addArtist(linked);
+      } else if (
+        typeof artist === "string" &&
+        !/^\d+$/.test(value)
+      ) {
+        addName(value);
+      }
+
       return;
     }
 
-    if (typeof value === "object") {
-      // song_artists may contain either the artist directly or
-      // a relationship object with a nested artist property.
-      if (value.artist) addArtist(value.artist);
-      if (value.artist_details) addArtist(value.artist_details);
-      if (value.artistDetails) addArtist(value.artistDetails);
+    if (typeof artist !== "object") return;
 
-      candidates.push(
-        value.name_english ||
-        value.english_name ||
-        value.nameEnglish ||
-        value.englishName ||
-        value.artist_name_english ||
-        value.artist_english ||
-        value.artist_name ||
-        value.name ||
-        ""
-      );
+    if (artist.artist) addArtist(artist.artist);
+    if (artist.artist_details) addArtist(artist.artist_details);
+    if (artist.artistDetails) addArtist(artist.artistDetails);
+
+    const id =
+      artist.id ??
+      artist.artist_id ??
+      artist.artistId;
+
+    const linked = id != null
+      ? artistsById[String(id)]
+      : null;
+
+    if (linked && linked !== artist) {
+      addArtist(linked);
+    }
+
+    addName(
+      artist.name_english ||
+      artist.english_name ||
+      artist.nameEnglish ||
+      artist.englishName ||
+      artist.artist_name_english ||
+      artist.artist_english ||
+      artist.artist_name_en ||
+      artist.name_en ||
+      artist.display_name
+    );
+
+    // Use generic name only when it is not Telugu.
+    if (!linked) {
+      addName(artist.name);
     }
   };
 
+  // Many-to-many artist relationships.
   addArtist(song?.artists);
   addArtist(song?.song_artists);
+
+  // Single artist relationship.
   addArtist(song?.artist);
 
-  // Keep the legacy single-artist fields as a compatibility fallback.
-  candidates.push(
-    song?.artist_name_english,
-    song?.artist_english,
-    song?.artist_name
-  );
+  // Artist IDs.
+  addArtist(song?.artist_id);
+  addArtist(song?.artistId);
+  addArtist(song?.artist_ids);
+  addArtist(song?.artistIds);
 
-  const teluguScript = /[\\u0C00-\\u0C7F]/;
-  const uniqueNames = [];
+  // Legacy English artist fields.
+  addName(song?.artist_name_english);
+  addName(song?.artist_english);
+  addName(song?.artist_english_name);
+  addName(song?.artist_name_en);
+  addName(song?.artistEnglishName);
+  addName(song?.artistNameEnglish);
+  addName(song?.artistEnglish);
 
-  candidates.forEach((candidate) => {
-    const name = String(candidate || "").trim();
-
-    if (
-      !name ||
-      name.toLowerCase() === "unknown artist" ||
-      teluguScript.test(name)
-    ) {
-      return;
-    }
-
-    if (!uniqueNames.some(
-      (existing) => existing.toLowerCase() === name.toLowerCase()
-    )) {
-      uniqueNames.push(name);
-    }
-  });
-
-  return uniqueNames.length ? uniqueNames : ["Unknown Artist"];
+  return names.length ? names : ["Unknown Artist"];
 }
 
 /* SORT NEWEST FIRST */
@@ -199,6 +246,7 @@ export default function RecentlyAdded() {
   /* STATES */
 
   const [songs, setSongs] = useState([]);
+  const [artistsById, setArtistsById] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -218,7 +266,7 @@ export default function RecentlyAdded() {
   const songMenuRef = useRef(null);
 
   /* =====================================================
-     LOAD SONGS
+     LOAD SONGS AND ARTISTS
   ===================================================== */
 
   const loadSongs = useCallback(
@@ -238,10 +286,36 @@ export default function RecentlyAdded() {
       setError("");
 
       try {
-        const response = await API.get("/songs");
+        const [songsResponse, artistsResponse] =
+          await Promise.all([
+            API.get("/songs"),
+            API.get("/artists"),
+          ]);
+
+        const artistData = artistsResponse?.data;
+
+        const artistList = Array.isArray(artistData)
+          ? artistData
+          : Array.isArray(artistData?.artists)
+            ? artistData.artists
+            : Array.isArray(artistData?.data)
+              ? artistData.data
+              : [];
+
+        const artistLookup = {};
+
+        artistList.forEach((artist) => {
+          const id = artist?.id ?? artist?.artist_id;
+
+          if (id == null) return;
+
+          artistLookup[String(id)] = artist;
+        });
+
+        setArtistsById(artistLookup);
 
         setSongs(
-          sortNewestFirst(getArray(response))
+          sortNewestFirst(getArray(songsResponse))
         );
       } catch (err) {
         console.error(
@@ -409,7 +483,7 @@ export default function RecentlyAdded() {
 
   /* =====================================================
      SEARCH
-     English title + Telugu title + Artist + Language
+     English title + Telugu title + English Artist + Language
   ===================================================== */
 
   const filteredSongs = useMemo(() => {
@@ -425,7 +499,9 @@ export default function RecentlyAdded() {
         getTeluguSongTitle(song).toLowerCase();
 
       const artists =
-        getArtistNames(song).join(", ").toLowerCase();
+        getArtistNames(song, artistsById)
+          .join(", ")
+          .toLowerCase();
 
       const language =
         String(song?.language || "").toLowerCase();
@@ -437,7 +513,7 @@ export default function RecentlyAdded() {
         language.includes(query)
       );
     });
-  }, [songs, search]);
+  }, [songs, search, artistsById]);
 
   /* =====================================================
      PLAY / PAUSE
@@ -663,9 +739,17 @@ export default function RecentlyAdded() {
 
               const title = getSongTitle(song);
               const teluguTitle = getTeluguSongTitle(song);
-              const artists = getArtistNames(song);
+
+              const artists = getArtistNames(
+                song,
+                artistsById
+              );
+
               const artistText = artists.join(", ");
-              const menuKey = String(id ?? `${title}-${artistText}`);
+
+              const menuKey = String(
+                id ?? `${title}-${artistText}`
+              );
 
               const currentId = getSongId(currentSong);
 
@@ -770,7 +854,11 @@ export default function RecentlyAdded() {
 
                   <div
                     className="recently-added-song-menu-wrap"
-                    ref={openMenuSongId === menuKey ? songMenuRef : null}
+                    ref={
+                      openMenuSongId === menuKey
+                        ? songMenuRef
+                        : null
+                    }
                   >
                     <button
                       type="button"
@@ -781,6 +869,7 @@ export default function RecentlyAdded() {
                       title="More options"
                       onClick={(event) => {
                         event.stopPropagation();
+
                         setOpenMenuSongId((current) =>
                           current === menuKey ? null : menuKey
                         );

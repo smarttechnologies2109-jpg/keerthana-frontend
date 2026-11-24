@@ -6,6 +6,10 @@
    Professional Responsive Design
 ========================================================= */
 
+/* Import professional fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
+
+
 .recently-added-page {
   --ra-bg: #080d1a;
   --ra-surface: #0e172a;
