@@ -679,15 +679,15 @@ export default function RecentlyAdded() {
             />
 
           </div>
-
+{/* 
           {!loading && (
-            <span className="recently-added-count">
-              {filteredSongs.length}{" "}
-              {filteredSongs.length === 1
-                ? "song"
-                : "songs"}
-            </span>
-          )}
+            // <span className="recently-added-count">
+            //   {filteredSongs.length}{" "}
+            //   {filteredSongs.length === 1
+            //     ? "song"
+            //     : "songs"}
+            // </span>
+          )} */}
 
         </div>
 
