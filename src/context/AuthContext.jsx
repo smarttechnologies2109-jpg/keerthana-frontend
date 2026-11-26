@@ -8,6 +8,7 @@ import {
 
 import API, {
   getFreshAccessToken,
+  startTokenRefresh,
 } from "../services/api";
 
 
@@ -117,7 +118,7 @@ useEffect(() => {
   /* =======================================================
      SAVE SESSION
   ======================================================= */
-  const saveSession = (
+const saveSession = (
   token,
   userData,
   refreshToken = null,
@@ -148,7 +149,11 @@ useEffect(() => {
   );
 
   setUser(userData);
+
   syncPreferredLanguage(userData);
+
+  // Start automatic access-token refresh immediately.
+  startTokenRefresh();
 };
 
 
