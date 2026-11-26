@@ -182,6 +182,28 @@ const normalizeText = (value) =>
 
 
 
+
+const SEARCH_LANGUAGES = [
+  "All Languages",
+  "Telugu",
+  "Hindi",
+  "English",
+  "Malayalam",
+  "Kannada",
+  "Tamil",
+];
+
+const normalizeLanguage = (value) => {
+  const normalized = normalizeText(value);
+  const match = SEARCH_LANGUAGES.find(
+    (language) => normalizeText(language) === normalized
+  );
+  return match && match !== "All Languages" ? match : "";
+};
+
+const getSongLanguage = (song) =>
+  normalizeLanguage(song?.language || song?.song_language || song?.language_name);
+
 /* =====================================================
 
    ARTIST
@@ -492,6 +514,8 @@ function Search() {
   const [artistsById, setArtistsById] = useState({});
   const [query, setQuery] = useState("");
 
+  const [browseLanguage, setBrowseLanguage] = useState("");
+
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
 
@@ -626,14 +650,17 @@ function Search() {
 
 
 
+    const requestedLanguage = normalizeLanguage(
+      params.get("language") || params.get("lang") || ""
+    );
     const initialQuery = params.get("q");
 
-
-
-    if (initialQuery) {
-
+    if (requestedLanguage) {
+      setBrowseLanguage(requestedLanguage);
+    } else if (initialQuery && normalizeLanguage(initialQuery)) {
+      setBrowseLanguage(normalizeLanguage(initialQuery));
+    } else if (initialQuery) {
       setQuery(initialQuery);
-
     }
 
   }, []);
@@ -807,62 +834,39 @@ function Search() {
 
 
   const filteredSongs = useMemo(() => {
-
     const term = normalizeText(query);
 
-
-
-    if (!term) return [];
-
-
-
     return sortedSongs.filter((song) => {
+      const songLanguage = getSongLanguage(song);
+
+      if (browseLanguage && songLanguage !== normalizeText(browseLanguage)) {
+        return false;
+      }
+
+      if (!term) return Boolean(browseLanguage);
 
       const moods = Array.isArray(song?.moods)
-
         ? song.moods.join(" ")
-
         : typeof song?.moods === "string"
-
           ? song.moods
-
           : "";
 
-
-
       const fields = [
-
         getSongTitles(song).primary,
-
         getSongTitles(song).secondary,
-
         getArtistName(song, artistsById),
-
         getAlbumName(song),
-
         getCategoryName(song),
-
         song?.language,
-
         song?.lyrics,
-
         moods,
-
       ];
 
-
-
       return fields.some((field) =>
-
         normalizeText(field).includes(term)
-
       );
-
     });
-
-  }, [sortedSongs, query, artistsById]);
-
-
+  }, [sortedSongs, query, artistsById, browseLanguage]);
 
   /* ===================================================
 
@@ -1323,6 +1327,7 @@ function Search() {
   const clearSearch = useCallback(() => {
 
     setQuery("");
+    setBrowseLanguage("");
 
     setPlayError("");
 
@@ -1421,6 +1426,26 @@ function Search() {
           ariaLabel="Search songs, artists, albums, and lyrics"
 
         />
+
+        <div className="search-language-filter">
+          <label htmlFor="search-language-select">Browse language</label>
+          <select
+            id="search-language-select"
+            value={browseLanguage || "All Languages"}
+            onChange={(event) => {
+              setBrowseLanguage(normalizeLanguage(event.target.value));
+              setPlayError("");
+              setMenuError("");
+              setOpenMenuId(null);
+            }}
+          >
+            {SEARCH_LANGUAGES.map((language) => (
+              <option key={language} value={language}>
+                {language}
+              </option>
+            ))}
+          </select>
+        </div>
 
       </section>
 
@@ -1588,7 +1613,7 @@ function Search() {
 
 
 
-      {!loading && !error && query.trim() && (
+      {!loading && !error && (query.trim() || browseLanguage) && (
 
         <section className="search-results-section">
 
@@ -1598,7 +1623,7 @@ function Search() {
 
             <div>
 
-              <h2>Search Results</h2>
+              <h2>{browseLanguage ? `${browseLanguage} Songs` : "Search Results"}</h2>
 
 
 
@@ -2178,7 +2203,7 @@ function Search() {
 
 
 
-      {!loading && !error && !query.trim() && (
+      {!loading && !error && !query.trim() && !browseLanguage && (
 
         <section className="search-state-card search-empty">
 

@@ -26,6 +26,34 @@ const TOKEN_KEY =
 
   const REFRESH_TOKEN_KEY = "keerthana_refresh_token";
 
+const LANGUAGE_STORAGE_KEY = "keerthana_language";
+const LEGACY_LANGUAGE_STORAGE_KEY = "language";
+
+const getUserPreferredLanguage = (userData) =>
+  String(
+    userData?.preferred_language ||
+      userData?.preferredLanguage ||
+      userData?.language ||
+      ""
+  ).trim();
+
+const syncPreferredLanguage = (userData, fallbackLanguage = "") => {
+  const language =
+    getUserPreferredLanguage(userData) ||
+    String(fallbackLanguage || "").trim();
+
+  if (!language) return;
+
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  localStorage.setItem(LEGACY_LANGUAGE_STORAGE_KEY, language);
+
+  window.dispatchEvent(
+    new CustomEvent("keerthana:language-change", {
+      detail: { language },
+    })
+  );
+};
+
 
 /* =========================================================
    AUTH PROVIDER
@@ -92,7 +120,8 @@ useEffect(() => {
   const saveSession = (
   token,
   userData,
-  refreshToken = null
+  refreshToken = null,
+  { applyPreferredLanguage = false } = {}
 ) => {
   if (!token) {
     throw new Error("Authentication token is missing");
@@ -119,6 +148,7 @@ useEffect(() => {
   );
 
   setUser(userData);
+  syncPreferredLanguage(userData);
 };
 
 
@@ -152,6 +182,7 @@ useEffect(() => {
           JSON.stringify(nextUser)
         );
 
+        syncPreferredLanguage(nextUser);
 
         return nextUser;
 
@@ -258,6 +289,10 @@ if (!requestToken && refreshToken) {
         "user",
         JSON.stringify(restoredUser)
       );
+
+      syncPreferredLanguage(restoredUser);
+
+      syncPreferredLanguage(restoredUser);
     } catch (error) {
       console.error(
         "Restore login failed:",
@@ -464,14 +499,19 @@ const finalToken = accessToken || token;
       }
 
 
-   saveSession(
-  finalToken,
-  registeredUser,
-  refreshToken
-);
+      const userWithPreferredLanguage = {
+        ...registeredUser,
+        preferred_language:
+          getUserPreferredLanguage(registeredUser) || cleanLanguage,
+      };
 
+      saveSession(
+        finalToken,
+        userWithPreferredLanguage,
+        refreshToken
+      );
 
-      return registeredUser;
+      return userWithPreferredLanguage;
 
     };
 
@@ -718,6 +758,8 @@ const finalToken = accessToken || token;
             refreshedUser
           )
         );
+
+        syncPreferredLanguage(refreshedUser);
 
 
         return refreshedUser;

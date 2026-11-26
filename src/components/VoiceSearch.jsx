@@ -1,4 +1,3 @@
-
 import React, {
   useCallback,
   useEffect,
@@ -23,6 +22,7 @@ const VOICE_WS_URL =
   DEFAULT_VOICE_WS_URL;
 
 const TARGET_SAMPLE_RATE = 16000;
+const SOCKET_CONNECT_TIMEOUT_MS = 15000;
 
 const LANGUAGE_LABELS = {
   "te-IN": "తెలుగు (Telugu)",
@@ -34,39 +34,21 @@ const LANGUAGE_LABELS = {
 };
 
 function getLanguageLabel(code) {
-  return LANGUAGE_LABELS[code] || code;
+  return LANGUAGE_LABELS[code] || code || "Unknown";
 }
 
-// Connect without forcing any language.
-// AWS automatically identifies the spoken language.
+// AWS performs automatic language identification. Do not send a
+// language parameter unless the backend contract is changed deliberately.
 function buildVoiceSocketUrl() {
   const url = new URL(VOICE_WS_URL);
-
   url.searchParams.delete("language");
-
   return url.toString();
 }
 
-// Convert browser Float32 audio to mono,
-// signed 16-bit PCM at 16 kHz.
+// Convert browser Float32 audio to mono, signed 16-bit PCM at 16 kHz.
 function downsampleToPcm16(input, inputSampleRate) {
   if (!input?.length || !inputSampleRate) {
     return new ArrayBuffer(0);
-  }
-
-  if (inputSampleRate === TARGET_SAMPLE_RATE) {
-    const pcm = new Int16Array(input.length);
-
-    for (let i = 0; i < input.length; i++) {
-      const sample = Math.max(-1, Math.min(1, input[i]));
-
-      pcm[i] =
-        sample < 0
-          ? Math.round(sample * 0x8000)
-          : Math.round(sample * 0x7fff);
-    }
-
-    return pcm.buffer;
   }
 
   const ratio = inputSampleRate / TARGET_SAMPLE_RATE;
@@ -78,9 +60,8 @@ function downsampleToPcm16(input, inputSampleRate) {
 
   const pcm = new Int16Array(outputLength);
 
-  for (let i = 0; i < outputLength; i++) {
+  for (let i = 0; i < outputLength; i += 1) {
     const start = Math.floor(i * ratio);
-
     const end = Math.min(
       Math.floor((i + 1) * ratio),
       input.length
@@ -89,9 +70,9 @@ function downsampleToPcm16(input, inputSampleRate) {
     let total = 0;
     let count = 0;
 
-    for (let j = start; j < end; j++) {
+    for (let j = start; j < end; j += 1) {
       total += input[j];
-      count++;
+      count += 1;
     }
 
     const sample = count ? total / count : 0;
@@ -114,6 +95,7 @@ function VoiceSearch({
   ariaLabel = "Search songs, artists, albums and lyrics",
 }) {
   const [isListening, setIsListening] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [voiceError, setVoiceError] = useState("");
   const [detectedLanguage, setDetectedLanguage] = useState("");
@@ -124,21 +106,27 @@ function VoiceSearch({
   const sourceRef = useRef(null);
   const processorRef = useRef(null);
   const silentGainRef = useRef(null);
+  const connectTimeoutRef = useRef(null);
 
   const finalTranscriptRef = useRef("");
   const isStoppingRef = useRef(false);
-  const mountedRef = useRef(true);
+  const mountedRef = useRef(false);
+  const startingRef = useRef(false);
   const audioFrameCountRef = useRef(0);
 
-  // Clean up microphone and audio processing.
+  const clearConnectTimeout = useCallback(() => {
+    if (connectTimeoutRef.current) {
+      window.clearTimeout(connectTimeoutRef.current);
+      connectTimeoutRef.current = null;
+    }
+  }, []);
+
   const cleanupAudio = useCallback(async () => {
     if (processorRef.current) {
       processorRef.current.onaudioprocess = null;
-
       try {
         processorRef.current.disconnect();
       } catch {}
-
       processorRef.current = null;
     }
 
@@ -146,7 +134,6 @@ function VoiceSearch({
       try {
         sourceRef.current.disconnect();
       } catch {}
-
       sourceRef.current = null;
     }
 
@@ -154,15 +141,15 @@ function VoiceSearch({
       try {
         silentGainRef.current.disconnect();
       } catch {}
-
       silentGainRef.current = null;
     }
 
     if (mediaStreamRef.current) {
-      mediaStreamRef.current
-        .getTracks()
-        .forEach((track) => track.stop());
-
+      mediaStreamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch {}
+      });
       mediaStreamRef.current = null;
     }
 
@@ -178,12 +165,13 @@ function VoiceSearch({
     }
   }, []);
 
-  // Stop recording and ask AWS to finish transcription.
   const stopListening = useCallback(async () => {
     isStoppingRef.current = true;
+    clearConnectTimeout();
 
     if (mountedRef.current) {
       setIsListening(false);
+      setIsStarting(false);
       setIsProcessing(true);
     }
 
@@ -192,36 +180,55 @@ function VoiceSearch({
     const socket = socketRef.current;
 
     if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "stop" }));
+      try {
+        socket.send(JSON.stringify({ type: "stop" }));
+      } catch {
+        try {
+          socket.close();
+        } catch {}
+      }
     } else {
       if (
         socket &&
         socket.readyState !== WebSocket.CLOSED
       ) {
-        socket.close();
+        try {
+          socket.close();
+        } catch {}
       }
 
       if (mountedRef.current) {
         setIsProcessing(false);
       }
     }
-  }, [cleanupAudio]);
+  }, [cleanupAudio, clearConnectTimeout]);
 
-  // Start automatic voice recognition.
   const startListening = useCallback(async () => {
-    if (isListening || isProcessing) return;
+    if (
+      startingRef.current ||
+      isStarting ||
+      isListening ||
+      isProcessing
+    ) {
+      return;
+    }
+
+    startingRef.current = true;
+    isStoppingRef.current = false;
+    finalTranscriptRef.current = "";
+    audioFrameCountRef.current = 0;
 
     setVoiceError("");
     setDetectedLanguage("");
-
-    finalTranscriptRef.current = "";
-    audioFrameCountRef.current = 0;
-    isStoppingRef.current = false;
+    setIsStarting(true);
+    setIsProcessing(false);
 
     if (
       !navigator.mediaDevices ||
       !navigator.mediaDevices.getUserMedia
     ) {
+      startingRef.current = false;
+      setIsStarting(false);
       setVoiceError(
         "Microphone access requires HTTPS and a supported browser."
       );
@@ -229,13 +236,15 @@ function VoiceSearch({
     }
 
     if (typeof WebSocket === "undefined") {
+      startingRef.current = false;
+      setIsStarting(false);
       setVoiceError(
         "Voice search is not supported in this browser."
       );
       return;
     }
 
-    let socket;
+    let socket = null;
 
     try {
       const mediaStream =
@@ -248,10 +257,17 @@ function VoiceSearch({
           },
         });
 
+      // The component may have unmounted while the permission prompt
+      // was open. Do not leave the microphone running in that case.
+      if (!mountedRef.current || isStoppingRef.current) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        startingRef.current = false;
+        return;
+      }
+
       mediaStreamRef.current = mediaStream;
 
       const track = mediaStream.getAudioTracks()[0];
-
       console.log("KEERTHANA microphone track:", {
         label: track?.label,
         enabled: track?.enabled,
@@ -259,30 +275,40 @@ function VoiceSearch({
         settings: track?.getSettings?.(),
       });
 
-      // No language query parameter.
-      // AWS detects the language automatically.
-      const socketUrl = buildVoiceSocketUrl();
-
-      console.log("KEERTHANA automatic voice detection:", {
-        socketUrl,
-        supportedLanguages: Object.keys(LANGUAGE_LABELS),
-      });
-
-      socket = new WebSocket(socketUrl);
-
+      socket = new WebSocket(buildVoiceSocketUrl());
       socket.binaryType = "arraybuffer";
       socketRef.current = socket;
 
+      connectTimeoutRef.current = window.setTimeout(() => {
+        if (
+          socket.readyState === WebSocket.CONNECTING &&
+          mountedRef.current
+        ) {
+          setVoiceError(
+            "Voice search connection timed out. Please try again."
+          );
+          setIsStarting(false);
+          setIsProcessing(false);
+          startingRef.current = false;
+          cleanupAudio();
+          socket.close();
+        }
+      }, SOCKET_CONNECT_TIMEOUT_MS);
+
       socket.onopen = async () => {
+        clearConnectTimeout();
+
         try {
-          if (isStoppingRef.current) {
+          if (
+            isStoppingRef.current ||
+            !mountedRef.current
+          ) {
             socket.close();
             return;
           }
 
           const AudioContextClass =
-            window.AudioContext ||
-            window.webkitAudioContext;
+            window.AudioContext || window.webkitAudioContext;
 
           if (!AudioContextClass) {
             throw new Error(
@@ -291,24 +317,29 @@ function VoiceSearch({
           }
 
           const audioContext = new AudioContextClass();
-
           audioContextRef.current = audioContext;
-
           await audioContext.resume();
+
+          if (
+            isStoppingRef.current ||
+            !mountedRef.current ||
+            socket.readyState !== WebSocket.OPEN
+          ) {
+            await cleanupAudio();
+            return;
+          }
 
           const source =
             audioContext.createMediaStreamSource(mediaStream);
-
           sourceRef.current = source;
 
+          // ScriptProcessorNode is used here to preserve compatibility
+          // with the existing backend's raw PCM WebSocket protocol.
           const processor =
             audioContext.createScriptProcessor(4096, 1, 1);
-
           processorRef.current = processor;
 
-          // Keep the processor running silently.
           const silentGain = audioContext.createGain();
-
           silentGain.gain.value = 0;
           silentGainRef.current = silentGain;
 
@@ -328,45 +359,21 @@ function VoiceSearch({
               audioContext.sampleRate
             );
 
-            if (pcmBuffer.byteLength === 0) return;
+            if (!pcmBuffer.byteLength) return;
 
             audioFrameCountRef.current += 1;
 
-            // Audio diagnostics approximately once per second.
             if (audioFrameCountRef.current % 12 === 0) {
               let rawMax = 0;
               let rawSumSquares = 0;
 
-              for (let i = 0; i < input.length; i++) {
-                rawMax = Math.max(
-                  rawMax,
-                  Math.abs(input[i])
-                );
-
+              for (let i = 0; i < input.length; i += 1) {
+                rawMax = Math.max(rawMax, Math.abs(input[i]));
                 rawSumSquares += input[i] * input[i];
               }
 
               const rawRms = Math.sqrt(
                 rawSumSquares / input.length
-              );
-
-              let pcmMin = 32767;
-              let pcmMax = -32768;
-              let pcmSumSquares = 0;
-
-              const pcm = new Int16Array(pcmBuffer);
-
-              for (let i = 0; i < pcm.length; i++) {
-                const sample = pcm[i];
-
-                pcmMin = Math.min(pcmMin, sample);
-                pcmMax = Math.max(pcmMax, sample);
-
-                pcmSumSquares += sample * sample;
-              }
-
-              const pcmRms = Math.sqrt(
-                pcmSumSquares / pcm.length
               );
 
               console.log("KEERTHANA AUDIO DIAGNOSTIC:", {
@@ -375,21 +382,28 @@ function VoiceSearch({
                 bytes: pcmBuffer.byteLength,
                 rawMax: Number(rawMax.toFixed(5)),
                 rawRms: Number(rawRms.toFixed(5)),
-                pcmMin,
-                pcmMax,
-                pcmRms: Math.round(pcmRms),
                 languageDetection: "AWS automatic",
               });
             }
 
-            socket.send(pcmBuffer);
+            try {
+              socket.send(pcmBuffer);
+            } catch (error) {
+              console.error(
+                "KEERTHANA audio send error:",
+                error
+              );
+            }
           };
 
           source.connect(processor);
           processor.connect(silentGain);
           silentGain.connect(audioContext.destination);
 
+          startingRef.current = false;
+
           if (mountedRef.current) {
+            setIsStarting(false);
             setIsListening(true);
             setIsProcessing(false);
           }
@@ -399,12 +413,14 @@ function VoiceSearch({
             error
           );
 
+          startingRef.current = false;
+
           if (mountedRef.current) {
             setVoiceError(
-              error.message ||
-              "Unable to start microphone audio."
+              error?.message ||
+                "Unable to start microphone audio."
             );
-
+            setIsStarting(false);
             setIsListening(false);
             setIsProcessing(false);
           }
@@ -420,13 +436,15 @@ function VoiceSearch({
         }
       };
 
-      // Receive AWS transcription and detected language.
       socket.onmessage = (event) => {
         let message;
 
         try {
           message = JSON.parse(event.data);
         } catch {
+          console.warn(
+            "KEERTHANA received an unrecognized voice-search message."
+          );
           return;
         }
 
@@ -452,7 +470,9 @@ function VoiceSearch({
               .join(" ")
               .trim();
 
-            onChange(preview);
+            if (mountedRef.current) {
+              onChange(preview);
+            }
           } else {
             finalTranscriptRef.current = [
               finalTranscriptRef.current,
@@ -462,11 +482,15 @@ function VoiceSearch({
               .join(" ")
               .trim();
 
-            onChange(finalTranscriptRef.current);
+            if (mountedRef.current) {
+              onChange(finalTranscriptRef.current);
+            }
           }
         }
 
         if (message.type === "complete") {
+          clearConnectTimeout();
+
           const transcript =
             finalTranscriptRef.current.trim();
 
@@ -479,12 +503,17 @@ function VoiceSearch({
 
           if (mountedRef.current) {
             setIsListening(false);
+            setIsStarting(false);
             setIsProcessing(false);
           }
 
+          startingRef.current = false;
+
           if (transcript) {
-            onChange(transcript);
-            onSearch?.(transcript);
+            if (mountedRef.current) {
+              onChange(transcript);
+              onSearch?.(transcript);
+            }
           } else if (mountedRef.current) {
             setVoiceError(
               "No speech was detected. Please speak clearly and try again."
@@ -501,22 +530,30 @@ function VoiceSearch({
           ) {
             socket.close();
           }
+
+          cleanupAudio();
         }
 
         if (message.type === "error") {
+          clearConnectTimeout();
+          startingRef.current = false;
+
           if (mountedRef.current) {
             setVoiceError(
               message.message ||
-              "Voice search failed. Please try again."
+                "Voice search failed. Please try again."
             );
-
             setIsListening(false);
+            setIsStarting(false);
             setIsProcessing(false);
           }
 
           cleanupAudio();
 
-          if (socket.readyState === WebSocket.OPEN) {
+          if (
+            socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING
+          ) {
             socket.close();
           }
         }
@@ -525,28 +562,32 @@ function VoiceSearch({
           if (mountedRef.current) {
             setVoiceError(
               message.message ||
-              "Voice search limit reached."
+                "Voice search limit reached."
             );
           }
-
           stopListening();
         }
       };
 
       socket.onerror = () => {
-        if (!mountedRef.current) return;
+        clearConnectTimeout();
+        startingRef.current = false;
 
-        setVoiceError(
-          "Unable to connect to voice search. Check the backend WebSocket and ECS deployment."
-        );
-
-        setIsListening(false);
-        setIsProcessing(false);
+        if (mountedRef.current) {
+          setVoiceError(
+            "Unable to connect to voice search. Check the backend WebSocket and ECS deployment."
+          );
+          setIsListening(false);
+          setIsStarting(false);
+          setIsProcessing(false);
+        }
 
         cleanupAudio();
       };
 
       socket.onclose = () => {
+        clearConnectTimeout();
+        startingRef.current = false;
         cleanupAudio();
 
         if (socketRef.current === socket) {
@@ -555,6 +596,7 @@ function VoiceSearch({
 
         if (mountedRef.current) {
           setIsListening(false);
+          setIsStarting(false);
           setIsProcessing(false);
         }
       };
@@ -564,39 +606,61 @@ function VoiceSearch({
         error
       );
 
+      startingRef.current = false;
+      clearConnectTimeout();
       await cleanupAudio();
 
+      if (socketRef.current === socket) {
+        socketRef.current = null;
+      }
+
+      if (
+        socket &&
+        socket.readyState !== WebSocket.CLOSED
+      ) {
+        try {
+          socket.close();
+        } catch {}
+      }
+
       if (mountedRef.current) {
+        setIsStarting(false);
         setIsListening(false);
         setIsProcessing(false);
 
-        if (error.name === "NotAllowedError") {
+        if (error?.name === "NotAllowedError") {
           setVoiceError(
             "Please allow microphone access in Chrome site settings."
           );
-        } else if (error.name === "NotFoundError") {
+        } else if (error?.name === "NotFoundError") {
           setVoiceError(
             "No microphone was found on this device."
           );
+        } else if (error?.name === "NotReadableError") {
+          setVoiceError(
+            "The microphone is busy or unavailable. Close other apps using it and try again."
+          );
         } else {
           setVoiceError(
-            error.message ||
-            "Unable to start voice search."
+            error?.message ||
+              "Unable to start voice search."
           );
         }
       }
     }
   }, [
     cleanupAudio,
+    clearConnectTimeout,
     isListening,
     isProcessing,
+    isStarting,
     onChange,
     onSearch,
     stopListening,
   ]);
 
   const toggleListening = () => {
-    if (isListening) {
+    if (isListening || isStarting) {
       stopListening();
     } else if (!isProcessing) {
       startListening();
@@ -614,24 +678,24 @@ function VoiceSearch({
   };
 
   const clearSearch = () => {
-    if (isListening) {
+    if (isListening || isStarting) {
       stopListening();
     }
 
     onChange("");
     setVoiceError("");
     setDetectedLanguage("");
-
     finalTranscriptRef.current = "";
   };
 
-  // Component cleanup.
   useEffect(() => {
     mountedRef.current = true;
 
     return () => {
       mountedRef.current = false;
       isStoppingRef.current = true;
+      startingRef.current = false;
+      clearConnectTimeout();
 
       cleanupAudio();
 
@@ -641,16 +705,15 @@ function VoiceSearch({
         try {
           socket.close();
         } catch {}
-
         socketRef.current = null;
       }
     };
-  }, [cleanupAudio]);
+  }, [cleanupAudio, clearConnectTimeout]);
+
+  const isBusy = isStarting || isProcessing;
 
   return (
     <div className="keerthana-voice-search">
-
-      {/* Search bar */}
       <form
         className={`voice-search-bar ${
           isListening ? "is-listening" : ""
@@ -703,17 +766,21 @@ function VoiceSearch({
           aria-label={
             isListening
               ? "Stop voice search"
-              : isProcessing
-                ? "Processing voice search"
-                : "Start voice search"
+              : isStarting
+                ? "Connecting to voice search"
+                : isProcessing
+                  ? "Processing voice search"
+                  : "Start voice search"
           }
           aria-pressed={isListening}
           title={
             isListening
               ? "Stop listening"
-              : isProcessing
-                ? "Processing speech"
-                : "Search by voice"
+              : isStarting
+                ? "Connecting to voice search"
+                : isProcessing
+                  ? "Processing speech"
+                  : "Search by voice"
           }
         >
           {isListening ? (
@@ -724,13 +791,14 @@ function VoiceSearch({
         </button>
       </form>
 
-      {/* Voice feedback */}
       <div
         className="voice-search-feedback"
         aria-live="polite"
         role="status"
       >
-        {isListening ? (
+        {isStarting ? (
+          "Connecting to voice search…"
+        ) : isListening ? (
           <>
             <span className="voice-search-pulse" />
             Listening… Speak in Telugu, Hindi, English,

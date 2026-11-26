@@ -2289,3 +2289,142 @@
     transition: none;
   }
 }
+
+
+/* =========================================================
+   KEERTHANA — MULTI-LANGUAGE BROWSE FILTER
+   Matches the current Search.jsx markup:
+   .search-language-filter > label + select#search-language-select
+========================================================= */
+
+.search-page .search-language-filter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.search-page .search-language-filter label {
+  display: inline-block;
+  margin: 0;
+  color: var(--search-gold, #e8c98a);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.search-page .search-language-filter #search-language-select {
+  display: block;
+  flex: 0 1 180px;
+  width: 180px;
+  min-width: 140px;
+  max-width: 180px;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 34px 0 13px;
+  color: #f4f7ff;
+  background-color: #111d32;
+  border: 1px solid rgba(148, 170, 210, 0.25);
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 180ms ease, background-color 180ms ease,
+    box-shadow 180ms ease;
+  color-scheme: dark;
+}
+
+.search-page .search-language-filter #search-language-select:hover {
+  background-color: #16243c;
+  border-color: rgba(232, 201, 138, 0.5);
+}
+
+.search-page .search-language-filter #search-language-select:focus,
+.search-page .search-language-filter #search-language-select:focus-visible {
+  border-color: #3978f6;
+  box-shadow: 0 0 0 3px rgba(57, 120, 246, 0.14);
+  outline: none;
+}
+
+.search-page .search-language-filter #search-language-select option {
+  color: #f4f7ff;
+  background: #101a2d;
+}
+
+/* Keep the VoiceSearch component and browse filter separated. */
+.search-page .search-controls > .voice-search-wrapper {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .search-page .search-language-filter {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .search-page .search-language-filter #search-language-select {
+    flex-basis: 165px;
+    width: 165px;
+    min-width: 135px;
+  }
+}
+
+/* Android and mobile */
+@media (max-width: 600px) {
+  .search-page .search-language-filter {
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 11px;
+  }
+
+  .search-page .search-language-filter label {
+    font-size: 11px;
+  }
+
+  .search-page .search-language-filter #search-language-select {
+    flex: 0 1 155px;
+    width: 155px;
+    min-width: 125px;
+    max-width: 155px;
+    min-height: 39px;
+    padding: 0 28px 0 10px;
+    border-radius: 9px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .search-page .search-language-filter {
+    gap: 7px;
+  }
+
+  .search-page .search-language-filter label {
+    font-size: 10px;
+  }
+
+  .search-page .search-language-filter #search-language-select {
+    flex-basis: 135px;
+    width: 135px;
+    min-width: 115px;
+    max-width: 135px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-page .search-language-filter #search-language-select {
+    transition: none;
+  }
+}

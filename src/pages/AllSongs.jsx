@@ -1,4 +1,3 @@
-
 import {
   Fragment,
   createElement,
@@ -34,10 +33,10 @@ import {
 import API from "../services/api";
 import { usePlayer } from "../context/usePlayer";
 import { useLikedSongs } from "../context/LikedSongsContext";
+import { useLanguage } from "../context/LanguageContext";
 
 import {
   getSongCover,
- 
 } from "../utils/media";
 
 import VoiceSearch from "../components/VoiceSearch";
@@ -62,36 +61,78 @@ const LANGUAGES = [
 ];
 
 const normalizeLanguage = (value) => {
-  const raw = String(value || "").trim().toLowerCase();
+  if (value && typeof value === "object") {
+    value =
+      value.name_english ||
+      value.english_name ||
+      value.name ||
+      value.label ||
+      value.language ||
+      value.language_name ||
+      value.code ||
+      value.locale ||
+      "";
+  }
+
+  const raw = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, "-");
 
   const aliases = {
     te: "Telugu",
     "te-in": "Telugu",
     telugu: "Telugu",
     "తెలుగు": "Telugu",
+
     en: "English",
     "en-in": "English",
     english: "English",
+
     hi: "Hindi",
     "hi-in": "Hindi",
     hindi: "Hindi",
     "हिन्दी": "Hindi",
     "हिंदी": "Hindi",
+
     ml: "Malayalam",
     "ml-in": "Malayalam",
     malayalam: "Malayalam",
     "മലയാളം": "Malayalam",
+
     kn: "Kannada",
     "kn-in": "Kannada",
     kannada: "Kannada",
     "ಕನ್ನಡ": "Kannada",
+
     ta: "Tamil",
     "ta-in": "Tamil",
     tamil: "Tamil",
     "தமிழ்": "Tamil",
   };
 
-  return aliases[raw] || String(value || "").trim();
+  if (aliases[raw]) return aliases[raw];
+
+  const baseCode = raw.split("-")[0];
+
+  if (aliases[baseCode]) return aliases[baseCode];
+
+  const compact = raw
+    .replace(/[()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  for (const [alias, canonical] of Object.entries(aliases)) {
+    if (
+      compact === alias ||
+      compact.startsWith(`${alias} `) ||
+      compact.startsWith(`${alias}-`)
+    ) {
+      return canonical;
+    }
+  }
+
+  return String(value || "").trim();
 };
 
 /* =====================================================
@@ -102,6 +143,7 @@ const LANGUAGE_TEXT = {
   All: {
     allSongs: "All Songs",
     search: "Search songs, artists, and albums...",
+    searchHint: "Search by song, artist, album, or mood",
     songs: "songs",
     playAll: "Play All",
     clearFilters: "Clear Filters",
@@ -127,6 +169,7 @@ const LANGUAGE_TEXT = {
   English: {
     allSongs: "All Songs",
     search: "Search songs, artists, and albums...",
+    searchHint: "Search by song, artist, album, or mood",
     songs: "songs",
     playAll: "Play All",
     clearFilters: "Clear Filters",
@@ -207,7 +250,6 @@ const getSongTitle = (song) =>
  * All Songs title order:
  * 1. English title first.
  * 2. Telugu/native-script title underneath.
- * The selected language filter does not change this display order.
  */
 const getSongDisplayTitles = (song) => {
   const englishTitle =
@@ -220,7 +262,9 @@ const getSongDisplayTitles = (song) => {
     song?.title ||
     "";
 
-  const primary = englishTitle || nativeTitle || "Untitled Song";
+  const primary =
+    englishTitle || nativeTitle || "Untitled Song";
+
   const secondary = nativeTitle;
 
   return {
@@ -233,8 +277,7 @@ const getSongDisplayTitles = (song) => {
 };
 
 /*
- * Artist names must always be English, regardless of the selected
- * language. Telugu-script values are deliberately rejected.
+ * Artist names must always be English.
  */
 const containsTelugu = (value) =>
   /[\u0C00-\u0C7F]/.test(String(value || ""));
@@ -242,35 +285,38 @@ const containsTelugu = (value) =>
 const getArtistName = (song, artistsById = {}) => {
   const candidates = [];
 
-  // Preferred API response: [{ id, name_english, ... }, ...]
   if (Array.isArray(song?.artists)) {
     candidates.push(...song.artists);
   }
 
-  // Support the join-table response shape: song_artists.
   if (Array.isArray(song?.song_artists)) {
     candidates.push(...song.song_artists);
   }
 
-  // Some APIs return artist IDs separately.
   if (Array.isArray(song?.artist_ids)) {
     candidates.push(...song.artist_ids);
   }
 
-  // Legacy single artist fields.
   if (!candidates.length) {
     if (Array.isArray(song?.artist)) {
       candidates.push(...song.artist);
     } else if (song?.artist && typeof song.artist === "object") {
       candidates.push(song.artist);
-    } else if (song?.artist_id != null || song?.artistId != null) {
+    } else if (
+      song?.artist_id != null ||
+      song?.artistId != null
+    ) {
       candidates.push(song.artist_id ?? song.artistId);
-    } else if (typeof song?.artist === "string" && song.artist.trim()) {
+    } else if (
+      typeof song?.artist === "string" &&
+      song.artist.trim()
+    ) {
       candidates.push(song.artist);
     }
   }
 
   const names = [];
+
   const addName = (value) => {
     if (
       typeof value === "string" &&
@@ -278,7 +324,13 @@ const getArtistName = (song, artistsById = {}) => {
       !containsTelugu(value)
     ) {
       const cleanName = value.trim();
-      if (!names.some((name) => name.toLowerCase() === cleanName.toLowerCase())) {
+
+      if (
+        !names.some(
+          (name) =>
+            name.toLowerCase() === cleanName.toLowerCase()
+        )
+      ) {
         names.push(cleanName);
       }
     }
@@ -294,7 +346,6 @@ const getArtistName = (song, artistsById = {}) => {
       artist.englishName ||
       artist.artist_name_english ||
       artist.artist_english_name ||
-      // Some artist records store their English display name in `name`.
       (!containsTelugu(artist.name) ? artist.name : "")
     );
   };
@@ -325,7 +376,6 @@ const getArtistName = (song, artistsById = {}) => {
     }
   });
 
-  // Direct English fields from older /songs API responses.
   [
     song?.artist_name_english,
     song?.artist_english,
@@ -338,9 +388,11 @@ const getArtistName = (song, artistsById = {}) => {
     song?.artistName,
   ].forEach(addName);
 
-  // Keep a clear fallback if the API does not provide linked artist data.
-  return names.length ? names.join(", ") : "Unknown Artist";
+  return names.length
+    ? names.join(", ")
+    : "Unknown Artist";
 };
+
 const getAlbumName = (song) =>
   song?.album_name ||
   song?.album?.title ||
@@ -348,8 +400,34 @@ const getAlbumName = (song) =>
     ? song.album
     : "");
 
-const getLanguage = (song) =>
-  normalizeLanguage(song?.language || "Telugu");
+const getLanguage = (song) => {
+  if (!song || typeof song !== "object") {
+    return "Telugu";
+  }
+
+  const candidates = [
+    song.language,
+    song.language_name,
+    song.languageName,
+    song.language_code,
+    song.languageCode,
+    song.primary_language,
+    song.primaryLanguage,
+    song.content_language,
+    song.contentLanguage,
+    song.lang,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate == null || candidate === "") continue;
+
+    const normalized = normalizeLanguage(candidate);
+
+    if (normalized) return normalized;
+  }
+
+  return "Telugu";
+};
 
 const normalizeSong = (song) => ({
   ...song,
@@ -358,7 +436,6 @@ const normalizeSong = (song) => ({
 
 /* =====================================================
    ADMOB NATIVE FEED CONFIGURATION
-   Test ads are used during development.
 ===================================================== */
 
 const NATIVE_AD_FEED_ID = "keerthana-all-songs";
@@ -375,6 +452,13 @@ export default function AllSongs() {
 
   const player = usePlayer();
   const likedContext = useLikedSongs();
+
+  const { selectedLanguage } = useLanguage();
+
+  // Registration/app language controls the default Song Language
+  // filter and translated page text.
+  const normalizedAppLanguage =
+    normalizeLanguage(selectedLanguage) || "Telugu";
 
   const {
     currentSong,
@@ -393,7 +477,9 @@ export default function AllSongs() {
   const [songs, setSongs] = useState([]);
   const [artistsById, setArtistsById] = useState({});
   const [nativeAdsReady, setNativeAdsReady] = useState(false);
+
   const nativeAdFeedRef = useRef(null);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -406,7 +492,12 @@ export default function AllSongs() {
   const shouldRefreshOnTouchEndRef = useRef(false);
 
   const [search, setSearch] = useState("");
-  const [language, setLanguage] = useState("All");
+
+  // Default filter = registration/app language.
+  // "All" is available as a separate dropdown option.
+  const [filterLanguage, setFilterLanguage] = useState(
+    () => normalizedAppLanguage
+  );
 
   const [menuSongId, setMenuSongId] = useState(null);
   const [notice, setNotice] = useState("");
@@ -420,138 +511,146 @@ export default function AllSongs() {
   --------------------------------------------------- */
 
   const languageText =
-    LANGUAGE_TEXT[language] || LANGUAGE_TEXT.All;
+    LANGUAGE_TEXT[normalizedAppLanguage] ||
+    LANGUAGE_TEXT.Telugu;
+
+  // If app language changes, reset the dropdown to that language.
+  // Changing the dropdown itself does NOT change the app language.
+  useEffect(() => {
+    setFilterLanguage(normalizedAppLanguage);
+  }, [normalizedAppLanguage]);
 
   /* ===================================================
      LOAD SONGS
   =================================================== */
 
-  const loadSongs = useCallback(async ({ silent = false } = {}) => {
-    // Avoid overlapping requests from pull-to-refresh and app-resume events.
-    if (isFetchingRef.current) {
-      return false;
-    }
-
-    isFetchingRef.current = true;
-
-    if (!silent) {
-      setLoading(true);
-      setError("");
-    }
-
-    try {
-      const response = await API.get("/songs");
-
-      // Some API responses include artist_name_english directly, while
-      // others only include artist_id. Load the artists list as a reliable
-      // fallback so All Songs can display the same English artist name
-      // already shown on Album Details and Artist Details.
-      try {
-        const artistsResponse = await API.get("/artists");
-        const artistsPayload = artistsResponse?.data;
-        const artistList = Array.isArray(artistsPayload)
-          ? artistsPayload
-          : Array.isArray(artistsPayload?.artists)
-            ? artistsPayload.artists
-            : Array.isArray(artistsPayload?.data)
-              ? artistsPayload.data
-              : [];
-
-        const artistLookup = {};
-        artistList.forEach((artist) => {
-          const artistId = artist?.id ?? artist?.artist_id;
-          const englishName =
-            artist?.name_english ||
-            artist?.english_name ||
-            artist?.nameEnglish ||
-            (!containsTelugu(artist?.name) ? artist?.name : "") ||
-            "";
-
-          if (artistId != null && englishName && !containsTelugu(englishName)) {
-            artistLookup[String(artistId)] = {
-              ...artist,
-              name_english: String(englishName).trim(),
-            };
-          }
-        });
-
-        setArtistsById(artistLookup);
-      } catch (artistError) {
-        // Keep the songs page usable even if the artists endpoint fails.
-        console.warn(
-          "Unable to load artist-name fallback list:",
-          artistError
-        );
+  const loadSongs = useCallback(
+    async ({ silent = false } = {}) => {
+      if (isFetchingRef.current) {
+        return false;
       }
 
-      const payload = response?.data;
+      isFetchingRef.current = true;
 
-      const list = Array.isArray(payload)
-        ? payload
-        : Array.isArray(payload?.songs)
-          ? payload.songs
-          : Array.isArray(payload?.data)
-            ? payload.data
-            : [];
-
-      const validSongs = list
-        .map(normalizeSong)
-        .filter((song) => song.id != null);
-
-      validSongs.sort((a, b) =>
-        getSongTitle(a).localeCompare(getSongTitle(b))
-      );
-
-      setSongs(validSongs);
-      hasSongsRef.current = validSongs.length > 0;
-
-      if (silent) {
+      if (!silent) {
+        setLoading(true);
         setError("");
       }
 
-      return true;
-    } catch (err) {
-      console.error("Failed to load songs:", err);
+      try {
+        const response = await API.get("/songs");
 
-      // During a silent refresh, keep the already displayed songs.
-      // Show an error only if there is no existing data to display.
-      if (!silent || !hasSongsRef.current) {
-        setError(
-          err?.response?.data?.message ||
-            "Unable to load songs. Please try again."
+        try {
+          const artistsResponse = await API.get("/artists");
+          const artistsPayload = artistsResponse?.data;
+
+          const artistList = Array.isArray(artistsPayload)
+            ? artistsPayload
+            : Array.isArray(artistsPayload?.artists)
+              ? artistsPayload.artists
+              : Array.isArray(artistsPayload?.data)
+                ? artistsPayload.data
+                : [];
+
+          const artistLookup = {};
+
+          artistList.forEach((artist) => {
+            const artistId =
+              artist?.id ?? artist?.artist_id;
+
+            const englishName =
+              artist?.name_english ||
+              artist?.english_name ||
+              artist?.nameEnglish ||
+              (!containsTelugu(artist?.name)
+                ? artist?.name
+                : "") ||
+              "";
+
+            if (
+              artistId != null &&
+              englishName &&
+              !containsTelugu(englishName)
+            ) {
+              artistLookup[String(artistId)] = {
+                ...artist,
+                name_english: String(englishName).trim(),
+              };
+            }
+          });
+
+          setArtistsById(artistLookup);
+        } catch (artistError) {
+          console.warn(
+            "Unable to load artist-name fallback list:",
+            artistError
+          );
+        }
+
+        const payload = response?.data;
+
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.songs)
+            ? payload.songs
+            : Array.isArray(payload?.data)
+              ? payload.data
+              : [];
+
+        const validSongs = list
+          .map(normalizeSong)
+          .filter((song) => song.id != null);
+
+        validSongs.sort((a, b) =>
+          getSongTitle(a).localeCompare(getSongTitle(b))
         );
+
+        setSongs(validSongs);
+        hasSongsRef.current = validSongs.length > 0;
+
+        if (silent) {
+          setError("");
+        }
+
+        return true;
+      } catch (err) {
+        console.error("Failed to load songs:", err);
+
+        if (!silent || !hasSongsRef.current) {
+          setError(
+            err?.response?.data?.message ||
+              "Unable to load songs. Please try again."
+          );
+        }
+
+        return false;
+      } finally {
+        isFetchingRef.current = false;
+
+        if (!silent) {
+          setLoading(false);
+        }
+
+        if (pendingRefreshRef.current) {
+          pendingRefreshRef.current = false;
+
+          window.setTimeout(async () => {
+            setRefreshing(true);
+
+            try {
+              await loadSongs({ silent: true });
+            } finally {
+              setRefreshing(false);
+              setPullDistance(0);
+            }
+          }, 0);
+        }
       }
-
-      return false;
-    } finally {
-      // Always release the request lock, including failed requests.
-      isFetchingRef.current = false;
-
-      if (!silent) {
-        setLoading(false);
-      }
-
-      // If a refresh was requested while the initial/API request was
-      // still running, perform one fresh request after the lock is released.
-      if (pendingRefreshRef.current) {
-        pendingRefreshRef.current = false;
-
-        window.setTimeout(async () => {
-          setRefreshing(true);
-          try {
-            await loadSongs({ silent: true });
-          } finally {
-            setRefreshing(false);
-            setPullDistance(0);
-          }
-        }, 0);
-      }
-    }
-  }, []);
+    },
+    []
+  );
 
   const refreshSongs = useCallback(async () => {
-    // Do not lose a user refresh just because another request is finishing.
-    // Queue exactly one follow-up request instead.
     if (isFetchingRef.current) {
       pendingRefreshRef.current = true;
       setRefreshing(true);
@@ -575,9 +674,8 @@ export default function AllSongs() {
   /* ===================================================
      ADMOB NATIVE ADS
      - Android only
-     - Reuses the app's published consent configuration
-     - Google test ads during development
-     - Feed is destroyed when leaving All Songs
+     - Uses existing consent configuration
+     - Existing production ad unit retained
   =================================================== */
 
   useEffect(() => {
@@ -597,13 +695,16 @@ export default function AllSongs() {
           "[KEERTHANA Native Ads] Checking consent..."
         );
 
-        let consentInfo = await AdMob.requestConsentInfo();
+        let consentInfo =
+          await AdMob.requestConsentInfo();
 
         if (
           consentInfo?.isConsentFormAvailable &&
-          consentInfo?.status === AdmobConsentStatus.REQUIRED
+          consentInfo?.status ===
+            AdmobConsentStatus.REQUIRED
         ) {
-          consentInfo = await AdMob.showConsentForm();
+          consentInfo =
+            await AdMob.showConsentForm();
         }
 
         if (!active) return;
@@ -615,8 +716,6 @@ export default function AllSongs() {
           return;
         }
 
-        // AdMob.initialize() is safe to call here even if the
-        // banner component has already initialized the SDK.
         await AdMob.initialize();
 
         if (!active) return;
@@ -645,7 +744,7 @@ export default function AllSongs() {
         setNativeAdsReady(true);
 
         console.info(
-          "[KEERTHANA Native Ads] Google test native feed is ready."
+          "[KEERTHANA Native Ads] Native feed is ready."
         );
       } catch (error) {
         console.error(
@@ -680,7 +779,6 @@ export default function AllSongs() {
 
   /* ===================================================
      REFRESH WHEN APP RETURNS TO FOREGROUND
-     App.jsx dispatches "keerthana:app-resume".
   =================================================== */
 
   useEffect(() => {
@@ -703,42 +801,66 @@ export default function AllSongs() {
 
   /* ===================================================
      PULL DOWN TO REFRESH
-     Only activates when the page is already at the top.
   =================================================== */
 
   const handleTouchStart = useCallback((event) => {
-    if (window.scrollY > 1 || event.touches.length !== 1) {
+    if (
+      window.scrollY > 1 ||
+      event.touches.length !== 1
+    ) {
       touchStartYRef.current = null;
       shouldRefreshOnTouchEndRef.current = false;
       return;
     }
 
-    touchStartYRef.current = event.touches[0].clientY;
+    touchStartYRef.current =
+      event.touches[0].clientY;
+
     shouldRefreshOnTouchEndRef.current = false;
   }, []);
 
-  const handleTouchMove = useCallback((event) => {
-    if (touchStartYRef.current === null || refreshing) {
-      return;
-    }
+  const handleTouchMove = useCallback(
+    (event) => {
+      if (
+        touchStartYRef.current === null ||
+        refreshing
+      ) {
+        return;
+      }
 
-    if (window.scrollY > 1 || event.touches.length !== 1) {
-      touchStartYRef.current = null;
-      shouldRefreshOnTouchEndRef.current = false;
-      setPullDistance(0);
-      return;
-    }
+      if (
+        window.scrollY > 1 ||
+        event.touches.length !== 1
+      ) {
+        touchStartYRef.current = null;
+        shouldRefreshOnTouchEndRef.current = false;
+        setPullDistance(0);
+        return;
+      }
 
-    const currentY = event.touches[0].clientY;
-    const distance = Math.max(0, currentY - touchStartYRef.current);
-    const limitedDistance = Math.min(distance * 0.5, 90);
+      const currentY = event.touches[0].clientY;
 
-    setPullDistance(limitedDistance);
-    shouldRefreshOnTouchEndRef.current = limitedDistance >= 65;
-  }, [refreshing]);
+      const distance = Math.max(
+        0,
+        currentY - touchStartYRef.current
+      );
+
+      const limitedDistance = Math.min(
+        distance * 0.5,
+        90
+      );
+
+      setPullDistance(limitedDistance);
+
+      shouldRefreshOnTouchEndRef.current =
+        limitedDistance >= 65;
+    },
+    [refreshing]
+  );
 
   const handleTouchEnd = useCallback(() => {
-    const shouldRefresh = shouldRefreshOnTouchEndRef.current;
+    const shouldRefresh =
+      shouldRefreshOnTouchEndRef.current;
 
     touchStartYRef.current = null;
     shouldRefreshOnTouchEndRef.current = false;
@@ -827,10 +949,13 @@ export default function AllSongs() {
       .toLocaleLowerCase();
 
     return songs.filter((song) => {
+      const songLanguage =
+        normalizeLanguage(getLanguage(song));
+
       const matchesLanguage =
-        language === "All" ||
-        getLanguage(song).toLowerCase() ===
-          language.toLowerCase();
+        filterLanguage === "All" ||
+        songLanguage.toLowerCase() ===
+          filterLanguage.toLowerCase();
 
       const moods = Array.isArray(song.moods)
         ? song.moods
@@ -857,7 +982,12 @@ export default function AllSongs() {
         searchableText.includes(query)
       );
     });
-  }, [songs, search, language, artistsById]);
+  }, [
+    songs,
+    search,
+    filterLanguage,
+    artistsById,
+  ]);
 
   /* ===================================================
      PLAY SONG
@@ -865,7 +995,8 @@ export default function AllSongs() {
 
   const handlePlay = useCallback(
     (song, list = filteredSongs) => {
-      const normalizedSong = normalizeSong(song);
+      const normalizedSong =
+        normalizeSong(song);
 
       if (
         currentSongId === normalizedSong.id &&
@@ -876,14 +1007,17 @@ export default function AllSongs() {
       }
 
       if (typeof playSong !== "function") {
-        showNotice("Player is unavailable right now.");
+        showNotice(
+          "Player is unavailable right now."
+        );
         return;
       }
 
       const playlist = list.map(normalizeSong);
 
       const index = playlist.findIndex(
-        (item) => item.id === normalizedSong.id
+        (item) =>
+          item.id === normalizedSong.id
       );
 
       playSong(
@@ -905,23 +1039,30 @@ export default function AllSongs() {
      PLAY ALL
   =================================================== */
 
-  const isFilteredPlaylistActive = filteredSongs.some(
-    (song) => getSongId(song) === currentSongId
-  );
+  const isFilteredPlaylistActive =
+    filteredSongs.some(
+      (song) =>
+        getSongId(song) === currentSongId
+    );
 
-  const isPlayAllPlaying = isFilteredPlaylistActive && isPlaying;
+  const isPlayAllPlaying =
+    isFilteredPlaylistActive && isPlaying;
 
   const handlePlayAll = () => {
     if (!filteredSongs.length) return;
 
-    // If this filtered playlist is already active, toggle play/pause.
-    if (isFilteredPlaylistActive && typeof togglePlay === "function") {
+    if (
+      isFilteredPlaylistActive &&
+      typeof togglePlay === "function"
+    ) {
       togglePlay();
       return;
     }
 
-    // Otherwise start the filtered playlist from its first song.
-    handlePlay(filteredSongs[0], filteredSongs);
+    handlePlay(
+      filteredSongs[0],
+      filteredSongs
+    );
   };
 
   /* ===================================================
@@ -930,7 +1071,9 @@ export default function AllSongs() {
 
   const handleAddToQueue = (song) => {
     if (typeof addToQueue !== "function") {
-      showNotice("Queue is unavailable right now.");
+      showNotice(
+        "Queue is unavailable right now."
+      );
       return;
     }
 
@@ -946,7 +1089,8 @@ export default function AllSongs() {
   =================================================== */
 
   const handlePlayNext = (song) => {
-    const normalizedSong = normalizeSong(song);
+    const normalizedSong =
+      normalizeSong(song);
 
     if (typeof player.playNext === "function") {
       player.playNext(normalizedSong);
@@ -961,21 +1105,22 @@ export default function AllSongs() {
       Array.isArray(player.queue) &&
       typeof player.setQueue === "function"
     ) {
-      const queue = player.queue.map(normalizeSong);
+      const queue =
+        player.queue.map(normalizeSong);
 
       const duplicateIndex = queue.findIndex(
-        (item) => item.id === normalizedSong.id
+        (item) =>
+          item.id === normalizedSong.id
       );
 
       if (duplicateIndex >= 0) {
         queue.splice(duplicateIndex, 1);
       }
 
-      const currentIndex = Number.isInteger(
-        player.currentIndex
-      )
-        ? player.currentIndex
-        : -1;
+      const currentIndex =
+        Number.isInteger(player.currentIndex)
+          ? player.currentIndex
+          : -1;
 
       queue.splice(
         Math.max(0, currentIndex + 1),
@@ -1000,7 +1145,9 @@ export default function AllSongs() {
 
   const handleToggleLike = async (song) => {
     if (typeof toggleLike !== "function") {
-      showNotice("Liked Songs is unavailable right now.");
+      showNotice(
+        "Liked Songs is unavailable right now."
+      );
       return;
     }
 
@@ -1024,7 +1171,9 @@ export default function AllSongs() {
         err
       );
 
-      showNotice("Couldn't update Liked Songs");
+      showNotice(
+        "Couldn't update Liked Songs"
+      );
     }
   };
 
@@ -1045,7 +1194,6 @@ export default function AllSongs() {
 
   /* ===================================================
      ALBUM NAVIGATION
-     Existing event integration preserved.
   =================================================== */
 
   const handleViewAlbum = (song) => {
@@ -1057,7 +1205,9 @@ export default function AllSongs() {
     setMenuSongId(null);
 
     if (!albumId) {
-      showNotice("This song has no linked album.");
+      showNotice(
+        "This song has no linked album."
+      );
       return;
     }
 
@@ -1077,19 +1227,15 @@ export default function AllSongs() {
 
   /* ===================================================
      VOICE SEARCH
-     AWS automatically identifies the spoken language.
-     Transcript updates the existing search state.
   =================================================== */
 
-  const handleVoiceSearchChange = useCallback(
-    (nextValue) => {
+  const handleVoiceSearchChange =
+    useCallback((nextValue) => {
       setSearch(nextValue);
-    },
-    []
-  );
+    }, []);
 
-  const handleVoiceSearchSubmit = useCallback(
-    (spokenText) => {
+  const handleVoiceSearchSubmit =
+    useCallback((spokenText) => {
       const searchText = String(
         spokenText || ""
       ).trim();
@@ -1097,9 +1243,7 @@ export default function AllSongs() {
       if (searchText) {
         setSearch(searchText);
       }
-    },
-    []
-  );
+    }, []);
 
   /* ===================================================
      RENDER
@@ -1130,9 +1274,17 @@ export default function AllSongs() {
             color: "#d4af65",
             fontSize: "13px",
             fontWeight: 600,
-            opacity: refreshing ? 1 : Math.min(pullDistance / 65, 1),
-            transform: `translateY(${refreshing ? 0 : Math.min(pullDistance * 0.25, 22)}px)`,
-            transition: refreshing ? "opacity 180ms ease" : "none",
+            opacity: refreshing
+              ? 1
+              : Math.min(pullDistance / 65, 1),
+            transform: `translateY(${
+              refreshing
+                ? 0
+                : Math.min(pullDistance * 0.25, 22)
+            }px)`,
+            transition: refreshing
+              ? "opacity 180ms ease"
+              : "none",
           }}
         >
           <span
@@ -1140,19 +1292,26 @@ export default function AllSongs() {
             style={{
               width: "16px",
               height: "16px",
-              border: "2px solid rgba(212, 175, 101, 0.3)",
+              border:
+                "2px solid rgba(212, 175, 101, 0.3)",
               borderTopColor: "#d4af65",
               borderRadius: "50%",
               display: "inline-block",
-              animation: refreshing ? "allSongsRefreshSpin 0.8s linear infinite" : "none",
-              transform: refreshing ? "none" : `rotate(${pullDistance * 4}deg)`,
+              animation: refreshing
+                ? "allSongsRefreshSpin 0.8s linear infinite"
+                : "none",
+              transform: refreshing
+                ? "none"
+                : `rotate(${pullDistance * 4}deg)`,
             }}
           />
+
           {refreshing
             ? "Refreshing songs..."
             : pullDistance >= 65
               ? "Release to refresh"
               : "Pull down to refresh"}
+
           <style>{`
             @keyframes allSongsRefreshSpin {
               to { transform: rotate(360deg); }
@@ -1199,7 +1358,7 @@ export default function AllSongs() {
           onChange={handleVoiceSearchChange}
           onSearch={handleVoiceSearchSubmit}
           placeholder={languageText.search}
-          ariaLabel="Search songs, artists, albums and lyrics"
+          ariaLabel="Search songs, artists, and lyrics"
         />
 
       </section>
@@ -1209,8 +1368,6 @@ export default function AllSongs() {
       <section className="all-songs-results">
 
         <div className="all-songs-results-heading">
-
-          {/* ALL SONGS TITLE */}
 
           <div className="all-songs-results-title">
             <h2>{languageText.allSongs}</h2>
@@ -1232,10 +1389,18 @@ export default function AllSongs() {
               type="button"
               className="all-songs-play-all"
               onClick={handlePlayAll}
-              disabled={!filteredSongs.length || loading}
-              style={{ flexShrink: 0, order: 1 }}
+              disabled={
+                !filteredSongs.length || loading
+              }
+              style={{
+                flexShrink: 0,
+                order: 1,
+              }}
             >
-              {isPlayAllPlaying ? <FaPause /> : <FaPlay />}
+              {isPlayAllPlaying
+                ? <FaPause />
+                : <FaPlay />}
+
               {languageText.playAll}
             </button>
 
@@ -1254,26 +1419,30 @@ export default function AllSongs() {
             >
               <span
                 style={{
-                  color: "var(--text-secondary, #aebbd0)",
+                  color:
+                    "var(--text-secondary, #aebbd0)",
                   fontSize: "13px",
                   fontWeight: 600,
                   whiteSpace: "nowrap",
                 }}
               >
-                Language
+                Song Language
               </span>
 
               <select
                 className="all-songs-language-select"
-                value={language}
-                onChange={(event) => setLanguage(event.target.value)}
+                value={filterLanguage}
+                onChange={(event) =>
+                  setFilterLanguage(event.target.value)
+                }
                 aria-label="Filter songs by language"
                 style={{
                   minWidth: "145px",
                   maxWidth: "100%",
                   padding: "11px 36px 11px 13px",
                   borderRadius: "12px",
-                  border: "1px solid rgba(212, 175, 55, 0.38)",
+                  border:
+                    "1px solid rgba(212, 175, 55, 0.38)",
                   background: "#101d35",
                   color: "#f5f7fb",
                   fontSize: "14px",
@@ -1298,8 +1467,6 @@ export default function AllSongs() {
             </label>
           </div>
         </div>
-
-
 
         {/* LOADING */}
 
@@ -1352,14 +1519,17 @@ export default function AllSongs() {
 
             <p>{languageText.emptyMessage}</p>
 
-            {(search || language !== "All") && (
+            {(search ||
+              filterLanguage !== normalizedAppLanguage) && (
 
               <button
                 type="button"
                 className="all-songs-reset-search"
                 onClick={() => {
                   setSearch("");
-                  setLanguage("All");
+                  setFilterLanguage(
+                    normalizedAppLanguage
+                  );
                 }}
               >
                 {languageText.clearFilters}
@@ -1389,7 +1559,8 @@ export default function AllSongs() {
                 isLiked?.(songId)
               );
 
-              const albumName = getAlbumName(song);
+              const albumName =
+                getAlbumName(song);
 
               // Use only the song's actual uploaded cover.
               // No default/fallback cover is displayed.
@@ -1420,275 +1591,277 @@ export default function AllSongs() {
               return (
                 <Fragment key={songId}>
 
-                <article
-                  className={`all-song-card ${
-                    isCurrent ? "current" : ""
-                  }`}
-                >
-
-                  {/* SONG COVER */}
-
-                  <button
-                    type="button"
-                    className="all-song-cover"
-                    onClick={() => handlePlay(song)}
-                    aria-label={`${
-                      playing ? "Pause" : "Play"
-                    } ${getSongTitle(song)}`}
+                  <article
+                    className={`all-song-card ${
+                      isCurrent ? "current" : ""
+                    }`}
                   >
 
-                    {cover && (
-                      <img
-                        src={cover}
-                        alt={`${getSongTitle(song)} cover`}
-                        loading="lazy"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.style.display = "none";
-                        }}
-                      />
-                    )}
-
-                    <span className="all-song-cover-play">
-
-                      {playing ? (
-                        <FaPause />
-                      ) : (
-                        <FaPlay />
-                      )}
-
-                    </span>
-
-                  </button>
-
-                  {/* SONG DETAILS */}
-
-                  <div className="all-song-card-info">
+                    {/* SONG COVER */}
 
                     <button
                       type="button"
-                      className="all-song-info"
+                      className="all-song-cover"
                       onClick={() => handlePlay(song)}
-                      title={getSongTitle(song)}
+                      aria-label={`${
+                        playing ? "Pause" : "Play"
+                      } ${getSongTitle(song)}`}
                     >
 
-                      {(() => {
-                        const displayTitles = getSongDisplayTitles(song);
+                      {cover && (
+                        <img
+                          src={cover}
+                          alt={`${getSongTitle(song)} cover`}
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.style.display = "none";
+                          }}
+                        />
+                      )}
 
-                        return (
-                          <>
-                            <span className="all-song-primary-title">
-                              {displayTitles.primary}
-                            </span>
+                      <span className="all-song-cover-play">
 
-                            {displayTitles.secondary && (
-                              <span className="all-song-english-title">
-                                {displayTitles.secondary}
-                              </span>
-                            )}
-                          </>
-                        );
-                      })()}
+                        {playing
+                          ? <FaPause />
+                          : <FaPlay />}
 
-                      <span className="all-song-artist">
-                        {getArtistName(song, artistsById)}
                       </span>
 
                     </button>
 
-                  </div>
+                    {/* SONG DETAILS */}
 
-                  {/* THREE-DOT MENU */}
+                    <div className="all-song-card-info">
 
-                  <div
-                    className="all-song-menu-container"
-                    ref={
-                      menuSongId === songId
-                        ? menuRef
-                        : null
-                    }
-                  >
-
-                    <button
-                      type="button"
-                      className="all-song-menu-trigger"
-                      aria-label={`More options for ${getSongTitle(song)}`}
-                      aria-haspopup="menu"
-                      aria-expanded={
-                        menuSongId === songId
-                      }
-                      onClick={() =>
-                        setMenuSongId((current) =>
-                          current === songId
-                            ? null
-                            : songId
-                        )
-                      }
-                    >
-                      <FaEllipsisV />
-                    </button>
-
-                    {menuSongId === songId && (
-
-                      <div
-                        className="all-song-context-menu"
-                        role="menu"
-                        aria-label={`Options for ${getSongTitle(song)}`}
+                      <button
+                        type="button"
+                        className="all-song-info"
+                        onClick={() => handlePlay(song)}
+                        title={getSongTitle(song)}
                       >
 
-                        {/* PLAY NOW */}
+                        {(() => {
+                          const displayTitles =
+                            getSongDisplayTitles(song);
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            handlePlay(song);
-                            setMenuSongId(null);
-                          }}
+                          return (
+                            <>
+                              <span className="all-song-primary-title">
+                                {displayTitles.primary}
+                              </span>
+
+                              {displayTitles.secondary && (
+                                <span className="all-song-english-title">
+                                  {displayTitles.secondary}
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
+
+                        <span className="all-song-artist">
+                          {getArtistName(
+                            song,
+                            artistsById
+                          )}
+                        </span>
+
+                      </button>
+
+                    </div>
+
+                    {/* THREE-DOT MENU */}
+
+                    <div
+                      className="all-song-menu-container"
+                      ref={
+                        menuSongId === songId
+                          ? menuRef
+                          : null
+                      }
+                    >
+
+                      <button
+                        type="button"
+                        className="all-song-menu-trigger"
+                        aria-label={`More options for ${getSongTitle(song)}`}
+                        aria-haspopup="menu"
+                        aria-expanded={
+                          menuSongId === songId
+                        }
+                        onClick={() =>
+                          setMenuSongId((current) =>
+                            current === songId
+                              ? null
+                              : songId
+                          )
+                        }
+                      >
+                        <FaEllipsisV />
+                      </button>
+
+                      {menuSongId === songId && (
+
+                        <div
+                          className="all-song-context-menu"
+                          role="menu"
+                          aria-label={`Options for ${getSongTitle(song)}`}
                         >
-                          <FaPlay />
-                          <span>Play Now</span>
-                        </button>
 
-                        {/* PLAY NEXT */}
+                          {/* PLAY NOW */}
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() =>
-                            handlePlayNext(song)
-                          }
-                        >
-                          <FaStepForward />
-                          <span>Play Next</span>
-                        </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              handlePlay(song);
+                              setMenuSongId(null);
+                            }}
+                          >
+                            <FaPlay />
+                            <span>Play Now</span>
+                          </button>
 
-                        {/* ADD TO QUEUE */}
+                          {/* PLAY NEXT */}
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() =>
-                            handleAddToQueue(song)
-                          }
-                        >
-                          <FaPlus />
-                          <span>Add to Queue</span>
-                        </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() =>
+                              handlePlayNext(song)
+                            }
+                          >
+                            <FaStepForward />
+                            <span>Play Next</span>
+                          </button>
 
-                        <div className="all-song-menu-divider" />
+                          {/* ADD TO QUEUE */}
 
-                        {/* LIKE / UNLIKE */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() =>
+                              handleAddToQueue(song)
+                            }
+                          >
+                            <FaPlus />
+                            <span>Add to Queue</span>
+                          </button>
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() =>
-                            handleToggleLike(song)
-                          }
-                        >
+                          <div className="all-song-menu-divider" />
 
-                          {liked ? (
-                            <FaHeart />
-                          ) : (
-                            <FaRegHeart />
+                          {/* LIKE / UNLIKE */}
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() =>
+                              handleToggleLike(song)
+                            }
+                          >
+
+                            {liked
+                              ? <FaHeart />
+                              : <FaRegHeart />}
+
+                            <span>
+                              {liked
+                                ? "Remove from Liked Songs"
+                                : "Add to Liked Songs"}
+                            </span>
+
+                          </button>
+
+                          {/* PLAYLIST */}
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() =>
+                              handleAddToPlaylist(song)
+                            }
+                          >
+                            <FaListUl />
+                            <span>Add to Playlist</span>
+                          </button>
+
+                          {/* ALBUM */}
+
+                          {albumName && (
+
+                            <>
+
+                              <div className="all-song-menu-divider" />
+
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() =>
+                                  handleViewAlbum(song)
+                                }
+                              >
+                                <FaCompactDisc />
+                                <span>View Album</span>
+                              </button>
+
+                            </>
+
                           )}
 
-                          <span>
-                            {liked
-                              ? "Remove from Liked Songs"
-                              : "Add to Liked Songs"}
-                          </span>
+                        </div>
 
-                        </button>
+                      )}
 
-                        {/* PLAYLIST */}
-
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() =>
-                            handleAddToPlaylist(song)
-                          }
-                        >
-                          <FaListUl />
-                          <span>Add to Playlist</span>
-                        </button>
-
-                        {/* ALBUM */}
-
-                        {albumName && (
-
-                          <>
-
-                            <div className="all-song-menu-divider" />
-
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() =>
-                                handleViewAlbum(song)
-                              }
-                            >
-                              <FaCompactDisc />
-                              <span>View Album</span>
-                            </button>
-
-                          </>
-
-                        )}
-
-                      </div>
-
-                    )}
-
-                  </div>
-
-                </article>
-
-                {nativeAdSlot && (
-                  <section
-                    className="keerthana-native-ad-slot"
-                    aria-label="Sponsored content"
-                    style={{
-                      width: "100%",
-                      minHeight: "350px",
-                      height: "350px",
-                      margin: "18px 0",
-                      padding: "10px",
-                      boxSizing: "border-box",
-                      overflow: "hidden",
-                      borderRadius: "14px",
-                      background: "rgba(16, 29, 53, 0.45)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        marginBottom: "6px",
-                        color: "var(--text-secondary, #aebbd0)",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Sponsored
                     </div>
-                    <div
+
+                  </article>
+
+                  {nativeAdSlot && (
+                    <section
+                      className="keerthana-native-ad-slot"
+                      aria-label="Sponsored content"
                       style={{
                         width: "100%",
-                        height: "320px",
-                        minHeight: "320px",
+                        minHeight: "350px",
+                        height: "350px",
+                        margin: "18px 0",
+                        padding: "10px",
+                        boxSizing: "border-box",
+                        overflow: "hidden",
+                        borderRadius: "14px",
+                        background:
+                          "rgba(16, 29, 53, 0.45)",
                       }}
                     >
-                      {nativeAdSlot}
-                    </div>
-                  </section>
-                )}
+                      <div
+                        style={{
+                          marginBottom: "6px",
+                          color:
+                            "var(--text-secondary, #aebbd0)",
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Sponsored
+                      </div>
+
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "320px",
+                          minHeight: "320px",
+                        }}
+                      >
+                        {nativeAdSlot}
+                      </div>
+                    </section>
+                  )}
 
                 </Fragment>
               );
-
             })}
 
           </div>
@@ -1700,14 +1873,12 @@ export default function AllSongs() {
       {/* TOAST */}
 
       {notice && (
-
         <div
           className="all-songs-toast"
           role="status"
         >
           {notice}
         </div>
-
       )}
 
     </main>

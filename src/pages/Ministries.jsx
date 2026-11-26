@@ -11,6 +11,7 @@ import {
 import API from "../services/api";
 import Sidebar from "../components/Sidebar";
 import VoiceSearch from "../components/VoiceSearch";
+import { useLanguage } from "../context/LanguageContext";
 
 import "../assets/css/ministries.css";
 
@@ -43,7 +44,6 @@ const getMinistryTeluguName = (ministry) => {
 ========================================================= */
 
 const LANGUAGES = [
-  { value: "All", label: "All Languages" },
   { value: "Telugu", label: "తెలుగు" },
   { value: "English", label: "English" },
   { value: "Hindi", label: "हिन्दी" },
@@ -134,7 +134,7 @@ function Ministries() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("All");
+  const { selectedLanguage, setSelectedLanguage } = useLanguage();
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
 
   /* =========================================================
@@ -261,7 +261,7 @@ function Ministries() {
 
   /* =========================================================
      SEARCH + ALPHABETICAL ORDER (A-Z)
-     Search English/Telugu names and descriptions.
+     Search ministry names and descriptions; language follows app preference.
   ========================================================= */
 
   const ministryNameCollator = new Intl.Collator("en", {
@@ -292,9 +292,7 @@ function Ministries() {
           );
 
         const ministryLanguages = getMinistryLanguages(ministry);
-        const matchesLanguage =
-          selectedLanguage === "All" ||
-          ministryLanguages.includes(selectedLanguage);
+        const matchesLanguage = ministryLanguages.includes(selectedLanguage);
 
         return matchesSearch && matchesLanguage;
       })
@@ -452,7 +450,7 @@ function Ministries() {
                   />
                 </div>
 
-                {/* LANGUAGE DROPDOWN — DEFAULT: ALL LANGUAGES */}
+                {/* APP-WIDE LANGUAGE SELECTOR */}
 
                 <div
                   className="ministries-filter-bar"
@@ -540,20 +538,14 @@ function Ministries() {
                     <h3>No ministries found</h3>
 
                     <p>
-                      {search.trim() || selectedLanguage !== "All"
-                        ? "Try another search or choose All Languages."
-                        : "No ministries have been added yet."}
+                      {search.trim()
+                        ? `No ${selectedLanguage} ministries match your search. Try another search term.`
+                        : `No ministries are available in ${selectedLanguage} yet.`}
                     </p>
 
-                    {(search.trim() || selectedLanguage !== "All") && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSearch("");
-                          setSelectedLanguage("All");
-                        }}
-                      >
-                        Clear Filters
+                    {search.trim() && (
+                      <button type="button" onClick={() => setSearch("")}>
+                        Clear Search
                       </button>
                     )}
                   </div>

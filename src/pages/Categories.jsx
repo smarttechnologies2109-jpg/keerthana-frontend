@@ -14,6 +14,7 @@ import API from "../services/api";
 import { getMediaUrl } from "../utils/media";
 import Sidebar from "../components/Sidebar";
 import VoiceSearch from "../components/VoiceSearch";
+import { useLanguage } from "../context/LanguageContext";
 
 import "../assets/css/categories.css";
 
@@ -67,7 +68,6 @@ const getCategoryCoverUrl = (category) => {
 ========================================================= */
 
 const LANGUAGES = [
-  { value: "All", label: "All Languages" },
   { value: "Telugu", label: "తెలుగు" },
   { value: "English", label: "English" },
   { value: "Hindi", label: "हिन्दी" },
@@ -182,7 +182,7 @@ function Categories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("All");
+  const { selectedLanguage, setSelectedLanguage } = useLanguage();
   const [voiceLanguage, setVoiceLanguage] = useState("te-IN");
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -347,9 +347,7 @@ function Categories() {
           );
 
         const categoryLanguages = getCategoryLanguages(category);
-        const matchesLanguage =
-          selectedLanguage === "All" ||
-          categoryLanguages.includes(selectedLanguage);
+        const matchesLanguage = categoryLanguages.includes(selectedLanguage);
 
         return matchesSearch && matchesLanguage;
       })
@@ -640,20 +638,19 @@ function Categories() {
                         : "Music categories will appear here when they are added to KEERTHANA."}
                     </p>
 
-                    {(search.trim() || selectedLanguage !== "All") && (
+                    {search.trim() && (
                       <button
                         type="button"
                         className="categories-secondary-button"
                         onClick={() => {
                           setSearch("");
-                          setSelectedLanguage("All");
                         }}
                       >
                         Clear Filters
                       </button>
                     )}
 
-                    {!search.trim() && selectedLanguage === "All" && (
+                    {!search.trim() && !selectedLanguage && (
                       <button
                         type="button"
                         className="categories-secondary-button"

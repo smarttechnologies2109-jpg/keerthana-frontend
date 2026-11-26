@@ -20,12 +20,13 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { getAlbumCover } from "../utils/media";
 import VoiceSearch from "../components/VoiceSearch";
+import { useLanguage } from "../context/LanguageContext";
 
 import "../assets/css/albums.css";
 
 /* =========================================================
    KEERTHANA — ALBUMS
-   Bilingual display + alphabetical sorting + language filter
+   Bilingual display + alphabetical sorting + app-wide language filter
 ========================================================= */
 
 const DEFAULT_ALBUM_IMAGE = "/default-album.png";
@@ -33,7 +34,6 @@ const DEFAULT_ALBUM_IMAGE = "/default-album.png";
 /* LANGUAGE OPTIONS */
 
 const LANGUAGES = [
-  { value: "All", label: "All Languages" },
   { value: "Telugu", label: "తెలుగు" },
   { value: "English", label: "English" },
   { value: "Hindi", label: "हिन्दी" },
@@ -251,9 +251,8 @@ function Albums() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // All Languages is selected by default.
-  const [selectedLanguage, setSelectedLanguage] =
-    useState("All");
+  // Use the app-wide language selected by the user.
+  const { selectedLanguage, setSelectedLanguage } = useLanguage();
 
   const [voiceLanguage, setVoiceLanguage] =
     useState("te-IN");
@@ -392,9 +391,7 @@ function Albums() {
 
       const albumLanguages = getAlbumLanguages(album);
 
-      const matchesLanguage =
-        selectedLanguage === "All" ||
-        albumLanguages.includes(selectedLanguage);
+      const matchesLanguage = albumLanguages.includes(selectedLanguage);
 
       return matchesSearch && matchesLanguage;
     });
@@ -517,7 +514,7 @@ function Albums() {
             </div>
 
             <span className="albums-total">
-              {query || selectedLanguage !== "All"
+              {query || selectedLanguage
                 ? `${filteredAlbums.length} ${
                     filteredAlbums.length === 1
                       ? "Match"
@@ -771,24 +768,23 @@ function Albums() {
               </div>
 
               <h2>
-                {query || selectedLanguage !== "All"
+                {query
                   ? "No Matching Albums"
                   : "No Albums Available"}
               </h2>
 
               <p>
-                {query || selectedLanguage !== "All"
-                  ? "Try another album title or artist name, or choose All Languages."
-                  : "Your Christian music collections will appear here when albums are available."}
+                {query
+                  ? "Try another album title or artist name."
+                  : `No albums are available in ${selectedLanguage}.`}
               </p>
 
-              {(query || selectedLanguage !== "All") ? (
+              {query ? (
                 <button
                   type="button"
                   className="albums-reset-search"
                   onClick={() => {
                     setSearchQuery("");
-                    setSelectedLanguage("All");
                   }}
                 >
                   <FaTimes />

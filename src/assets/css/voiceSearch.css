@@ -627,3 +627,116 @@
     max-width: 65%;
   }
 }
+
+
+/* =========================================================
+   KEERTHANA — VOICE SEARCH COMPONENT ALIGNMENT
+   Supports the current VoiceSearch.jsx component
+   Automatic language detection • Android • Desktop
+========================================================= */
+
+/* Keep the component compact when embedded inside Search.jsx. */
+.search-page .keerthana-voice-search {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The Search page supplies its own outer search-bar treatment.
+   Keep VoiceSearch's internal bar transparent when nested there. */
+.search-page .search-input-wrapper .keerthana-voice-search {
+  flex: 1 1 0%;
+  width: 0;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* VoiceSearch is a standalone search control on pages that use it
+   directly, so retain its own premium surface there. */
+.keerthana-voice-search .voice-search-bar {
+  width: 100%;
+  min-width: 0;
+}
+
+.keerthana-voice-search .voice-search-bar input {
+  min-width: 0;
+  color: #f5f7ff;
+  -webkit-text-fill-color: #f5f7ff;
+  caret-color: #e8c98a;
+  font-family: "Inter", "Noto Sans Telugu", sans-serif;
+}
+
+.keerthana-voice-search .voice-search-bar input:focus,
+.keerthana-voice-search .voice-search-bar input:focus-visible {
+  outline: none;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Disabled microphone while the server is processing a transcript. */
+.keerthana-voice-search .voice-search-mic:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Keep the listening state visually distinct from processing. */
+.keerthana-voice-search .voice-search-bar.is-listening
+.voice-search-mic {
+  background: #d84c65;
+  border-color: rgba(255, 123, 135, 0.45);
+}
+
+.keerthana-voice-search .voice-search-feedback {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* Telugu and other Indic scripts need enough line height. */
+.keerthana-voice-search .voice-search-bar input,
+.keerthana-voice-search .voice-search-feedback {
+  line-height: 1.6;
+}
+
+/* Android/mobile touch targets and input sizing. */
+@media (max-width: 600px) {
+  .keerthana-voice-search .voice-search-clear,
+  .keerthana-voice-search .voice-search-mic {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .keerthana-voice-search .voice-search-bar input {
+    font-size: 16px;
+  }
+
+  .search-page .search-input-wrapper
+  .keerthana-voice-search .voice-search-bar {
+    min-height: 40px;
+    padding: 0;
+    gap: 4px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .search-page .search-input-wrapper
+  .keerthana-voice-search .voice-search-feedback {
+    display: none;
+  }
+}
+
+/* Prevent animation for users who request reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-voice-search .voice-search-mic.is-active,
+  .keerthana-voice-search .voice-search-pulse {
+    animation: none !important;
+  }
+}

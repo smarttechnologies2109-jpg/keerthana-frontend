@@ -22,6 +22,7 @@ import {
 import { PlayerProvider } from "./context/PlayerContext";
 import { LikedSongsProvider } from "./context/LikedSongsContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 /* =========================================================
    LAYOUTS AND PROTECTED ROUTES
@@ -535,8 +536,9 @@ function UserHomeRedirect() {
 
 function App() {
   return (
-    <PlayerProvider>
-      <LikedSongsProvider>
+    <LanguageProvider>
+      <PlayerProvider>
+        <LikedSongsProvider>
         <NotificationsProvider>
 
           {/* ANDROID BACK BUTTON */}
@@ -1056,8 +1058,9 @@ function App() {
           </Routes>
 
         </NotificationsProvider>
-      </LikedSongsProvider>
-    </PlayerProvider>
+        </LikedSongsProvider>
+      </PlayerProvider>
+    </LanguageProvider>
   );
 }
 

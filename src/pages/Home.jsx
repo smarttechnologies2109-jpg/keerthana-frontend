@@ -26,6 +26,7 @@ import {
 import API from "../services/api";
 import { usePlayer } from "../context/usePlayer";
 import { useLikedSongs } from "../context/LikedSongsContext";
+import { useLanguage } from "../context/LanguageContext";
 
 import {
   getSongCover,
@@ -52,6 +53,93 @@ const LANGUAGES = [
   "Kannada",
   "Tamil",
 ];
+
+/*
+ * Home-page display limits for mobile / Android.
+ * Keep the home screen useful without making it excessively long.
+ */
+const HOME_LIMITS = {
+  songs: 8,
+  artists: 6,
+  albums: 6,
+  ministries: 6,
+  categories: 6,
+};
+
+function getExplicitLanguage(item) {
+  const raw =
+    item?.language ||
+    item?.language_name ||
+    item?.primary_language ||
+    item?.content_language ||
+    (Array.isArray(item?.languages) ? item.languages[0] : "");
+
+  return raw ? normalizeLanguage(raw) : "";
+}
+
+function getRelatedIds(song, type) {
+  const values = [];
+
+  if (type === "artist") {
+    const artistItems = [
+      ...(Array.isArray(song?.artists) ? song.artists : []),
+      ...(Array.isArray(song?.song_artists) ? song.song_artists : []),
+      ...(Array.isArray(song?.artist_ids) ? song.artist_ids : []),
+      ...(Array.isArray(song?.artistIds) ? song.artistIds : []),
+    ];
+
+    artistItems.forEach((item) => {
+      const id = typeof item === "object"
+        ? item?.id ?? item?.artist_id ?? item?.artistId
+        : item;
+      if (id != null) values.push(String(id));
+    });
+
+    const legacyId = song?.artist_id ?? song?.artistId;
+    if (legacyId != null) values.push(String(legacyId));
+  }
+
+  if (type === "album") {
+    const id = song?.album_id ?? song?.albumId ?? song?.album?.id;
+    if (id != null) values.push(String(id));
+  }
+
+  if (type === "ministry") {
+    const id = song?.ministry_id ?? song?.ministryId ?? song?.ministry?.id;
+    if (id != null) values.push(String(id));
+  }
+
+  if (type === "category") {
+    const id = song?.category_id ?? song?.categoryId ?? song?.category?.id;
+    if (id != null) values.push(String(id));
+  }
+
+  return values;
+}
+
+function filterEntitiesForLanguage(entities, languageSongs, language, type) {
+  const normalizedLanguage = normalizeLanguage(language);
+  const relatedIds = new Set(
+    languageSongs.flatMap((song) => getRelatedIds(song, type))
+  );
+
+  return entities.filter((entity) => {
+    const explicitLanguage = getExplicitLanguage(entity);
+
+    // If the entity has language metadata, respect it.
+    if (explicitLanguage) return explicitLanguage === normalizedLanguage;
+
+    // Otherwise use the relationships on songs in this language.
+    const entityId = entity?.id ?? entity?.[`${type}_id`];
+    if (entityId != null && relatedIds.size > 0) {
+      return relatedIds.has(String(entityId));
+    }
+
+    // Keep legacy records that do not expose language or relationship data.
+    return true;
+  });
+}
+
 
 /* =========================================================
    DAILY BIBLE VERSES
@@ -144,29 +232,6 @@ function normalizeLanguage(language) {
     tamil: "Tamil",
   };
   return supported[value] || "Telugu";
-}
-
-function getSelectedLanguage() {
-  if (typeof window === "undefined") return "Telugu";
-
-  try {
-    const savedUser = localStorage.getItem("user");
-    const user = savedUser ? JSON.parse(savedUser) : null;
-    return normalizeLanguage(
-      user?.language ||
-      user?.preferred_language ||
-      localStorage.getItem("keerthana_language") ||
-      localStorage.getItem("language") ||
-      "Telugu"
-    );
-  } catch (error) {
-    console.warn("Unable to read saved KEERTHANA language:", error);
-    return normalizeLanguage(
-      localStorage.getItem("keerthana_language") ||
-      localStorage.getItem("language") ||
-      "Telugu"
-    );
-  }
 }
 
 function getLocalizedField(item, base, language) {
@@ -605,7 +670,12 @@ function buildRecommendations(
 export default function Home() {
   const navigate = useNavigate();
   const player = usePlayer();
-  const [selectedLanguage, setSelectedLanguage] = useState(getSelectedLanguage);
+  // The browsing language is shared across all music pages and persists
+  // locally. It does not change the user's login or account identity.
+  const {
+    selectedLanguage: browseLanguage,
+    setSelectedLanguage: setBrowseLanguage,
+  } = useLanguage();
   const [adFreeActive, setAdFreeActive] = useState(false);
 
 useEffect(() => {
@@ -635,19 +705,7 @@ useEffect(() => {
   };
 }, []);
 
-  // Re-read the preference when the app returns to the foreground or another
-  // tab updates the saved user profile.
-  useEffect(() => {
-    const syncLanguage = () => setSelectedLanguage(getSelectedLanguage());
-    window.addEventListener("storage", syncLanguage);
-    window.addEventListener("keerthana:language-change", syncLanguage);
-    window.addEventListener("keerthana:app-resume", syncLanguage);
-    return () => {
-      window.removeEventListener("storage", syncLanguage);
-      window.removeEventListener("keerthana:language-change", syncLanguage);
-      window.removeEventListener("keerthana:app-resume", syncLanguage);
-    };
-  }, []);
+
 
   const {
     playSong,
@@ -952,24 +1010,51 @@ useEffect(() => {
     [songs]
   );
 
+  // The home experience is scoped to the language currently being browsed.
+  // Switching language here does not modify the saved preferred language.
+  const languageSongs = useMemo(
+    () => newestSongs.filter((song) => getSongLanguage(song) === normalizeText(browseLanguage)),
+    [newestSongs, browseLanguage]
+  );
+
   const recentlyAdded = useMemo(
-    () => newestSongs.slice(0, 12),
-    [newestSongs]
+    () => languageSongs.slice(0, HOME_LIMITS.songs),
+    [languageSongs]
   );
 
   const featuredSongs = useMemo(
-    () => newestSongs.filter(isFeatured).slice(0, 12),
-    [newestSongs]
+    () => languageSongs.filter(isFeatured).slice(0, HOME_LIMITS.songs),
+    [languageSongs]
+  );
+
+  const languageArtists = useMemo(
+    () => filterEntitiesForLanguage(artists, languageSongs, browseLanguage, "artist"),
+    [artists, languageSongs, browseLanguage]
+  );
+
+  const languageAlbums = useMemo(
+    () => filterEntitiesForLanguage(albums, languageSongs, browseLanguage, "album"),
+    [albums, languageSongs, browseLanguage]
+  );
+
+  const languageMinistries = useMemo(
+    () => filterEntitiesForLanguage(ministries, languageSongs, browseLanguage, "ministry"),
+    [ministries, languageSongs, browseLanguage]
+  );
+
+  const languageCategories = useMemo(
+    () => filterEntitiesForLanguage(categories, languageSongs, browseLanguage, "category"),
+    [categories, languageSongs, browseLanguage]
   );
 
   const popularArtists = useMemo(
-    () => artists.slice(0, 8),
-    [artists]
+    () => languageArtists.slice(0, HOME_LIMITS.artists),
+    [languageArtists]
   );
 
   const popularAlbums = useMemo(
-    () => albums.slice(0, 8),
-    [albums]
+    () => languageAlbums.slice(0, HOME_LIMITS.albums),
+    [languageAlbums]
   );
 
   const likedSongList = useMemo(
@@ -977,30 +1062,35 @@ useEffect(() => {
       uniqueSongs(
         likedSongs
           .map(unwrapSong)
-          .filter((song) => getId(song))
+          .filter((song) => getId(song) && getSongLanguage(song) === normalizeText(browseLanguage))
       ),
-    [likedSongs]
+    [likedSongs, browseLanguage]
+  );
+
+  const languageRecentlyPlayed = useMemo(
+    () => recentlyPlayed.filter((song) => getSongLanguage(song) === normalizeText(browseLanguage)),
+    [recentlyPlayed, browseLanguage]
   );
 
   const madeForYou = useMemo(
     () =>
       buildRecommendations(
-        newestSongs,
+        languageSongs,
         likedSongList,
-        recentlyPlayed,
-        artists
-      ),
-    [newestSongs, likedSongList, recentlyPlayed, artists]
+        languageRecentlyPlayed,
+        languageArtists
+      ).slice(0, HOME_LIMITS.songs),
+    [languageSongs, likedSongList, languageRecentlyPlayed, languageArtists]
   );
 
   const dailyWorshipSongs = useMemo(() => {
     const source =
       worshipSongs.length > 0
-        ? worshipSongs
+        ? worshipSongs.filter((song) => getSongLanguage(song) === normalizeText(browseLanguage))
         : featuredSongs;
 
-    return uniqueSongs(source).slice(0, 12);
-  }, [worshipSongs, featuredSongs]);
+    return uniqueSongs(source).slice(0, HOME_LIMITS.songs);
+  }, [worshipSongs, browseLanguage, featuredSongs]);
 
   const dailyVerse = useMemo(() => {
     const today = new Date();
@@ -1141,40 +1231,38 @@ useEffect(() => {
     [navigate]
   );
 
-  const openLanguage = useCallback(
-    (language) => {
-      navigate(`/search?q=${encodeURIComponent(language)}`);
-    },
-    [navigate]
-  );
+  const openLanguage = useCallback((language) => {
+    setBrowseLanguage(normalizeLanguage(language));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [setBrowseLanguage]);
 
 
   const handleStartListening = useCallback(() => {
     const firstSong =
-      recentlyPlayed[0] ||
+      languageRecentlyPlayed[0] ||
       likedSongList[0] ||
       madeForYou[0] ||
-      newestSongs[0];
+      languageSongs[0];
 
     if (!firstSong) {
       navigate("/search");
       return;
     }
 
-    const list = recentlyPlayed.length
-      ? recentlyPlayed
+    const list = languageRecentlyPlayed.length
+      ? languageRecentlyPlayed
       : likedSongList.length
         ? likedSongList
         : madeForYou.length
           ? madeForYou
-          : newestSongs;
+          : languageSongs;
 
     handlePlaySong(firstSong, list);
   }, [
-    recentlyPlayed,
+    languageRecentlyPlayed,
     likedSongList,
     madeForYou,
-    newestSongs,
+    languageSongs,
     handlePlaySong,
     navigate,
   ]);
@@ -1271,13 +1359,32 @@ useEffect(() => {
  
 
 
+        <section
+          className="home-language-switcher"
+          aria-label="Explore music languages"
+          style={{ margin: "8px 0 24px", padding: "18px", borderRadius: "18px", background: "linear-gradient(120deg, #101d3b 0%, #173b70 100%)", border: "1px solid rgba(212,175,101,.35)", color: "#fff" }}
+        >
+          <div className="home-language-switcher-heading">
+            <div>
+              <p style={{ color: "#e4c27b", fontSize: "11px", fontWeight: 700, letterSpacing: "1.2px", margin: "0 0 6px" }}>YOUR MUSIC EXPERIENCE</p>
+              <h2 style={{ color: "#fff", margin: "0 0 6px", fontSize: "20px" }}>
+                {`${browseLanguage} Music`}
+              </h2>
+              <p style={{ color: "#dbe4f2", fontSize: "13px", margin: 0 }}>
+                {`Your selected music language is active across KEERTHANA.`}
+              </p>
+            </div>
+
+          </div>
+        </section>
+
         {/* =================================================
             5. RECENTLY ADDED
         ================================================= */}
 
         <HomeSection
-          title="Recently Added"
-          subtitle="Fresh additions to your music collection"
+          title={`Recently Added · ${browseLanguage}`}
+          subtitle="Fresh additions in your selected browsing language"
           icon={<FaCompactDisc />}
           onViewAll={() => navigate("/recently-added")}
         >
@@ -1288,8 +1395,8 @@ useEffect(() => {
                   key={getId(song) ?? `added-${index}`}
                   song={song}
                   artists={artists}
-                  selectedLanguage={selectedLanguage}
-                  songs={newestSongs}
+                  selectedLanguage={browseLanguage}
+                  songs={languageSongs}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
                   currentSong={currentSong}
@@ -1309,20 +1416,20 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Recently Played"
-          subtitle="Return to the songs that stay with you"
+          title={`Recently Played · ${browseLanguage}`}
+          subtitle="Return to worship songs you listened to"
           icon={<FaMusic />}
           onViewAll={() => navigate("/history")}
         >
-          {recentlyPlayed.length > 0 ? (
+          {languageRecentlyPlayed.length > 0 ? (
             <div className="home-square-song-grid">
-              {recentlyPlayed.slice(0, 12).map((song, index) => (
+              {languageRecentlyPlayed.slice(0, HOME_LIMITS.songs).map((song, index) => (
                 <SongCard
                   key={getId(song) ?? `recent-${index}`}
                   song={song}
                   artists={artists}
-                  selectedLanguage={selectedLanguage}
-                  songs={recentlyPlayed}
+                  selectedLanguage={browseLanguage}
+                  songs={languageRecentlyPlayed}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
                   currentSong={currentSong}
@@ -1332,7 +1439,7 @@ useEffect(() => {
               ))}
             </div>
           ) : (
-            <EmptySection message="Your listening history will appear here after you play some songs." />
+            <EmptySection message={`Your ${browseLanguage} listening history will appear here after you play songs in this language.`} />
           )}
         </HomeSection>
 
@@ -1341,19 +1448,19 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Your Liked Songs"
-          subtitle="The worship songs you love"
+          title={`Your Liked Songs · ${browseLanguage}`}
+          subtitle="Your liked songs in this language"
           icon={<FaHeart />}
           onViewAll={() => navigate("/liked-songs")}
         >
           {likedSongList.length > 0 ? (
             <div className="home-square-song-grid">
-              {likedSongList.slice(0, 12).map((song, index) => (
+              {likedSongList.slice(0, HOME_LIMITS.songs).map((song, index) => (
                 <SongCard
                   key={getId(song) ?? `liked-${index}`}
                   song={song}
                   artists={artists}
-                  selectedLanguage={selectedLanguage}
+                  selectedLanguage={browseLanguage}
                   songs={likedSongList}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
@@ -1379,19 +1486,19 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Made for You"
-          subtitle="Music inspired by your listening taste"
+          title={`Made for You · ${browseLanguage}`}
+          subtitle="Recommendations based on your listening taste in this language"
           icon={<FaHeart />}
           onViewAll={() => navigate("/search")}
         >
           {madeForYou.length > 0 ? (
             <div className="home-square-song-grid">
-              {madeForYou.map((song, index) => (
+              {madeForYou.slice(0, HOME_LIMITS.songs).map((song, index) => (
                 <SongCard
                   key={getId(song) ?? `recommended-${index}`}
                   song={song}
                   artists={artists}
-                  selectedLanguage={selectedLanguage}
+                  selectedLanguage={browseLanguage}
                   songs={madeForYou}
                   onPlay={handlePlaySong}
                   onOpen={openSong}
@@ -1414,7 +1521,7 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Artists to Discover"
+          title={`Artists to Discover · ${browseLanguage}`}
           subtitle="Voices behind the songs you love"
           icon={<FaMicrophone />}
           onViewAll={() => navigate("/artists")}
@@ -1424,8 +1531,8 @@ useEffect(() => {
               {popularArtists.map((artist, index) => (
                 <EntityCard
                   key={artist.id ?? `artist-${index}`}
-                  title={getEntityNames(artist, selectedLanguage, true).primary}
-                  secondaryTitle={getEntityNames(artist, selectedLanguage, true).secondary}
+                  title={getEntityNames(artist, browseLanguage, true).primary}
+                  secondaryTitle={getEntityNames(artist, browseLanguage, true).secondary}
                   subtitle="View Artist"
                   image={getArtistImage(artist)}
                   fallbackIcon={<FaMicrophone />}
@@ -1444,7 +1551,7 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Albums for Your Playlist"
+          title={`Albums · ${browseLanguage}`}
           subtitle="Discover collections of Christian music"
           icon={<FaCompactDisc />}
           onViewAll={() => navigate("/albums")}
@@ -1454,8 +1561,8 @@ useEffect(() => {
               {popularAlbums.map((album, index) => (
                 <EntityCard
                   key={album.id ?? `album-${index}`}
-                  title={getEntityNames(album, selectedLanguage).primary}
-                  secondaryTitle={getEntityNames(album, selectedLanguage).secondary}
+                  title={getEntityNames(album, browseLanguage).primary}
+                  secondaryTitle={getEntityNames(album, browseLanguage).secondary}
                   subtitle={
                     album.artist_name_english ||
                     album.artist_name ||
@@ -1479,7 +1586,7 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Explore Ministries"
+          title={`Ministries · ${browseLanguage}`}
           subtitle="Discover Christian music from different ministries"
           icon={<FaPrayingHands />}
           onViewAll={() => navigate("/ministries")}
@@ -1496,9 +1603,9 @@ useEffect(() => {
                 Retry
               </button>
             </div>
-          ) : ministries.length > 0 ? (
+           ) : languageMinistries.length > 0 ? (
             <div className="home-card-grid home-category-grid">
-              {ministries.slice(0, 8).map((ministry, index) => {
+              {languageMinistries.slice(0, HOME_LIMITS.ministries).map((ministry, index) => {
                 const image =
                   ministry?.image_url ||
                   ministry?.image ||
@@ -1513,8 +1620,8 @@ useEffect(() => {
                       ministry?.ministry_id ??
                       `ministry-${index}`
                     }
-                    title={getEntityNames(ministry, selectedLanguage).primary}
-                    secondaryTitle={getEntityNames(ministry, selectedLanguage).secondary}
+                    title={getEntityNames(ministry, browseLanguage).primary}
+                    secondaryTitle={getEntityNames(ministry, browseLanguage).secondary}
                     subtitle="Explore music"
                     image={image}
                     fallbackIcon={<FaPrayingHands />}
@@ -1534,18 +1641,18 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Explore Categories"
+          title={`Categories · ${browseLanguage}`}
           subtitle="Find music by collection and theme"
           icon={<FaListUl />}
           onViewAll={() => navigate("/categories")}
         >
-          {categories.length > 0 ? (
+          {languageCategories.length > 0 ? (
             <div className="home-card-grid home-category-grid">
-              {categories.slice(0, 8).map((category, index) => (
+              {languageCategories.slice(0, HOME_LIMITS.categories).map((category, index) => (
                 <EntityCard
                   key={category.id ?? `category-${index}`}
-                  title={getEntityNames(category, selectedLanguage).primary}
-                  secondaryTitle={getEntityNames(category, selectedLanguage).secondary}
+                  title={getEntityNames(category, browseLanguage).primary}
+                  secondaryTitle={getEntityNames(category, browseLanguage).secondary}
                   subtitle="Explore collection"
                   image={getCategoryImage(category)}
                   fallbackIcon={<FaMusic />}
@@ -1564,8 +1671,8 @@ useEffect(() => {
         ================================================= */}
 
         <HomeSection
-          title="Music in Your Language"
-          subtitle="Explore worship from across languages"
+          title="Explore More Languages"
+          subtitle="Switch your browsing language anytime without changing your account language."
           icon={<FaGlobe />}
         >
           <div className="home-card-grid home-language-grid">

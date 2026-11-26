@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { getMediaUrl } from "../utils/media";
 import VoiceSearch from "../components/VoiceSearch";
+import { useLanguage } from "../context/LanguageContext";
 
 import "../assets/css/artists.css";
 
@@ -16,7 +17,6 @@ import "../assets/css/artists.css";
 const DEFAULT_VOICE_LANGUAGE = "te-IN";
 
 const LANGUAGES = [
-  { value: "All", label: "All Languages" },
   { value: "Telugu", label: "తెలుగు" },
   { value: "English", label: "English" },
   { value: "Hindi", label: "हिन्दी" },
@@ -117,7 +117,7 @@ function Artists() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("All");
+  const { selectedLanguage, setSelectedLanguage } = useLanguage();
   const [voiceLanguage, setVoiceLanguage] = useState(
     DEFAULT_VOICE_LANGUAGE
   );
@@ -260,9 +260,7 @@ function Artists() {
           );
 
         const artistLanguages = getArtistLanguages(artist);
-        const matchesLanguage =
-          selectedLanguage === "All" ||
-          artistLanguages.includes(selectedLanguage);
+        const matchesLanguage = artistLanguages.includes(selectedLanguage);
 
         return matchesSearch && matchesLanguage;
       })
@@ -368,7 +366,7 @@ function Artists() {
         />
       </section>
 
-      {/* LANGUAGE FILTER — DEFAULT: ALL LANGUAGES */}
+      {/* LANGUAGE FILTER — USE APP-WIDE SELECTED LANGUAGE */}
       <section
         className="artists-filter-bar"
         aria-label="Filter artists by language"
@@ -425,7 +423,7 @@ function Artists() {
       </section>
 
       {/* SEARCH RESULTS COUNT */}
-      {(query || selectedLanguage !== "All") && !error && (
+      {(query || selectedLanguage) && !error && (
         <p className="artists-search-summary" aria-live="polite">
           {filteredArtists.length}{" "}
           {filteredArtists.length === 1 ? "artist" : "artists"} found
@@ -515,24 +513,23 @@ function Artists() {
           />
 
           <h2>
-            {query || selectedLanguage !== "All"
+            {query || selectedLanguage
               ? "No matching artists"
               : "No artists available"}
           </h2>
 
           <p>
-            {query || selectedLanguage !== "All"
-              ? "Try another artist name or choose All Languages."
+            {query || selectedLanguage
+              ? `No artists are available in ${selectedLanguage}. Try another search.`
               : "Artists will appear here when they are available."}
           </p>
 
-          {(query || selectedLanguage !== "All") && (
+          {(query || selectedLanguage) && (
             <button
               type="button"
               className="artists-reset-search"
               onClick={() => {
                 setSearchQuery("");
-                setSelectedLanguage("All");
               }}
             >
               Clear filters

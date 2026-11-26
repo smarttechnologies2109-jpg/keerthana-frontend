@@ -1,202 +1,113 @@
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 import "../assets/css/register.css";
 
-function Register() {
+const LANGUAGES = [
+  { value: "Telugu", label: "తెలుగు" },
+  { value: "Hindi", label: "हिन्दी" },
+  { value: "English", label: "English" },
+  { value: "Malayalam", label: "മലയാളം" },
+  { value: "Kannada", label: "ಕನ್ನಡ" },
+  { value: "Tamil", label: "தமிழ்" },
+];
+
+export default function Register() {
   const navigate = useNavigate();
-
   const { register } = useAuth();
+  const { setSelectedLanguage } = useLanguage();
 
+  const submittingRef = useRef(false);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-
-  // No default language selected
   const [language, setLanguage] = useState("");
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const submitLock = useRef(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Prevent multiple registration requests
-    if (submitLock.current) return;
-
-    submitLock.current = true;
-    setError("");
+    if (submittingRef.current) return;
 
     const cleanName = name.trim();
     const cleanContact = contact.trim();
 
-    if (!cleanName) {
-      setError("Please enter your name");
-      submitLock.current = false;
+    if (!cleanName || !cleanContact || !language) {
+      setError("Please enter your name, email or phone number, and preferred language.");
       return;
     }
 
-    if (!cleanContact) {
-      setError("Please enter your email or phone number");
-      submitLock.current = false;
-      return;
-    }
-
-    if (!language) {
-      setError("Please select your preferred language");
-      submitLock.current = false;
-      return;
-    }
-
+    submittingRef.current = true;
     setLoading(true);
+    setError("");
 
     try {
       await register(cleanName, cleanContact, language);
-
-      // Save selected language
-      localStorage.setItem("keerthana_language", language);
-
+      // Keep the new account's selected language as the active app language.
+      setSelectedLanguage(language);
       navigate("/", { replace: true });
-
-    } catch (error) {
-      console.error("Registration failed:", error);
-
+    } catch (registrationError) {
       setError(
-        error.response?.data?.message ||
-        "Unable to create account"
+        registrationError?.response?.data?.message ||
+        registrationError?.message ||
+        "Registration failed. Please try again."
       );
-
     } finally {
-      submitLock.current = false;
+      submittingRef.current = false;
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
+    <main className="register-page">
+      <form className="register-form" onSubmit={handleSubmit}>
+        <h1>Create your KEERTHANA account</h1>
+        <p>Join KEERTHANA Music and enjoy songs in your preferred language.</p>
 
-      <div className="auth-card">
+        <label htmlFor="register-name">Name</label>
+        <input
+          id="register-name"
+          type="text"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          autoComplete="name"
+          required
+        />
 
-        {/* LOGO */}
-        <div className="auth-logo">
-          ♪
-        </div>
+        <label htmlFor="register-contact">Email or phone number</label>
+        <input
+          id="register-contact"
+          type="text"
+          value={contact}
+          onChange={(event) => setContact(event.target.value)}
+          autoComplete="username"
+          required
+        />
 
-        <h1>KEERTHANA</h1>
-
-        <p className="auth-subtitle">
-          Christian Music
-        </p>
-
-        <h2>Create Account</h2>
-
-        {/* ERROR */}
-        {error && (
-          <div className="auth-error" role="alert">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-
-          {/* NAME */}
-          <label htmlFor="name">
-            Name
-          </label>
-
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-              setError("");
-            }}
-            placeholder="Your name"
-            autoComplete="name"
-            required
-          />
-
-          {/* EMAIL / PHONE */}
-          <label htmlFor="contact">
-            Email or Phone Number
-          </label>
-
-          <input
-            id="contact"
-            type="text"
-            inputMode="text"
-            value={contact}
-            onChange={(event) => {
-              setContact(event.target.value);
-              setError("");
-            }}
-            placeholder="Email or phone number"
-            autoComplete="email"
-            autoCapitalize="none"
-            spellCheck={false}
-            required
-          />
-
-          {/* LANGUAGE */}
-          <label htmlFor="language">
-            Preferred Music Language
-          </label>
-
-          <select
-            id="language"
-            value={language}
-            onChange={(event) => {
-              setLanguage(event.target.value);
-              setError("");
-            }}
-            required
-          >
-            <option value="" disabled>
-              Select Language / భాషను ఎంచుకోండి
+        <label htmlFor="register-language">Preferred language</label>
+        <select
+          id="register-language"
+          value={language}
+          onChange={(event) => setLanguage(event.target.value)}
+          required
+        >
+          <option value="">Choose your language</option>
+          {LANGUAGES.map((item) => (
+            <option key={item.value} value={item.value}>
+              {item.label}
             </option>
+          ))}
+        </select>
 
-            <option value="Telugu">తెలుగు</option>
+        {error && <p className="register-error" role="alert">{error}</p>}
 
-            <option value="Hindi">हिन्दी</option>
-
-            <option value="English">English</option>
-
-            <option value="Malayalam">മലയാളം</option>
-
-            <option value="Kannada">ಕನ್ನಡ</option>
-
-            <option value="Tamil">தமிழ்</option>
-
-          </select>
-
-          {/* REGISTER */}
-          <button
-            type="submit"
-            className="auth-submit"
-            disabled={loading}
-          >
-            {loading ? "Creating..." : "Create Account"}
-          </button>
-
-        </form>
-
-        {/* LOGIN */}
-        <p className="auth-switch">
-          Already have an account?{" "}
-
-          <Link to="/login">
-            Login
-          </Link>
-        </p>
-
-      </div>
-
-    </div>
+        <button type="submit" disabled={loading}>
+          {loading ? "Creating account..." : "Create Account"}
+        </button>
+      </form>
+    </main>
   );
 }
-
-export default Register;
