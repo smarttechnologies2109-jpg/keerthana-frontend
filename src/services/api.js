@@ -2,11 +2,19 @@
 import axios from "axios";
 
 // =====================================================
-// API CONFIGURATION
+// KEERTHANA API CONFIGURATION
+// Website + Capacitor Android
 // =====================================================
 
 const BASE_URL =
   "https://ke-de4d85674ebd473184155d3a955db0ba.ecs.ap-south-1.on.aws/api";
+
+const ACCESS_TOKEN_KEY = "keerthana_token";
+const REFRESH_TOKEN_KEY = "keerthana_refresh_token";
+const USER_KEY = "user";
+
+const REFRESH_EARLY_MS = 60 * 1000;
+const RETRY_REFRESH_MS = 30 * 1000;
 
 const API = axios.create({
   baseURL: BASE_URL,
@@ -16,8 +24,9 @@ const API = axios.create({
   },
 });
 
-// Separate instance for refresh requests.
-// Prevents refresh requests from entering API interceptors.
+// Separate API for refreshing tokens.
+// Prevents infinite interceptor loops.
+
 const refreshAPI = axios.create({
   baseURL: BASE_URL,
   timeout: 60000,
@@ -28,19 +37,80 @@ const refreshAPI = axios.create({
 });
 
 // =====================================================
-// REFRESH PROMISE
+// REFRESH STATE
 // =====================================================
 
 let refreshPromise = null;
+let refreshTimer = null;
 
 // =====================================================
-// CLEAR USER SESSION
+// TOKEN STORAGE
+// =====================================================
+
+const getStoredAccessToken = () =>
+  localStorage.getItem(ACCESS_TOKEN_KEY);
+
+const getStoredRefreshToken = () =>
+  localStorage.getItem(REFRESH_TOKEN_KEY);
+
+// =====================================================
+// JWT EXPIRY
+// =====================================================
+
+function decodeJwtPayload(token) {
+  try {
+    const payloadPart = token.split(".")[1];
+
+    if (!payloadPart) return null;
+
+    const base64 = payloadPart
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const padded = base64.padEnd(
+      Math.ceil(base64.length / 4) * 4,
+      "="
+    );
+
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+function getAccessTokenExpiryMs(
+  token = getStoredAccessToken()
+) {
+  if (!token) return null;
+
+  const payload = decodeJwtPayload(token);
+
+  return Number.isFinite(payload?.exp)
+    ? payload.exp * 1000
+    : null;
+}
+
+// =====================================================
+// STOP REFRESH TIMER
+// =====================================================
+
+function stopRefreshTimer() {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
+// =====================================================
+// CLEAR SESSION
 // =====================================================
 
 function clearUserSession() {
-  localStorage.removeItem("keerthana_token");
-  localStorage.removeItem("keerthana_refresh_token");
-  localStorage.removeItem("user");
+  stopRefreshTimer();
+
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(
@@ -50,7 +120,44 @@ function clearUserSession() {
 }
 
 // =====================================================
-// SAVE TOKENS
+// SCHEDULE AUTOMATIC TOKEN REFRESH
+// =====================================================
+
+function scheduleTokenRefresh() {
+  stopRefreshTimer();
+
+  if (!getStoredRefreshToken()) return;
+
+  const expiryMs = getAccessTokenExpiryMs();
+
+  if (!expiryMs) {
+    refreshTimer = setTimeout(
+      refreshIfNeeded,
+      1000
+    );
+    return;
+  }
+
+  const delay = Math.max(
+    1000,
+    expiryMs - Date.now() - REFRESH_EARLY_MS
+  );
+
+  refreshTimer = setTimeout(
+    refreshIfNeeded,
+    delay
+  );
+}
+
+// Export this function for AuthContext.
+// Call it immediately after login/session restoration.
+
+export function startTokenRefresh() {
+  scheduleTokenRefresh();
+}
+
+// =====================================================
+// SAVE NEW TOKENS
 // =====================================================
 
 function saveTokens(accessToken, refreshToken) {
@@ -61,14 +168,16 @@ function saveTokens(accessToken, refreshToken) {
   }
 
   localStorage.setItem(
-    "keerthana_token",
+    ACCESS_TOKEN_KEY,
     accessToken
   );
 
   localStorage.setItem(
-    "keerthana_refresh_token",
+    REFRESH_TOKEN_KEY,
     refreshToken
   );
+
+  scheduleTokenRefresh();
 }
 
 // =====================================================
@@ -76,11 +185,10 @@ function saveTokens(accessToken, refreshToken) {
 // =====================================================
 
 export async function refreshAccessToken() {
-  const refreshToken = localStorage.getItem(
-    "keerthana_refresh_token"
-  );
+  const usedRefreshToken =
+    getStoredRefreshToken();
 
-  if (!refreshToken) {
+  if (!usedRefreshToken) {
     const error = new Error(
       "Refresh token not found."
     );
@@ -90,60 +198,203 @@ export async function refreshAccessToken() {
     throw error;
   }
 
-  const response = await refreshAPI.post(
-    "/auth/refresh",
-    {
-      refreshToken,
+  try {
+    const response = await refreshAPI.post(
+      "/auth/refresh",
+      {
+        refreshToken: usedRefreshToken,
+      }
+    );
+
+    const data = response.data || {};
+
+    const accessToken =
+      data.accessToken || data.token;
+
+    const newRefreshToken =
+      data.refreshToken;
+
+    saveTokens(
+      accessToken,
+      newRefreshToken
+    );
+
+    return accessToken;
+
+  } catch (error) {
+
+    // Handle refresh-token rotation from
+    // another browser tab.
+
+    if (error.response?.status === 401) {
+      const latestRefreshToken =
+        getStoredRefreshToken();
+
+      const latestAccessToken =
+        getStoredAccessToken();
+
+      if (
+        latestRefreshToken &&
+        latestRefreshToken !== usedRefreshToken &&
+        latestAccessToken
+      ) {
+        scheduleTokenRefresh();
+
+        return latestAccessToken;
+      }
     }
-  );
 
-  const data = response.data || {};
-
-  const accessToken =
-    data.accessToken || data.token;
-
-  const newRefreshToken =
-    data.refreshToken;
-
-  saveTokens(
-    accessToken,
-    newRefreshToken
-  );
-
-  return accessToken;
+    throw error;
+  }
 }
 
 // =====================================================
-// GET FRESH ACCESS TOKEN
-// PREVENTS MULTIPLE SIMULTANEOUS REFRESH REQUESTS
+// SINGLE REFRESH REQUEST
+// Prevent multiple simultaneous refresh requests.
 // =====================================================
 
 export async function getFreshAccessToken() {
   if (!refreshPromise) {
-    refreshPromise = refreshAccessToken().finally(() => {
-      refreshPromise = null;
-    });
+    refreshPromise = refreshAccessToken()
+      .finally(() => {
+        refreshPromise = null;
+      });
   }
 
   return refreshPromise;
 }
 
 // =====================================================
+// CHECK IF TOKEN NEEDS REFRESHING
+// =====================================================
+
+async function refreshIfNeeded() {
+  const refreshToken =
+    getStoredRefreshToken();
+
+  if (!refreshToken) return;
+
+  const accessToken =
+    getStoredAccessToken();
+
+  const expiryMs =
+    getAccessTokenExpiryMs(accessToken);
+
+  const shouldRefresh =
+    !accessToken ||
+    !expiryMs ||
+    expiryMs - Date.now() <= REFRESH_EARLY_MS;
+
+  if (!shouldRefresh) {
+    scheduleTokenRefresh();
+    return;
+  }
+
+  try {
+    await getFreshAccessToken();
+
+    console.log(
+      "KEERTHANA session automatically renewed."
+    );
+
+  } catch (error) {
+    const status = error.response?.status;
+
+    console.error(
+      "Scheduled token refresh failed:",
+      status || error.code || error.message
+    );
+
+    // Only invalidate a definitively rejected session.
+
+    if (status === 401) {
+      clearUserSession();
+      return;
+    }
+
+    // Network/server failures are temporary.
+    // Preserve the session and try again.
+
+    if (getStoredRefreshToken()) {
+      stopRefreshTimer();
+
+      refreshTimer = setTimeout(
+        refreshIfNeeded,
+        RETRY_REFRESH_MS
+      );
+    }
+  }
+}
+
+// =====================================================
+// APP RESUME HANDLING
+// Website + Android
+// =====================================================
+
+function handleAppResume() {
+  refreshIfNeeded();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener(
+    "focus",
+    handleAppResume
+  );
+
+  window.addEventListener(
+    "pageshow",
+    handleAppResume
+  );
+
+  window.addEventListener(
+    "storage",
+    (event) => {
+      if (
+        event.key === ACCESS_TOKEN_KEY ||
+        event.key === REFRESH_TOKEN_KEY
+      ) {
+        scheduleTokenRefresh();
+      }
+    }
+  );
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (
+        document.visibilityState === "visible"
+      ) {
+        handleAppResume();
+      }
+    }
+  );
+}
+
+// Restore timer when API module loads.
+
+if (typeof window !== "undefined") {
+  scheduleTokenRefresh();
+}
+
+// =====================================================
 // REQUEST INTERCEPTOR
-// ATTACH TOKEN + HANDLE FORM DATA
+// Attach current access token automatically.
 // =====================================================
 
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(
-      "keerthana_token"
-    );
+    const token = getStoredAccessToken();
 
     config.headers = config.headers || {};
 
-    // Attach access token.
     if (token) {
-      if (typeof config.headers.set === "function") {
+      config._keerthanaHadAuthToken = true;
+
+      if (
+        typeof config.headers.set === "function"
+      ) {
         config.headers.set(
           "Authorization",
           `Bearer ${token}`
@@ -154,18 +405,24 @@ API.interceptors.request.use(
       }
     }
 
-    // -------------------------------------------------
+    // Start/recheck timer after login or session save.
+    if (getStoredRefreshToken()) {
+      scheduleTokenRefresh();
+    }
+
+    // =================================================
     // MULTIPART FORM DATA
-    // IMPORTANT FOR S3 IMAGE UPLOADS
-    // -------------------------------------------------
+    // Important for S3 image uploads.
+    // =================================================
 
     const isFormData =
       typeof FormData !== "undefined" &&
       config.data instanceof FormData;
 
     if (isFormData) {
-      // Browser/Axios must generate the multipart boundary.
-      if (typeof config.headers.delete === "function") {
+      if (
+        typeof config.headers.delete === "function"
+      ) {
         config.headers.delete("Content-Type");
       } else {
         delete config.headers["Content-Type"];
@@ -173,12 +430,14 @@ API.interceptors.request.use(
       }
     }
 
-    // -------------------------------------------------
+    // =================================================
     // JSON REQUESTS
-    // -------------------------------------------------
+    // =================================================
 
     else if (config.data !== undefined) {
-      if (typeof config.headers.set === "function") {
+      if (
+        typeof config.headers.set === "function"
+      ) {
         config.headers.set(
           "Content-Type",
           "application/json"
@@ -197,7 +456,7 @@ API.interceptors.request.use(
 
 // =====================================================
 // RESPONSE INTERCEPTOR
-// AUTOMATIC TOKEN REFRESH
+// Automatic refresh + API retry.
 // =====================================================
 
 API.interceptors.response.use(
@@ -210,28 +469,18 @@ API.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // -------------------------------------------------
-    // TIMEOUT ERROR
-    // -------------------------------------------------
+    // =================================================
+    // TIMEOUT / NETWORK ERRORS
+    // =================================================
 
-    if (error.code === "ECONNABORTED") {
+    if (
+      error.code === "ECONNABORTED" ||
+      !error.response
+    ) {
       console.error(
-        "API request timed out:",
-        originalRequest.url
-      );
-
-      return Promise.reject(error);
-    }
-
-    // -------------------------------------------------
-    // NETWORK ERROR
-    // -------------------------------------------------
-
-    if (!error.response) {
-      console.error(
-        "API network error:",
-        error.message,
-        originalRequest.url
+        "KEERTHANA API network/timeout error:",
+        originalRequest.url,
+        error.message
       );
 
       return Promise.reject(error);
@@ -239,68 +488,47 @@ API.interceptors.response.use(
 
     const status = error.response.status;
 
-    console.error(
-      "API response error:",
-      status,
-      originalRequest.url,
-      error.response.data
-    );
-
-    // -------------------------------------------------
-    // CHECK AUTH REQUESTS
-    // -------------------------------------------------
-
-    const requestUrl = originalRequest.url || "";
+    const requestUrl =
+      originalRequest.url || "";
 
     const isRefreshRequest =
       requestUrl.includes("/auth/refresh");
 
     const isAuthRequest =
-      /\/auth\/(login|register|admin\/login|owner\/login)/i.test(
-        requestUrl
-      );
+      /\/auth\/(login|register|admin\/login|owner\/login)/i
+        .test(requestUrl);
 
-    // -------------------------------------------------
-    // ONLY REFRESH ELIGIBLE 401 REQUESTS
-    // -------------------------------------------------
+    // =================================================
+    // ONLY HANDLE ELIGIBLE 401 RESPONSES
+    // =================================================
 
     if (
       status !== 401 ||
       originalRequest._retry ||
       isRefreshRequest ||
-      isAuthRequest
+      isAuthRequest ||
+      !originalRequest._keerthanaHadAuthToken
     ) {
       return Promise.reject(error);
     }
 
-    // -------------------------------------------------
-    // CHECK REFRESH TOKEN
-    // -------------------------------------------------
-
     const existingRefreshToken =
-      localStorage.getItem(
-        "keerthana_refresh_token"
-      );
+      getStoredRefreshToken();
 
-    // Admin/owner legacy sessions may not have
-    // refresh tokens. Preserve their session.
     if (!existingRefreshToken) {
+      clearUserSession();
+
       return Promise.reject(error);
     }
 
-    // Prevent infinite retry loops.
+    // Prevent infinite retries.
+
     originalRequest._retry = true;
 
     try {
-      // IMPORTANT:
-      // Call getFreshAccessToken(), not refreshPromise.
-      // This creates the refresh request when necessary
-      // and shares it across simultaneous 401 responses.
-
       const newAccessToken =
         await getFreshAccessToken();
 
-      // Update original request authorization.
       originalRequest.headers =
         originalRequest.headers || {};
 
@@ -316,7 +544,8 @@ API.interceptors.response.use(
           `Bearer ${newAccessToken}`;
       }
 
-      // Retry original request exactly once.
+      // Retry the original API request once.
+
       return API(originalRequest);
 
     } catch (refreshError) {
@@ -324,20 +553,18 @@ API.interceptors.response.use(
         refreshError.response?.status;
 
       console.error(
-        "Automatic token refresh failed:",
+        "Automatic refresh failed:",
         refreshStatus || refreshError.code || "",
         refreshError.response?.data ||
           refreshError.message
       );
 
-      // Clear session only when refresh token
-      // is definitively rejected.
+      // Clear only when refresh token is rejected.
+
       if (refreshStatus === 401) {
         clearUserSession();
       }
 
-      // Preserve tokens on network errors,
-      // server errors and timeouts.
       return Promise.reject(refreshError);
     }
   }

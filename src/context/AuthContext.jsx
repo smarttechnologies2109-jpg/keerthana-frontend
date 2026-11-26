@@ -127,20 +127,20 @@ useEffect(() => {
     throw new Error("Authentication token is missing");
   }
 
+  if (!refreshToken) {
+    throw new Error("Refresh token is missing. Please try logging in again.");
+  }
+
   if (!userData) {
     throw new Error("User data is missing");
   }
 
   localStorage.setItem(TOKEN_KEY, token);
 
-  if (refreshToken) {
-    localStorage.setItem(
-      REFRESH_TOKEN_KEY,
-      refreshToken
-    );
-  } else {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-  }
+  localStorage.setItem(
+    REFRESH_TOKEN_KEY,
+    refreshToken
+  );
 
   localStorage.setItem(
     "user",
@@ -289,8 +289,6 @@ if (!requestToken && refreshToken) {
         "user",
         JSON.stringify(restoredUser)
       );
-
-      syncPreferredLanguage(restoredUser);
 
       syncPreferredLanguage(restoredUser);
     } catch (error) {
@@ -537,18 +535,18 @@ const finalToken = accessToken || token;
 
       const {
         token,
+        accessToken,
+        refreshToken,
         user: adminUser,
       } = response.data;
 
+      const finalToken = accessToken || token;
 
-      if (!token) {
-
+      if (!finalToken || !refreshToken) {
         throw new Error(
-          "Admin login did not return a token"
+          "Admin login did not return complete session tokens."
         );
-
       }
-
 
       if (!adminUser) {
 
@@ -578,8 +576,9 @@ const finalToken = accessToken || token;
 
 
       saveSession(
-        token,
-        adminUser
+        finalToken,
+        adminUser,
+        refreshToken
       );
 
 
@@ -635,20 +634,22 @@ const finalToken = accessToken || token;
 
       const {
         token,
+        accessToken,
+        refreshToken,
         user: ownerUser,
       } = response.data;
+
+      const finalToken = accessToken || token;
 
 
       /* ---------------------------------------------------
          TOKEN CHECK
       --------------------------------------------------- */
 
-      if (!token) {
-
+      if (!finalToken || !refreshToken) {
         throw new Error(
-          "Owner login did not return an authentication token."
+          "Owner login did not return complete session tokens."
         );
-
       }
 
 
@@ -688,8 +689,9 @@ const finalToken = accessToken || token;
       --------------------------------------------------- */
 
       saveSession(
-        token,
-        ownerUser
+        finalToken,
+        ownerUser,
+        refreshToken
       );
 
 
