@@ -251,3 +251,50 @@
   .admin-layout .admin-main { padding-inline:8px; }
   .admin-layout .admin-content { padding:12px; }
 }
+
+
+/* ADMIN WORKSPACE: use its actual shared app shell, not a parallel layout. */
+@media (min-width:769px) {
+  .app.admin-layout .app-body {
+    width:calc(100% - 260px);
+    min-width:0;
+    margin-left:260px;
+    overflow-x:clip;
+  }
+  .app.admin-layout .main-content {
+    width:100%;
+    min-width:0;
+    max-width:none;
+    margin:0;
+    padding:clamp(24px,2.5vw,40px) clamp(20px,2.4vw,42px) 150px;
+    overflow-x:clip;
+  }
+  .app.admin-layout .main-content > * {
+    width:100%;
+    max-width:1680px;
+    min-width:0;
+    margin-inline:auto;
+  }
+  .app.admin-layout .admin-sidebar {width:260px}
+}
+@media (min-width:769px) and (max-width:1200px) {
+  .app.admin-layout .app-body {
+    width:calc(100% - 230px);
+    margin-left:230px;
+  }
+  .app.admin-layout .admin-sidebar {width:230px}
+  .app.admin-layout .main-content {padding:22px 18px 140px}
+}
+@media (max-width:768px) {
+  .app.admin-layout .app-body {
+    width:100%;
+    margin-left:0;
+    min-width:0;
+  }
+  .app.admin-layout .main-content {
+    width:100%;
+    min-width:0;
+    padding:clamp(16px,3vw,24px) 14px calc(112px + env(safe-area-inset-bottom,0px));
+  }
+  .app.admin-layout .admin-sidebar {max-width:min(86vw,280px)}
+}
