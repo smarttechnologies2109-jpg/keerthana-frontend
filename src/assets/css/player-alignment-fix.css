@@ -739,3 +739,148 @@
     white-space: nowrap;
   }
 }
+
+
+/* =========================================================
+   DESKTOP FULL PLAYER — CONTROL ROW ALIGNMENT
+   Keep all seven transport controls inside the same column.
+========================================================= */
+@media (min-width: 1201px) {
+  .keerthana-full-player .full-player-body {
+    display:grid!important;
+    grid-template-columns:minmax(250px,.9fr) minmax(250px,.9fr) minmax(430px,1.35fr)!important;
+    align-items:center!important;
+    gap:clamp(24px,3vw,48px)!important;
+    width:100%!important;
+    max-width:1540px!important;
+    margin-inline:auto!important;
+  }
+
+  .keerthana-full-player .full-player-controls-area {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:center!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    gap:clamp(24px,3vw,38px)!important;
+    margin:0!important;
+  }
+
+  .keerthana-full-player .full-player-controls {
+    display:grid!important;
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    align-items:center!important;
+    justify-items:center!important;
+    gap:clamp(3px,.55vw,9px)!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+
+  .keerthana-full-player .full-player-controls > button {
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:clamp(34px,2.8vw,44px)!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    flex:initial!important;
+    padding:0!important;
+    font-size:clamp(15px,1.3vw,19px)!important;
+  }
+
+  .keerthana-full-player .full-player-controls > button.full-player-play {
+    width:clamp(58px,4.6vw,72px)!important;
+    height:clamp(58px,4.6vw,72px)!important;
+    min-height:0!important;
+    flex:initial!important;
+  }
+
+  .keerthana-full-player .full-player-progress {
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr) 42px!important;
+    align-items:center!important;
+    gap:10px!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+
+  .keerthana-full-player .full-player-progress input[type="range"] {
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+}
+
+/* Smaller laptop widths: use a balanced two-column layout and a full-width
+   transport row rather than squeezing seven controls into a narrow column. */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .keerthana-full-player .full-player-body {
+    display:grid!important;
+    grid-template-columns:minmax(220px,.85fr) minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:clamp(22px,3vw,38px)!important;
+    width:100%!important;
+    max-width:1040px!important;
+    margin-inline:auto!important;
+  }
+
+  .keerthana-full-player .full-player-controls-area {
+    grid-column:1/-1!important;
+    justify-self:center!important;
+    width:min(100%,850px)!important;
+    max-width:850px!important;
+    min-width:0!important;
+    gap:24px!important;
+  }
+
+  .keerthana-full-player .full-player-controls {
+    display:grid!important;
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    justify-items:center!important;
+    align-items:center!important;
+    gap:clamp(6px,1.5vw,18px)!important;
+    width:100%!important;
+  }
+
+  .keerthana-full-player .full-player-controls > button {
+    width:42px!important;
+    min-width:0!important;
+    max-width:100%!important;
+    flex:initial!important;
+  }
+
+  .keerthana-full-player .full-player-controls > button.full-player-play {
+    width:66px!important;
+    height:66px!important;
+    flex:initial!important;
+  }
+
+  .keerthana-full-player .full-player-progress {
+    grid-template-columns:42px minmax(0,1fr) 42px!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+
+/* Wide monitor: preserve generous spacing without allowing overflow. */
+@media (min-width: 1600px) {
+  .keerthana-full-player .full-player-body {max-width:1640px!important}
+  .keerthana-full-player .full-player-controls-area {max-width:660px!important}
+}
+
+/* Desktop keyboard and mouse interaction targets */
+@media (hover:hover) and (pointer:fine) {
+  .keerthana-full-player .full-player-controls > button {
+    transition:transform .16s ease,color .16s ease,background .16s ease;
+  }
+  .keerthana-full-player .full-player-controls > button:hover:not(:disabled) {
+    transform:translateY(-2px);
+  }
+}
