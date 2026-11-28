@@ -16,6 +16,8 @@ import {
   FaShieldAlt,
   FaClock,
   FaSyncAlt,
+  FaHeadphones,
+  FaCheckCircle,
 } from "react-icons/fa";
 
 import "../assets/css/ad-free-reward.css";
@@ -145,6 +147,20 @@ export default function AdFreeReward() {
 
   return (
     <main className="ad-free-page">
+      <div className="ad-free-shell">
+        <header className="ad-free-topbar">
+          <div>
+            <span className="ad-free-topbar-kicker">KEERTHANA • LISTENING REWARDS</span>
+            <h2>Your music. Your uninterrupted moment.</h2>
+            <p>Enjoy your favourite worship songs with fewer interruptions.</p>
+          </div>
+          <div className="ad-free-topbar-mark"><FaHeadphones /></div>
+        </header>
+        <div className="ad-free-feature-row" aria-label="Reward benefits">
+          <div><FaCheckCircle /><span>Securely verified rewards</span></div>
+          <div><FaCheckCircle /><span>No payment required</span></div>
+          <div><FaCheckCircle /><span>Refresh your status anytime</span></div>
+        </div>
       <section className="ad-free-card">
 
         <div className="ad-free-icon">
@@ -180,7 +196,8 @@ export default function AdFreeReward() {
 
         {/* CURRENT REWARD STATUS */}
 
-        <div className="ad-free-status">
+        <div className={"ad-free-status " + (isAdFree ? "is-active" : "is-inactive")}>
+          <div className="ad-free-status-heading"><span className="ad-free-status-pulse" /><span>{loading ? "SYNCING YOUR REWARD" : isAdFree ? "YOUR LISTENING PASS" : "YOUR REWARD STATUS"}</span></div>
 
           {loading ? (
             <p>Checking your reward status...</p>
@@ -269,14 +286,20 @@ export default function AdFreeReward() {
 
         <div className="ad-free-security">
           <FaShieldAlt />
-
-          <span>
-            Rewards are activated only after
-            secure server-side verification.
-          </span>
+          <span>Rewards are activated only after secure server-side verification.</span>
         </div>
-
       </section>
+      <aside className="ad-free-how-card">
+        <span className="ad-free-how-kicker">HOW IT WORKS</span>
+        <h3>A simple way to enjoy more music</h3>
+        <ol>
+          <li><span>01</span><div><strong>Start a rewarded video</strong><small>Choose to watch when you are ready.</small></div></li>
+          <li><span>02</span><div><strong>Complete the video</strong><small>Allow the reward process to finish.</small></div></li>
+          <li><span>03</span><div><strong>Enjoy your listening time</strong><small>Access activates after secure verification.</small></div></li>
+        </ol>
+        <p><FaShieldAlt /> Your reward is verified securely on our server.</p>
+      </aside>
+      </div>
     </main>
   );
 }
