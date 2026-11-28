@@ -9,7 +9,7 @@ import "../assets/css/register.css";
 const LANGUAGES = [
   { value: "Telugu", label: "తెలుగు (Telugu)" },
   { value: "Hindi", label: "हिन्दी (Hindi)" },
-  { value: "English", label: "English" },
+  { value: "English", label: "English (English)" },
   { value: "Malayalam", label: "മലയാളം (Malayalam)" },
   { value: "Kannada", label: "ಕನ್ನಡ (Kannada)" },
   { value: "Tamil", label: "தமிழ் (Tamil)" },
