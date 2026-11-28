@@ -1,0 +1,453 @@
+/* =========================================================
+   KEERTHANA — MOBILE PLAYER ALIGNMENT FIX
+   Targets both Android WebView and mobile browser/PWA.
+   Loaded after component styles to override legacy layouts.
+========================================================= */
+
+@media (max-width: 768px) {
+  /* MINI PLAYER: compact, full-width two-row dock */
+  .keerthana-mini-player {
+    position: fixed !important;
+    inset: auto 0 calc(76px + env(safe-area-inset-bottom, 0px)) 0 !important;
+    z-index: 2147483000 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-rows: 48px 22px !important;
+    align-items: center !important;
+    column-gap: 8px !important;
+    row-gap: 3px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    margin: 0 !important;
+    padding: 8px 12px 7px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(220,195,245,.18) !important;
+    border-bottom: 0 !important;
+    border-radius: 18px 18px 0 0 !important;
+    box-sizing: border-box !important;
+    background: linear-gradient(115deg, #21132d 0%, #2b193b 55%, #1b1227 100%) !important;
+    box-shadow: 0 -12px 34px rgba(0,0,0,.38) !important;
+    isolation: isolate;
+  }
+
+  .keerthana-mini-player .mini-player-progress-top {
+    top: 0 !important;
+    height: 2px !important;
+  }
+
+  .keerthana-mini-player .mini-player-song {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 48px !important;
+    overflow: hidden !important;
+  }
+
+  .keerthana-mini-player .mini-player-cover-button {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 9px !important;
+  }
+
+  .keerthana-mini-player .mini-player-song-info {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+  }
+
+  .keerthana-mini-player .mini-player-title {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  .keerthana-mini-player .mini-player-song-info > span {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  .keerthana-mini-player .mini-player-like {
+    display: none !important;
+  }
+
+  .keerthana-mini-player .mini-player-center {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 48px !important;
+    gap: 0 !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 3px !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls > button {
+    display: none !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls > button[aria-label="Previous song"],
+  .keerthana-mini-player .mini-player-controls > button[aria-label="Next song"] {
+    display: inline-flex !important;
+    flex: 0 0 28px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    color: #e8d6ad !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls > button.mini-player-play {
+    display: inline-flex !important;
+    flex: 0 0 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg, #fff0c9, #dfb967) !important;
+    color: #21152c !important;
+  }
+
+  .keerthana-mini-player .mini-player-progress {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) 30px !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .keerthana-mini-player .mini-player-progress > span {
+    font-size: 9px !important;
+    color: #c3b5ce !important;
+  }
+
+  .keerthana-mini-player .mini-player-progress input[type="range"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 4px !important;
+  }
+
+  .keerthana-mini-player .mini-player-actions {
+    display: none !important;
+  }
+
+  /* FULL PLAYER: one-column portrait layout, no desktop grid overflow */
+  .keerthana-full-player {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483002 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    align-content: stretch !important;
+    justify-content: stretch !important;
+    gap: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: max(12px, env(safe-area-inset-top, 0px)) 18px calc(86px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    background:
+      radial-gradient(ellipse at 50% 35%, rgba(44,91,143,.27), transparent 52%),
+      linear-gradient(145deg, #0a1a30 0%, #071020 58%, #040914 100%) !important;
+  }
+
+  .keerthana-full-player .full-player-header {
+    grid-column: 1 !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 12px !important;
+  }
+
+  .keerthana-full-player .full-player-brand {
+    justify-content: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    font-size: 12px !important;
+    letter-spacing: 1.5px !important;
+    white-space: nowrap !important;
+  }
+
+  .keerthana-full-player .full-player-brand-mark {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .keerthana-full-player .full-player-icon-button {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+  }
+
+  .keerthana-full-player .full-player-body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    padding: 4px 0 12px !important;
+  }
+
+  .keerthana-full-player .full-player-artwork-wrap {
+    flex: 0 0 auto !important;
+    display: block !important;
+    width: min(56vw, 230px) !important;
+    max-width: 230px !important;
+    min-width: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 auto 5px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .keerthana-full-player .full-player-artwork {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 18px !important;
+  }
+
+  .keerthana-full-player .full-player-song-info {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  .keerthana-full-player .full-player-eyebrow {
+    margin: 0 0 5px !important;
+    font-size: 9px !important;
+    letter-spacing: 2.5px !important;
+  }
+
+  .keerthana-full-player .full-player-title-link {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: clamp(19px, 5.4vw, 25px) !important;
+    line-height: 1.3 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .keerthana-full-player .full-player-native-title {
+    display: block !important;
+    margin-top: 5px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+  }
+
+  .keerthana-full-player .full-player-song-info > p {
+    margin: 5px 0 9px !important;
+    font-size: 12px !important;
+    text-align: center !important;
+  }
+
+  .keerthana-full-player .full-player-like {
+    min-height: 34px !important;
+    margin: 0 !important;
+    padding: 7px 13px !important;
+    font-size: 11px !important;
+  }
+
+  .keerthana-full-player .full-player-controls-area {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 460px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+  }
+
+  .keerthana-full-player .full-player-controls {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 2px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .keerthana-full-player .full-player-controls > button {
+    flex: 0 1 36px !important;
+    width: 36px !important;
+    min-width: 30px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    font-size: 15px !important;
+  }
+
+  .keerthana-full-player .full-player-controls > button.full-player-play {
+    flex: 0 0 58px !important;
+    width: 58px !important;
+    min-width: 58px !important;
+    height: 58px !important;
+    border-radius: 50% !important;
+  }
+
+  .keerthana-full-player .full-player-progress {
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr) 34px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .keerthana-full-player .full-player-toolbar {
+    position: fixed !important;
+    right: 14px !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    left: 14px !important;
+    z-index: 20 !important;
+    display: block !important;
+    width: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .keerthana-full-player .full-player-toolbar-group {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    pointer-events: none !important;
+  }
+
+  .keerthana-full-player .full-player-toolbar-group > button {
+    position: static !important;
+    flex: 1 1 0 !important;
+    width: 50% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 48px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    border-radius: 14px !important;
+    font-size: 13px !important;
+    pointer-events: auto !important;
+  }
+
+  .keerthana-full-player .full-player-volume {
+    display: none !important;
+  }
+}
+
+/* Very small / short phones */
+@media (max-width: 420px) {
+  .keerthana-mini-player {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    column-gap: 5px !important;
+    padding-right: 8px !important;
+    padding-left: 8px !important;
+  }
+
+  .keerthana-mini-player .mini-player-cover-button {
+    flex-basis: 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .keerthana-mini-player .mini-player-controls {
+    gap: 1px !important;
+  }
+
+  .keerthana-full-player {
+    padding-right: 14px !important;
+    padding-left: 14px !important;
+  }
+
+  .keerthana-full-player .full-player-artwork-wrap {
+    width: min(52vw, 205px) !important;
+    max-width: 205px !important;
+  }
+}
+
+@media (max-height: 740px) and (max-width: 768px) {
+  .keerthana-full-player {
+    padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .keerthana-full-player .full-player-header {
+    margin-bottom: 6px !important;
+  }
+
+  .keerthana-full-player .full-player-artwork-wrap {
+    width: min(42vw, 170px) !important;
+    max-width: 170px !important;
+  }
+
+  .keerthana-full-player .full-player-body {
+    gap: 7px !important;
+  }
+
+  .keerthana-full-player .full-player-controls-area {
+    gap: 8px !important;
+  }
+}
