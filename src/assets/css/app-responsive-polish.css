@@ -455,3 +455,25 @@ body {
     transition-duration: .01ms !important;
   }
 }
+
+/* Footer is part of the scrollable page, not hidden beneath fixed controls. */
+.app.keerthana-app-layout .keerthana-footer {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 768px) {
+  .app.keerthana-app-layout .keerthana-footer {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+  .app.keerthana-app-layout .footer-main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+  .app.keerthana-app-layout .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    justify-content: center;
+    text-align: center;
+  }
+}
