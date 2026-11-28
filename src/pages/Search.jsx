@@ -513,6 +513,14 @@ function Search() {
 
   const [artistsById, setArtistsById] = useState({});
   const [query, setQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("keerthana_recent_searches") || "[]");
+      return Array.isArray(saved) ? saved.filter((item) => typeof item === "string").slice(0, 6) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const [browseLanguage, setBrowseLanguage] = useState("");
 
@@ -531,6 +539,35 @@ function Search() {
   const [openMenuId, setOpenMenuId] = useState(null);
 
 
+
+
+  useEffect(() => {
+    const term = query.trim();
+    if (term.length < 2) return undefined;
+
+    const timeout = window.setTimeout(() => {
+      setRecentSearches((previous) => {
+        const next = [term, ...previous.filter((item) => item.toLowerCase() !== term.toLowerCase())].slice(0, 6);
+        try {
+          localStorage.setItem("keerthana_recent_searches", JSON.stringify(next));
+        } catch (error) {
+          console.warn("Could not save recent searches:", error);
+        }
+        return next;
+      });
+    }, 900);
+
+    return () => window.clearTimeout(timeout);
+  }, [query]);
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem("keerthana_recent_searches");
+    } catch (error) {
+      console.warn("Could not clear recent searches:", error);
+    }
+  };
 
   const menuRef = useRef(null);
 
@@ -1450,6 +1487,28 @@ function Search() {
       </section>
 
 
+
+
+      {recentSearches.length > 0 && !query.trim() && (
+        <section className="search-recent-searches" aria-label="Recent searches">
+          <div className="search-recent-heading">
+            <h2>Recent searches</h2>
+            <button type="button" onClick={clearRecentSearches}>Clear history</button>
+          </div>
+          <div className="search-recent-chips">
+            {recentSearches.map((term) => (
+              <button
+                type="button"
+                key={term}
+                onClick={() => setQuery(term)}
+                title={`Search for ${term}`}
+              >
+                <span>{term}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* PLAYBACK FEEDBACK */}
 
