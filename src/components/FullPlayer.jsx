@@ -1178,6 +1178,20 @@ aria-label="Close lyrics"
 
 <div className={`full-player-lyrics-content${lyricsFocusMode ? " lyrics-focus-mode" : ""}`} style={{ "--lyrics-font-size": `${lyricsFontSize}px`, backgroundImage: cover ? `linear-gradient(rgba(4,12,28,.94),rgba(4,12,28,.98)), url("${cover}")` : undefined }}>
 
+{lyricsFocusMode && (
+  <button
+    type="button"
+    className="lyrics-focus-close"
+    onClick={() => setLyricsFocusMode(false)}
+    aria-label="Exit lyrics focus mode"
+    title="Exit focus mode"
+  >
+    <FaTimes />
+    <span>Exit focus</span>
+  </button>
+)}
+
+
 {lyricsLoading ? (
 
 <div className="full-player-no-lyrics"><p>Loading lyrics...</p></div>
