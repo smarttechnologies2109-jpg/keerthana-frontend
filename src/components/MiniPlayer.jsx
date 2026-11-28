@@ -40,6 +40,23 @@ function formatTime(seconds) {
 /* =========================================================
    LYRICS PARSER
 \\\========================================================= */
+function parseTimedWords(text) {
+  const pattern = /<(\\d{1,2}):([0-5]\\d)(?:\\.(\\d{1,3}))?>([^<]*)/g;
+  const words = [];
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    const fraction = match[3] || "0";
+    let milliseconds = Number(fraction);
+    if (fraction.length === 1) milliseconds *= 100;
+    else if (fraction.length === 2) milliseconds *= 10;
+    words.push({
+      time: Number(match[1]) * 60 + Number(match[2]) + milliseconds / 1000,
+      text: match[4],
+    });
+  }
+  return words;
+}
+
 function parseLyrics(lyrics) {
   if (typeof lyrics !== "string") return [];
   const regex = /^\[(\d{1,2}):([0-5]\d)(?:\.(\d{1,3}))?\]\s*(.+)$/;
@@ -61,7 +78,8 @@ function parseLyrics(lyrics) {
           Number(match[1]) * 60 +
           Number(match[2]) +
           milliseconds / 1000,
-        text: match[4].trim(),
+        text: match[4].replace(/<\\d{1,2}:[^>]+>/g, "").trim(),
+words: parseTimedWords(match[4]),
       };
     })
     .filter(Boolean)
@@ -589,7 +607,7 @@ const isAndroidNative =
                   onClick={() => seek(Math.max(0, line.time - lyricsSyncOffset))}
                   title="Jump to this lyric"
                >
-                  <span style={{ fontSize: "var(--lyrics-font-size, 20px)" }}>{line.text}</span>
+                  <span style={{ fontSize: "var(--lyrics-font-size, 20px)" }}>{line.words?.length ? line.words.map((word, wordIndex) => <span key={`${line.id}-word-${wordIndex}`} className={displayedTime + lyricsSyncOffset >= word.time ? "lyrics-word is-sung" : "lyrics-word"}>{word.text}</span>) : line.text}</span>
                   {index === activeLyricIndex && <small className="mini-lyrics-live-indicator">NOW PLAYING</small>}
                 </button>
               ))}
