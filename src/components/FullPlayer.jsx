@@ -64,6 +64,7 @@ import "../assets/css/full-player.css";
 
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
 import SleepTimerControl from "./SleepTimerControl";
+import PlaybackSpeedControl from "./PlaybackSpeedControl";
 
 function formatTime(seconds) {
 
@@ -1051,6 +1052,8 @@ aria-label="Repeat"
 </button>
 
 <SleepTimerControl />
+
+<PlaybackSpeedControl />
 
 </div>
 
