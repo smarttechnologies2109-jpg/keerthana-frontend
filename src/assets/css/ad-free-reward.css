@@ -194,3 +194,138 @@
     padding: 28px 18px;
   }
 }
+
+/* =========================================================
+   PREMIUM REWARDS EXPERIENCE — responsive web + Android
+========================================================= */
+.ad-free-page {
+  position: relative;
+  min-height: 72vh;
+  align-items: flex-start;
+  padding: clamp(22px,4vw,54px) clamp(14px,3vw,34px) 130px;
+}
+.ad-free-shell {
+  width: min(1120px,100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0,1.2fr) minmax(280px,.8fr);
+  align-items: stretch;
+  gap: 18px;
+}
+.ad-free-topbar {
+  grid-column: 1/-1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  min-height: 150px;
+  padding: clamp(22px,4vw,38px);
+  overflow: hidden;
+  border: 1px solid rgba(129,166,229,.18);
+  border-radius: 24px;
+  background: radial-gradient(circle at 88% 20%,rgba(93,145,242,.23),transparent 34%),linear-gradient(120deg,#111d35,#0c1528 70%,#121d33);
+  box-shadow: 0 24px 65px rgba(0,0,0,.2);
+}
+.ad-free-topbar::after {
+  content:"";
+  position:absolute;
+  width:240px;height:240px;right:8%;top:-175px;
+  border:1px solid rgba(229,193,123,.16);border-radius:50%;
+  box-shadow:0 0 0 28px rgba(229,193,123,.025),0 0 0 58px rgba(229,193,123,.02);
+  pointer-events:none;
+}
+.ad-free-topbar-kicker,.ad-free-how-kicker {
+  color:#e8c77f;font-size:10px;font-weight:850;letter-spacing:.19em;
+}
+.ad-free-topbar h2 {
+  max-width:680px;margin:10px 0 7px;color:#f7f8fc;
+  font-size:clamp(23px,3.4vw,36px);line-height:1.12;letter-spacing:-.035em;
+}
+.ad-free-topbar p {margin:0;color:#aebbd0;font-size:13px;line-height:1.7}
+.ad-free-topbar-mark {
+  z-index:1;flex:0 0 76px;width:76px;height:76px;display:grid;place-items:center;
+  border:1px solid rgba(229,193,123,.28);border-radius:23px;
+  color:#f0d49a;font-size:29px;
+  background:linear-gradient(145deg,rgba(229,193,123,.17),rgba(82,128,209,.14));
+  box-shadow:0 12px 32px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.12);
+}
+.ad-free-feature-row {
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+}
+.ad-free-feature-row>div {
+  display:flex;align-items:center;gap:9px;min-width:0;padding:13px 15px;
+  border:1px solid rgba(153,179,220,.12);border-radius:13px;
+  background:rgba(15,27,47,.72);color:#c4d0e4;font-size:11px;font-weight:650;
+}
+.ad-free-feature-row svg {flex-shrink:0;color:#e5c17b}
+.ad-free-card {
+  max-width:none;align-self:stretch;padding:clamp(23px,3vw,34px);
+  border-color:rgba(120,160,225,.22);border-radius:22px;
+  background:radial-gradient(circle at 50% 0,rgba(85,133,218,.2),transparent 38%),linear-gradient(155deg,#142440,#0b1528 75%);
+  box-shadow:0 24px 65px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.035);
+}
+.ad-free-icon {
+  width:68px;height:68px;border:1px solid rgba(229,193,123,.27);
+  background:linear-gradient(145deg,rgba(229,193,123,.18),rgba(83,131,214,.13));
+  box-shadow:0 12px 30px rgba(0,0,0,.18),0 0 34px rgba(229,193,123,.07);
+}
+.ad-free-card h1 {letter-spacing:-.035em;line-height:1.12}
+.ad-free-description {max-width:410px;margin:0 auto;color:#b5c3d9}
+.ad-free-benefit {
+  margin:24px 0;padding:16px;border:1px solid rgba(139,171,224,.15);
+  background:linear-gradient(110deg,rgba(103,147,222,.12),rgba(255,255,255,.025));
+}
+.ad-free-status {
+  position:relative;margin:20px 0;padding:17px;border:1px solid rgba(139,171,224,.17);
+  border-radius:14px;background:rgba(5,13,27,.42);text-align:left;
+}
+.ad-free-status.is-active {border-color:rgba(104,210,164,.28);background:rgba(41,142,103,.09)}
+.ad-free-status-heading {display:flex;align-items:center;gap:8px;color:#aebbd0;font-size:9px;font-weight:850;letter-spacing:.16em}
+.ad-free-status-pulse {width:7px;height:7px;border-radius:50%;background:#d6b66f;box-shadow:0 0 0 4px rgba(214,182,111,.12)}
+.ad-free-status.is-active .ad-free-status-pulse {background:#69d7a6;box-shadow:0 0 0 4px rgba(105,215,166,.12)}
+.ad-free-status>p {margin:10px 0 0;color:#d3deee}
+.ad-free-status>strong {display:block;margin-top:9px;color:#f4f6fb;font-size:17px}
+.ad-free-watch-button {min-height:54px;border-radius:13px;box-shadow:0 10px 25px rgba(203,164,91,.16);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+.ad-free-watch-button:not(:disabled):hover {transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 15px 30px rgba(203,164,91,.22)}
+.ad-free-refresh-button {min-height:46px;border-color:rgba(130,168,231,.25);color:#a9c9ff}
+.ad-free-how-card {
+  padding:clamp(22px,3vw,30px);border:1px solid rgba(139,171,224,.15);
+  border-radius:22px;background:linear-gradient(155deg,#111e34,#0b1425);
+  box-shadow:0 20px 50px rgba(0,0,0,.18);
+}
+.ad-free-how-card h3 {margin:11px 0 24px;color:#f2f5fb;font-size:22px;line-height:1.25;letter-spacing:-.025em}
+.ad-free-how-card ol {display:grid;gap:19px;margin:0;padding:0;list-style:none}
+.ad-free-how-card li {display:flex;align-items:flex-start;gap:13px}
+.ad-free-how-card li>span {
+  flex:0 0 37px;width:37px;height:37px;display:grid;place-items:center;
+  border:1px solid rgba(229,193,123,.22);border-radius:11px;
+  background:rgba(229,193,123,.08);color:#e9ca88;font-size:11px;font-weight:850;
+}
+.ad-free-how-card li div {display:grid;gap:5px;padding-top:2px}
+.ad-free-how-card li strong {color:#e7edf7;font-size:12px}
+.ad-free-how-card li small {color:#95a6c0;font-size:11px;line-height:1.6}
+.ad-free-how-card>p {
+  display:flex;align-items:flex-start;gap:9px;margin:27px 0 0;padding-top:17px;
+  border-top:1px solid rgba(139,171,224,.12);color:#9eafc9;font-size:10px;line-height:1.6;
+}
+.ad-free-how-card>p svg {flex-shrink:0;color:#e5c17b}
+.ad-free-security {font-size:10px}
+@media(max-width:760px) {
+  .ad-free-shell {grid-template-columns:minmax(0,1fr);gap:13px}
+  .ad-free-topbar {min-height:132px}
+  .ad-free-feature-row {grid-template-columns:1fr;gap:7px}
+  .ad-free-feature-row>div {padding:11px 13px}
+  .ad-free-how-card h3 {font-size:20px}
+}
+@media(max-width:420px) {
+  .ad-free-page {padding:18px 11px 120px}
+  .ad-free-topbar {padding:21px 18px;border-radius:18px}
+  .ad-free-topbar-mark {width:52px;height:52px;flex-basis:52px;border-radius:16px;font-size:21px}
+  .ad-free-topbar h2 {font-size:23px}
+  .ad-free-card {padding:25px 17px;border-radius:18px}
+  .ad-free-how-card {padding:22px 18px;border-radius:18px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .ad-free-page *, .ad-free-page *::before, .ad-free-page *::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
