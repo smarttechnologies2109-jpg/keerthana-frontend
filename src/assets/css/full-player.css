@@ -2739,3 +2739,52 @@
     animation-duration: .01ms !important;
   }
 }
+
+
+/* Always-visible exit control for immersive lyrics focus mode */
+.keerthana-full-player .lyrics-focus-close {
+  position: fixed !important;
+  top: max(16px, env(safe-area-inset-top)) !important;
+  right: max(16px, env(safe-area-inset-right)) !important;
+  z-index: 2147483647 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 46px;
+  min-height: 46px;
+  padding: 10px 15px;
+  color: #f5faff;
+  background: rgba(13, 38, 76, .94);
+  border: 1px solid rgba(112, 181, 255, .72);
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .42), 0 0 20px rgba(44, 139, 255, .24);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(16px);
+}
+.keerthana-full-player .lyrics-focus-close svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+.keerthana-full-player .lyrics-focus-close:focus-visible {
+  outline: 3px solid #9bd0ff;
+  outline-offset: 3px;
+}
+.keerthana-full-player .lyrics-focus-close:active {
+  transform: scale(.96);
+}
+@media (max-width: 520px) {
+  .keerthana-full-player .lyrics-focus-close {
+    top: max(12px, env(safe-area-inset-top)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
