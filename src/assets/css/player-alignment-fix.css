@@ -682,3 +682,36 @@
     white-space: nowrap;
   }
 }
+
+.sleep-timer-custom {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+}
+.sleep-timer-custom label {
+  color: #c1b4cf;
+  font-size: 11px;
+}
+.sleep-timer-custom > div {
+  display: flex;
+  gap: 7px;
+}
+.sleep-timer-custom input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  color: #fbf8ff;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(183,122,255,.22);
+  border-radius: 9px;
+}
+.sleep-timer-custom button {
+  min-width: 62px;
+  color: #21172b;
+  background: #edce86;
+  border: 0;
+  border-radius: 9px;
+  font-weight: 800;
+}
