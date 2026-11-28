@@ -42,7 +42,7 @@ function formatTime(seconds) {
    LYRICS PARSER
 \\\========================================================= */
 function parseTimedWords(text) {
-  const pattern = /<(\\d{1,2}):([0-5]\\d)(?:\\.(\\d{1,3}))?>([^<]*)/g;
+  const pattern = /<(\d{1,2}):([0-5]\d)(?:\.(\d{1,3}))?>([^<]*)/g;
   const words = [];
   let match;
   while ((match = pattern.exec(text)) !== null) {
@@ -79,7 +79,7 @@ function parseLyrics(lyrics) {
           Number(match[1]) * 60 +
           Number(match[2]) +
           milliseconds / 1000,
-        text: match[4].replace(/<\\d{1,2}:[^>]+>/g, "").trim(),
+        text: match[4].replace(/<\d{1,2}:[^>]+>/g, "").trim(),
 words: parseTimedWords(match[4]),
       };
     })
