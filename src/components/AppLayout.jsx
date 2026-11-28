@@ -25,6 +25,7 @@ import {
 } from "../services/interstitialAds";
 
 import "../assets/css/appLayout.css";
+import "../assets/css/keerthana-design-system.css";
 
 const INTERSTITIAL_PAGE_LIMIT = 4;
 const INTERSTITIAL_COOLDOWN = 5 * 60 * 1000;
