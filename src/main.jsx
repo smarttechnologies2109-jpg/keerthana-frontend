@@ -15,6 +15,7 @@ import "./assets/css/player-alignment-fix.css";
 import "./assets/css/portal-color-system.css";
 import "./assets/css/desktop-layout-audit.css";
 import "./assets/css/portal-no-blue-theme.css";
+import "./assets/css/auth-button-refresh.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
