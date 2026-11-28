@@ -82,7 +82,7 @@ Math.floor(value % 60)
 }
 
 function parseTimedWords(text) {
-  const pattern = /<(\\d{1,2}):([0-5]\\d)(?:\\.(\\d{1,3}))?>([^<]*)/g;
+  const pattern = /<(\d{1,2}):([0-5]\d)(?:\.(\d{1,3}))?>([^<]*)/g;
   const words = [];
   let match;
   while ((match = pattern.exec(text)) !== null) {
@@ -128,7 +128,7 @@ id: `${index}-${match[1]}-${match[2]}`,
 
 time: Number(match[1]) * 60 + Number(match[2]) + milliseconds / 1000,
 
-text: match[4].replace(/<\\d{1,2}:[^>]+>/g, "").trim(),
+text: match[4].replace(/<\d{1,2}:[^>]+>/g, "").trim(),
 words: parseTimedWords(match[4]),
 
 };
@@ -188,7 +188,7 @@ function getArtistName(song, artistsById = {}, songsById = {}) {
     if (typeof artist === "string" || typeof artist === "number") {
       const linked = artistsById[String(artist)];
       if (linked) addArtist(linked);
-      else if (typeof artist === "string" && !/^\\d+$/.test(artist.trim())) addName(artist);
+      else if (typeof artist === "string" && !/^\d+$/.test(artist.trim())) addName(artist);
       return;
     }
     if (typeof artist !== "object") return;
