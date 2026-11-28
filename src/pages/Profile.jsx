@@ -1936,7 +1936,9 @@ function Profile() {
                         }
                       >
 
-                        {item.label}
+                        {item.value === "English"
+                          ? item.label
+                          : `${item.label} (${item.value})`}
 
                       </option>
 
