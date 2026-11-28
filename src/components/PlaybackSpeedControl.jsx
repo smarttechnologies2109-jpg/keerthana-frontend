@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaGauge, FaTimes } from "react-icons/fa6";
+import { FaTachometerAlt, FaTimes } from "react-icons/fa";
 import { usePlayer } from "../context/usePlayer";
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -18,7 +18,7 @@ export default function PlaybackSpeedControl() {
         aria-label={`Playback speed ${playbackRate} times`}
         title="Playback speed"
       >
-        <FaGauge />
+        <FaTachometerAlt />
         <span>{playbackRate}×</span>
       </button>
 
