@@ -1,0 +1,338 @@
+/* =========================================================
+   KEERTHANA — ROYAL PURPLE DESIGN SYSTEM
+   Application pages only. Login and registration are untouched.
+   Deep plum • Amethyst • Champagne gold
+========================================================= */
+
+:root {
+  --k-bg: #100b18;
+  --k-bg-soft: #171020;
+  --k-surface: #21162c;
+  --k-surface-raised: #2b1c39;
+  --k-surface-hover: #352044;
+  --k-purple: #9b5de5;
+  --k-purple-bright: #b77aff;
+  --k-purple-deep: #5d287f;
+  --k-gold: #f0ce82;
+  --k-gold-soft: #ffe6b0;
+  --k-text: #fbf7ff;
+  --k-muted: #c2b4ce;
+  --k-subtle: #9887a5;
+  --k-border: rgba(213, 178, 241, .14);
+  --k-shadow: 0 16px 42px rgba(0, 0, 0, .24);
+}
+
+.app.keerthana-app-layout {
+  color: var(--k-text);
+  background:
+    radial-gradient(ellipse at 82% 0%, rgba(137, 65, 183, .18), transparent 34%),
+    radial-gradient(ellipse at 0% 65%, rgba(91, 38, 123, .10), transparent 38%),
+    var(--k-bg);
+  font-family: Inter, "Noto Sans Telugu", system-ui, sans-serif;
+}
+
+.app .main-content {
+  color: var(--k-text);
+  background: transparent;
+}
+
+.app .main-content h1,
+.app .main-content h2,
+.app .main-content h3,
+.app .main-content h4,
+.app .main-content h5 {
+  color: var(--k-text);
+  letter-spacing: -.025em;
+}
+
+.app .main-content p,
+.app .main-content label,
+.app .main-content small {
+  color: var(--k-muted);
+}
+
+.app .main-content a:not([class*="button"]) {
+  color: var(--k-purple-bright);
+  text-underline-offset: 3px;
+}
+
+.app .main-content button,
+.app .main-content input,
+.app .main-content select,
+.app .main-content textarea {
+  font: inherit;
+}
+
+.app .main-content input:not([type="checkbox"]):not([type="radio"]),
+.app .main-content select,
+.app .main-content textarea {
+  color: var(--k-text);
+  background: rgba(37, 25, 49, .92);
+  border: 1px solid var(--k-border);
+  border-radius: 12px;
+}
+
+.app .main-content input::placeholder,
+.app .main-content textarea::placeholder {
+  color: var(--k-subtle);
+}
+
+.app .main-content input:focus,
+.app .main-content select:focus,
+.app .main-content textarea:focus {
+  outline: none;
+  border-color: var(--k-purple-bright);
+  box-shadow: 0 0 0 3px rgba(155, 93, 229, .18);
+}
+
+.app .main-content button:not(.song-card-play):not(.song-card-queue) {
+  transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+.app .main-content button:hover {
+  filter: brightness(1.08);
+}
+
+.app .main-content button:active {
+  transform: translateY(1px) scale(.99);
+}
+
+.app .main-content button:focus-visible,
+.app .main-content a:focus-visible,
+.app .main-content [role="button"]:focus-visible {
+  outline: 2px solid var(--k-gold);
+  outline-offset: 3px;
+}
+
+/* Consistent page headings and content surfaces */
+.app .main-content [class$="-page"] {
+  color: var(--k-text);
+}
+
+.app .main-content [class*="section-header"],
+.app .main-content [class*="page-header"],
+.app .main-content [class*="hero"] {
+  color: var(--k-text);
+}
+
+.app .main-content [class*="card"],
+.app .main-content [class*="panel"],
+.app .main-content [class*="tile"],
+.app .main-content [class*="item-card"] {
+  border-color: var(--k-border);
+}
+
+.app .main-content [class*="card"]:not(.song-card-component),
+.app .main-content [class*="panel"] {
+  box-shadow: 0 10px 28px rgba(0,0,0,.16);
+}
+
+/* Reusable plum glass surface for page sections */
+.app .main-content .home-section,
+.app .main-content .library-section,
+.app .main-content .search-section,
+.app .main-content .profile-section {
+  border-color: var(--k-border);
+}
+
+/* Song, album, artist and playlist tiles */
+.app .main-content .song-card-component,
+.app .main-content .playlist-card,
+.app .main-content .artist-card,
+.app .main-content .album-card,
+.app .main-content .category-card,
+.app .main-content .ministry-card {
+  color: var(--k-text);
+  border: 1px solid var(--k-border);
+  border-radius: 18px;
+  background: linear-gradient(150deg, rgba(48, 30, 63, .96), rgba(26, 17, 36, .98));
+  box-shadow: 0 9px 28px rgba(0,0,0,.2);
+}
+
+.app .main-content .song-card-component:hover,
+.app .main-content .playlist-card:hover,
+.app .main-content .artist-card:hover,
+.app .main-content .album-card:hover,
+.app .main-content .category-card:hover,
+.app .main-content .ministry-card:hover {
+  border-color: rgba(183, 122, 255, .42);
+  box-shadow: 0 18px 38px rgba(0,0,0,.3), 0 0 0 1px rgba(183,122,255,.08);
+  transform: translateY(-3px);
+}
+
+.app .main-content .song-card-component p,
+.app .main-content .song-card-component span {
+  color: var(--k-muted);
+}
+
+/* Primary actions */
+.app .main-content button[class*="primary"],
+.app .main-content button[class*="submit"],
+.app .main-content a[class*="primary"],
+.app .main-content .home-view-all,
+.app .main-content .auth-submit {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(110deg, #642b86, #9b5de5 58%, #b77aff);
+  box-shadow: 0 9px 22px rgba(116, 52, 157, .26);
+}
+
+/* Header */
+.app .keerthana-header {
+  color: var(--k-text);
+  background: rgba(20, 12, 29, .94);
+  border-bottom: 1px solid var(--k-border);
+  box-shadow: 0 8px 26px rgba(0,0,0,.16);
+  backdrop-filter: blur(18px);
+}
+
+.app .header-page-info,
+.app .header-page-info strong,
+.app .header-brand-copy strong {
+  color: var(--k-text);
+}
+
+.app .header-brand-copy small {
+  color: var(--k-gold);
+}
+
+.app .header-brand-mark {
+  box-shadow: 0 5px 18px rgba(155, 93, 229, .22);
+}
+
+/* Sidebar */
+.app .sidebar {
+  color: var(--k-text);
+  background: linear-gradient(180deg, #1c1027, #130d1d 78%);
+  border-right: 1px solid var(--k-border);
+}
+
+.app .sidebar-section-heading,
+.app .sidebar-label {
+  color: var(--k-muted);
+}
+
+.app .sidebar-nav-item {
+  color: var(--k-muted);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.app .sidebar-nav-item:hover {
+  color: #fff;
+  background: rgba(155, 93, 229, .12);
+  border-color: rgba(183, 122, 255, .12);
+}
+
+.app .sidebar-nav-item.active {
+  color: #fff;
+  background: linear-gradient(100deg, rgba(123, 61, 160, .38), rgba(155, 93, 229, .14));
+  border-color: rgba(183, 122, 255, .2);
+  box-shadow: inset 3px 0 0 var(--k-gold);
+}
+
+.app .sidebar-icon {
+  color: var(--k-purple-bright);
+}
+
+/* Mobile navigation */
+.app .bottom-nav {
+  color: var(--k-muted);
+  background: rgba(25, 15, 35, .97);
+  border-top: 1px solid var(--k-border);
+  box-shadow: 0 -10px 28px rgba(0,0,0,.2);
+  backdrop-filter: blur(18px);
+}
+
+.app .bottom-nav-item {
+  color: var(--k-subtle);
+}
+
+.app .bottom-nav-item.active {
+  color: var(--k-gold);
+}
+
+.app .bottom-nav-item.active .bottom-nav-icon {
+  color: var(--k-purple-bright);
+  filter: drop-shadow(0 0 9px rgba(183,122,255,.35));
+}
+
+/* Player surfaces */
+.app .mini-player,
+.app .music-player,
+.app .full-player,
+.app .player-container {
+  color: var(--k-text);
+  background: linear-gradient(110deg, #241431, #321c43);
+  border-color: var(--k-border);
+}
+
+.app .mini-player button,
+.app .music-player button,
+.app .full-player button {
+  color: var(--k-text);
+}
+
+.app .main-content table {
+  color: var(--k-text);
+  border-color: var(--k-border);
+}
+
+.app .main-content th {
+  color: var(--k-gold-soft);
+  background: rgba(155, 93, 229, .12);
+}
+
+.app .main-content td {
+  color: var(--k-muted);
+  border-color: var(--k-border);
+}
+
+.app .main-content hr {
+  border-color: var(--k-border);
+}
+
+/* Motion that stays subtle and respects accessibility */
+@keyframes keerthana-page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app .main-content > * {
+  animation: keerthana-page-enter .42s ease both;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app .main-content [class*="card"]:hover {
+    transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+  }
+}
+
+@media (max-width: 700px) {
+  .app .main-content {
+    padding-top: 76px;
+  }
+  .app .main-content [class$="-page"] {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .app .main-content [class*="grid"] {
+    min-width: 0;
+  }
+  .app .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app .main-content > * {
+    animation: none !important;
+  }
+  .app .main-content *,
+  .app .bottom-nav *,
+  .app .sidebar * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
