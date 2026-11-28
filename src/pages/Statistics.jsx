@@ -397,6 +397,32 @@ const Statistics = () => {
     ...recentListeningDays.map((day) => Number(day?.listening_seconds) || 0)
   );
 
+  const languageTotal = topLanguages.reduce(
+    (sum, item) => sum + (Number(item?.play_count) || 0), 0
+  );
+  const artistTotal = topArtists.reduce(
+    (sum, item) => sum + (Number(item?.play_count) || 0), 0
+  );
+  const languagePalette = ["#c08af5", "#edce86", "#df8fb5", "#a88bd4", "#d69b77", "#b7a0cc"];
+  const artistPalette = ["#edce86", "#c08af5", "#df8fb5", "#a88bd4", "#d69b77", "#b7a0cc"];
+  const makeDonutGradient = (items, total, key) => {
+    if (!total) return "conic-gradient(#3b2a49 0deg 360deg)";
+    let cursor = 0;
+    const stops = items.map((item, index) => {
+      const value = Math.max(0, Number(item?.[key]) || 0);
+      const start = cursor;
+      cursor += (value / total) * 360;
+      return `${languagePalette[index % languagePalette.length]} ${start}deg ${cursor}deg`;
+    });
+    return `conic-gradient(${stops.join(", ")})`;
+  };
+  const dailyChartPeak = Math.max(
+    1, ...recentListeningDays.map((day) => Number(day?.play_count) || 0)
+  );
+  const hourlyData = Array.isArray(statistics?.hourly) ? statistics.hourly : [];
+  const hourlyPeak = Math.max(1, ...hourlyData.map((item) => Number(item?.play_count) || 0));
+
+
   /* =======================================================
      RENDER
   ======================================================= */
@@ -559,6 +585,90 @@ const Statistics = () => {
         </div>
 
       </div>
+
+      {/* VISUAL ANALYTICS — derived only from API statistics */}
+      <section className="statistics-visual-grid" aria-label="Listening analytics visualizations">
+        <article className="statistics-chart-panel statistics-trend-panel">
+          <div className="statistics-chart-heading">
+            <div><span className="statistics-chart-kicker">LISTENING TRENDS</span><h2>Daily plays</h2></div>
+            <span className="statistics-chart-total">{recentSevenDayPlays.toLocaleString()} plays</span>
+          </div>
+          {recentListeningDays.length ? (
+            <div className="statistics-column-chart" role="img" aria-label="Bar chart showing plays for the seven most recent recorded days">
+              {recentListeningDays.map((day, index) => {
+                const plays = Number(day?.play_count) || 0;
+                const height = plays ? Math.max(5, plays / dailyChartPeak * 100) : 2;
+                return <div className="statistics-column-item" key={`plays-${day?.date || index}`}>
+                  <strong>{plays}</strong>
+                  <div className="statistics-column-track"><span style={{height:`${height}%`}} /></div>
+                  <small>{String(day?.date || `Day ${index + 1}`).slice(5,10)}</small>
+                </div>;
+              })}
+            </div>
+          ) : <div className="statistics-chart-empty">Daily play data will appear as you listen.</div>}
+        </article>
+
+        <article className="statistics-chart-panel">
+          <div className="statistics-chart-heading">
+            <div><span className="statistics-chart-kicker">MUSIC DISCOVERY</span><h2>Language mix</h2></div>
+            <span className="statistics-chart-total">{languageTotal.toLocaleString()} plays</span>
+          </div>
+          {topLanguages.length && languageTotal ? (
+            <div className="statistics-donut-layout">
+              <div className="statistics-donut" role="img" aria-label="Donut chart of listening plays by language" style={{background:makeDonutGradient(topLanguages,languageTotal,"play_count")}}>
+                <div><strong>{languageTotal.toLocaleString()}</strong><small>Total plays</small></div>
+              </div>
+              <div className="statistics-chart-legend">
+                {topLanguages.map((item,index)=>{
+                  const value=Number(item?.play_count)||0;
+                  return <div className="statistics-legend-row" key={`lang-chart-${item.language||index}`}>
+                    <i style={{background:languagePalette[index%languagePalette.length]}} />
+                    <span>{item.language||"Unknown"}</span><strong>{Math.round(value/languageTotal*100)}%</strong>
+                  </div>;
+                })}
+              </div>
+            </div>
+          ) : <div className="statistics-chart-empty">Language breakdown will appear when listening data is available.</div>}
+        </article>
+
+        <article className="statistics-chart-panel">
+          <div className="statistics-chart-heading">
+            <div><span className="statistics-chart-kicker">YOUR FAVOURITES</span><h2>Top artists</h2></div>
+            <span className="statistics-chart-total">{artistTotal.toLocaleString()} plays</span>
+          </div>
+          {topArtists.length && artistTotal ? (
+            <div className="statistics-horizontal-chart">
+              {topArtists.slice(0,6).map((item,index)=>{
+                const value=Number(item?.play_count)||0;
+                return <div className="statistics-horizontal-row" key={`artist-chart-${item.artist||index}`}>
+                  <div className="statistics-horizontal-label"><span>{item.artist_english||item.artist||"Unknown Artist"}</span><strong>{value}</strong></div>
+                  <div className="statistics-horizontal-track"><span style={{width:`${Math.max(value?3:0,value/Math.max(1,Number(topArtists[0]?.play_count)||1)*100)}%`,background:artistPalette[index%artistPalette.length]}} /></div>
+                </div>;
+              })}
+            </div>
+          ) : <div className="statistics-chart-empty">Artist insights will appear when listening data is available.</div>}
+        </article>
+
+        <article className="statistics-chart-panel">
+          <div className="statistics-chart-heading">
+            <div><span className="statistics-chart-kicker">DAILY RHYTHM</span><h2>Listening time</h2></div>
+            <span className="statistics-chart-total">{formatTime(recentSevenDaySeconds)}</span>
+          </div>
+          {recentListeningDays.length ? (
+            <div className="statistics-column-chart statistics-time-chart" role="img" aria-label="Bar chart showing listening duration for the seven most recent recorded days">
+              {recentListeningDays.map((day,index)=>{
+                const seconds=Number(day?.listening_seconds)||0;
+                const height=seconds?Math.max(5,seconds/recentDayPeak*100):2;
+                return <div className="statistics-column-item" key={`time-${day?.date||index}`}>
+                  <strong>{seconds?formatTime(seconds):"0"}</strong>
+                  <div className="statistics-column-track"><span style={{height:`${height}%`}} /></div>
+                  <small>{String(day?.date||`Day ${index+1}`).slice(5,10)}</small>
+                </div>;
+              })}
+            </div>
+          ) : <div className="statistics-chart-empty">Listening-time trends will appear as activity is recorded.</div>}
+        </article>
+      </section>
 
       {/* =================================================
           TOP SONGS
