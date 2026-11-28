@@ -553,3 +553,45 @@
   .ad-free-page .ad-free-feature-row {grid-template-columns:1fr}
   .ad-free-page .ad-free-feature-row>div {flex-direction:row;align-items:center;padding:10px 12px}
 }
+
+/* FINAL ANDROID READABILITY PASS — dark plum glass surfaces */
+.ad-free-page { color:#f8f3ff; }
+.ad-free-page .ad-free-topbar {
+  background:radial-gradient(circle at 90% 10%,rgba(172,126,245,.22),transparent 30%),linear-gradient(120deg,#21132d,#38204b 60%,#482454);
+  border:1px solid rgba(201,165,255,.2);
+}
+.ad-free-page .ad-free-feature-row>div {background:#21172c;color:#e9dff2;border-color:rgba(201,165,255,.16)}
+.ad-free-page .ad-free-card {
+  background:radial-gradient(circle at 50% 0,rgba(143,91,205,.22),transparent 38%),linear-gradient(155deg,#251833,#181222 76%);
+  border:1px solid rgba(199,163,246,.22);color:#fbf7ff;
+}
+.ad-free-page .ad-free-card h1 {color:#fff}
+.ad-free-page .ad-free-description {color:#d8cde4}
+.ad-free-page .ad-free-eyebrow {color:#d9b7ff}
+.ad-free-page .ad-free-benefit {background:linear-gradient(110deg,rgba(137,88,192,.2),rgba(210,119,133,.12));border-color:rgba(199,163,246,.2)}
+.ad-free-page .ad-free-benefit strong {color:#fff}
+.ad-free-page .ad-free-benefit span {color:#d3c5e0}
+.ad-free-page .ad-free-status {background:rgba(9,6,15,.42);border-color:rgba(199,163,246,.22)}
+.ad-free-page .ad-free-status-heading {color:#cbbbd8}
+.ad-free-page .ad-free-status>p {color:#d8cde4}
+.ad-free-page .ad-free-status>strong {color:#fff}
+.ad-free-page .ad-free-how-card {background:linear-gradient(155deg,#251833,#181222);border-color:rgba(199,163,246,.18)}
+.ad-free-page .ad-free-how-card h3 {color:#fff}
+.ad-free-page .ad-free-how-card li strong {color:#f7f0ff}
+.ad-free-page .ad-free-how-card li small,.ad-free-page .ad-free-how-card>p {color:#cbbbd8}
+.ad-free-page .ad-free-security {color:#cbbbd8}
+.ad-free-page .ad-free-refresh-button {background:rgba(151,104,207,.17);color:#ead9ff;border-color:rgba(199,163,246,.3)}
+.ad-free-page .ad-free-message.success {background:rgba(39,145,99,.18);color:#a8f0c8}
+.ad-free-page .ad-free-message.error {background:rgba(195,72,94,.18);color:#ffc4cd}
+@media(max-width:760px) {
+ .ad-free-page {padding:18px 12px max(205px,calc(180px + env(safe-area-inset-bottom)))}
+ .ad-free-page .ad-free-shell {display:flex;flex-direction:column;gap:12px}
+ .ad-free-page .ad-free-topbar,.ad-free-page .ad-free-feature-row,.ad-free-page .ad-free-card,.ad-free-page .ad-free-how-card {width:100%}
+ .ad-free-page .ad-free-topbar {min-height:0;padding:21px 18px}
+ .ad-free-page .ad-free-feature-row {display:grid;grid-template-columns:1fr;gap:7px}
+ .ad-free-page .ad-free-feature-row>div {display:flex;flex-direction:row;align-items:center;padding:10px 12px}
+ .ad-free-page .ad-free-card {padding:27px 18px}
+ .ad-free-page .ad-free-description {font-size:14px;line-height:1.65}
+ .ad-free-page .ad-free-benefit {margin:20px 0;padding:14px}
+ .ad-free-page .ad-free-watch-button,.ad-free-page .ad-free-refresh-button {width:100%;justify-content:center}
+}
