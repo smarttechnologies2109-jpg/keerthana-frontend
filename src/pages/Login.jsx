@@ -155,22 +155,29 @@ function Login() {
   ===================================================== */
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
+    <main className="auth-page">
+      <div className="auth-shell">
+        <aside className="auth-brand-panel">
+          <div className="auth-brand-top">
+            <div className="auth-brand-mark" aria-label="KEERTHANA logo"><span>K</span><i>♪</i></div>
+            <div className="auth-brand-name">KEERTHANA</div>
+            <div className="auth-brand-rule" />
+          </div>
+          <div className="auth-brand-copy">
+            <h1>Every Song.<br />Every Prayer.<br /><em>One Place.</em></h1>
+            <p>Experience the beauty of Telugu Christian music, praise and worship. Let every melody bring you closer to God.</p>
+            <div className="auth-brand-tags">
+              <span>♪ Praise</span><span>✦ Worship</span><span>♫ Christian Music</span>
+            </div>
+          </div>
+          <div className="auth-brand-footer"><span>MADE FOR WORSHIP</span><b>✦</b><span>MADE WITH LOVE</span></div>
+        </aside>
 
-        <div className="auth-logo" aria-hidden="true">♪</div>
-        <p className="auth-eyebrow">A LITTLE CLOSER TO THE MUSIC THAT MOVES YOU</p>
-
-        <h1>KEERTHANA</h1>
-
-        <p className="auth-subtitle">
-          Christian Music
-        </p>
-
-        <h2>Welcome Back</h2>
-        <p className="auth-description">
-          Sign in to continue enjoying uplifting Christian music in your favourite language.
-        </p>
+        <section className="auth-main-panel">
+          <div className="auth-card">
+            <p className="auth-eyebrow">WELCOME BACK</p>
+            <h2>Sign in to KEERTHANA</h2>
+            <p className="auth-description">Your favourite worship music is waiting for you.</p>
 
         {/* FRIENDLY ERROR */}
         {error && (
@@ -213,7 +220,7 @@ function Login() {
             className="auth-submit"
             disabled={loading}
           >
-            {loading ? "Please wait..." : "Login"}
+            {loading ? "Please wait..." : <>Sign In <span aria-hidden="true">⟶</span></>}
           </button>
 
         </form>
@@ -225,10 +232,13 @@ function Login() {
             Create Account
           </Link>
         </p>
-        <p className="auth-legal">A peaceful space for faith, music, and community.</p>
-
+        <div className="auth-divider"><span>YOUR WORSHIP JOURNEY</span></div>
+        <p className="auth-legal">✦ &nbsp; Your music journey starts here.</p>
+          </div>
+          <footer className="auth-form-footer">© 2026 KEERTHANA MUSIC. ALL RIGHTS RESERVED.</footer>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
 
