@@ -1,0 +1,124 @@
+/* KEERTHANA GLOBAL THEME OVERRIDE
+   One consistent plum / amethyst / champagne palette across every route.
+   Does not recolour uploaded song artwork or media thumbnails. */
+:root{
+ --k-bg:#100b19;--k-bg-soft:#171020;--k-surface:#21162c;--k-surface-2:#2b1c39;
+ --k-surface-hover:#382347;--k-violet:#9b5de5;--k-violet-light:#c08af5;
+ --k-violet-deep:#6330a0;--k-magenta:#c34c9b;--k-gold:#edce86;
+ --k-text:#fbf8ff;--k-muted:#c1b4cf;--k-border:rgba(220,195,245,.18);
+ --k-focus:rgba(192,138,245,.25);
+}
+.app,.app .main-content{color:var(--k-text)}
+.app .main-content :is(.search-page,.recently-added-page,.albums-page,.artists-page,.liked-page,.library-page,.profile-page,.all-songs-page,.categories-page,.ministries-page,.playlists-page,.history-page,.favorites-page,.statistics-page,.notifications-page,.song-details-page,.album-details-page,.artist-details-page){
+ color:var(--k-text)!important;
+ background:
+  radial-gradient(ellipse at 92% 0%,rgba(155,93,229,.14),transparent 36%),
+  radial-gradient(ellipse at 0% 78%,rgba(195,76,155,.07),transparent 38%),
+  linear-gradient(180deg,#171020 0%,#100b19 75%,#0c0812 100%)!important;
+}
+/* Re-map legacy page-specific blue tokens to amethyst. */
+.search-page,.recently-added-page,.albums-page,.artists-page,.liked-page,.library-page,.profile-page,.all-songs-page{
+ --search-blue:#a66af0;--search-blue-hover:#c08af5;--search-blue-soft:rgba(155,93,229,.16);
+ --ra-blue:#b77aff;--album-blue:#b77aff;--album-blue-light:#d5b4f3;
+ --artist-blue:#b77aff;--artist-blue-light:#d5b4f3;
+ --liked-blue:#b77aff;--liked-blue-hover:#d0a4f5;
+ --library-blue:#b77aff;--library-blue-light:#d5b4f3;
+ --profile-blue:#c08af5;--profile-blue-dark:#75409a;
+ --home-blue:#a66af0;--home-blue-light:#c08af5;--home-blue-dark:#6330a0;
+}
+/* Search and recently-added controls */
+.search-page .search-input-wrapper,.recently-added-page .recently-added-search,
+.search-page .search-input-wrapper:focus-within,.search-page .search-input-wrapper:hover{
+ background:linear-gradient(135deg,#2b1b38,#1b1225)!important;
+ border-color:var(--k-border)!important;box-shadow:0 10px 28px rgba(0,0,0,.22)!important;
+}
+.search-page .search-input-wrapper::before{background:linear-gradient(100deg,rgba(155,93,229,.12),transparent 50%,rgba(237,206,134,.04))!important}
+.search-page :is(.search-voice-button,.voice-search-button,[class*="voice"] button),
+.recently-added-page :is(.recently-added-search button,[class*="voice"]){
+ background:linear-gradient(135deg,#75409a,#a66af0)!important;border-color:rgba(220,195,245,.24)!important;color:#fff!important;
+}
+.search-page :is(.search-empty-state,.search-empty,.empty-state),
+.recently-added-page :is(.recently-added-empty,.empty-state){
+ background:linear-gradient(145deg,#2b1c39,#171020)!important;border-color:var(--k-border)!important;
+}
+/* Song rows and entity cards across library/search/recently-added pages */
+.app .main-content :is(.recently-added-page,.liked-page,.all-songs-page,.search-page,.library-page) :is([class*="song-card"],[class*="track-card"],[class*="song-row"],[class*="track-row"],[class*="list-item"],[class*="result-item"]){
+ background:linear-gradient(145deg,#251831 0%,#191122 100%)!important;
+ border-color:rgba(210,177,230,.2)!important;color:var(--k-text)!important;
+ box-shadow:0 9px 24px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+.app .main-content :is(.recently-added-page,.liked-page,.all-songs-page,.search-page,.library-page) :is([class*="song-card"],[class*="track-card"],[class*="song-row"],[class*="track-row"]):hover{
+ background:linear-gradient(145deg,#382347,#21152e)!important;border-color:rgba(220,190,240,.42)!important;
+}
+/* Global card, panel and tile surfaces */
+.app .main-content :is([class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"],[class*="tile"],[class*="Tile"]){
+ border-color:var(--k-border);
+}
+.app .main-content :is(.search-page,.recently-added-page,.albums-page,.artists-page,.liked-page,.library-page,.profile-page,.all-songs-page) :is([class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"],[class*="tile"],[class*="Tile"]){
+ background-color:#21162c;
+}
+/* Primary actions and active controls */
+.app .main-content :is(button,a,[role="button"]):is([class*="primary"],[class*="Primary"],[class*="blue"],[class*="Blue"],[class*="submit"],[class*="play"]):not([class*="song-card"]){
+ background-image:linear-gradient(115deg,#6330a0,#9654c7 58%,#b64c9c)!important;
+ border-color:rgba(220,195,245,.3)!important;color:#fff!important;
+}
+.app .main-content :is(button,a,[role="button"]):focus-visible,
+.app .main-content :is(input,select,textarea):focus-visible{
+ outline-color:var(--k-gold)!important;border-color:var(--k-violet-light)!important;
+ box-shadow:0 0 0 3px var(--k-focus)!important;
+}
+.app .main-content :is(input,select,textarea){
+ accent-color:var(--k-violet);
+}
+.app .main-content :is(input[type="range"],progress){accent-color:var(--k-violet)}
+/* Profile page: replace ocean blue panels, badges and avatar backgrounds */
+.profile-page{--profile-blue:#c08af5;--profile-blue-dark:#75409a;--profile-bg:#100b19;--profile-surface:#21162c;--profile-card:#241831;--profile-card-hover:#382347;--profile-border:var(--k-border)}
+.profile-page .profile-hero{
+ background:radial-gradient(circle at 88% 12%,rgba(237,206,134,.12),transparent 32%),radial-gradient(circle at 10% 100%,rgba(155,93,229,.2),transparent 42%),linear-gradient(135deg,#30203d,#1c1228 65%,#130d1c)!important;
+}
+.profile-page .profile-hero-glow{background:rgba(155,93,229,.18)!important}
+.profile-page .profile-avatar{background:linear-gradient(145deg,#67457b,#2b1b38)!important}
+.profile-page .profile-admin-badge{color:#d9baff!important;background:rgba(155,93,229,.12)!important;border-color:rgba(192,138,245,.28)!important}
+/* Library and content collection heroes */
+.library-page{--library-blue:#c08af5;--library-blue-light:#d5b4f3;--library-bg:#100b19;--library-card:#21162c;--library-surface:#1c1228}
+.library-page .library-hero{background:linear-gradient(115deg,#24162f,#3d2450 58%,#21162c)!important;border-color:var(--k-border)!important}
+.library-page :is(.library-art-glow,.library-art-disc){background-color:rgba(155,93,229,.2)!important}
+.library-page .library-hero-button{background:linear-gradient(120deg,#75409a,#a66af0)!important}
+/* Fullscreen player and mini player */
+.keerthana-full-player,.music-player.music-player-fullscreen{
+ --full-bg:#100b19;--full-surface:#21162c;--full-border:var(--k-border);--full-gold:#edce86;--full-blue:#b77aff;
+ background:radial-gradient(ellipse at 50% 30%,rgba(155,93,229,.2),transparent 48%),linear-gradient(145deg,#21132d,#100b19 65%,#0b0710)!important;
+}
+.keerthana-full-player :is(.full-player-icon-button,.full-player-panel),
+.music-player.music-player-fullscreen :is(.player-controls,.player-control-panel,.player-main-controls){
+ background:linear-gradient(145deg,#2b1c39,#171020)!important;border-color:var(--k-border)!important;
+}
+.keerthana-full-player :is(.full-player-play,.full-player-primary),
+.music-player.music-player-fullscreen :is(.player-play,.player-main-play){
+ background:linear-gradient(145deg,#f5dfb0,#d5a85e)!important;color:#28182f!important;border-color:rgba(255,239,204,.6)!important;
+}
+.keerthana-mini-player,.music-player:not(.music-player-fullscreen){
+ --mp-bg:#100b19;--mp-surface:#21162c;--mp-surface-hover:#382347;--mp-border:var(--k-border);--mp-blue:#b77aff;--mp-blue-light:#d5b4f3;
+ background:radial-gradient(ellipse at 50% -100%,rgba(155,93,229,.18),transparent 70%),linear-gradient(120deg,#1b1126,#261832 52%,#140d1d)!important;
+ border-color:rgba(237,206,134,.24)!important;
+}
+.keerthana-mini-player :is(button,.mini-player-play),
+.music-player:not(.music-player-fullscreen) .player-buttons .player-play{
+ accent-color:var(--k-violet);
+}
+.keerthana-mini-player :is(.mini-player-play,.player-play),
+.music-player:not(.music-player-fullscreen) .player-buttons .player-play{
+ background:linear-gradient(145deg,#f5dfb0,#d5a85e)!important;color:#28182f!important;
+}
+.app :is(.mini-player-progress-top,.player-progress-fill,.full-player-progress-fill){background:linear-gradient(90deg,#9b5de5,#edce86)!important}
+/* Shared bottom navigation, header and sidebar accents */
+.app :is(.bottom-nav,.bottom-navigation,.sidebar-nav-item.active,.bottom-nav-item.active){
+ --active-accent:#c08af5;
+}
+.app :is(.bottom-nav-item.active,.bottom-navigation-item.active,.sidebar-nav-item.active){
+ background:rgba(155,93,229,.18)!important;border-color:rgba(192,138,245,.22)!important;color:#f7edff!important;
+}
+.app :is(.bottom-nav-item.active,.bottom-navigation-item.active,.sidebar-nav-item.active) svg{color:#edce86!important}
+/* Ensure no legacy bright-blue accent remains on standard controls. */
+.app .main-content :is(button,a,[role="button"]):hover{border-color:rgba(220,190,240,.4)}
+@media(prefers-reduced-motion:reduce){.app *, .keerthana-full-player *, .keerthana-mini-player *{transition-duration:.01ms!important;animation-duration:.01ms!important}}
