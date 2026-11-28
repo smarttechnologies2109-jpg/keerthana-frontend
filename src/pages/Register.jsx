@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -62,52 +62,78 @@ export default function Register() {
   };
 
   return (
-    <main className="register-page">
-      <form className="register-form" onSubmit={handleSubmit}>
-        <h1>Create your KEERTHANA account</h1>
-        <p>Join KEERTHANA Music and enjoy songs in your preferred language.</p>
+    <main className="auth-page">
+      <section className="auth-card" aria-labelledby="register-title">
+        <div className="auth-logo" aria-hidden="true">♪</div>
+        <p className="auth-eyebrow">YOUR MUSIC. YOUR LANGUAGE. YOUR COMMUNITY.</p>
+        <h1>KEERTHANA</h1>
+        <p className="auth-subtitle">Christian Music</p>
 
-        <label htmlFor="register-name">Name</label>
-        <input
-          id="register-name"
-          type="text"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          autoComplete="name"
-          required
-        />
+        <h2 id="register-title">Create your account</h2>
+        <p className="auth-description">
+          Join KEERTHANA and discover uplifting Christian music in the language you love.
+        </p>
 
-        <label htmlFor="register-contact">Email or phone number</label>
-        <input
-          id="register-contact"
-          type="text"
-          value={contact}
-          onChange={(event) => setContact(event.target.value)}
-          autoComplete="username"
-          required
-        />
+        {error && (
+          <div className="auth-error" role="alert" aria-live="polite">
+            {error}
+          </div>
+        )}
 
-        <label htmlFor="register-language">Preferred language</label>
-        <select
-          id="register-language"
-          value={language}
-          onChange={(event) => setLanguage(event.target.value)}
-          required
-        >
-          <option value="">Choose your language</option>
-          {LANGUAGES.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="register-name">Your name</label>
+          <input
+            id="register-name"
+            type="text"
+            value={name}
+            onChange={(event) => { setName(event.target.value); setError(""); }}
+            placeholder="Enter your full name"
+            autoComplete="name"
+            required
+            disabled={loading}
+          />
 
-        {error && <p className="register-error" role="alert">{error}</p>}
+          <label htmlFor="register-contact">Email or mobile number</label>
+          <input
+            id="register-contact"
+            type="text"
+            inputMode="text"
+            value={contact}
+            onChange={(event) => { setContact(event.target.value); setError(""); }}
+            placeholder="Enter your email or phone number"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+            disabled={loading}
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating account..." : "Create Account"}
-        </button>
-      </form>
+          <label htmlFor="register-language">Preferred language</label>
+          <select
+            id="register-language"
+            value={language}
+            onChange={(event) => { setLanguage(event.target.value); setError(""); }}
+            required
+            disabled={loading}
+          >
+            <option value="">Choose your language</option>
+            {LANGUAGES.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+
+          <button type="submit" className="auth-submit" disabled={loading}>
+            {loading ? "Creating your account..." : "Create Account"}
+          </button>
+        </form>
+
+        <p className="auth-switch">
+          Already part of KEERTHANA? <Link to="/login">Log in</Link>
+        </p>
+        <p className="auth-legal">By continuing, you agree to use KEERTHANA respectfully and responsibly.</p>
+      </section>
     </main>
   );
 }
