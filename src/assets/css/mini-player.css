@@ -3594,3 +3594,56 @@
     animation-duration: .01ms !important;
   }
 }
+
+/* Song language metadata — premium compact blue-glass label */
+.player-language-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 10px;
+  padding: 7px 11px;
+  color: #d9ebff;
+  background: linear-gradient(110deg, rgba(35,112,218,.2), rgba(22,55,105,.26));
+  border: 1px solid rgba(107,177,255,.3);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .15px;
+  line-height: 1.2;
+  box-shadow: inset 0 1px rgba(255,255,255,.035), 0 4px 14px rgba(0,0,0,.12);
+  vertical-align: middle;
+}
+.player-language-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #63b6ff;
+  box-shadow: 0 0 9px rgba(91,177,255,.8);
+}
+.player-language-caption {
+  padding-left: 6px;
+  color: #88a9ce;
+  border-left: 1px solid rgba(137,180,230,.25);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .9px;
+}
+.mini-player-language {
+  margin-top: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  gap: 6px;
+}
+.mini-player-language .player-language-dot {
+  width: 6px;
+  height: 6px;
+  flex-basis: 6px;
+}
+@media (max-width: 520px) {
+  .player-language-pill { margin-top: 7px; padding: 6px 9px; font-size: 11px; }
+  .player-language-caption { font-size: 7px; }
+  .mini-player-language { margin-top: 3px; padding: 3px 7px; font-size: 9px; }
+}
