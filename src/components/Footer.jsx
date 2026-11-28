@@ -11,7 +11,7 @@ const Footer = () => {
         {/* Brand */}
         <div className="footer-brand">
           <Link to="/" className="footer-logo">
-            <span className="footer-logo-icon">♫</span>
+            <span className="footer-logo-icon"><img src="/keerthana-logo.webp" alt="" /></span>
             <span>KEERTHANA</span>
           </Link>
 
