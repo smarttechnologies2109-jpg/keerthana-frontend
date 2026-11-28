@@ -158,7 +158,8 @@ function Login() {
     <div className="auth-page">
       <div className="auth-card">
 
-        <div className="auth-logo">♪</div>
+        <div className="auth-logo" aria-hidden="true">♪</div>
+        <p className="auth-eyebrow">A LITTLE CLOSER TO THE MUSIC THAT MOVES YOU</p>
 
         <h1>KEERTHANA</h1>
 
@@ -167,6 +168,9 @@ function Login() {
         </p>
 
         <h2>Welcome Back</h2>
+        <p className="auth-description">
+          Sign in to continue enjoying uplifting Christian music in your favourite language.
+        </p>
 
         {/* FRIENDLY ERROR */}
         {error && (
@@ -221,6 +225,7 @@ function Login() {
             Create Account
           </Link>
         </p>
+        <p className="auth-legal">A peaceful space for faith, music, and community.</p>
 
       </div>
     </div>
