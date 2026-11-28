@@ -394,6 +394,8 @@ export const PlayerProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [offlineSongs, setOfflineSongs] = useState([]);
+  const [sleepTimerEndsAt, setSleepTimerEndsAt] = useState(null);
+  const sleepTimerRef = useRef(null);
 
   /* RELEASE OLD BLOB URL */
 
@@ -1669,6 +1671,40 @@ export const PlayerProvider = ({ children }) => {
     });
   }, []);
 
+  /* SLEEP TIMER */
+
+  const cancelSleepTimer = useCallback(() => {
+    if (sleepTimerRef.current) {
+      clearTimeout(sleepTimerRef.current);
+      sleepTimerRef.current = null;
+    }
+    setSleepTimerEndsAt(null);
+  }, []);
+
+  const startSleepTimer = useCallback((minutes) => {
+    const value = Number(minutes);
+    if (!Number.isFinite(value) || value < 1 || value > 180) return false;
+
+    if (sleepTimerRef.current) clearTimeout(sleepTimerRef.current);
+
+    const endsAt = Date.now() + value * 60 * 1000;
+    setSleepTimerEndsAt(endsAt);
+    sleepTimerRef.current = setTimeout(async () => {
+      sleepTimerRef.current = null;
+      setSleepTimerEndsAt(null);
+      try {
+        await pauseSong();
+      } catch (error) {
+        console.error("Sleep timer pause failed:", error);
+      }
+    }, value * 60 * 1000);
+    return true;
+  }, [pauseSong]);
+
+  useEffect(() => () => {
+    if (sleepTimerRef.current) clearTimeout(sleepTimerRef.current);
+  }, []);
+
   /* LIKE / UNLIKE */
 
   const toggleLike = useCallback(
@@ -2099,6 +2135,9 @@ export const PlayerProvider = ({ children }) => {
     toggleLike,
 
     offlineSongs,
+    sleepTimerEndsAt,
+    startSleepTimer,
+    cancelSleepTimer,
     downloadSong,
     downloadSongOffline,
     offlineDownloadingId,
