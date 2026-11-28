@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { FaRegClock, FaTimes } from "react-icons/fa";
 import { usePlayer } from "../context/usePlayer";
 
-const OPTIONS = [15, 30, 45, 60, 90];
+const OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 
 export default function SleepTimerControl() {
   const { sleepTimerEndsAt, startSleepTimer, cancelSleepTimer } = usePlayer();
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [customMinutes, setCustomMinutes] = useState("25");
 
   useEffect(() => {
     if (!sleepTimerEndsAt) return undefined;
@@ -59,6 +60,31 @@ export default function SleepTimerControl() {
               </button>
             ))}
           </div>
+
+          <form
+            className="sleep-timer-custom"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const value = Number(customMinutes);
+              if (Number.isFinite(value) && value >= 1 && value <= 180) {
+                startSleepTimer(value);
+                setOpen(false);
+              }
+            }}
+          >
+            <label htmlFor="sleep-timer-custom-minutes">Custom minutes (1–180)</label>
+            <div>
+              <input
+                id="sleep-timer-custom-minutes"
+                type="number"
+                min="1"
+                max="180"
+                value={customMinutes}
+                onChange={(event) => setCustomMinutes(event.target.value)}
+              />
+              <button type="submit">Start</button>
+            </div>
+          </form>
 
           {sleepTimerEndsAt && (
             <button
