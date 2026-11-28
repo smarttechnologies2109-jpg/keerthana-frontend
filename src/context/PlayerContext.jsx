@@ -672,6 +672,69 @@ export const PlayerProvider = ({ children }) => {
     };
   }, []);
 
+  /* WEB MEDIA SESSION — browser lock-screen / OS media controls */
+  useEffect(() => {
+    if (isNativeAndroid || typeof navigator === "undefined" || !navigator.mediaSession) return undefined;
+
+    const session = navigator.mediaSession;
+    const song = currentSong;
+    if (!song) {
+      try { session.playbackState = "none"; } catch {}
+      return undefined;
+    }
+
+    const title = song.title_english || song.titleEnglish || song.english_title || song.title || song.name || "KEERTHANA";
+    const artist = song.artist_name_english || song.artist_english || song.artist_name || song.artist?.name || "KEERTHANA";
+    const album = song.album_title || song.album?.title || "KEERTHANA MUSIC";
+    const artworkSource = song.cover_url || song.cover_image || song.coverImage || song.album_cover || song.image_url || song.album?.cover_url;
+    const artworkUrl = typeof artworkSource === "string" ? getMediaUrl(artworkSource) : "";
+    try {
+      session.metadata = new window.MediaMetadata({
+        title: String(title),
+        artist: String(artist),
+        album: String(album),
+        artwork: artworkUrl && /^https?:\/\//i.test(artworkUrl)
+          ? [{ src: artworkUrl, sizes: "96x96" }, { src: artworkUrl, sizes: "512x512" }]
+          : [],
+      });
+    } catch (error) {
+      console.debug("Browser media metadata unavailable:", error);
+    }
+
+    const handlers = {
+      play: () => resumeSongRef.current?.(),
+      pause: () => pauseSongRef.current?.(),
+      nexttrack: () => nextSongRef.current?.(),
+      previoustrack: () => previousSongRef.current?.(),
+      seekto: (event) => {
+        if (Number.isFinite(event?.seekTime)) seekRef.current?.(event.seekTime);
+      },
+      seekforward: (event) => seekForwardRef.current?.(event?.seekOffset || 10),
+      seekbackward: (event) => seekBackwardRef.current?.(event?.seekOffset || 10),
+    };
+
+    Object.entries(handlers).forEach(([action, handler]) => {
+      try { session.setActionHandler(action, handler); } catch {}
+    });
+
+    try { session.playbackState = isPlaying ? "playing" : "paused"; } catch {}
+    if (Number.isFinite(duration) && duration > 0 && typeof session.setPositionState === "function") {
+      try {
+        session.setPositionState({
+          duration,
+          playbackRate: Number(playbackRate) > 0 ? playbackRate : 1,
+          position: Math.min(Math.max(Number(currentTime) || 0, 0), duration),
+        });
+      } catch {}
+    }
+
+    return () => {
+      Object.keys(handlers).forEach((action) => {
+        try { session.setActionHandler(action, null); } catch {}
+      });
+    };
+  }, [currentSong, isPlaying, currentTime, duration, playbackRate]);
+
   /* AUDIO EVENTS */
 
   useEffect(() => {
