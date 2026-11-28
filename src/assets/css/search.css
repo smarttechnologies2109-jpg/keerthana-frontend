@@ -2428,3 +2428,63 @@
     transition: none;
   }
 }
+
+/* Recent search shortcuts */
+.search-recent-searches {
+  width: 100%;
+  margin: -8px 0 24px;
+  padding: 16px;
+  background: rgba(16,24,42,.72);
+  border: 1px solid rgba(166,186,220,.12);
+  border-radius: 15px;
+}
+.search-recent-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.search-recent-heading h2 {
+  margin: 0;
+  color: #f5f7fc;
+  font-size: 13px;
+  font-weight: 750;
+}
+.search-recent-heading button {
+  color: #e8c98a;
+  background: transparent;
+  border: 0;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.search-recent-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.search-recent-chips button {
+  max-width: 100%;
+  min-height: 34px;
+  padding: 7px 12px;
+  color: #dce5f6;
+  background: rgba(57,120,246,.11);
+  border: 1px solid rgba(116,158,232,.2);
+  border-radius: 999px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.search-recent-chips button span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.search-recent-chips button:hover {
+  color: #ffe8b2;
+  border-color: rgba(232,201,138,.45);
+}
+@media (max-width: 480px) {
+  .search-recent-searches { padding: 13px; }
+}
