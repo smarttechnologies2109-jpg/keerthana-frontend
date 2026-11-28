@@ -84,10 +84,15 @@ export default function AudioVisualizer({ audio, isPlaying }) {
         gradient.addColorStop(1, "#669dff");
         context2d.fillStyle = gradient;
         context2d.globalAlpha = isPlaying ? 0.95 : 0.38;
-        context2d.beginPath();
+        const y = (height - barHeight) / 2;
         const radius = Math.min(3, barWidth / 2);
-        context2d.roundRect(x, (height - barHeight) / 2, barWidth, barHeight, radius);
-        context2d.fill();
+        if (typeof context2d.roundRect === "function") {
+          context2d.beginPath();
+          context2d.roundRect(x, y, barWidth, barHeight, radius);
+          context2d.fill();
+        } else {
+          context2d.fillRect(x, y, barWidth, barHeight);
+        }
       }
       context2d.globalAlpha = 1;
       phase += isPlaying ? 0.09 : 0.015;
