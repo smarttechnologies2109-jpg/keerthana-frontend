@@ -3400,3 +3400,87 @@
 .lyrics-word.is-sung { color: #f4faff; text-shadow: 0 0 12px rgba(90,175,255,.35); }
 .full-player-lyric-line.is-active .lyrics-word.is-sung,
 .mini-lyric-line.active .lyrics-word.is-sung { color: #8dcbff; }
+
+/* =========================================================
+   KEERTHANA PLAYER — BLUE IMMERSIVE CONTROL SURFACE
+========================================================= */
+.keerthana-full-player {
+  color:#f3f8ff;
+  background:
+    radial-gradient(ellipse at 50% 14%,rgba(42,128,255,.24),transparent 42%),
+    radial-gradient(ellipse at 50% 100%,rgba(19,74,170,.2),transparent 48%),
+    linear-gradient(155deg,#071a38 0%,#050d20 55%,#020713 100%) !important;
+}
+.keerthana-full-player .full-player-header {
+  background:rgba(7,19,42,.82) !important;
+  border-bottom:1px solid rgba(95,164,255,.18) !important;
+  backdrop-filter:blur(22px);
+}
+.keerthana-full-player .full-player-brand-mark {
+  background:linear-gradient(145deg,#e9f5ff,#65b5ff 55%,#2168d8) !important;
+  color:#06152d !important;
+  box-shadow:0 0 28px rgba(68,151,255,.3);
+}
+.keerthana-full-player .full-player-artwork {
+  border:1px solid rgba(112,184,255,.45) !important;
+  box-shadow:0 28px 75px rgba(0,0,0,.48),0 0 45px rgba(42,129,255,.22) !important;
+}
+.keerthana-full-player .full-player-artwork-glow {
+  background:radial-gradient(circle,rgba(60,150,255,.24),transparent 68%) !important;
+}
+.keerthana-full-player .full-player-controls-area {
+  background:linear-gradient(145deg,rgba(16,39,76,.82),rgba(6,17,37,.9)) !important;
+  border:1px solid rgba(91,161,255,.2) !important;
+  border-radius:24px;
+  box-shadow:0 22px 60px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05);
+}
+.keerthana-full-player .full-player-play {
+  color:#04152d !important;
+  background:linear-gradient(145deg,#c5e7ff,#4ba4ff 70%,#2877ec) !important;
+  box-shadow:0 10px 34px rgba(41,132,255,.38) !important;
+}
+.keerthana-full-player .full-player-seek-button.is-active,
+.keerthana-full-player .full-player-toolbar-group button.is-active {
+  color:#8bcaff !important;
+  border-color:rgba(89,168,255,.52) !important;
+  background:rgba(41,123,238,.18) !important;
+}
+.keerthana-full-player .full-player-seek-range,
+.keerthana-full-player .full-player-volume-slider {
+  accent-color:#62b5ff;
+}
+.keerthana-full-player .full-player-toolbar-group > button,
+.keerthana-full-player .full-player-icon-button {
+  color:#d8eaff !important;
+  border-color:rgba(103,173,255,.22) !important;
+  background:rgba(38,103,190,.13) !important;
+}
+.keerthana-full-player .full-player-eyebrow { color:#79bdff !important; }
+.keerthana-full-player .full-player-progress { accent-color:#62b5ff; }
+.keerthana-mini-player {
+  color:#f3f8ff !important;
+  background:linear-gradient(145deg,rgba(12,31,62,.97),rgba(4,12,27,.98)) !important;
+  border:1px solid rgba(87,160,255,.28) !important;
+  box-shadow:0 -14px 55px rgba(0,0,0,.42),0 0 32px rgba(33,115,236,.12) !important;
+  backdrop-filter:blur(24px);
+}
+.keerthana-mini-player .mini-player-play {
+  color:#06152b !important;
+  background:linear-gradient(145deg,#c5e7ff,#4ba4ff 72%,#2877ec) !important;
+  box-shadow:0 6px 24px rgba(41,132,255,.32) !important;
+}
+.keerthana-mini-player .mini-player-progress input,
+.keerthana-mini-player input[type="range"] { accent-color:#62b5ff; }
+.keerthana-mini-player .mini-player-tool,
+.keerthana-mini-player .mini-player-expand,
+.keerthana-mini-player .mini-player-close {
+  color:#cce5ff !important;
+}
+@media(max-width:600px) {
+ .keerthana-full-player .full-player-body { padding-left:16px; padding-right:16px; }
+ .keerthana-full-player .full-player-controls-area { padding:16px 12px; border-radius:20px; }
+ .keerthana-full-player .full-player-title-link { max-width:100%; overflow-wrap:anywhere; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .keerthana-full-player *, .keerthana-mini-player * { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; }
+}
