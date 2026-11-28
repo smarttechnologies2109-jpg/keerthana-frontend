@@ -451,3 +451,137 @@
     gap: 8px !important;
   }
 }
+
+/* Sleep timer — shared desktop and mobile control */
+.sleep-timer-control {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.full-player-toolbar .sleep-timer-control > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 13px;
+  color: #f6e7c2;
+  background: rgba(139,75,214,.16);
+  border: 1px solid rgba(237,206,134,.24);
+  border-radius: 11px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.full-player-toolbar .sleep-timer-control > button.is-active {
+  color: #ffe8b2;
+  background: rgba(139,75,214,.28);
+  border-color: rgba(237,206,134,.5);
+}
+
+.sleep-timer-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  z-index: 2147483005;
+  width: min(290px, calc(100vw - 28px));
+  padding: 14px;
+  color: #fbf8ff;
+  background: linear-gradient(150deg, #2a1a39, #171020);
+  border: 1px solid rgba(237,206,134,.26);
+  border-radius: 17px;
+  box-shadow: 0 18px 48px rgba(0,0,0,.48);
+}
+
+.sleep-timer-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.sleep-timer-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.sleep-timer-heading strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.sleep-timer-heading small {
+  color: #c1b4cf;
+  font-size: 11px;
+}
+
+.sleep-timer-heading > button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: #d9cce5;
+  background: rgba(255,255,255,.07);
+  border: 0;
+  border-radius: 9px;
+}
+
+.sleep-timer-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 7px;
+}
+
+.sleep-timer-options button,
+.sleep-timer-cancel {
+  min-height: 38px;
+  padding: 7px 8px;
+  color: #f7edff;
+  background: rgba(155,93,229,.18);
+  border: 1px solid rgba(183,122,255,.22);
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sleep-timer-options button:active,
+.sleep-timer-cancel:active {
+  transform: scale(.97);
+}
+
+.sleep-timer-cancel {
+  width: 100%;
+  margin-top: 9px;
+  color: #ffc0c6;
+  background: rgba(255,115,125,.1);
+  border-color: rgba(255,115,125,.22);
+}
+
+@media (max-width: 768px) {
+  .keerthana-full-player .full-player-toolbar-group {
+    gap: 6px !important;
+  }
+  .keerthana-full-player .full-player-toolbar-group > button,
+  .keerthana-full-player .full-player-toolbar-group .sleep-timer-control {
+    flex: 1 1 0 !important;
+    width: 33.333% !important;
+    min-width: 0 !important;
+  }
+  .keerthana-full-player .full-player-toolbar-group .sleep-timer-control > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    padding: 0 5px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+  .keerthana-full-player .sleep-timer-popover {
+    right: 0;
+    bottom: calc(100% + 12px);
+  }
+}
