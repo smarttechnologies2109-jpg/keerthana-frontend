@@ -3269,3 +3269,66 @@
     gap: 2px !important;
   }
 }
+
+/* Immersive blue live-lyrics theme */
+.mini-player-lyrics-panel {
+  background: radial-gradient(ellipse at 50% 0%, rgba(34,112,235,.22), transparent 58%), linear-gradient(155deg,#12264b,#071329 88%) !important;
+  border-color: rgba(82,158,255,.34) !important;
+  box-shadow: 0 28px 90px rgba(0,8,28,.68), 0 0 44px rgba(36,118,255,.12) !important;
+}
+.mini-player-lyrics-panel .mini-panel-header {
+  background: linear-gradient(110deg,rgba(28,104,219,.2),transparent 75%);
+  border-bottom-color: rgba(103,169,255,.2);
+}
+.mini-player-lyrics-panel .mini-panel-eyebrow { color: #78bcff !important; }
+.mini-lyrics-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  color: #9ed0ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+.mini-lyrics-content { scroll-behavior: smooth; }
+.mini-synced-lyrics { gap: 12px !important; }
+.mini-lyric-line {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 50px;
+  padding: 12px 14px !important;
+  color: #91a9ce !important;
+  background: rgba(255,255,255,.018) !important;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  transition: color .25s ease,background .25s ease,border-color .25s ease,transform .25s ease;
+}
+.mini-lyric-line.active {
+  color: #f7fbff !important;
+  background: linear-gradient(105deg,rgba(32,116,255,.26),rgba(47,166,255,.1)) !important;
+  border-color: rgba(87,166,255,.42) !important;
+  box-shadow: inset 3px 0 #58aaff,0 8px 28px rgba(0,91,230,.13);
+  transform: scale(1.01);
+}
+.mini-lyrics-live-indicator {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  color: #b9dcff;
+  background: rgba(43,135,255,.18);
+  border: 1px solid rgba(91,172,255,.28);
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .8px;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .mini-lyric-line { padding: 10px 11px !important; font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mini-lyrics-content { scroll-behavior: auto; }
+  .mini-lyric-line { transition: none; }
+}
