@@ -1,0 +1,379 @@
+/* =========================================================
+   KEERTHANA — ROYAL PURPLE EXPERIENCE SYSTEM
+   Global visual layer for the application (auth screens excluded)
+   Deep plum • Amethyst • Magenta • Champagne gold
+========================================================= */
+
+:root {
+  --k-bg: #100b19;
+  --k-bg-soft: #171020;
+  --k-surface: #1d1528;
+  --k-surface-raised: #281b36;
+  --k-surface-hover: #332142;
+  --k-purple: #8b4bd6;
+  --k-purple-bright: #a66af0;
+  --k-magenta: #c34c9b;
+  --k-gold: #edce86;
+  --k-gold-soft: rgba(237, 206, 134, .13);
+  --k-text: #fbf8ff;
+  --k-muted: #c1b4cf;
+  --k-subtle: #9485a4;
+  --k-border: rgba(220, 195, 245, .13);
+  --k-shadow: 0 18px 48px rgba(0, 0, 0, .28);
+  --k-radius: 20px;
+
+  /* Existing page-specific design tokens */
+  --home-bg: var(--k-bg);
+  --home-bg-soft: var(--k-bg-soft);
+  --home-surface: var(--k-surface);
+  --home-surface-hover: var(--k-surface-hover);
+  --home-surface-raised: #30203f;
+  --home-blue: var(--k-purple);
+  --home-blue-light: #c09af2;
+  --home-blue-dark: #6330a0;
+  --home-gold: var(--k-gold);
+  --home-gold-light: #ffe9b5;
+  --home-text: var(--k-text);
+  --home-text-secondary: var(--k-muted);
+  --home-text-muted: var(--k-subtle);
+  --home-border: var(--k-border);
+  --home-border-hover: rgba(166, 106, 240, .5);
+
+  --search-bg: var(--k-bg);
+  --search-surface: var(--k-surface);
+  --search-surface-raised: var(--k-surface-raised);
+  --search-surface-hover: var(--k-surface-hover);
+  --search-blue: var(--k-purple);
+  --search-blue-hover: #a66af0;
+  --search-blue-soft: rgba(139, 75, 214, .17);
+  --search-gold: var(--k-gold);
+  --search-gold-soft: var(--k-gold-soft);
+  --search-text: var(--k-text);
+  --search-text-secondary: var(--k-muted);
+  --search-text-muted: var(--k-subtle);
+  --search-border: var(--k-border);
+  --search-border-strong: rgba(220, 195, 245, .26);
+
+  --library-bg: var(--k-bg);
+  --library-surface: var(--k-bg-soft);
+  --library-card: var(--k-surface);
+  --library-card-hover: var(--k-surface-hover);
+  --library-border: var(--k-border);
+  --library-text: var(--k-text);
+  --library-muted: var(--k-muted);
+  --library-blue: var(--k-purple);
+  --library-blue-light: #c09af2;
+  --library-gold: var(--k-gold);
+
+  --player-bg: var(--k-bg);
+  --player-surface: var(--k-surface);
+  --player-surface-hover: var(--k-surface-hover);
+  --player-border: var(--k-border);
+  --player-text: var(--k-text);
+  --player-muted: var(--k-muted);
+  --player-gold: var(--k-gold);
+  --player-gold-hover: #ffe8b2;
+  --player-blue: var(--k-purple);
+}
+
+.app {
+  color: var(--k-text);
+  background:
+    radial-gradient(ellipse at 82% -8%, rgba(139,75,214,.18), transparent 35%),
+    radial-gradient(ellipse at 4% 38%, rgba(195,76,155,.07), transparent 32%),
+    var(--k-bg) !important;
+  font-family: Inter, Outfit, "Noto Sans Telugu", system-ui, sans-serif;
+}
+
+.app-body,
+.main-content {
+  background: transparent !important;
+  color: var(--k-text) !important;
+}
+
+.main-content {
+  isolation: isolate;
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3,
+.main-content h4 {
+  color: var(--k-text);
+  letter-spacing: -.025em;
+}
+
+.main-content p {
+  color: inherit;
+}
+
+.main-content a:not(.song-card-component):not(.header-nav-link) {
+  text-underline-offset: 3px;
+}
+
+.main-content button,
+.main-content input,
+.main-content select,
+.main-content textarea {
+  font-family: inherit;
+}
+
+.main-content button,
+.main-content [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.main-content button:not(:disabled) {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.main-content button:not(:disabled):active {
+  transform: translateY(1px) scale(.985);
+}
+
+.main-content button:focus-visible,
+.main-content a:focus-visible,
+.main-content input:focus-visible,
+.main-content select:focus-visible,
+.main-content textarea:focus-visible {
+  outline: 2px solid var(--k-gold) !important;
+  outline-offset: 3px;
+}
+
+/* Shared page surfaces and cards */
+.main-content [class*="card"],
+.main-content [class*="panel"],
+.main-content [class*="tile"],
+.main-content .song-card-component {
+  border-color: var(--k-border);
+}
+
+.main-content [class*="card"]:not(.song-card-image),
+.main-content [class*="panel"] {
+  box-shadow: 0 12px 34px rgba(0,0,0,.16);
+}
+
+.main-content [class*="hero"] {
+  border-color: rgba(190, 145, 235, .22);
+}
+
+.main-content input:not([type="checkbox"]):not([type="radio"]),
+.main-content select,
+.main-content textarea {
+  color: var(--k-text);
+  border-color: var(--k-border);
+  background-color: #21172d;
+}
+
+.main-content input::placeholder,
+.main-content textarea::placeholder {
+  color: #9d8eac;
+}
+
+.main-content select option {
+  color: #21172d;
+  background: #fff;
+}
+
+/* Purple primary actions; keep destructive/status semantics intact */
+.main-content button[class*="primary"],
+.main-content .primary-button,
+.main-content .auth-submit:not(.auth-page *) {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(110deg, #6330a0, #9a55d5 58%, #b64c9c);
+  box-shadow: 0 9px 24px rgba(111, 55, 164, .24);
+}
+
+.main-content button[class*="primary"]:hover,
+.main-content .primary-button:hover {
+  box-shadow: 0 13px 30px rgba(139, 75, 214, .34);
+  transform: translateY(-2px);
+}
+
+/* Sidebar / header / mobile navigation */
+.sidebar {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(139,75,214,.16), transparent 42%),
+    linear-gradient(180deg, #1c1227, #120d1a) !important;
+  border-color: rgba(220,195,245,.12) !important;
+}
+
+.sidebar .sidebar-nav-item.active,
+.sidebar .sidebar-nav-item[aria-current="page"] {
+  color: #fff !important;
+  background: linear-gradient(100deg, rgba(139,75,214,.26), rgba(195,76,155,.12)) !important;
+  box-shadow: inset 3px 0 0 var(--k-gold), 0 8px 22px rgba(0,0,0,.12);
+}
+
+.sidebar .sidebar-nav-item.active svg,
+.sidebar .sidebar-nav-item[aria-current="page"] svg,
+.sidebar .sidebar-section-heading {
+  color: var(--k-gold) !important;
+}
+
+.keerthana-header {
+  background: rgba(24, 15, 34, .9) !important;
+  border-bottom: 1px solid var(--k-border) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,.16);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.header-brand-copy small {
+  color: var(--k-gold) !important;
+}
+
+.header-nav-link.active,
+.header-nav-link[aria-current="page"] {
+  color: #fff !important;
+  background: rgba(139,75,214,.2) !important;
+}
+
+.header-nav-link.active svg,
+.header-nav-link[aria-current="page"] svg {
+  color: var(--k-gold) !important;
+}
+
+.bottom-nav {
+  background: rgba(27, 17, 39, .94) !important;
+  border: 1px solid rgba(220,195,245,.14) !important;
+  box-shadow: 0 14px 42px rgba(0,0,0,.38) !important;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.bottom-nav-item.active,
+.bottom-nav-item.active .bottom-nav-icon svg {
+  color: #e4c0ff !important;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+  background: rgba(139,75,214,.22) !important;
+  box-shadow: 0 5px 18px rgba(139,75,214,.18) !important;
+}
+
+.bottom-nav-item.active::after {
+  background: var(--k-gold) !important;
+  box-shadow: 0 0 9px rgba(237,206,134,.65) !important;
+}
+
+.music-player:not(.music-player-fullscreen),
+.keerthana-mini-player {
+  background: linear-gradient(105deg, #1d1329, #2b1a3a 54%, #1b1228) !important;
+  border-top: 1px solid rgba(220,195,245,.2) !important;
+  box-shadow: 0 -12px 38px rgba(0,0,0,.32) !important;
+}
+
+.music-player button,
+.keerthana-mini-player button {
+  accent-color: var(--k-gold);
+}
+
+.music-player .mini-player-play,
+.keerthana-mini-player .mini-player-play {
+  color: #24152f !important;
+  background: linear-gradient(145deg, #ffe8b1, #d8a94f) !important;
+}
+
+.song-card-component {
+  background: linear-gradient(155deg, #261a34, #191222) !important;
+  border: 1px solid rgba(220,195,245,.12) !important;
+  box-shadow: 0 9px 26px rgba(0,0,0,.2) !important;
+}
+
+.song-card-component:hover {
+  background: linear-gradient(155deg, #352044, #21152e) !important;
+  border-color: rgba(186,128,236,.38) !important;
+  box-shadow: 0 18px 38px rgba(0,0,0,.3) !important;
+  transform: translateY(-4px);
+}
+
+.keerthana-footer {
+  background: linear-gradient(180deg, #171020, #100b19) !important;
+  border-top: 1px solid var(--k-border);
+}
+
+.footer-logo {
+  color: var(--k-gold) !important;
+}
+
+.footer-logo-icon {
+  overflow: hidden;
+  padding: 2px;
+  background: transparent !important;
+  border: 1px solid rgba(237,206,134,.35);
+  border-radius: 12px;
+}
+
+.footer-logo-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* Admin and business-owner pages inherit the same coherent brand */
+.admin-layout,
+.business-owner-layout,
+.admin-main,
+.business-owner-main {
+  color: var(--k-text);
+}
+
+[class*="admin-"] button:focus-visible,
+[class*="business-owner-"] button:focus-visible {
+  outline-color: var(--k-gold);
+}
+
+/* Page entrance: restrained, fast and respectful of reduced motion */
+@keyframes keerthanaPageEnter {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.main-content > * {
+  animation: keerthanaPageEnter .38s cubic-bezier(.2,.7,.2,1) both;
+}
+
+@media (max-width: 760px) {
+  .main-content {
+    padding-top: 78px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .main-content [class*="hero"] {
+    border-radius: 20px;
+  }
+
+  .main-content [class*="grid"] {
+    min-width: 0;
+  }
+
+  .music-player:not(.music-player-fullscreen),
+  .keerthana-mini-player {
+    border-radius: 16px 16px 0 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .main-content {
+    padding-right: 11px;
+    padding-left: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-content > * {
+    animation: none !important;
+  }
+  .main-content *,
+  .sidebar *,
+  .keerthana-header *,
+  .bottom-nav * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
