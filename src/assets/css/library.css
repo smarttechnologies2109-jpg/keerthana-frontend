@@ -1284,3 +1284,35 @@
  .library-card,.library-quick-card,.library-primary-button{transition:none}
  .library-card:hover,.library-quick-card:hover{transform:none}
 }
+
+
+/* FIX: prevent inherited global card styles from painting black inner blocks.
+   The entire Library card is one unified surface; only icon chips and arrows
+   retain their own translucent backgrounds. */
+.library-page .library-card,
+.library-page .library-card:hover{
+ color:#fffaff!important;
+}
+.library-page .library-card :is(.library-card-top,.library-card-content,.library-card-title,.library-card-description,.library-card-action,.library-card-number){
+ background:transparent!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+}
+.library-page .library-card :is(.library-card-top,.library-card-content,.library-card-action){
+ border:0!important;
+}
+.library-page .library-card .library-card-icon{
+ background:color-mix(in srgb,var(--card-accent) 13%,#21152e)!important;
+}
+.library-page .library-card .library-card-arrow-wrap{
+ background:color-mix(in srgb,var(--card-accent) 10%,transparent)!important;
+}
+.library-page .library-card::after{background:linear-gradient(130deg,rgba(255,255,255,.045),transparent 42%,rgba(255,255,255,.018))!important}
+.library-page .library-card-title{color:#fffaff!important}
+.library-page .library-card-description{color:#c8b9d1!important}
+.library-page .library-card-number{color:rgba(237,216,245,.58)!important}
+.library-page .library-card-action{color:var(--card-accent)!important}
+@media(max-width:760px){
+ .library-page .library-card{min-height:220px}
+ .library-page .library-card-content{min-height:0}
+}
