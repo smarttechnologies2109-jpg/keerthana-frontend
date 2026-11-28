@@ -63,16 +63,28 @@ export default function Register() {
 
   return (
     <main className="auth-page">
-      <section className="auth-card" aria-labelledby="register-title">
-        <div className="auth-logo" aria-hidden="true">♪</div>
-        <p className="auth-eyebrow">YOUR MUSIC. YOUR LANGUAGE. YOUR COMMUNITY.</p>
-        <h1>KEERTHANA</h1>
-        <p className="auth-subtitle">Christian Music</p>
+      <div className="auth-shell">
+        <aside className="auth-brand-panel">
+          <div className="auth-brand-top">
+            <div className="auth-brand-mark" aria-label="KEERTHANA logo"><span>K</span><i>♪</i></div>
+            <div className="auth-brand-name">KEERTHANA</div>
+            <div className="auth-brand-rule" />
+          </div>
+          <div className="auth-brand-copy">
+            <h1>Every Song.<br />Every Prayer.<br /><em>One Place.</em></h1>
+            <p>Experience the beauty of Telugu Christian music, praise and worship. Let every melody bring you closer to God.</p>
+            <div className="auth-brand-tags">
+              <span>♪ Praise</span><span>✦ Worship</span><span>♫ Christian Music</span>
+            </div>
+          </div>
+          <div className="auth-brand-footer"><span>MADE FOR WORSHIP</span><b>✦</b><span>MADE WITH LOVE</span></div>
+        </aside>
 
-        <h2 id="register-title">Create your account</h2>
-        <p className="auth-description">
-          Join KEERTHANA and discover uplifting Christian music in the language you love.
-        </p>
+        <section className="auth-main-panel">
+          <div className="auth-card" aria-labelledby="register-title">
+            <p className="auth-eyebrow">JOIN THE COMMUNITY</p>
+            <h2 id="register-title">Create your KEERTHANA account</h2>
+            <p className="auth-description">Your worship journey starts here. Choose your language and join us.</p>
 
         {error && (
           <div className="auth-error" role="alert" aria-live="polite">
@@ -132,8 +144,12 @@ export default function Register() {
         <p className="auth-switch">
           Already part of KEERTHANA? <Link to="/login">Log in</Link>
         </p>
-        <p className="auth-legal">By continuing, you agree to use KEERTHANA respectfully and responsibly.</p>
-      </section>
+        <div className="auth-divider"><span>YOUR WORSHIP JOURNEY</span></div>
+        <p className="auth-legal">✦ &nbsp; Made for worship. Made with love.</p>
+          </div>
+          <footer className="auth-form-footer">© 2026 KEERTHANA MUSIC. ALL RIGHTS RESERVED.</footer>
+        </section>
+      </div>
     </main>
   );
 }
