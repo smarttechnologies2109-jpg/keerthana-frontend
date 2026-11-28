@@ -62,6 +62,7 @@ getMediaUrl,
 
 import "../assets/css/full-player.css";
 import { usePlayerTranslations } from "../utils/playerTranslations";
+import { getSongLanguage } from "../utils/songLanguage";
 
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
 import SleepTimerControl from "./SleepTimerControl";
@@ -373,6 +374,7 @@ songData?.title_native || songData?.titleNative ||
 songData?.title_local || songData?.title || "";
 
 const artistEnglish = getArtistName(currentSong, artistsById, songsById);
+const songLanguage = getSongLanguage(songData);
 
 const directLyrics = typeof currentSong?.lyrics === "string" ? currentSong.lyrics.trim() : "";
 
@@ -851,6 +853,8 @@ title="View song details"
 {artistEnglish}
 
 </p>
+
+{songLanguage && <span className="player-language-pill"><span className="player-language-dot" />{songLanguage} <span className="player-language-caption">SONG LANGUAGE</span></span>}
 
 <button
 
