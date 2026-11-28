@@ -63,6 +63,7 @@ getMediaUrl,
 import "../assets/css/full-player.css";
 
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
+import SleepTimerControl from "./SleepTimerControl";
 
 function formatTime(seconds) {
 
@@ -1050,6 +1051,9 @@ aria-label="Repeat"
 </button>
 
 </div>
+
+<SleepTimerControl />
+
 
 <div className="full-player-volume" aria-label="Volume control">
 
