@@ -25,6 +25,7 @@ import VerticalVolumeControl from "../components/VerticalVolumeControl";
 import { getSongCover, getMediaUrl } from "../utils/media";
 import "../assets/css/mini-player.css";
 import { usePlayerTranslations } from "../utils/playerTranslations";
+import { getSongLanguage } from "../utils/songLanguage";
 import { Capacitor } from "@capacitor/core";
 /* =========================================================
    TIME FORMAT
@@ -300,6 +301,7 @@ const isAndroidNative =
     return active;
   }, [displayedTime, syncedLyrics, lyricsSyncOffset]);
   const cover = currentSong ? getSongCover(currentSong) : "";
+  const songLanguage = getSongLanguage(currentSong);
   const liked = currentSong?.id
     ? isLiked(currentSong.id)
     : false;
@@ -829,6 +831,7 @@ const isAndroidNative =
                 <span>
                   {getEnglishArtists(currentSong, artistsById, songsById)}
                 </span>
+                {songLanguage && <span className="player-language-pill mini-player-language"><span className="player-language-dot" />{songLanguage}</span>}
               </div>
               <button
                 type="button"
