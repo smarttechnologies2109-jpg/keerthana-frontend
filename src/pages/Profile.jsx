@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 import {
   useEffect,
   useRef,
@@ -1652,8 +1654,7 @@ function Profile() {
           EDIT PROFILE MODAL
       ================================================= */}
 
-      {editing && (
-
+      {editing && createPortal(
         <div
           className="profile-modal-overlay"
           onMouseDown={(event) => {
@@ -2002,9 +2003,8 @@ function Profile() {
 
 
           </div>
-
-        </div>
-
+        </div>,
+        document.body
       )}
 
     </div>
