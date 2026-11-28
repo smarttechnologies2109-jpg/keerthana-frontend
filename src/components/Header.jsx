@@ -219,7 +219,7 @@ function Header({ onToggleSidebar }) {
           aria-label="KEERTHANA home"
         >
           <span className="header-brand-mark">
-            <FaMusic />
+            <img src="/keerthana-logo.webp" alt="" />
           </span>
 
           <span className="header-brand-copy">
