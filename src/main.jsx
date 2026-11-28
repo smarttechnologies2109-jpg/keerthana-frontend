@@ -10,6 +10,7 @@ import { AuthProvider } from "./context/AuthContext";
 import "./assets/css/player-mobile-overrides.css";
 import "./assets/css/admob-layout.css";
 import "./assets/css/brand-experience.css";
+import "./assets/css/app-responsive-polish.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
