@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaRegClock, FaTimes } from "react-icons/fa";
 import { usePlayer } from "../context/usePlayer";
 
@@ -7,9 +7,16 @@ const OPTIONS = [15, 30, 45, 60, 90];
 export default function SleepTimerControl() {
   const { sleepTimerEndsAt, startSleepTimer, cancelSleepTimer } = usePlayer();
   const [open, setOpen] = useState(false);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!sleepTimerEndsAt) return undefined;
+    const interval = window.setInterval(() => setNow(Date.now()), 15000);
+    return () => window.clearInterval(interval);
+  }, [sleepTimerEndsAt]);
 
   const remaining = sleepTimerEndsAt
-    ? Math.max(0, Math.ceil((sleepTimerEndsAt - Date.now()) / 60000))
+    ? Math.max(0, Math.ceil((sleepTimerEndsAt - now) / 60000))
     : 0;
 
   return (
