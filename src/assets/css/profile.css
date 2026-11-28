@@ -1868,3 +1868,46 @@
   .profile-page {padding-left:12px;padding-right:12px;padding-bottom:max(178px,calc(150px + env(safe-area-inset-bottom)))}
   .profile-page .profile-welcome-strip,.profile-page .profile-hero,.profile-page .profile-card {border-radius:18px}
 }
+
+/* FINAL ACCOUNT THEME — consistent with KEERTHANA dark plum shell */
+.profile-page {
+ --profile-bg:#100b18;--profile-surface:#21172c;--profile-card:#241a30;
+ --profile-card-hover:#30203f;--profile-border:rgba(202,171,239,.16);
+ --profile-text:#f8f3ff;--profile-muted:#c2b3d0;
+ --profile-blue:#c39aff;--profile-blue-dark:#9565d6;
+ --profile-gold:#f0a58f;--profile-gold-dark:#d77a62;--profile-danger:#ff9baa;
+ color:#f8f3ff;
+ background:radial-gradient(ellipse at 8% 0,rgba(126,76,174,.2),transparent 36%),#100b18;
+}
+.profile-page .profile-welcome-strip {background:radial-gradient(circle at 88% 12%,rgba(196,158,255,.2),transparent 30%),linear-gradient(112deg,#281637,#432453 60%,#512b5d);border-color:rgba(205,174,246,.22)}
+.profile-page .profile-welcome-strip h2 {color:#fff}
+.profile-page .profile-welcome-strip p {color:#ddcfe9}
+.profile-page .profile-hero,.profile-page .profile-card,.profile-page .profile-stat-card,.profile-page .profile-quick-grid>button {
+ background:linear-gradient(145deg,#261a32,#1b1425);border-color:rgba(201,169,238,.16);color:#f8f3ff;
+ box-shadow:0 14px 36px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.035);
+}
+.profile-page .profile-hero-info h1,.profile-page .profile-hero-info h2,.profile-page .profile-stat-card strong,
+.profile-page .profile-card-heading h2,.profile-page .profile-section-heading h2,.profile-page .profile-detail-content>strong,
+.profile-page .profile-quick-grid strong,.profile-page .profile-membership-card>h3 {color:#fff}
+.profile-page .profile-hero-info p,.profile-page .profile-email,.profile-page .profile-stat-card span,
+.profile-page .profile-detail-content>span,.profile-page .profile-quick-grid span,.profile-page .profile-membership-card>p {color:#c7b8d5}
+.profile-page .profile-plan-badge,.profile-page .profile-detail-icon,.profile-page .profile-stat-icon,
+.profile-page .profile-quick-grid>button>div {background:rgba(160,112,218,.18);border-color:rgba(207,177,245,.2);color:#dfc4ff}
+.profile-page .profile-stat-icon.heart {background:rgba(218,105,132,.16);color:#ffadbd}
+.profile-page .profile-membership-card {background:radial-gradient(circle at 90% 0,rgba(219,139,116,.16),transparent 38%),linear-gradient(145deg,#2b1d32,#1d1426)}
+.profile-page .profile-membership-icon {background:rgba(215,122,98,.16);color:#ffb49d}
+.profile-page .profile-detail-row,.profile-page .profile-card-heading {border-color:rgba(201,169,238,.13)}
+.profile-page .profile-detail-content input,.profile-page .profile-detail-content select,
+.profile-modal-field input,.profile-modal-field select {background:#170f20;color:#fff;border-color:rgba(201,169,238,.24)}
+.profile-page .profile-logout-section {background:rgba(177,70,91,.12);border-color:rgba(255,155,170,.2)}
+.profile-page .profile-logout-section strong {color:#fff}.profile-page .profile-logout-section span {color:#d0bfd9}
+.profile-modal {background:linear-gradient(155deg,#2b1d37,#191220);border-color:rgba(201,169,238,.2)}
+.profile-modal-header h2,.profile-modal-field label {color:#fff}
+.profile-modal-field input,.profile-modal-field select {color:#fff}
+.profile-modal-cancel {background:#30223c;color:#eee2fa;border-color:rgba(201,169,238,.2)}
+.profile-page :where(button,a,input,select):focus-visible,.profile-modal-overlay :where(button,a,input,select):focus-visible {outline-color:#d0a8ff}
+@media(max-width:760px) {
+ .profile-page {padding:17px 12px max(190px,calc(165px + env(safe-area-inset-bottom)))}
+ .profile-page .profile-welcome-strip,.profile-page .profile-hero,.profile-page .profile-card {border-radius:18px}
+ .profile-page .profile-quick-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
