@@ -269,7 +269,7 @@ function Sidebar({ isOpen, onToggle }) {
             className="sidebar-brand-logo"
             aria-hidden="true"
           >
-            <FaMusic />
+            <img src="/keerthana-logo.webp" alt="" />
           </span>
 
           <span className="sidebar-brand-text">
