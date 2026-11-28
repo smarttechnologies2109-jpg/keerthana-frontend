@@ -477,3 +477,60 @@ body {
     text-align: center;
   }
 }
+
+/* =========================================================
+   INTERACTION QUALITY — WEB + CAPACITOR
+   Non-invasive accessibility and touch refinements.
+   Avoid global minimum heights so compact player controls
+   and existing page-specific layouts keep their dimensions.
+========================================================= */
+.app.keerthana-app-layout button,
+.app.keerthana-app-layout a,
+.app.keerthana-app-layout [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.app.keerthana-app-layout :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--k-gold, #edce86);
+  outline-offset: 3px;
+}
+
+.app.keerthana-app-layout :where([class*="scroll"], [class*="list"], [class*="queue"], [class*="lyrics"]) {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app.keerthana-app-layout img {
+  -webkit-user-drag: none;
+}
+
+@media (max-width: 768px) {
+  /* Prevent browser zoom on form focus while preserving desktop sizing. */
+  .app.keerthana-app-layout .main-content input:not([type="checkbox"]):not([type="radio"]),
+  .app.keerthana-app-layout .main-content select,
+  .app.keerthana-app-layout .main-content textarea {
+    font-size: max(16px, 1em);
+  }
+
+  .app.keerthana-app-layout .main-content :where(button, a, [role="button"]) {
+    scroll-margin-block: 88px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app.keerthana-app-layout .main-content :where(button, a, [role="button"]) {
+    transition: filter .16s ease, border-color .16s ease;
+  }
+
+  .app.keerthana-app-layout .main-content :where(button, a, [role="button"]):hover {
+    filter: brightness(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app.keerthana-app-layout .main-content :where(button, a, [role="button"]) {
+    transition: none !important;
+  }
+}
+
