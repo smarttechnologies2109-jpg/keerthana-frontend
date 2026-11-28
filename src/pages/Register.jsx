@@ -7,12 +7,12 @@ import { useLanguage } from "../context/LanguageContext";
 import "../assets/css/register.css";
 
 const LANGUAGES = [
-  { value: "Telugu", label: "తెలుగు" },
-  { value: "Hindi", label: "हिन्दी" },
+  { value: "Telugu", label: "తెలుగు (Telugu)" },
+  { value: "Hindi", label: "हिन्दी (Hindi)" },
   { value: "English", label: "English" },
-  { value: "Malayalam", label: "മലയാളം" },
-  { value: "Kannada", label: "ಕನ್ನಡ" },
-  { value: "Tamil", label: "தமிழ்" },
+  { value: "Malayalam", label: "മലയാളം (Malayalam)" },
+  { value: "Kannada", label: "ಕನ್ನಡ (Kannada)" },
+  { value: "Tamil", label: "தமிழ் (Tamil)" },
 ];
 
 export default function Register() {
