@@ -1670,7 +1670,12 @@ function Profile() {
           }}
         >
 
-          <div className="profile-modal">
+          <div
+            className="profile-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-edit-modal-title"
+          >
 
 
             {/* =========================================
@@ -1685,7 +1690,7 @@ function Profile() {
                   KEERTHANA ACCOUNT
                 </span>
 
-                <h2>
+                <h2 id="profile-edit-modal-title">
                   Edit Profile
                 </h2>
 
