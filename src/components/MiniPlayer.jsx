@@ -525,7 +525,8 @@ const isAndroidNative =
             <span className="mini-panel-eyebrow">
               KEERTHANA MUSIC
             </span>
-            <h2>Song Lyrics</h2>
+            <h2>Live Lyrics</h2>
+            <span className="mini-lyrics-live-badge">● LIVE SYNC</span>
             <p>
               {getEnglishTitle(currentSong)} ·{" "}
               {getEnglishArtists(currentSong, artistsById, songsById)}
@@ -575,7 +576,8 @@ const isAndroidNative =
                   onClick={() => seek(line.time)}
                   title="Jump to this lyric"
                >
-                  {line.text}
+                  <span>{line.text}</span>
+                  {index === activeLyricIndex && <small className="mini-lyrics-live-indicator">NOW PLAYING</small>}
                 </button>
               ))}
             </div>
