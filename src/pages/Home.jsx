@@ -1741,7 +1741,7 @@ useEffect(() => {
       borderRadius: "18px",
       cursor: "pointer",
       background:
-        "linear-gradient(120deg, #101d3b 0%, #173b70 65%, #263e66 100%)",
+        "radial-gradient(circle at 88% 12%, rgba(195,76,155,0.2), transparent 34%), linear-gradient(120deg, #281637 0%, #54265f 62%, #713b72 100%)",
       border: "1px solid rgba(212,175,101,0.45)",
       boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
     }}
@@ -1769,7 +1769,7 @@ useEffect(() => {
           Enjoy 30 Minutes Ad-Free!
         </h2>
 
-        <p style={{ color: "#e0e7f3", margin: 0, fontSize: "13px" }}>
+        <p style={{ color: "#f0e5f3", margin: 0, fontSize: "13px" }}>
           Watch one short video and enjoy uninterrupted worship music.
         </p>
 
