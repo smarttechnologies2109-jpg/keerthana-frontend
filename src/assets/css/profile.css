@@ -2027,3 +2027,89 @@
 @media(prefers-reduced-motion:reduce) {
   .profile-modal,.profile-modal-overlay {animation:none!important}
 }
+
+
+/* MOBILE MODAL VISIBILITY — portal-mounted above app chrome and navigation */
+.profile-modal-overlay {
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483000!important;
+  display:flex!important;
+  visibility:visible;
+  opacity:1;
+  isolation:isolate;
+  align-items:center;
+  justify-content:center;
+  width:100vw;
+  width:100dvw;
+  height:100vh;
+  height:100dvh;
+  max-width:none;
+  margin:0;
+  padding:24px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  background:rgba(10,5,16,.82);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+}
+.profile-modal-overlay > .profile-modal {
+  position:relative;
+  z-index:1;
+  display:flex!important;
+  visibility:visible;
+  opacity:1;
+  flex-direction:column;
+  flex:0 1 540px;
+  width:min(540px,100%);
+  min-width:0;
+  max-height:calc(100dvh - 48px);
+  margin:auto;
+  overflow:hidden;
+}
+.profile-modal-body {
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+@media(max-width:600px) {
+  .profile-modal-overlay {
+    align-items:flex-end!important;
+    justify-content:center!important;
+    padding:env(safe-area-inset-top,8px) 0 0!important;
+  }
+  .profile-modal-overlay > .profile-modal {
+    flex:0 1 auto;
+    width:100%!important;
+    max-width:none!important;
+    max-height:calc(100dvh - env(safe-area-inset-top,8px))!important;
+    min-height:min(420px,70dvh);
+    margin:0!important;
+    border-radius:24px 24px 0 0!important;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    animation:profileModalMobileIn .24s cubic-bezier(.2,.75,.25,1);
+  }
+  .profile-modal-header,.profile-modal-body,.profile-modal-footer {
+    flex-shrink:0;
+    min-width:0;
+  }
+  .profile-modal-body {
+    flex:1 1 auto;
+    min-height:0;
+    padding-bottom:20px;
+  }
+  .profile-modal-footer {
+    position:sticky;
+    bottom:0;
+    display:grid;
+    grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+    gap:10px;
+    padding-bottom:max(14px,env(safe-area-inset-bottom));
+    background:#1b1325;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .profile-modal-overlay > .profile-modal {animation:none!important}
+}
