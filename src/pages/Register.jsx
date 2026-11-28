@@ -66,7 +66,7 @@ export default function Register() {
       <div className="auth-shell">
         <aside className="auth-brand-panel">
           <div className="auth-brand-top">
-            <div className="auth-brand-mark"><img src="/logo.png" alt="KEERTHANA" /></div>
+            <div className="auth-brand-mark"><img src="/keerthana-logo.jpg" alt="KEERTHANA" /></div>
             <div className="auth-brand-name">KEERTHANA</div>
             <div className="auth-brand-rule" />
           </div>
