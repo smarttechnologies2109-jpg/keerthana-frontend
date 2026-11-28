@@ -381,6 +381,22 @@ const Statistics = () => {
   const topLanguages =
     statistics?.topLanguages || [];
 
+  const recentListeningDays = Array.isArray(statistics?.daily)
+    ? statistics.daily.slice(0, 7).reverse()
+    : [];
+  const recentSevenDaySeconds = recentListeningDays.reduce(
+    (total, day) => total + (Number(day?.listening_seconds) || 0),
+    0
+  );
+  const recentSevenDayPlays = recentListeningDays.reduce(
+    (total, day) => total + (Number(day?.play_count) || 0),
+    0
+  );
+  const recentDayPeak = Math.max(
+    1,
+    ...recentListeningDays.map((day) => Number(day?.listening_seconds) || 0)
+  );
+
   /* =======================================================
      RENDER
   ======================================================= */
@@ -922,6 +938,47 @@ const Statistics = () => {
           </section>
 
         )}
+
+      {recentListeningDays.length > 0 && (
+        <section className="statistics-section recent-week-section">
+          <div className="statistics-section-title">
+            <div>
+              <FaChartBar />
+              <h2>Recent 7 Recorded Days</h2>
+            </div>
+          </div>
+
+          <div className="recent-week-summary">
+            <div>
+              <span>Total listening</span>
+              <strong>{formatTime(recentSevenDaySeconds)}</strong>
+            </div>
+            <div>
+              <span>Songs played</span>
+              <strong>{recentSevenDayPlays.toLocaleString()}</strong>
+            </div>
+          </div>
+
+          <div className="recent-week-bars" aria-label="Listening time over the seven most recent recorded days">
+            {recentListeningDays.map((day, index) => {
+              const seconds = Number(day?.listening_seconds) || 0;
+              const height = seconds > 0
+                ? Math.max(5, (seconds / recentDayPeak) * 100)
+                : 3;
+              return (
+                <div className="recent-week-bar-item" key={`recent-day-${day?.date || index}`}>
+                  <strong>{formatTime(seconds)}</strong>
+                  <div className="recent-week-bar-track">
+                    <span style={{ height: `${height}%` }} />
+                  </div>
+                  <small>{String(day?.date || `Day ${index + 1}`).slice(0, 10)}</small>
+                </div>
+              );
+            })}
+          </div>
+          <p className="recent-week-note">Based on the seven most recent daily records returned by your listening statistics.</p>
+        </section>
+      )}
 
       {/* =================================================
           HOURLY LISTENING
