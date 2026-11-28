@@ -884,3 +884,26 @@
     transform:translateY(-2px);
   }
 }
+
+
+/* Keep the fullscreen player consistent with the portal's plum palette. */
+.keerthana-full-player {
+  --full-bg:#100b19;
+  --full-surface:#21162c;
+  --full-border:rgba(220,195,245,.16);
+  --full-text:#fbf8ff;
+  --full-muted:#c1b4cf;
+  --full-gold:#edce86;
+  --full-blue:#a66af0;
+  background:
+    radial-gradient(ellipse at 50% 32%,rgba(125,69,160,.24),transparent 48%),
+    radial-gradient(ellipse at 10% 100%,rgba(137,62,128,.16),transparent 45%),
+    linear-gradient(145deg,#21132d 0%,#100b19 58%,#090610 100%)!important;
+}
+.keerthana-full-player .full-player-artwork-glow {background:rgba(155,93,229,.22)!important}
+.keerthana-full-player .full-player-play {color:#21172b!important}
+.keerthana-full-player .full-player-play:hover {color:#21172b!important}
+.keerthana-full-player .full-player-toolbar {background:rgba(16,11,25,.84)!important}
+.keerthana-full-player .full-player-panel {background:linear-gradient(155deg,#2a1a39,#171020 85%)!important}
+.keerthana-full-player .full-player-lyric-line.is-active {color:#edce86!important;background:rgba(166,106,240,.13)!important}
+.keerthana-full-player .full-player-progress input[type="range"] {accent-color:#edce86!important}
