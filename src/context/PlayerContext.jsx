@@ -391,6 +391,7 @@ export const PlayerProvider = ({ children }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState("off");
+  const [playbackRate, setPlaybackRateState] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [offlineSongs, setOfflineSongs] = useState([]);
@@ -493,6 +494,12 @@ export const PlayerProvider = ({ children }) => {
           );
         }
 
+        if (typeof data.playbackRate === "number") {
+          const restoredRate = Math.min(2, Math.max(0.5, data.playbackRate));
+          setPlaybackRateState(restoredRate);
+          audio.playbackRate = restoredRate;
+        }
+
         if (typeof data.isShuffle === "boolean") {
           setIsShuffle(data.isShuffle);
         }
@@ -590,6 +597,7 @@ export const PlayerProvider = ({ children }) => {
           volume,
           isShuffle,
           repeatMode,
+          playbackRate,
         })
       );
     } catch (error) {
@@ -608,6 +616,7 @@ export const PlayerProvider = ({ children }) => {
     volume,
     isShuffle,
     repeatMode,
+    playbackRate,
   ]);
 
   /* LOAD OFFLINE SONG LIST */
@@ -1657,6 +1666,17 @@ export const PlayerProvider = ({ children }) => {
     setIsMuted((previous) => !previous);
   }, []);
 
+  /* PLAYBACK SPEED */
+
+  const setPlaybackRate = useCallback((value) => {
+    const rate = Number(value);
+    if (!Number.isFinite(rate) || rate < 0.5 || rate > 2) return;
+    audio.playbackRate = rate;
+    if ("preservesPitch" in audio) audio.preservesPitch = true;
+    if ("webkitPreservesPitch" in audio) audio.webkitPreservesPitch = true;
+    setPlaybackRateState(rate);
+  }, [audio]);
+
   /* SHUFFLE AND REPEAT */
 
   const toggleShuffle = useCallback(() => {
@@ -2129,6 +2149,8 @@ export const PlayerProvider = ({ children }) => {
 
     repeatMode,
     toggleRepeat,
+    playbackRate,
+    setPlaybackRate,
 
     isLiked,
     setIsLiked,
