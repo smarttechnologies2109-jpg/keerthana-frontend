@@ -2629,3 +2629,113 @@
 @media(prefers-reduced-motion:reduce) {
  .keerthana-full-player *, .keerthana-mini-player * { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; }
 }
+
+/* =========================================================
+   PLAYER EXPERIENCE — BLUE GLASS + MOBILE ERGONOMICS
+========================================================= */
+.keerthana-full-player {
+  color-scheme: dark;
+  background:
+    radial-gradient(ellipse at 50% 12%, rgba(36,125,255,.2), transparent 42%),
+    linear-gradient(145deg,#071a38 0%,#050d20 60%,#030713 100%) !important;
+}
+.keerthana-full-player .full-player-artwork {
+  border: 1px solid rgba(105,180,255,.45) !important;
+  box-shadow: 0 24px 75px rgba(0,0,0,.48),0 0 40px rgba(37,126,255,.2) !important;
+}
+.keerthana-full-player .full-player-artwork-glow {
+  background: rgba(45,135,255,.32) !important;
+}
+.keerthana-full-player .full-player-controls > button:not(.full-player-play) {
+  color: #b8cde9;
+  transition: color .18s ease,background .18s ease,transform .18s ease;
+}
+.keerthana-full-player .full-player-controls > button:hover:not(:disabled),
+.keerthana-full-player .full-player-controls > button.is-active {
+  color: #80c4ff !important;
+  background: rgba(48,137,255,.16) !important;
+}
+.keerthana-full-player .full-player-controls > button.full-player-play {
+  color: #06142b !important;
+  background: linear-gradient(145deg,#bce5ff,#4d9fff 65%,#2678ef) !important;
+  border: 1px solid rgba(200,235,255,.9) !important;
+  box-shadow: 0 8px 32px rgba(37,132,255,.36),inset 0 1px rgba(255,255,255,.65) !important;
+}
+.keerthana-full-player .full-player-progress input[type="range"],
+.keerthana-mini-player .mini-player-progress input[type="range"] {
+  accent-color: #58aaff;
+  cursor: pointer;
+}
+.keerthana-full-player .full-player-progress input[type="range"] {
+  min-height: 28px;
+}
+.keerthana-full-player .full-player-toolbar {
+  border-color: rgba(91,164,255,.2) !important;
+  background: linear-gradient(120deg,rgba(18,54,105,.7),rgba(9,23,48,.82)) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.035),0 12px 30px rgba(0,0,0,.16);
+}
+.keerthana-mini-player {
+  background: linear-gradient(115deg,rgba(9,27,57,.98),rgba(5,13,30,.99)) !important;
+  border-color: rgba(83,158,255,.28) !important;
+  box-shadow: 0 -12px 42px rgba(0,0,0,.35),0 0 28px rgba(40,120,255,.12) !important;
+}
+.keerthana-mini-player .mini-player-play {
+  color: #06142b !important;
+  background: linear-gradient(145deg,#bce5ff,#4d9fff 65%,#2678ef) !important;
+  box-shadow: 0 5px 22px rgba(37,132,255,.3) !important;
+}
+.keerthana-mini-player .mini-player-controls > button.is-active,
+.keerthana-mini-player .mini-player-like.is-liked {
+  color: #80c4ff !important;
+  background: rgba(48,137,255,.15) !important;
+}
+@media (max-width: 600px) {
+  .keerthana-full-player.keerthana-android-native .full-player-controls {
+    display: grid !important;
+    grid-template-columns: repeat(7,minmax(0,1fr)) !important;
+    align-items: center !important;
+    justify-items: center !important;
+    gap: 2px !important;
+    width: 100% !important;
+  }
+  .keerthana-full-player.keerthana-android-native .full-player-controls > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    flex: initial !important;
+    font-size: 14px !important;
+  }
+  .keerthana-full-player.keerthana-android-native .full-player-controls > button.full-player-play {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    border-radius: 50% !important;
+  }
+  .keerthana-full-player.keerthana-android-native .full-player-controls-area {
+    gap: 12px !important;
+  }
+  .keerthana-mini-player.keerthana-android-native .mini-player-controls {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 3px !important;
+    width: 100% !important;
+  }
+  .keerthana-mini-player.keerthana-android-native .mini-player-controls > button {
+    flex: 0 1 34px !important;
+    min-width: 26px !important;
+    width: 34px !important;
+  }
+  .keerthana-mini-player.keerthana-android-native .mini-player-controls > .mini-player-play {
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-full-player *, .keerthana-mini-player * {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
