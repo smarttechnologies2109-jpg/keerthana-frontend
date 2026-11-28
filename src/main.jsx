@@ -11,6 +11,7 @@ import "./assets/css/player-mobile-overrides.css";
 import "./assets/css/admob-layout.css";
 import "./assets/css/brand-experience.css";
 import "./assets/css/app-responsive-polish.css";
+import "./assets/css/player-alignment-fix.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
