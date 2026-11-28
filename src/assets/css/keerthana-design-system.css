@@ -336,3 +336,74 @@
     transition-duration: .01ms !important;
   }
 }
+
+/* Route page canvases: retain each page's layout while unifying its palette */
+.app .main-content > [class$="-page"],
+.app .main-content > [class*="-page "] {
+  color: var(--k-text);
+  background: transparent !important;
+}
+
+/* Actual application navigation and playback component names */
+.app .sidebar {
+  color: var(--k-text);
+  background: linear-gradient(180deg, #1c1027, #130d1d 78%);
+  border-right: 1px solid var(--k-border);
+}
+.app .sidebar-section-heading,
+.app .sidebar-label { color: var(--k-muted); }
+.app .sidebar-nav-item { color: var(--k-muted); border-color: transparent; border-radius: 12px; }
+.app .sidebar-nav-item:hover { color: #fff; background: rgba(155,93,229,.12); }
+.app .sidebar-nav-item.active {
+  color: #fff;
+  background: linear-gradient(100deg, rgba(123,61,160,.38), rgba(155,93,229,.14));
+  border-color: rgba(183,122,255,.2);
+  box-shadow: inset 3px 0 0 var(--k-gold);
+}
+.app .sidebar-icon { color: var(--k-purple-bright); }
+.app .keerthana-mini-player,
+.app .mini-player-panel,
+.app .mini-player-queue-panel {
+  color: var(--k-text);
+  background: linear-gradient(110deg, #241431, #321c43);
+  border-color: var(--k-border);
+}
+.app .keerthana-mini-player button,
+.app .mini-player-panel button { color: var(--k-text); }
+.app .keerthana-header button,
+.app .header-profile-dropdown {
+  color: var(--k-text);
+  border-color: var(--k-border);
+  background-color: #21162c;
+}
+.app .header-search-input {
+  color: var(--k-text);
+  background: #21162c;
+  border-color: var(--k-border);
+}
+.app .app-body > footer,
+.app .app-body .app-footer {
+  color: var(--k-muted);
+  background: #160e20;
+  border-top: 1px solid var(--k-border);
+}
+.app .main-content .empty-state,
+.app .main-content [class*="empty-state"] {
+  color: var(--k-muted);
+  border-color: var(--k-border);
+}
+.app .main-content .song-card-component {
+  background: linear-gradient(155deg, #2a1b37, #1a1124);
+  border-color: var(--k-border);
+}
+.app .main-content .song-card-component:hover {
+  border-color: rgba(183,122,255,.42);
+}
+.app .main-content .song-card-cover {
+  background: #24152f;
+}
+.app .main-content [class*="badge"],
+.app .main-content [class*="chip"],
+.app .main-content [class*="tag"] {
+  border-color: var(--k-border);
+}
