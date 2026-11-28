@@ -2841,3 +2841,47 @@
   .player-language-caption { font-size: 7px; }
   .mini-player-language { margin-top: 3px; padding: 3px 7px; font-size: 9px; }
 }
+
+/* Live spectrum visualizer */
+.keerthana-audio-visualizer {
+  position: relative;
+  width: min(100%, 360px);
+  height: 48px;
+  margin: 12px auto 8px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(114,169,255,.16);
+  border-radius: 14px;
+  padding: 7px 12px 5px;
+  background: linear-gradient(120deg, rgba(17,29,51,.76), rgba(31,45,73,.46));
+  box-shadow: inset 0 1px rgba(255,255,255,.035), 0 8px 24px rgba(0,0,0,.12);
+}
+.keerthana-audio-visualizer .visualizer-label {
+  align-self: center;
+  flex: 0 0 auto;
+  color: rgba(205,220,246,.62);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.keerthana-audio-visualizer canvas {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+@media (max-width: 768px) {
+  .keerthana-audio-visualizer {
+    width: min(100%, 300px);
+    height: 38px;
+    margin: 7px auto 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .keerthana-audio-visualizer { scroll-behavior: auto; }
+}
