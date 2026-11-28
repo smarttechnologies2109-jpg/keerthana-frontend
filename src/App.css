@@ -15,7 +15,7 @@ body,
 body {
   margin: 0;
 
-  background: #0d0f0e;
+  background: #120d19;
 
   color: white;
 
@@ -51,9 +51,9 @@ button {
   background:
     radial-gradient(
       circle at top,
-      #173524 0%,
-      #101411 30%,
-      #0b0d0c 70%
+      #352044 0%,
+      #1d1426 36%,
+      #100b16 78%
     );
 }
 
