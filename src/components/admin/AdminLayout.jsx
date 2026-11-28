@@ -7,13 +7,14 @@ import MusicPlayer from "../MusicPlayer";
 import BottomNav from "../BottomNav";
 
 import "../../assets/css/appLayout.css";
+import "../../assets/css/admin/adminLayout.css";
 
 
 function AppLayout() {
 
   return (
 
-    <div className="app">
+    <div className="app admin-layout">
 
       <AdminSidebar />
 
