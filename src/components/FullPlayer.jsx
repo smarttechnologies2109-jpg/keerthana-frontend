@@ -1117,7 +1117,7 @@ aria-label="Song lyrics"
 
 <div>
 
-<span>KEERTHANA • LYRICS</span>
+<span className="lyrics-live-eyebrow">KEERTHANA • LIVE LYRICS</span>
 
 <h2>{songTitleEnglish}</h2>
 
@@ -1189,7 +1189,9 @@ onClick={() => seek(line.time)}
 
 >
 
-{line.text}
+<span>{line.text}</span>
+
+{index === activeLyricIndex && <small className="lyrics-live-indicator">NOW PLAYING</small>}
 
 </button>
 
