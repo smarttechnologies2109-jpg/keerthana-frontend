@@ -314,6 +314,10 @@ const [fetchedLyrics, setFetchedLyrics] = useState("");
 const [lyricsLoading, setLyricsLoading] = useState(false);
 
 const [lyricsError, setLyricsError] = useState("");
+const [lyricsFontSize, setLyricsFontSize] = useState(22);
+const [lyricsSyncOffset, setLyricsSyncOffset] = useState(0);
+const [lyricsTranslation, setLyricsTranslation] = useState(false);
+const [lyricsFocusMode, setLyricsFocusMode] = useState(false);
 
 const [artistsById, setArtistsById] = useState({});
 
@@ -353,12 +357,14 @@ const artistEnglish = getArtistName(currentSong, artistsById, songsById);
 const directLyrics = typeof currentSong?.lyrics === "string" ? currentSong.lyrics.trim() : "";
 
 const lyrics = directLyrics || fetchedLyrics;
+const translatedLyrics = [songData?.lyrics_translation, songData?.translated_lyrics, songData?.lyrics_english].find((value) => typeof value === "string" && value.trim()) || "";
+const visibleLyrics = lyricsTranslation && translatedLyrics ? translatedLyrics : lyrics;
 
 const syncedLyrics = useMemo(
 
-() => parseLyrics(lyrics),
+() => parseLyrics(visibleLyrics),
 
-[lyrics]
+[visibleLyrics]
 
 );
 
@@ -374,7 +380,7 @@ let active = -1;
 
 for (let index = 0; index < syncedLyrics.length; index += 1) {
 
-if (displayedTime>= syncedLyrics[index].time) active = index;
+if (displayedTime + lyricsSyncOffset >= syncedLyrics[index].time) active = index;
 
 else break;
 
@@ -382,7 +388,7 @@ else break;
 
 return active;
 
-}, [displayedTime, syncedLyrics]);
+}, [displayedTime, syncedLyrics, lyricsSyncOffset]);
 
 // Use the same two API sources as AllSongs.jsx. The /songs reference
 
@@ -1118,6 +1124,12 @@ aria-label="Song lyrics"
 <div>
 
 <span className="lyrics-live-eyebrow">KEERTHANA • LIVE LYRICS</span>
+<div className="lyrics-pro-toolbar">
+<button type="button" onClick={() => setLyricsFontSize((v) => Math.max(14, v - 2))} aria-label="Decrease lyrics font size">A−</button>
+<button type="button" onClick={() => setLyricsFontSize((v) => Math.min(34, v + 2))} aria-label="Increase lyrics font size">A+</button>
+<button type="button" onClick={() => setLyricsFocusMode((v) => !v)} aria-pressed={lyricsFocusMode}>{lyricsFocusMode ? "Exit focus" : "Focus mode"}</button>
+{translatedLyrics && <button type="button" onClick={() => setLyricsTranslation((v) => !v)} aria-pressed={lyricsTranslation}>{lyricsTranslation ? "Original" : "Translation"}</button>}
+</div>
 
 <h2>{songTitleEnglish}</h2>
 
@@ -1143,7 +1155,7 @@ aria-label="Close lyrics"
 
 </header>
 
-<div className="full-player-lyrics-content">
+<div className={`full-player-lyrics-content${lyricsFocusMode ? " lyrics-focus-mode" : ""}`} style={{ "--lyrics-font-size": `${lyricsFontSize}px`, backgroundImage: cover ? `linear-gradient(rgba(4,12,28,.94),rgba(4,12,28,.98)), url("${cover}")` : undefined }}>
 
 {lyricsLoading ? (
 
@@ -1185,11 +1197,11 @@ index === activeLyricIndex
 
 }
 
-onClick={() => seek(line.time)}
+onClick={() => seek(Math.max(0, line.time - lyricsSyncOffset))}
 
 >
 
-<span>{line.text}</span>
+<span style={{ fontSize: "var(--lyrics-font-size, 22px)" }}>{line.text}</span>
 
 {index === activeLyricIndex && <small className="lyrics-live-indicator">NOW PLAYING</small>}
 
@@ -1201,7 +1213,7 @@ onClick={() => seek(line.time)}
 
 ) : (
 
-<div className="full-player-plain-lyrics">
+<div className="full-player-plain-lyrics" style={{ fontSize: `${lyricsFontSize}px` }}>
 
 {lyrics.split(/\r?\n/).map((line, index) => (
 
