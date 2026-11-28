@@ -1128,6 +1128,7 @@ aria-label="Song lyrics"
 <button type="button" onClick={() => setLyricsFontSize((v) => Math.max(14, v - 2))} aria-label="Decrease lyrics font size">A−</button>
 <button type="button" onClick={() => setLyricsFontSize((v) => Math.min(34, v + 2))} aria-label="Increase lyrics font size">A+</button>
 <button type="button" onClick={() => setLyricsFocusMode((v) => !v)} aria-pressed={lyricsFocusMode}>{lyricsFocusMode ? "Exit focus" : "Focus mode"}</button>
+<label className="lyrics-sync-control">Sync <input type="range" min="-5" max="5" step="0.1" value={lyricsSyncOffset} onChange={(event) => setLyricsSyncOffset(Number(event.target.value))} aria-label="Adjust lyric timing" /><span>{lyricsSyncOffset > 0 ? "+" : ""}{lyricsSyncOffset.toFixed(1)}s</span></label>
 {translatedLyrics && <button type="button" onClick={() => setLyricsTranslation((v) => !v)} aria-pressed={lyricsTranslation}>{lyricsTranslation ? "Original" : "Translation"}</button>}
 </div>
 
