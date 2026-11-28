@@ -1050,9 +1050,9 @@ aria-label="Repeat"
   <span>Lyrics</span>
 </button>
 
-</div>
-
 <SleepTimerControl />
+
+</div>
 
 
 <div className="full-player-volume" aria-label="Volume control">
