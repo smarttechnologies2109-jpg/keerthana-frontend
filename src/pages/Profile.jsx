@@ -932,6 +932,14 @@ function Profile() {
 
     <div className="profile-page">
 
+      <div className="profile-welcome-strip">
+        <div>
+          <span className="profile-welcome-kicker">YOUR KEERTHANA SPACE</span>
+          <h2>A little space for the music you love.</h2>
+          <p>Manage your account, discover your listening activity and make KEERTHANA feel like yours.</p>
+        </div>
+        <div className="profile-welcome-mark" aria-hidden="true"><FaMusic /></div>
+      </div>
 
       {/* =================================================
           HERO
