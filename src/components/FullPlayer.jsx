@@ -63,6 +63,7 @@ getMediaUrl,
 import "../assets/css/full-player.css";
 import { usePlayerTranslations } from "../utils/playerTranslations";
 import { getSongLanguage } from "../utils/songLanguage";
+import AudioVisualizer from "./AudioVisualizer";
 
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
 import SleepTimerControl from "./SleepTimerControl";
@@ -319,6 +320,8 @@ toggleRepeat,
 playSong,
 
 playQueueSong,
+
+audio,
 
 closePlayer,
 
@@ -825,6 +828,8 @@ event.currentTarget.style.display = "none";
 <span className="full-player-artwork-glow" />
 
 </button>
+
+<AudioVisualizer audio={audio} isPlaying={isPlaying} />
 
 <div className="full-player-song-info">
 
