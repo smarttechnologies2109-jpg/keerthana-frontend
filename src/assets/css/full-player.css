@@ -2538,3 +2538,10 @@
 @media(prefers-reduced-motion:reduce) {
  .lyrics-focus-mode { scroll-behavior:auto; }
 }
+
+
+/* Word-level karaoke timing (enhanced LRC <mm:ss.xx> tags) */
+.lyrics-word { color: inherit; transition: color .12s ease, text-shadow .12s ease; }
+.lyrics-word.is-sung { color: #f4faff; text-shadow: 0 0 12px rgba(90,175,255,.35); }
+.full-player-lyric-line.is-active .lyrics-word.is-sung,
+.mini-lyric-line.active .lyrics-word.is-sung { color: #8dcbff; }
