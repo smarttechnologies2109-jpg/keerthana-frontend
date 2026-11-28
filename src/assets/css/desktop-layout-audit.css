@@ -167,3 +167,87 @@
     animation-iteration-count:1!important;
   }
 }
+
+
+/* =========================================================
+   FLUID RESPONSIVE BEHAVIOUR — ALL VIEWPORTS
+   Shared safeguards for user, admin and owner screens.
+========================================================= */
+:where(.app,.admin-layout,.owner-dashboard-page) {
+  min-width:0;
+  max-width:100%;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where(*, *::before, *::after) {
+  box-sizing:border-box;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where(img,video,canvas,svg) {
+  max-width:100%;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where(input,select,textarea,button) {
+  max-width:100%;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where(input:not([type=checkbox]):not([type=radio]),select,textarea) {
+  min-width:0;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where([class*="grid"],[class*="Grid"]) {
+  min-width:0;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where([class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"]) {
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+:where(.app,.admin-layout,.owner-dashboard-page) :where(table) {
+  max-width:100%;
+}
+@media (min-width:1440px) {
+  .app.keerthana-app-layout .main-content { padding-inline:clamp(36px,3vw,64px); }
+  .app.keerthana-app-layout .main-content > * { max-width:1760px; }
+}
+@media (min-width:769px) and (max-width:1024px) {
+  .app.keerthana-app-layout .main-content { padding-inline:20px; }
+  .app.keerthana-app-layout .app-body { width:calc(100% - 224px); margin-left:224px; }
+  .admin-layout .admin-main { width:calc(100% - 220px); margin-left:220px; padding:18px; }
+  .admin-layout .admin-content { padding:22px; }
+  .admin-sidebar { width:220px; }
+  .admin-sidebar .admin-nav-item { gap:10px; }
+}
+@media (max-width:768px) {
+  .admin-layout { display:block; width:100%; min-width:0; overflow-x:clip; }
+  .admin-layout .admin-main {
+    width:100%;
+    min-width:0;
+    margin:0;
+    padding:16px 14px calc(100px + env(safe-area-inset-bottom,0px));
+  }
+  .admin-layout .admin-content {
+    width:100%;
+    min-width:0;
+    max-width:none;
+    min-height:0;
+    padding:clamp(15px,3vw,22px);
+  }
+  .admin-layout .admin-sidebar {
+    max-width:min(86vw,280px);
+  }
+  .admin-layout :where(.admin-table-wrapper,.admin-song-table-wrapper,[class*="table-wrapper"],[class*="table-container"]) {
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .owner-dashboard-page { width:100%; min-width:0; }
+  .owner-dashboard-main { width:100%; min-width:0; }
+}
+@media (max-width:480px) {
+  .admin-layout .admin-main { padding:12px 10px calc(92px + env(safe-area-inset-bottom,0px)); }
+  .admin-layout .admin-content { padding:14px; border-radius:15px; }
+  .admin-layout .admin-content :where(input,select,textarea) { width:100%; min-width:0; }
+  .admin-layout .admin-content :where(button) { max-width:100%; }
+  .owner-dashboard-page { overflow-x:clip; }
+  .owner-dashboard-main { padding-inline:12px; }
+}
+@media (max-width:360px) {
+  .admin-layout .admin-main { padding-inline:8px; }
+  .admin-layout .admin-content { padding:12px; }
+}
