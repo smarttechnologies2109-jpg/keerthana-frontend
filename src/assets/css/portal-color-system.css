@@ -1,0 +1,95 @@
+/* =========================================================
+   KEERTHANA — PORTAL-WIDE NO-BLUE COLOR SYSTEM
+   Deep plum • Royal violet • Amethyst • Champagne gold
+   Loaded last so page-specific legacy blue accents are unified.
+========================================================= */
+:root {
+  --k-bg:#100b19;
+  --k-bg-soft:#171020;
+  --k-surface:#21162c;
+  --k-surface-raised:#2b1c39;
+  --k-surface-hover:#352044;
+  --k-purple:#9b5de5;
+  --k-purple-bright:#c08af5;
+  --k-purple-deep:#6330a0;
+  --k-magenta:#c34c9b;
+  --k-gold:#edce86;
+  --k-text:#fbf8ff;
+  --k-muted:#c1b4cf;
+  --k-border:rgba(220,195,245,.14);
+  --home-blue:var(--k-purple);
+  --home-blue-light:var(--k-purple-bright);
+  --home-blue-dark:var(--k-purple-deep);
+  --search-blue:var(--k-purple);
+  --search-blue-hover:var(--k-purple-bright);
+  --search-blue-soft:rgba(155,93,229,.18);
+  --library-blue:var(--k-purple);
+  --library-blue-light:var(--k-purple-bright);
+  --player-blue:var(--k-purple);
+  --profile-blue:var(--k-purple);
+  --profile-blue-dark:var(--k-purple-deep);
+}
+.app,.app.keerthana-app-layout {
+  --accent:#a66af0;
+  --accent-color:#a66af0;
+  --primary:#9b5de5;
+  --primary-color:#9b5de5;
+  --primary-dark:#6330a0;
+  --link-color:#c08af5;
+}
+.app .main-content a:not([class*="button"]):not([class*="btn"]) {color:#c08af5}
+.app .main-content :is(button,a,[role="button"]):focus-visible {outline-color:#edce86!important}
+.app .main-content :is([class*="blue"],[class*="Blue"]) {
+  --blue:#9b5de5;
+  --blue-light:#c08af5;
+  --blue-dark:#6330a0;
+  border-color:rgba(192,138,245,.32);
+}
+.app .main-content :is([class*="blue"],[class*="Blue"]):not(svg):not(path) {
+  color:#d9baff;
+}
+.app .main-content :is([class*="blue"],[class*="Blue"]):is(button,a,[role="button"]) {
+  background-image:linear-gradient(115deg,#6330a0,#9b5de5 58%,#b64c9c)!important;
+  color:#fff!important;
+}
+.app .main-content :is(button[class*="primary"],a[class*="primary"],[class*="primary-button"],[class*="btn-primary"]) {
+  background:linear-gradient(115deg,#6330a0,#9b5de5 58%,#b64c9c)!important;
+  border-color:rgba(192,138,245,.32)!important;
+  color:#fff!important;
+  box-shadow:0 9px 24px rgba(111,55,164,.24);
+}
+.app .main-content :is([class*="active"],[aria-current="page"]) {
+  --active-accent:#c08af5;
+}
+.app .main-content :is([class*="active"],[aria-current="page"]) :is(svg,i) {
+  color:#edce86;
+}
+/* Replace legacy blue page canvases and card gradients */
+.app .main-content .home-page {
+  --home-blue:#9b5de5;
+  --home-blue-light:#c08af5;
+  --home-blue-dark:#6330a0;
+  --home-border-hover:rgba(192,138,245,.42);
+}
+.app .main-content .home-language-card,
+.app .main-content .home-welcome-banner,
+.app .main-content .home-bible-card {
+  background-color:#281637;
+  border-color:rgba(220,195,245,.18);
+}
+.app .main-content .home-welcome-banner {
+  background:radial-gradient(circle at 85% 20%,rgba(195,76,155,.2),transparent 36%),linear-gradient(120deg,#281637,#54265f 65%,#713b72)!important;
+}
+.app .main-content .home-bible-card {
+  background:radial-gradient(circle at 90% 10%,rgba(237,206,134,.13),transparent 35%),linear-gradient(120deg,#21162c,#40254f)!important;
+}
+/* Player progress, sliders, selection and focus accents */
+.app :is(input[type="range"],progress) {accent-color:#a66af0}
+.app ::selection {background:rgba(155,93,229,.38);color:#fff}
+.app .main-content :is(input,select,textarea):focus {
+  border-color:#b77aff!important;
+  box-shadow:0 0 0 3px rgba(155,93,229,.18)!important;
+}
+@media(prefers-reduced-motion:reduce) {
+  .app *, .app *::before, .app *::after {scroll-behavior:auto!important}
+}
