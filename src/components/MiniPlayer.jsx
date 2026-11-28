@@ -24,6 +24,7 @@ import { useAuth } from "../context/AuthContext";
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
 import { getSongCover, getMediaUrl } from "../utils/media";
 import "../assets/css/mini-player.css";
+import { usePlayerTranslations } from "../utils/playerTranslations";
 import { Capacitor } from "@capacitor/core";
 /* =========================================================
    TIME FORMAT
@@ -208,6 +209,7 @@ function SongTitleLines({ song, className = "" }) {
    MINI PLAYER
 \\\========================================================= */
 export default function MiniPlayer({ onExpand }) {
+const t = usePlayerTranslations();
 const isAndroidNative =
   Capacitor.isNativePlatform() &&
   Capacitor.getPlatform() === "android";
@@ -848,8 +850,8 @@ const isAndroidNative =
                   className={isShuffle ? "is-active" : ""}
                   onClick={toggleShuffle}
                   disabled={nextSongs.length === 0}
-                  aria-label="Shuffle"
-                  title="Shuffle"
+                  aria-label={t("shuffle")}
+                  title={t("shuffle")}
                >
                   <FaRandom />
                 </button>
@@ -857,8 +859,8 @@ const isAndroidNative =
                   type="button"
                   onClick={previousSong}
                   disabled={nextSongs.length === 0}
-                  aria-label="Previous song"
-                  title="Previous"
+                  aria-label={t("previous")}
+                  title={t("previous")}
                >
                   <FaStepBackward />
                 </button>
@@ -866,8 +868,8 @@ const isAndroidNative =
                   type="button"
                   className="mini-player-seek-button"
                   onClick={() => seekBackward(10)}
-                  aria-label="Rewind 10 seconds"
-                  title="Rewind 10 seconds"
+                  aria-label={t("rewind")}
+                  title={t("rewind")}
                >
                   <FaUndo />
                   <span>10</span>
@@ -884,8 +886,8 @@ const isAndroidNative =
                   type="button"
                   className="mini-player-seek-button"
                   onClick={() => seekForward(10)}
-                  aria-label="Forward 10 seconds"
-                  title="Forward 10 seconds"
+                  aria-label={t("forward")}
+                  title={t("forward")}
                >
                   <FaRedo />
                   <span>10</span>
@@ -894,8 +896,8 @@ const isAndroidNative =
                   type="button"
                   onClick={nextSong}
                   disabled={nextSongs.length === 0}
-                  aria-label="Next song"
-                  title="Next"
+                  aria-label={t("next")}
+                  title={t("next")}
                >
                   <FaStepForward />
                 </button>
@@ -905,8 +907,8 @@ const isAndroidNative =
                     repeatMode !== "off" ? "is-active" : ""
                   }
                   onClick={toggleRepeat}
-                  aria-label="Repeat"
-                  title="Repeat"
+                  aria-label={t("repeat")}
+                  title={t("repeat")}
                >
                   <FaRedoAlt />
                   {repeatMode === "one" && (
@@ -947,7 +949,7 @@ const isAndroidNative =
                 }`}
                 onClick={openLyrics}
                 aria-label="Open lyrics"
-                title="Lyrics"
+                title={t("lyrics")}
              >
                 <FaMicrophone />
                 <span>Lyrics</span>
@@ -961,7 +963,7 @@ const isAndroidNative =
                 ref={queueButtonRef}
                 aria-label="Toggle queue"
                 aria-expanded={queueOpen}
-                title="Queue"
+                title={t("queue")}
              >
                 <FaListUl />
                 <span>Queue</span>
