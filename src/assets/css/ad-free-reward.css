@@ -329,3 +329,114 @@
 @media(prefers-reduced-motion:reduce) {
   .ad-free-page *, .ad-free-page *::before, .ad-free-page *::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+
+/* =========================================================
+   KEERTHANA REWARDS — AURORA EDITION
+   Porcelain surfaces, aubergine depth, violet action,
+   and coral highlights. Reward behaviour is unchanged.
+========================================================= */
+.ad-free-page {
+  --reward-ink:#2b1d3b;
+  --reward-muted:#81758f;
+  --reward-violet:#8052d6;
+  --reward-violet-deep:#6334b7;
+  --reward-coral:#d77a62;
+  min-height:75vh;
+  color:var(--reward-ink);
+  background:
+    radial-gradient(ellipse at 7% 3%,rgba(151,111,221,.13),transparent 34%),
+    radial-gradient(ellipse at 95% 30%,rgba(244,155,132,.12),transparent 30%),
+    #f5f2fa;
+}
+.ad-free-shell {max-width:1160px;gap:17px}
+.ad-free-topbar {
+  min-height:174px;border:1px solid rgba(124,81,184,.15);border-radius:26px;
+  background:
+    radial-gradient(circle at 90% 15%,rgba(255,255,255,.18),transparent 28%),
+    radial-gradient(circle at 78% 100%,rgba(235,142,129,.22),transparent 34%),
+    linear-gradient(112deg,#38204f 0%,#5c347d 55%,#8053a4 100%);
+  box-shadow:0 23px 55px rgba(60,34,82,.2),inset 0 1px rgba(255,255,255,.14);
+}
+.ad-free-topbar::after {border-color:rgba(255,255,255,.16);box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025)}
+.ad-free-topbar-kicker,.ad-free-how-kicker {color:#ffd0b9}
+.ad-free-topbar h2 {color:#fff8ff}
+.ad-free-topbar p {color:rgba(255,245,255,.76)}
+.ad-free-topbar-mark {
+  border-color:rgba(255,255,255,.25);background:linear-gradient(145deg,rgba(255,255,255,.19),rgba(246,171,150,.16));
+  color:#fff0e9;box-shadow:0 12px 32px rgba(28,13,43,.2);
+}
+.ad-free-feature-row>div {
+  border-color:rgba(91,61,119,.1);border-radius:14px;background:rgba(255,255,255,.86);
+  color:#655570;box-shadow:0 8px 22px rgba(58,37,75,.045);
+}
+.ad-free-feature-row svg {color:#8052d6}
+.ad-free-card {
+  border:1px solid rgba(91,61,119,.11);border-radius:24px;
+  background:radial-gradient(circle at 50% 0,rgba(151,111,221,.11),transparent 36%),linear-gradient(155deg,#fff,#fbf8ff 75%);
+  color:#2b1d3b;box-shadow:0 20px 55px rgba(58,37,75,.1),inset 0 1px #fff;
+}
+.ad-free-icon {
+  border:1px solid rgba(128,82,214,.15);
+  background:linear-gradient(145deg,#f0e8ff,#fff0e9);color:#8052d6;
+  box-shadow:0 12px 30px rgba(91,57,133,.1);
+}
+.ad-free-eyebrow {color:#9367c2}
+.ad-free-card h1 {color:#2e1f3e}
+.ad-free-description {color:#81758f}
+.ad-free-benefit {
+  border:1px solid rgba(128,82,214,.12);
+  background:linear-gradient(110deg,#f4effc,#fff7f3);
+}
+.ad-free-benefit-icon {background:#eee5fc;color:#8052d6}
+.ad-free-benefit strong {color:#392748}
+.ad-free-benefit span {color:#8a7e96}
+.ad-free-status {
+  border:1px solid rgba(91,61,119,.13);border-radius:16px;
+  background:linear-gradient(135deg,#f8f5fc,#fff);
+}
+.ad-free-status-heading {color:#8b7c98}
+.ad-free-status-pulse {background:#d77a62;box-shadow:0 0 0 4px rgba(215,122,98,.13)}
+.ad-free-status.is-active {border-color:rgba(52,155,111,.22);background:linear-gradient(120deg,#effaf4,#f8fffb)}
+.ad-free-status.is-active .ad-free-status-pulse {background:#36a878;box-shadow:0 0 0 4px rgba(54,168,120,.12)}
+.ad-free-status>p {color:#756881}
+.ad-free-status>strong {color:#30213e}
+.ad-free-status-active {color:#25845c}
+.ad-free-status-inactive {color:#bd7059}
+.ad-free-watch-button {
+  min-height:56px;border:0;border-radius:14px;
+  background:linear-gradient(110deg,#8052d6,#6334b7 70%,#7950bd);
+  color:#fff;box-shadow:0 12px 27px rgba(99,52,183,.22);
+  transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;
+}
+.ad-free-watch-button:not(:disabled):hover {transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 16px 32px rgba(99,52,183,.27)}
+.ad-free-watch-button:disabled {opacity:.55;filter:saturate(.65);box-shadow:none}
+.ad-free-refresh-button {
+  min-height:46px;border:1px solid rgba(128,82,214,.2);border-radius:12px;
+  background:#f3edfc;color:#7548bd;
+}
+.ad-free-refresh-button:not(:disabled):hover {background:#eae0fa}
+.ad-free-message.success {border-color:rgba(52,155,111,.2);background:#edf9f2;color:#26744f}
+.ad-free-message.error {border-color:rgba(199,91,112,.2);background:#fff0f1;color:#a83f54}
+.ad-free-security {border-top-color:rgba(91,61,119,.1);color:#8a7e96}
+.ad-free-security svg {color:#8052d6}
+.ad-free-how-card {
+  border:1px solid rgba(91,61,119,.11);border-radius:24px;
+  background:linear-gradient(155deg,#fff,#fbf8ff);
+  box-shadow:0 18px 45px rgba(58,37,75,.075),inset 0 1px #fff;
+}
+.ad-free-how-kicker {color:#9367c2}
+.ad-free-how-card h3 {color:#30213e}
+.ad-free-how-card li>span {border-color:rgba(128,82,214,.15);background:#f1eafd;color:#8052d6}
+.ad-free-how-card li strong {color:#3b2948}
+.ad-free-how-card li small {color:#8a7e96}
+.ad-free-how-card>p {border-top-color:rgba(91,61,119,.1);color:#8a7e96}
+.ad-free-how-card>p svg {color:#d77a62}
+.ad-free-page :where(button,a):focus-visible {outline:2px solid #9b70df;outline-offset:3px}
+@media(max-width:760px) {
+  .ad-free-topbar {border-radius:21px}
+  .ad-free-card,.ad-free-how-card {border-radius:20px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .ad-free-page *, .ad-free-page *::before, .ad-free-page *::after {animation:none!important;transition:none!important}
+}
