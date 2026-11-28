@@ -1,49 +1,22 @@
 import { useEffect, useRef } from "react";
 
 /*
- * Lightweight player visualizer. Uses one MediaElementSource per audio
- * element and keeps the audio routed through the original output.
- * If Web Audio is unavailable, a CSS animation remains as a graceful fallback.
+ * Decorative, low-cost visualizer.
+ *
+ * Intentionally does not create a MediaElementAudioSourceNode. Connecting a
+ * cross-origin audio element to Web Audio can silence playback when the media
+ * host does not grant CORS access. Keeping visualization independent ensures
+ * the browser's native audio output remains untouched on desktop and Android.
  */
-const audioGraphs = new WeakMap();
-
-function getAnalyser(audio) {
-  if (!audio || typeof window === "undefined") return null;
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return null;
-  try {
-    let graph = audioGraphs.get(audio);
-    if (!graph) {
-      const context = new AudioContextClass();
-      const source = context.createMediaElementSource(audio);
-      const analyser = context.createAnalyser();
-      analyser.fftSize = 128;
-      analyser.smoothingTimeConstant = 0.82;
-      source.connect(analyser);
-      analyser.connect(context.destination);
-      graph = { context, analyser };
-      audioGraphs.set(audio, graph);
-    }
-    if (graph.context.state === "suspended") graph.context.resume().catch(() => {});
-    return graph.analyser;
-  } catch (error) {
-    // A media element may already be connected by another feature/browser.
-    console.debug("KEERTHANA visualizer fallback:", error);
-    return null;
-  }
-}
-
 export default function AudioVisualizer({ audio, isPlaying }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context2d = canvas?.getContext("2d");
-    if (!canvas || !context2d) return undefined;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return undefined;
 
     let frame = 0;
-    let analyser = null;
-    let data = null;
     let phase = 0;
     let active = true;
 
@@ -53,51 +26,54 @@ export default function AudioVisualizer({ audio, isPlaying }) {
       const height = Math.max(1, canvas.clientHeight);
       canvas.width = Math.round(width * ratio);
       canvas.height = Math.round(height * ratio);
-      context2d.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
+
     resize();
-    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(resize)
+      : null;
     observer?.observe(canvas);
 
     const draw = () => {
       if (!active) return;
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      context2d.clearRect(0, 0, width, height);
-      if (isPlaying && audio && !analyser) {
-        analyser = getAnalyser(audio);
-        if (analyser) data = new Uint8Array(analyser.frequencyBinCount);
-      }
-      if (analyser && data && isPlaying) analyser.getByteFrequencyData(data);
+      context.clearRect(0, 0, width, height);
 
-      const bars =  fortyBars;
+      const bars = 40;
       const gap = 3;
-      const barWidth = Math.max(2, (width - gap * (bars - 1)) / bars);
+      const barWidth = Math.max(1, (width - gap * (bars - 1)) / bars);
+
       for (let index = 0; index < bars; index += 1) {
-        const frequency = data ? data[Math.floor(index / bars * data.length)] / 255 : 0;
-        const wave = (Math.sin(phase + index * 0.55) + 1) / 2;
-        const level = isPlaying ? Math.max(0.12, frequency || wave * 0.34) : 0.08;
-        const barHeight = Math.max(3, level * height * 0.92);
+        const envelope = 0.5 + 0.5 * Math.sin((index / bars) * Math.PI);
+        const wave = (Math.sin(phase + index * 0.52) + 1) / 2;
+        const level = isPlaying
+          ? (0.14 + wave * 0.72) * envelope
+          : 0.09 * envelope;
+        const barHeight = Math.max(2, level * height * 0.9);
         const x = index * (barWidth + gap);
-        const gradient = context2d.createLinearGradient(0, height - barHeight, 0, height);
-        gradient.addColorStop(0, "#f2d89e");
-        gradient.addColorStop(1, "#669dff");
-        context2d.fillStyle = gradient;
-        context2d.globalAlpha = isPlaying ? 0.95 : 0.38;
         const y = (height - barHeight) / 2;
-        const radius = Math.min(3, barWidth / 2);
-        if (typeof context2d.roundRect === "function") {
-          context2d.beginPath();
-          context2d.roundRect(x, y, barWidth, barHeight, radius);
-          context2d.fill();
+        const gradient = context.createLinearGradient(0, y, 0, y + barHeight);
+        gradient.addColorStop(0, "#f2d89e");
+        gradient.addColorStop(1, "#a66af0");
+        context.fillStyle = gradient;
+        context.globalAlpha = isPlaying ? 0.92 : 0.32;
+
+        if (typeof context.roundRect === "function") {
+          context.beginPath();
+          context.roundRect(x, y, barWidth, barHeight, Math.min(3, barWidth / 2));
+          context.fill();
         } else {
-          context2d.fillRect(x, y, barWidth, barHeight);
+          context.fillRect(x, y, barWidth, barHeight);
         }
       }
-      context2d.globalAlpha = 1;
-      phase += isPlaying ? 0.09 : 0.015;
+
+      context.globalAlpha = 1;
+      phase += isPlaying ? 0.085 : 0.012;
       frame = window.requestAnimationFrame(draw);
     };
+
     frame = window.requestAnimationFrame(draw);
     return () => {
       active = false;
@@ -107,11 +83,13 @@ export default function AudioVisualizer({ audio, isPlaying }) {
   }, [audio, isPlaying]);
 
   return (
-    <div className={`keerthana-audio-visualizer ${isPlaying ? "is-playing" : ""}`} aria-label={isPlaying ? "Audio visualizer active" : "Audio visualizer paused"} role="img">
+    <div
+      className={`keerthana-audio-visualizer ${isPlaying ? "is-playing" : ""}`}
+      aria-label={isPlaying ? "Audio visualizer active" : "Audio visualizer paused"}
+      role="img"
+    >
       <span className="visualizer-label">LIVE AUDIO</span>
       <canvas ref={canvasRef} />
     </div>
   );
 }
-
-const fortyBars = 40;
