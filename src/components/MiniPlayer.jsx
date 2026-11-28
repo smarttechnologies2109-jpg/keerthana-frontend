@@ -232,6 +232,10 @@ const isAndroidNative =
   const [songsById, setSongsById] = useState({});
   const [fetchedLyrics, setFetchedLyrics] = useState({ songId: null, text: "" });
   const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [lyricsFontSize, setLyricsFontSize] = useState(20);
+  const [lyricsTranslation, setLyricsTranslation] = useState(false);
+  const [lyricsFocusMode, setLyricsFocusMode] = useState(false);
+  const [lyricsSyncOffset, setLyricsSyncOffset] = useState(0);
   /* =======================================================
      SONG DATA
   ======================================================= */
@@ -247,9 +251,11 @@ const isAndroidNative =
     (String(fetchedLyrics.songId) === String(currentSongId)
       ? fetchedLyrics.text
       : "");
+  const translatedLyrics = [currentSong?.lyrics_translation, currentSong?.translated_lyrics, currentSong?.lyrics_english].find((value) => typeof value === "string" && value.trim()) || "";
+  const visibleLyrics = lyricsTranslation && translatedLyrics ? translatedLyrics : lyrics;
   const syncedLyrics = useMemo(
-    () => parseLyrics(lyrics),
-    [lyrics]
+    () => parseLyrics(visibleLyrics),
+    [visibleLyrics]
   );
   const safeDuration = Number.isFinite(Number(duration))
     ? Math.max(0, Number(duration))
@@ -265,14 +271,14 @@ const isAndroidNative =
       index < syncedLyrics.length;
       index += 1
     ) {
-      if (displayedTime>= syncedLyrics[index].time) {
+      if (displayedTime + lyricsSyncOffset >= syncedLyrics[index].time) {
         active = index;
       } else {
         break;
       }
     }
     return active;
-  }, [displayedTime, syncedLyrics]);
+  }, [displayedTime, syncedLyrics, lyricsSyncOffset]);
   const cover = currentSong ? getSongCover(currentSong) : "";
   const liked = currentSong?.id
     ? isLiked(currentSong.id)
@@ -526,6 +532,12 @@ const isAndroidNative =
               KEERTHANA MUSIC
             </span>
             <h2>Live Lyrics</h2>
+            <div className="lyrics-pro-toolbar">
+              <button type="button" onClick={() => setLyricsFontSize((v) => Math.max(14, v - 2))} aria-label="Decrease lyrics font size">A−</button>
+              <button type="button" onClick={() => setLyricsFontSize((v) => Math.min(34, v + 2))} aria-label="Increase lyrics font size">A+</button>
+              <button type="button" onClick={() => setLyricsFocusMode((v) => !v)} aria-pressed={lyricsFocusMode}>{lyricsFocusMode ? "Exit focus" : "Focus"}</button>
+              {translatedLyrics && <button type="button" onClick={() => setLyricsTranslation((v) => !v)} aria-pressed={lyricsTranslation}>{lyricsTranslation ? "Original" : "Translate"}</button>}
+            </div>
             <span className="mini-lyrics-live-badge">● LIVE SYNC</span>
             <p>
               {getEnglishTitle(currentSong)} ·{" "}
@@ -542,7 +554,7 @@ const isAndroidNative =
             <FaTimes />
           </button>
         </header>
-        <div className="mini-lyrics-content">
+        <div className={`mini-lyrics-content${lyricsFocusMode ? " lyrics-focus-mode" : ""}`} style={{ "--lyrics-font-size": `${lyricsFontSize}px`, backgroundImage: cover ? `linear-gradient(rgba(4,12,28,.94),rgba(4,12,28,.98)), url("${cover}")` : undefined }}>
           {lyricsLoading && !lyrics ? (
             <div className="mini-panel-empty" role="status">
               <FaMicrophone />
@@ -573,16 +585,16 @@ const isAndroidNative =
                       ? "mini-lyric-line active"
                       : "mini-lyric-line"
                   }
-                  onClick={() => seek(line.time)}
+                  onClick={() => seek(Math.max(0, line.time - lyricsSyncOffset))}
                   title="Jump to this lyric"
                >
-                  <span>{line.text}</span>
+                  <span style={{ fontSize: "var(--lyrics-font-size, 20px)" }}>{line.text}</span>
                   {index === activeLyricIndex && <small className="mini-lyrics-live-indicator">NOW PLAYING</small>}
                 </button>
               ))}
             </div>
           ) : (
-            <div className="mini-plain-lyrics">
+            <div className="mini-plain-lyrics" style={{ fontSize: `${lyricsFontSize}px` }}>
               {lyrics.split(/\r?\n/).map((line, index) => (
                 <p key={`${index}-${line}`}>
                   {line || "\u00A0"}
