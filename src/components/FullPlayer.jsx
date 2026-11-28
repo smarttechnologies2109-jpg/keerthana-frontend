@@ -61,6 +61,7 @@ getMediaUrl,
 } from "../utils/media";
 
 import "../assets/css/full-player.css";
+import { usePlayerTranslations } from "../utils/playerTranslations";
 
 import VerticalVolumeControl from "../components/VerticalVolumeControl";
 import SleepTimerControl from "./SleepTimerControl";
@@ -267,6 +268,7 @@ function getArtistName(song, artistsById = {}, songsById = {}) {
 }
 
 export default function FullPlayer({ onCollapse }) {
+const t = usePlayerTranslations();
 const isAndroidNative =
   Capacitor.isNativePlatform() &&
   Capacitor.getPlatform() === "android";
@@ -886,9 +888,9 @@ onClick={toggleShuffle}
 
 disabled={upNext.length === 0}
 
-title="Shuffle"
+title={t("shuffle")}
 
-aria-label="Shuffle"
+aria-label={t("shuffle")}
 
 >
 
@@ -904,9 +906,9 @@ onClick={previousSong}
 
 disabled={upNext.length === 0}
 
-title="Previous"
+title={t("previous")}
 
-aria-label="Previous song"
+aria-label={t("previous")}
 
 >
 
@@ -922,9 +924,9 @@ className="full-player-seek-button"
 
 onClick={() => seekBackward(10)}
 
-title="Rewind 10 seconds"
+title={t("rewind")}
 
-aria-label="Rewind 10 seconds"
+aria-label={t("rewind")}
 
 >
 
@@ -960,9 +962,9 @@ className="full-player-seek-button"
 
 onClick={() => seekForward(10)}
 
-title="Forward 10 seconds"
+title={t("forward")}
 
-aria-label="Forward 10 seconds"
+aria-label={t("forward")}
 
 >
 
@@ -980,9 +982,9 @@ onClick={nextSong}
 
 disabled={upNext.length === 0}
 
-title="Next"
+title={t("next")}
 
-aria-label="Next song"
+aria-label={t("next")}
 
 >
 
@@ -998,9 +1000,9 @@ className={repeatMode !== "off" ? "is-active" : ""}
 
 onClick={toggleRepeat}
 
-title="Repeat"
+title={t("repeat")}
 
-aria-label="Repeat"
+aria-label={t("repeat")}
 
 >
 
