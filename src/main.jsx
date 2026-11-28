@@ -14,6 +14,7 @@ import "./assets/css/app-responsive-polish.css";
 import "./assets/css/player-alignment-fix.css";
 import "./assets/css/portal-color-system.css";
 import "./assets/css/desktop-layout-audit.css";
+import "./assets/css/portal-no-blue-theme.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
