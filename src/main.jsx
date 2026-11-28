@@ -13,6 +13,7 @@ import "./assets/css/brand-experience.css";
 import "./assets/css/app-responsive-polish.css";
 import "./assets/css/player-alignment-fix.css";
 import "./assets/css/portal-color-system.css";
+import "./assets/css/desktop-layout-audit.css";
 
 ReactDOM.createRoot(
   document.getElementById("root")
